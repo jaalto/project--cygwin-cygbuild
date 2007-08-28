@@ -1,9 +1,31 @@
-2007-08-28    <jari aalto A T cante net>
+2007-08-28 Tue  Jari Aalto  <jari dot aalto A T cante dot net>
+
+	* bin/cygbuild.sh (function CygbuildCommandMainCheckHelp()): 1.937
+	Moved  -V|--version here from `CygbuildCommandMain'.
+	(function CygbuildHelpLong()): 1.937 Added new argument $exit.
+	(function CygbuildHelpShort()): 1.937 Added new argument $exit.
+	(CygbuildHelpShort::NOTES): 1.937 Removed checkout instructions.
+
+	* bin/cygbuild-rebuild.pod: (HELP): Removed AVAILABILITY
+
+	* bin/cygbuild.pl: ($URL): Unused variable removed.
+	(top level::$Id): tag removed.
+	(HELP::OPTIONS): Removed version control software names
+	from --checkout option description.
+
+	* README: (Information for developers): Removed sourceforge
+	information. Removed all CVS information and replaced it
+	with generic VCS instructions.
+	(Information for developers::Using CVS commands from Emacs):
+	Topic removed.
+
+	* etc/makefile/vars.mk (TAR_OPT_NO):Ignore git, bzr, hg, RCS.
 
 	* etc/etc/programs.conf (EGREP): Added
 	--binary-files=without-match
 
-	* bin/cygbuild.sh: (CygbuildCygcheckLibraryDepMain): Renamed.
+	* bin/cygbuild.sh: 1.937
+	(CygbuildCygcheckLibraryDepMain): Renamed.
 	Was `CygbuildCygcheckLibraryDep'. Call
 	`CygbuildCygcheckLibraryDepAdjust'. Added check for missing library
 	from package.README.
@@ -18,6 +40,9 @@
 	it multiuser resistant.
 	(CygbuildDefineGlobalCommands::EGREP): Added
 	--binary-files=without-match
+	(top level): Removed CYGBUILD_ID. Moved CYGBUILD_HOMEPAGE_URL
+	and CYGBUILD_VERSION at the beginning.
+	(Help): Display CYGBUILD_VERSION and CYGBUILD_HOMEPAGE_URL.
 
 2007-08-27    <jari aalto A T cante net>
 

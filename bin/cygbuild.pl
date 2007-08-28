@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 #
-# $Id: cygbuild.pl,v 1.258 2007/08/27 13:54:51 jaalto Exp $
-#
 #       Copyright (C)  2003-2007 Jari Aalto
 #       Author:        Jari Aalto
 #       Created:       2003-06
@@ -74,7 +72,7 @@ my $systemEmail = $CYGBUILD_EMAIL    || $EMAIL;
 
 my $CYGWIN_PACKAGE_LIST_DIR = "/var/lib/cygbuild/list";
 
-#   Sites that use RETURN passwords
+#   Sites that use RETURN, i.e. empty, passwords
 my $PASSORD_RET_SITES = 'sourceforge';
 
 #   When called as library (from cygbuild.sh), the PATH isn't there.
@@ -91,11 +89,10 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0819';
+$VERSION = '2007.0828';
 
 # ..................................................................
 
-my $URL       = "http://cygbuild.sourceforge.net/";
 my $LIB       = "cygbuild.pl";
 my $debug     = 0;          # Don't touch. use SetDebug();
 
@@ -208,15 +205,14 @@ build binary package:
 =item B<-c|--checkout>
 
 Package version control files into a custom checkout script. This option is
-meanigful only with command B<[source-package]>. Supported VC systems
-include: CVS, SVN.
+meanigful only with command B<[source-package]>.
 
-Take for example package 'foo' from sourceforge, whose development versions
-can be easily followed with CVS version control software. After the sources
-have been checked out, it is possible to package current snapshot straight
-from the CVS directory tree with this option. It will create a separate
-source script based on current timestamp to retrive same files from version
-control repository.
+Take for example package 'foo', whose development versions can be
+easily followed with version control software. After the sources have
+been checked out, it is possible to package current snapshot straight
+from the directory tree with this option. It will create a separate
+source script based on current timestamp to retrive same files from
+version control repository.
 
 =item B<--cygbuiddir DIR>
 
@@ -938,8 +934,7 @@ http://perl-webget.sourceforge.net/ is used to do the download. The
 configuration file C<CYGWIN-PATCHES/upstream.perl-webget> must contain URL
 and additional parameters how to retrieve newer versions. See
 I<mywebget.pl>'s manual for more information. Here is an example
-configuration file to download and extract new versions of package from
-sourceforge:
+configuration file to download and extract new versions of package:
 
   tag1: foo
     http://prdownloads.sourceforge.net/foo/foo-0.9.1.tar.bz2 new: x:
@@ -1432,6 +1427,9 @@ unconventionally 1 on success and N > 1 on error.
             --exclude='*~'      \
             --exclude='*#'      \
             --exclude='.#*'     \
+            --exclude='.hg'     \
+            --exclude='.bzr'    \
+            --exclude='.git'    \
             --exclude='CVS'     \
             --exclude='RCS'     \
              ...[your options here]...\
@@ -1558,7 +1556,7 @@ Cygwin documentation for package directory C</usr/share/doc/foo-1.12> is
 populated from files in the original package. Those of INSTALL, COPYRIGHT
 and README are copied. Then any C<doc/> directory if it is included. The
 default rules exclude most common files MANIFESt, *.bak, *.rej etc. and
-subdirectories like version control CVS, SVN etc.
+version control subdirectories.
 
 In this file it is possible to supply extra tar options to exclude more
 files not to be included. Perhaps package's C<doc/> directory contains

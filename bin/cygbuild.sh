@@ -96,13 +96,15 @@
 #       not sure if this is what existing X packages use, but this seems
 #       to be the latest reference to paths from the archive.
 
+CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
+CYGBUILD_VERSION="2007.0828.2133"
+CYGBUILD_NAME="cygbuild"
+
 #######################################################################
 #
 #       Initial shell check
 #
 #######################################################################
-
-CYGBUILD_ID="$Id: cygbuild.sh,v 1.937 2007/08/28 14:33:48 jaalto Exp $"
 
 #   Check correct shell and detect user mistakes like this:
 #
@@ -166,24 +168,19 @@ function CygbuildBootVariablesId()
     PATH=/bin:/sbin:/usr/bin:/usr/local/bin:$PATH
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
 
-    CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
+    if [ "" ]; then  # Disabled, work for CVS Id strings only
 
-    #   Extract script name 'cygbuild.sh' from version string
+        CYGBUILD_VERSION=${CYGBUILD_ID##*,v[ ]}
+        CYGBUILD_VERSION=${CYGBUILD_VERSION%%[ ]*}
 
-    CYGBUILD_NAME=${CYGBUILD_ID#*:[ ]}
-    CYGBUILD_NAME=${CYGBUILD_NAME%%,v*}
+        #   This could be more easily done in sed or awk, but it is faster to use
+        #   bash to convert YYYY/MM/DD into ISO8601 format YYYY-MM-DD
 
-    CYGBUILD_VERSION=${CYGBUILD_ID##*,v[ ]}
-    CYGBUILD_VERSION=${CYGBUILD_VERSION%%[ ]*}
+        CYGBUILD_DATE=${CYGBUILD_ID#*.[0-9][0-9][0-9][ ]}   # Delete leading
+        CYGBUILD_DATE=${CYGBUILD_DATE%%[ ]*}                # And trailing
+        CYGBUILD_DATE=${CYGBUILD_DATE//\//-}       # And substitute / with -
+    fi
 
-    #   This could be more easily done in sed or awk, but it is faster to use
-    #   bash to convert YYYY/MM/DD into ISO8601 format YYYY-MM-DD
-
-    CYGBUILD_DATE=${CYGBUILD_ID#*.[0-9][0-9][0-9][ ]}   # Delete leading
-    CYGBUILD_DATE=${CYGBUILD_DATE%%[ ]*}                # And trailing
-    CYGBUILD_DATE=${CYGBUILD_DATE//\//-}       # And substitute / with -
-
-    #CYGBUILD_PROGRAM="$CYGBUILD_NAME $CYGBUILD_DATE $CYGBUILD_VERSION"
     CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_DATE $CYGBUILD_VERSION"
 
     #  Function return values are stored to files, because bash cannot call
@@ -318,7 +315,7 @@ function CygbuildBootVariablesGlobal ()
 
     #   Accept X11 manual pages: package.1x
 
-    CYGBUILD_MAN_SECTION_ADDITIONAL="[x]"  
+    CYGBUILD_MAN_SECTION_ADDITIONAL="[x]"
 
     #  When determining if file is Python or Perl etc, ignore compiled
     #  or library files e.g. under directory:
@@ -916,7 +913,7 @@ CygbuildCygcheckLibraryDepSetup ()
 
     for lib in $(< $file)
     do
-        if ! $EGREP --quiet "^ *requires:.*\<$lib\>" $setup 
+        if ! $EGREP --quiet "^ *requires:.*\<$lib\>" $setup
         then
             CygbuildWarn "-- [ERROR] setup.hint lacks $lib"
         fi
@@ -2748,7 +2745,7 @@ function CygbuildDefineGlobalCompile()
 
         if [ "$CYGBUILD_AM_LDFLAGS" ]; then
             # CYGBUILD_AM_LDFLAGS  global-def
-            CYGBUILD_AM_LDFLAGS="-no-undefined $CYGBUILD_AM_LDFLAGS" 
+            CYGBUILD_AM_LDFLAGS="-no-undefined $CYGBUILD_AM_LDFLAGS"
         else
             CYGBUILD_AM_LDFLAGS="-no-undefined"                 # global-def
         fi
@@ -3249,10 +3246,13 @@ function CygbuildSrcDirLocation()
 function CygbuildHelpShort()
 {
     local id="$0.$FUNCNAME"
+    local exit="$1"
+
     local bin=$(CygbuildBuildScriptPath)
     bin=${bin##*/}      # Delete path
 
     echo "
+Version $CYGBUILD_VERSION <$CYGBUILD_HOMEPAGE_URL>
 Call syntax: $bin [option] CMD ...
 
   -d LEVEL              Debug mode with numeric LEVEL
@@ -3265,7 +3265,7 @@ Call syntax: $bin [option] CMD ...
   -t                    Run in test mode
   -v                    More verbose messages
   -V                    Print version information
-  -x                    Do not strip executables (For perl, sh, python)
+  -x                    Do not strip executables
 
   GPG support options
 
@@ -3290,12 +3290,12 @@ TO USE CYGBUILD FOR MAKING Cygwin Net Releases
         To install      : install
         To check install: check
         To package      : package source-package
-        To sign         : package-sign (run after package|package-source)
+        To sign         : package-sign
         To publish      : publish (copy files to publish area)
 
 CYGBUILD CONTROLLED SOURCE PACKAGE
 
-    "Testing the source builds"
+  Testing the source builds
 
     If you have downloaded a Cygwin source package, like
     package-N.N-RELEASE-src.tar.gz, it should contain at least these
@@ -3314,7 +3314,7 @@ CYGBUILD CONTROLLED SOURCE PACKAGE
     'all' will try to build binary packages and if everything goes ok,
     command 'finish' which removes the unpacked source directory.
 
-    "Testing the source builds - step by step"
+  Testing the source builds - step by step
 
     To see the results of source compilation, the commands must to be run
     one by one are:
@@ -3328,20 +3328,20 @@ CYGBUILD CONTROLLED SOURCE PACKAGE
 NOTES
 
     The long --help option consults a separate manual. To read it, full
-    suite can be installed running:
+    cugbuild installation is needed.
 
-        cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cygbuild co cygbuild
-        cd cygbuild ; make install-in-place
-
-    For more information about porting packages to Cygwin, refer to
+    For more information about porting packages to Cygwin, read
     <http://cygwin.com/setup.html>.
 "
+
+    [ "$exit" ] && exit $exit
 }
 
 function CygbuildHelpLong()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local exit="$1"
     local bin
 
     CygbuildCommandPath cygbuild.pl > $retval &&
@@ -3349,8 +3349,9 @@ function CygbuildHelpLong()
 
     if [ "$bin" ]; then
         $bin help
+        [ "$exit" ] && exit $exit
     else
-        CygbuildHelpShort
+        CygbuildHelpShort $exit
         CygbuildWarn "[ERROR] Cannot find long help page." \
              "You need to install $CYGBUILD_HOMEPAGE_URL"
     fi
@@ -3972,14 +3973,14 @@ function CygbuildReadmeReleaseMatchCheck()
     # extract line: ----- version 3.5-2 -----
     # where 3.5-2 => "3.5 2"
 
-    local -a arr=( $( 
-        $AWK ' /^-.*version / { 
+    local -a arr=( $(
+        $AWK ' /^-.*version / {
                                 gsub("^-.*version[ \t]+","");
                                 ver=$1;
                                 i = split(ver, arr, /-/);
                                 print arr[1] " " arr[2];
                                 exit;
-         }' $file 
+         }' $file
     ))
 
     local ver=${arr[0]}
@@ -5042,7 +5043,7 @@ function CygbuildCmdPkgSourceCvsMain()
     local debug=${OPTION_DEBUG:-0}
     local template=$DIR_CYGPATCH/vc-cvs-$SCRIPT_SOURCE_GET_TEMPLATE
 
-    [ ! -f "$template" ] && 
+    [ ! -f "$template" ] &&
         CygbuildDie "-- [FATAL] Can't fund template $template"
 
     $PERL -e "require qq($module);  SetDebug($debug); \
@@ -6462,7 +6463,7 @@ CygbuildCmdGetSource ()
 
     if [ ! -f "$archive" ]; then
         $WGET --no-directories --no-host-directories --timestamping \
-            "$url/$dir/setup.hint" "$url/$path" 
+            "$url/$dir/setup.hint" "$url/$path"
     fi
 
     echo "-- Wait, extracting source and preparing *.patch file"
@@ -6492,12 +6493,12 @@ CygbuildCmdGetSource ()
     elif [ "$patch" ]; then
         local cygdir="${DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
 
-        [ ! -d "$cygdir" ] && 
+        [ ! -d "$cygdir" ] &&
         $fdiff -i "*CYGWIN*" $patch | patch -p1 --forward
 
         local file=${patch%.patch}-rest.patch
 
-        [ ! -f "$file" ] && 
+        [ ! -f "$file" ] &&
         $fdiff -x "*CYGWIN*" $patch > $file
 
         echo "-- Content of $file"
@@ -6760,7 +6761,7 @@ function CygbuildConfOptionAdjustment()
         opt=${str%%=*}      # --prefix=/usr  => --prefix
 
         if CygbuildGrepCheck "^[^#]*$opt" $conf ; then
-            [ "$verbose" ] && 
+            [ "$verbose" ] &&
             CygbuildWarn "--   [INFO] configure supports $opt"
 
             ret="$ret $str"
@@ -8405,7 +8406,7 @@ function CygbuildCmdInstallCheckBinFiles()
             status=1
 
         elif [[ "$str" == *perl*   ]] && [[ ! $depends == *perl* ]] ; then
-            echo "--   [ERROR] setup.hint may need Perl dependency" \ 
+            echo "--   [ERROR] setup.hint may need Perl dependency" \
                  "for $name"
             status=1
 
@@ -8544,7 +8545,7 @@ function CygbuildCmdInstallSymlinkExe()
     $FIND $instdir -type l -name '*.exe' > $retval
 
     if [ -s $retval ]; then
-        echo "-- [ERROR] Symlinks must not end to .exe." 
+        echo "-- [ERROR] Symlinks must not end to .exe."
             "Recompile with coreutils 6.9 installed."
         return 1
     fi
@@ -8780,7 +8781,7 @@ function CygbuildCmdStripMain()
 
     done
 
-    if [ "$list" ]; then 
+    if [ "$list" ]; then
         strip $list
     elif [ ! "$done" ]; then
         CygbuildWarn "--   [NOTE] Hm, no installed files to strip."
@@ -9216,12 +9217,14 @@ function CygbuildCommandMainCheckHelp()
     do
         case "$tmp" in
             -h|help)
-                CygbuildHelpShort
-                exit 1
+                CygbuildHelpShort 0
                 ;;
             --help)
-                CygbuildHelpLong
-                exit 1
+                CygbuildHelpLong 0
+                ;;
+            -V|--version)
+                echo "$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
+                exit 0
                 ;;
         esac
     done
@@ -9242,10 +9245,6 @@ function CygbuildCommandMain()
 
     if [[ "$1" == *+(cygbuild|.sh) ]]; then
         shift
-    fi
-
-    if [[ "$*" != *+(-V|--version) ]]; then
-        echo "-- $CYGBUILD_PROGRAM $CYGBUILD_HOMEPAGE_URL"
     fi
 
     CygbuildDefineGlobalCommands
@@ -9485,7 +9484,7 @@ function CygbuildCommandMain()
     do
         case $opt in
 
-          getsrc)               shift 
+          getsrc)               shift
                                 arg="$1"
                                 shift
                                 CygbuildCmdGetSource "$arg"

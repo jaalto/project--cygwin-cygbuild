@@ -74,10 +74,6 @@ cygbuild.sh(1)
 
 None known.
 
-=head1 AVAILABILITY
-
-http://cygbuild.sourceforge.net/
-
 =head1 VERSION
 
 $Id: cygbuild-rebuild.pod,v 1.5 2007/08/21 06:37:18 jaalto Exp $

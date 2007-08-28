@@ -29,8 +29,8 @@ Project Description
 
     Requirements
 
-        This is README file of *cygbuild* Sourceforge project. The are no
-        files that would need to be compiled. The project uses intepreted
+        This is README file of *cygbuild* project. The are no files
+        that would need to be compiled. The project uses intepreted
         languages. To install and run these utilities, you need:
 
         o   Bash            2.04
@@ -39,9 +39,7 @@ Project Description
 
     Description
 
-        Sourceforge project's description at
-        http://www.sourceforge.net/projects/cygwin-summary (255
-        characters) reads:
+        Short project's description
 
             Utilities for Win32 Cygwin source and binary package
             maintainers. To configure, build, strip, produce diffs and
@@ -106,7 +104,7 @@ Project Description
             build and release numbers.
         o   Recognizes Perl packages and treats them accordingly.
         o   Ability to package both binary and source packages
-            straight from CVS sources.
+            straight from version control sources.
         o   Extensible. Written in bash and uses Perl module cygbuild.pl for
             tasks that are too hard or slow for bash.
 
@@ -120,34 +118,33 @@ Project Description
 
 Package install instructions
 
-    Installing from sourceforge package
+    Installing package
 
         <see `index.html' for this section>
 
-    Installing from a CVS checkout
+    Installing from a version control checkout:
 
-        Details how to check out the project can ve found from Sourceforge.
-        After checkout, help is vailable at:
+        Details how to check out the project can ve found from
+        project page. After checkout, help is vailable at:
 
             make help
 
-        Following commands brings the project to the latest versions.
-        The `install-in-place' does not copy the files to /usr/bin,
-        but only creates symbolic links to the latest source script
-        files
+        Following command updates current environment to the latest
+        versions. The `install-in-place' does not copy the files to
+        /usr/bin, but uses symbolic links.
 
-            $ cd <project-dir>/sourceforge/cygbuild
+            $ cd <project-dir>/cygbuild
             $ make install-in-place
 
         After that, to keep project up to date:
 
-            $ cd <project-dir>/sourceforge/cygbuild
-            $ cvs up
+            $ cd <project-dir>/cygbuild
+            $ git pull
 
-        You may also want to run this make target in order to update the
-        templete files to the latest versions
+        You may also want to run this make target in order to update
+        the templete files to the latest versions
 
-            $ cd <project-dir>/sourceforge/cygbuild
+            $ cd <project-dir>/cygbuild
             $ make install-etc
 
 Information for developers
@@ -163,29 +160,8 @@ Information for developers
             * file.txt: (Changed topic,function,heading): Describe
             the change in consequent lines.
 
-        Since all changes are recorded to this file, no messages are needed
-        to be recorded to any of the CVS files itself. Developer can commit
-        files with empty messages:
-
-            $ cvs ci -m "" file ...
-
-    Using CVS commands from Emacs
-
-        The CVS commands can be easily be used from inside Emacs (That
-        is: from native Cygwin Emacs, not the Win32 version of
-        NTEmacs). A package *pcvs.el* provides CVS support:
-
-            M-x cvs-examine RET <CVS controlled directory>
-            |
-            Means: Press ESC + x
-
-        At the the opened *cvs* buffer, the available commands can be
-        listed by pressing mode help key sequence `C-h' `m'. The quick
-        commands are:
-
-            m   Mark the file or directory
-            u   unmark
-            c   Commit => press C-c C-c to close log buffer
+        Since all changes are recorded to this file, a copy from
+        Changelog can be pasted when making a checkin.
 
     Makefiles
 
@@ -199,7 +175,7 @@ Information for developers
             vars.mk         General variables
             unix.mk         Making General Unix targests (clean, install etc.)
             cygwin.mk       Cygwin specific targets (making Net releases)
-            net.mk          Network connections (sourceforge uploads)
+            net.mk          Network connections
 
             Makefile        The main controller, additional targests
                             needed in project file, which cannot be
@@ -220,29 +196,28 @@ Information for developers
             make RELEASE=1 release-cygwin-bin
             make list-cygwin
 
-        The package is put to local Apache web server's publish area with
-        following target. 'make publish-cygwin' (not needed; fiels are
-        release at Sourceforge). See RELEASEDIR variable in etc/makefile/*
-        for more information.
+        The package can be put to local Apache web server's publish
+        area with make target: 'make publish-cygwin'. See RELEASEDIR
+        variable in etc/makefile/* for more information.
 
-    Releasing package to sourceforge
+    Releasing package
 
         A ready package is found under directory `.build/' and it can be
-        uploaded to sourceforge:
+        uploaded:
 
                  make USER=username sf-upload-release
 
-        Log in sourceforge, go to project page (sf.net/projects/<project>)
-        and select [Admin] page in which there is a button to [File
-        Releases] page. Follow the page's instructions and use button [add
-        release]. The release name is YYYY.MMDD.
+        Log in to project, go to project page and select [Admin] page
+        in which there is a button to [File Releases] page. Follow the
+        page's instructions and use button [add release]. The release
+        name is YYYY.MMDD.
 
         The "File Type" is set as "i386" ".exe; 32-bit Windows" to signify
         that this project is solely for Windows and the package files is
         "binary" release, which should be unpacked in place.
 
-        To upload documentation, use following make target and
-        Sourceforge's login name:
+        To upload documentation, use following make target and login
+        name:
 
             make USER=<SF_LOGINNAME> sf-upload-doc
 
@@ -254,20 +229,14 @@ Information for developers
 
     Source package note
 
-        Although the make target includes `release-cygwin-source' it's not
-        clear if any source package from thsi project makes sense since the
-        project is hosted at sourceforge CVS. Target for making "source"
-        has been left in etc/makefile/cygwin.mk. It was used in
-        pre-releases of this project to meet complete Cygwin Net release
-        specification, where both *binary* and a *source* packages were
-        expected.
+        See make target `release-cygwin-source'.
 
-    Exporting CVS development
+    Exporting development
 
-        There is a make target `release-world' that makes a tar.gz file
-        from arbitrary CVS checkout. Should that ever be needed. This
-        target can be used to make a backup of the project without CVS and
-        temporary files.
+        There is a make target `release-world' that makes a tar.gz
+        file from checkout. Should that ever be needed. This target
+        can be used to make a backup of the project without version
+        control insformation and temporary files.
 
     Converting text files into HTML
 
