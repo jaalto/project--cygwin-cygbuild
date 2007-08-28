@@ -46,6 +46,10 @@ TAR_OPT_NO      = --exclude='.build'     \
                   --exclude='*[~\#]'     \
                   --exclude='.\#*'       \
                   --exclude='CVS'        \
+                  --exclude='RCS'        \
+                  --exclude='.git'       \
+                  --exclude='.bzr'       \
+                  --exclude='.hg'        \
                   --exclude='*.tar*'     \
                   --exclude='*.tgz'      \
 
