@@ -1,5 +1,4 @@
 #!/usr/bin/make -f
-# $Id: Makefile,v 1.30 2006/02/19 14:56:43 jaalto Exp $
 #
 #	Copyright (C)  2003-2006  Jari Aalto
 #	Keywords:      Makefile, cygbuild, Cygwin
@@ -21,7 +20,7 @@ include $(MAKE_INCLUDEDIR)/id.mk
 include $(MAKE_INCLUDEDIR)/vars.mk
 include $(MAKE_INCLUDEDIR)/unix.mk
 include $(MAKE_INCLUDEDIR)/cygwin.mk
-include $(MAKE_INCLUDEDIR)/net.mk
+include $(MAKE_INCLUDEDIR)/net-sf.mk
 
 PL		= bin/$(PACKAGE).pl
 SH		= bin/$(PACKAGE).sh \
