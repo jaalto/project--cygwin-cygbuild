@@ -204,16 +204,15 @@ build binary package:</p>
 
 <dd>
 <p>Package version control files into a custom checkout script. This option is
-meanigful only with command <strong>[source-package]</strong>. Supported VC systems
-include: CVS, SVN.</p>
+meanigful only with command <strong>[source-package]</strong>.</p>
 </dd>
 <dd>
-<p>Take for example package 'foo' from sourceforge, whose development versions
-can be easily followed with CVS version control software. After the sources
-have been checked out, it is possible to package current snapshot straight
-from the CVS directory tree with this option. It will create a separate
-source script based on current timestamp to retrive same files from version
-control repository.</p>
+<p>Take for example package 'foo', whose development versions can be
+easily followed with version control software. After the sources have
+been checked out, it is possible to package current snapshot straight
+from the directory tree with this option. It will create a separate
+source script based on current timestamp to retrive same files from
+version control repository.</p>
 </dd>
 </li>
 <dt><strong><a name="item__2d_2dcygbuiddir_dir"><strong>--cygbuiddir DIR</strong></a></strong>
@@ -1154,8 +1153,7 @@ missing shadow directory and make it as needed.</p>
 configuration file <code>CYGWIN-PATCHES/upstream.perl-webget</code> must contain URL
 and additional parameters how to retrieve newer versions. See
 <em>mywebget.pl</em>'s manual for more information. Here is an example
-configuration file to download and extract new versions of package from
-sourceforge:</p>
+configuration file to download and extract new versions of package:</p>
 </dd>
 <dd>
 <pre>
@@ -1682,6 +1680,9 @@ unconventionally 1 on success and N &gt; 1 on error.</p>
             --exclude='*~'      \
             --exclude='*#'      \
             --exclude='.#*'     \
+            --exclude='.hg'     \
+            --exclude='.bzr'    \
+            --exclude='.git'    \
             --exclude='CVS'     \
             --exclude='RCS'     \
              ...[your options here]...\
@@ -1842,7 +1843,7 @@ Cygwin documentation for package directory <code>/usr/share/doc/foo-1.12</code> 
 populated from files in the original package. Those of INSTALL, COPYRIGHT
 and README are copied. Then any <code>doc/</code> directory if it is included. The
 default rules exclude most common files MANIFESt, *.bak, *.rej etc. and
-subdirectories like version control CVS, SVN etc.</p>
+version control subdirectories.</p>
 </dd>
 <dd>
 <p>In this file it is possible to supply extra tar options to exclude more

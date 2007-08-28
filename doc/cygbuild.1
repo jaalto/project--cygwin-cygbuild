@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "CYGBUILD 1"
-.TH CYGBUILD 1 "2007-08-17" "perl v5.8.8" "Cygwin source and binary packge build script"
+.TH CYGBUILD 1 "2007-08-28" "perl v5.8.8" "Cygwin source and binary packge build script"
 .SH "NAME"
 cygbuild \- Cygwin source and binary package build script
 .SH "SYNOPSIS"
@@ -239,15 +239,14 @@ build binary package:
 .IP "\fB\-c|\-\-checkout\fR" 4
 .IX Item "-c|--checkout"
 Package version control files into a custom checkout script. This option is
-meanigful only with command \fB[source\-package]\fR. Supported \s-1VC\s0 systems
-include: \s-1CVS\s0, \s-1SVN\s0.
+meanigful only with command \fB[source\-package]\fR.
 .Sp
-Take for example package 'foo' from sourceforge, whose development versions
-can be easily followed with \s-1CVS\s0 version control software. After the sources
-have been checked out, it is possible to package current snapshot straight
-from the \s-1CVS\s0 directory tree with this option. It will create a separate
-source script based on current timestamp to retrive same files from version
-control repository.
+Take for example package 'foo', whose development versions can be
+easily followed with version control software. After the sources have
+been checked out, it is possible to package current snapshot straight
+from the directory tree with this option. It will create a separate
+source script based on current timestamp to retrive same files from
+version control repository.
 .IP "\fB\-\-cygbuiddir \s-1DIR\s0\fR" 4
 .IX Item "--cygbuiddir DIR"
 \&\s-1PATH\s0 where all the temporaqry files are kept; object files, taking diffs
@@ -963,8 +962,7 @@ http://perl\-webget.sourceforge.net/ is used to do the download. The
 configuration file \f(CW\*(C`CYGWIN\-PATCHES/upstream.perl\-webget\*(C'\fR must contain \s-1URL\s0
 and additional parameters how to retrieve newer versions. See
 \&\fImywebget.pl\fR's manual for more information. Here is an example
-configuration file to download and extract new versions of package from
-sourceforge:
+configuration file to download and extract new versions of package:
 .Sp
 .Vb 2
 \&  tag1: foo
@@ -1517,7 +1515,7 @@ unconventionally 1 on success and N > 1 on error.
 \&    # CYGWIN-PATCHES/diff.sh -- custom diff
 .Ve
 .Sp
-.Vb 17
+.Vb 20
 \&    diff -urN $1 $2             \e
 \&            --exclude='.build'  \e
 \&            --exclude='.inst'   \e
@@ -1531,6 +1529,9 @@ unconventionally 1 on success and N > 1 on error.
 \&            --exclude='*~'      \e
 \&            --exclude='*#'      \e
 \&            --exclude='.#*'     \e
+\&            --exclude='.hg'     \e
+\&            --exclude='.bzr'    \e
+\&            --exclude='.git'    \e
 \&            --exclude='CVS'     \e
 \&            --exclude='RCS'     \e
 \&             ...[your options here]...\e
@@ -1672,7 +1673,7 @@ Cygwin documentation for package directory \f(CW\*(C`/usr/share/doc/foo\-1.12\*(
 populated from files in the original package. Those of \s-1INSTALL\s0, \s-1COPYRIGHT\s0
 and \s-1README\s0 are copied. Then any \f(CW\*(C`doc/\*(C'\fR directory if it is included. The
 default rules exclude most common files MANIFESt, *.bak, *.rej etc. and
-subdirectories like version control \s-1CVS\s0, \s-1SVN\s0 etc.
+version control subdirectories.
 .Sp
 In this file it is possible to supply extra tar options to exclude more
 files not to be included. Perhaps package's \f(CW\*(C`doc/\*(C'\fR directory contains
@@ -2399,6 +2400,6 @@ http://cygbuild.sourceforge.net
 Cygwin
 .SH "AUTHOR"
 .IX Header "AUTHOR"
-Copyright (C) 2003\-2006 Jari Aalto. All rights reserved. This program is free
+Copyright (C) 2003\-2007 Jari Aalto. All rights reserved. This program is free
 software; you can redistribute and/or modify program under the terms of Gnu
 General Public licence v2 or later.
