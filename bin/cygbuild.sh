@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0828.2133"
+CYGBUILD_VERSION="2007.0828.2335"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -855,16 +855,19 @@ CygbuildCygcheckLibraryDepSource ()
     fi
 }
 
-function CygbuildCygcheckLibraryDepAdjust()
+function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local file="$1"     # modifes this file directly
+    local file="$1"     # modifes file directly
 
     local setup="$DIR_CYGPATCH/setup.hint"
     local list lib
 
-    # You can tell all these deps from the indented level
+    # You *CAN*T tell all these deps from the indented level
+    # See discussion
+    # http://cygwin.com/ml/cygwin-apps/2007-08/msg00215.html
+    #
     # D:\cygwin\bin\cygintl-8.dll
     #   D:\cygwin\bin\cygiconv-2.dll
 
@@ -883,6 +886,31 @@ function CygbuildCygcheckLibraryDepAdjust()
         if $EGREP --quiet "^ *requires:.*\<$lib" $setup ; then
             CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
         fi
+    done
+}
+
+function CygbuildCygcheckLibraryDepAdjust()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local file="$1"  # modifes file directly
+
+    local setup="$DIR_CYGPATCH/setup.hint"
+    local list lib
+
+    for lib in $(< $file)
+    do
+
+      #  libintl already requires iconv
+
+      if [[ "$lib" == *iconv* ]] && $EGREP --quiet 'intl' $file
+      then
+          CygbuildFileDeleteLine "$lib" "$file" || return 1
+
+          if $EGREP --quiet "^ *requires:.*\<$lib" $setup ; then
+              CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
+          fi
+      fi
     done
 }
 

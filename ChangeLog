@@ -7,6 +7,11 @@
 	(function CygbuildHelpLong()): 1.937 Added new argument $exit.
 	(function CygbuildHelpShort()): 1.937 Added new argument $exit.
 	(CygbuildHelpShort::NOTES): 1.937 Removed checkout instructions.
+	(function CygbuildCygcheckLibraryDepAdjust()): 1.937
+	The indentation level proved to be unreliable source of depend
+	information. Restoeed old behavior. See
+	<http://cygwin.com/ml/cygwin-apps/2007-08/msg00215.html> for
+	more information.
 
 	* bin/cygbuild-rebuild.pod: (HELP): Removed AVAILABILITY
 
