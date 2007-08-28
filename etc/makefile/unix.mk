@@ -1,5 +1,4 @@
 #!/usr/bin/make -f
-# $Id: unix.mk,v 1.16 2007/08/16 16:28:03 jaalto Exp $
 #
 #	Copyright (C)  Jari Aalto
 #	Keywords:      Makefile, cygbuild, Cygwin
@@ -42,14 +41,14 @@ install-bin-sh:
 	@for file in $(SH);						\
 	do								\
 	    $$to=`echo $file | sed 's/.sh//' `;				\
-	    $(INSTALL_BIN) $$file $(BINDIR)/$to; 			\
+	    $(INSTALL_BIN) $$file $(BINDIR)/$to;			\
 	done;
 
 install-bin-pl:
 	$(INSTALL_BIN) -d $(SHAREDIR)/lib
 	@for file in $(PL);						\
 	do								\
-	    $(INSTALL_BIN) $$file $(SHAREDIR)/lib; 			\
+	    $(INSTALL_BIN) $$file $(SHAREDIR)/lib;			\
 	done;
 
 install-bin: install-bin-sh install-bin-pl
@@ -62,10 +61,10 @@ install-bin-symlink:
 	do								\
 	    dir=`$(DIRNAME) $$file`;					\
 	    file=`$(BASENAME) $$file`;					\
-	    to=`echo $(BINDIR)/$$file | sed 's/.sh//' `; 		\
+	    to=`echo $(BINDIR)/$$file | sed 's/.sh//' `;		\
 	    if echo $$file | grep  "\.pl" > /dev/null ; then		\
 		to=$(SHAREDIR)/lib/$$file;				\
-	    fi; 							\
+	    fi;								\
 	    file=`cd $$dir; pwd`/$$file;				\
 	    echo "Installing symlink $$file => $$to";			\
 	    ln -sf $$file $$to;						\

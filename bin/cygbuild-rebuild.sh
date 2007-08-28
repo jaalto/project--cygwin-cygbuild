@@ -7,13 +7,8 @@
 #   - Find latest package directory (./foo/foo-1.4/)
 #   - Build everything using cygbuild.sh
 
-ID="$Id: cygbuild-rebuild.sh,v 1.8 2004/02/09 19:39:11 jaalto Exp $"
-NAME=${ID#*:[ ]}
-NAME=${NAME%%,v*}
-
-VERSION=${ID##*,v[ ]}
-VERSION=${VERSION%%[ ]*}
-
+NAME="cygbuild-rebuild"
+VERSION="2007.0828.2310"
 
 find='find . -type d -maxdepth 1 | grep -Eve "^\.$|-orig" | sort'
 

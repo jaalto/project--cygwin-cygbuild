@@ -1,5 +1,7 @@
 2007-08-28 Tue  Jari Aalto  <jari dot aalto A T cante dot net>
 
+	* bin/cygbuild-rebuild.sh: 1.8 Removed Id. Changed VERSION.
+
 	* bin/cygbuild.sh (function CygbuildCommandMainCheckHelp()): 1.937
 	Moved  -V|--version here from `CygbuildCommandMain'.
 	(function CygbuildHelpLong()): 1.937 Added new argument $exit.
@@ -9,7 +11,7 @@
 	* bin/cygbuild-rebuild.pod: (HELP): Removed AVAILABILITY
 
 	* bin/cygbuild.pl: ($URL): Unused variable removed.
-	(top level::$Id): tag removed.
+	(top level::Id): tag removed.
 	(HELP::OPTIONS): Removed version control software names
 	from --checkout option description.
 

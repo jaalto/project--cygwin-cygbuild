@@ -1,5 +1,4 @@
 #!/usr/bin/make -f
-# $Id: id.mk,v 1.5 2004/08/19 10:39:54 jaalto Exp $
 #
 #	Copyright (C)  Jari Aalto
 #	Keywords:      Makefile, cygbuild, Cygwin

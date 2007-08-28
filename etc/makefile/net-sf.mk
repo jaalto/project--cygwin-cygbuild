@@ -1,5 +1,4 @@
 #!/usr/bin/make -f
-# $Id: net.mk,v 1.19 2005/09/02 11:05:15 jaalto Exp $
 #
 #	Copyright (C)  Jari Aalto
 #
