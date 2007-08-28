@@ -3931,10 +3931,10 @@
 	* bin/cygbuild-rebuild.pod: New.
 
 	* Makefile (cvs-install): 1.12 Added alias, which runs
-	install-cvs
+	install-in-place
 	($(DOCDIR)/cygbuild-rebuild.1): 1.13 New target.
 	(doc): 1.13 Added cygbuild-rebuild.1
-	(install-cvs): 1.14 Added install-man
+	(install-in-place): 1.14 Added install-man
 
 	* etc/template/manualpage.pod.tmp: New. Skeleton for
 	manual page.
@@ -4071,10 +4071,10 @@
 2004-02-01 Sun  Jari Aalto  <jari aalto A T poboxes dt com>
 
 	* README (Package install): 1.14 Added make rule
-	`install-cvs' for CVS install insructions.
+	`install-in-place' for CVS install insructions.
 
 	* Makefile (install-etc-template-symlink): 1.11 New rule.
-	(install-cvs): 1.11 New.
+	(install-in-place): 1.11 New.
 
 	* etc/makefile/unix.mk (help-makefile): 1.9 Added -i option to
 	grep to take #rule and #Rule words.

@@ -3331,7 +3331,7 @@ NOTES
     suite can be installed running:
 
         cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cygbuild co cygbuild
-        cd cygbuild ; make install-cvs
+        cd cygbuild ; make install-in-place
 
     For more information about porting packages to Cygwin, refer to
     <http://cygwin.com/setup.html>.

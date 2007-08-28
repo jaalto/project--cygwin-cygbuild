@@ -122,8 +122,8 @@ install-etc-template-symlink: install-etc-dir-template
 # Rule: install-etc - Synonym for target [install-etc-template]
 install-etc: install-etc-main install-etc-template
 
-# Rule: install-cvs - After CVS checkout, install the package using symlinks
-install-cvs: install-etc-template-symlink install-etc-main-symlink \
+# Rule: install-in-place - After CVS checkout, install the package using symlinks
+install-in-place: install-etc-template-symlink install-etc-main-symlink \
 	install-bin-symlink install-man
 
 # Rule: install - install everything to system directories

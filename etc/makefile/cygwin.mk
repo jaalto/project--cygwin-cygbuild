@@ -84,7 +84,7 @@ cygwin-setup-ini-update:
 	@ini=$(CYGWIN_SETUP_INI);				    \
 	tar=$(TAR_FILE_CYGWIN).tar.bz2;				    \
 	module=`which cygbuild.pl`;				    \
-	[ ! "$$module" ] && echo "Run make install-cvs" && false;   \
+	[ ! "$$module" ] && echo "Run make install-in-place" && false;   \
 	echo Updating $$ini with $$tar;				    \
 	$(PERL) -MEnglish -e "					    \
 	    @arr = (shift @ARGV,  shift @ARGV);			    \

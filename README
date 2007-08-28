@@ -131,12 +131,13 @@ Package install instructions
 
             make help
 
-        Following commands brings the project to the latest versions. The
-        `install-cvs' does not copy the files to /usr/bin, but only creates
-        symbolic links to the latest source script files
+        Following commands brings the project to the latest versions.
+        The `install-in-place' does not copy the files to /usr/bin,
+        but only creates symbolic links to the latest source script
+        files
 
             $ cd <project-dir>/sourceforge/cygbuild
-            $ make install-cvs
+            $ make install-in-place
 
         After that, to keep project up to date:
 
