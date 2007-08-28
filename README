@@ -1,0 +1,276 @@
+Copyright
+
+        #T2HTML-TITLE Cygbuild README
+        #T2HTML-OPTION --as-is
+        #T2HTML-OPTION --css-code-bg
+        #T2HTML-OPTION --css-code-note
+        #T2HTML-OPTION Note:
+
+        Copyright (C) Jari Aalto
+        All files and documentaiton in this project is released under GPL.
+
+        This program is free software; you can redistribute it and/or
+        modify it under the terms of the GNU General Public License as
+        published by the Free Software Foundation; either version 2 of
+        the License, or (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful, but
+        WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+        General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program; if not, write to the Free Software
+        Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+        Visit http://www.gnu.org/copyleft/gpl.html
+
+Project Description
+
+    Requirements
+
+        This is README file of *cygbuild* Sourceforge project. The are no
+        files that would need to be compiled. The project uses intepreted
+        languages. To install and run these utilities, you need:
+
+        o   Bash            2.04
+        o   Perl            5.004
+        o   GNU make        any version
+
+    Description
+
+        Sourceforge project's description at
+        http://www.sourceforge.net/projects/cygwin-summary (255
+        characters) reads:
+
+            Utilities for Win32 Cygwin source and binary package
+            maintainers. To configure, build, strip, produce diffs and
+            generate cygwin specific template files. To put it simply:
+            Convert Unix/Linux/Perl package into complete Cygwin Net
+            Release distribution.
+
+        Cygbuild is like Debian dh_make(1) .deb or rpm(1) .rpm maker
+        utility, but for Win32 Cygwin platform. If you are familiar with
+        .deb or .rpm making or Activestate Perl .ppm and .ppd files, the
+        Cygwin Net release packaging <http://www.cygwin.com> is just
+        another variant of these existing packaging methods. The process is
+        quite straight forward: one must mirror whole system directory
+        structure where the files would go, place the les there and wrap
+        all in a package-NN.NN-RELEASE.tar.bz2 package. The end user
+        installs this premade tar package at system root /. This is the
+        methodology of making Cygwin Net releases.
+
+        Normally the porting process starts by downloading some Unix or
+        Linux package that would be nice to have under Cygwin as well. So
+        the porter must
+
+        o   Unpack package (tar.gz)
+        o   Configure it (.configure)
+        o   Build it .. usually there are some Cygwin work to do (make all)
+        o   See if the install method uses install(1), if not, the porter
+            must make his own install method
+
+        All of these steps can be automated in a certain degree for
+        Unix/Linux packages that use standard packaging shemes like:
+
+        o   Standard GNU packages than include ./configure
+        o   Debian .orig.tar.gz packages
+        o   Library package (lib*.a etc) => see command 'package-devel'
+        o   Standard Perl packages that include Makefile.PL
+
+        If the automatic packaging cannot be use (make all, make install),
+        there are custom install files that the porter can tweak. The manual
+        explains this in detail (see doc/ directory):
+
+            cygbuild.sh --help
+
+    What are the benefits of using Cygbuild?
+
+        There is much more simple (some ~300 lines) generic bourne shell
+        example script at <http://cygwin.com/setup.html> which can also
+        be used for maintaining a Cygwin Net Release. Cygbuild has been
+        evolved from it and combines "Method One" and "Method Two" and adds
+        "Method three++" (automation) from Package Contributor's Guide. The
+        advantages are:
+
+        o   You do not have to write separate installation scripts to every
+            package. The same script can be used over and over; every time
+            you port a new version of some package.
+        o   The detection of packaging type (Perl, Library, Stripping of
+            *.exe *.dll etc.) is all automatic.
+        o   Possibility to to use optional user written external scripts
+            which provide modularised way of handling difficult ports.
+        o   Extra checks to prevent developer missing things that
+            should have been taken cared of; command: [check]
+        o   Automatic package.README file update reflaecting the current
+            build and release numbers.
+        o   Recognizes Perl packages and treats them accordingly.
+        o   Ability to package both binary and source packages
+            straight from CVS sources.
+        o   Extensible. Written in bash and uses Perl module cygbuild.pl for
+            tasks that are too hard or slow for bash.
+
+    The manual porting method
+
+        If this utility does not provide the rope needed, it is always
+        possible to do all manually and start from scratch. Use and tweak
+        the Generic build script that is provided at page
+        <http://cygwin.com/setup.html>. Read it for detailed information
+        how to the Cygwin Net release packaging system works.
+
+Package install instructions
+
+    Installing from sourceforge package
+
+        <see `index.html' for this section>
+
+    Installing from a CVS checkout
+
+        Details how to check out the project can ve found from Sourceforge.
+        After checkout, help is vailable at:
+
+            make help
+
+        Following commands brings the project to the latest versions. The
+        `install-cvs' does not copy the files to /usr/bin, but only creates
+        symbolic links to the latest source script files
+
+            $ cd <project-dir>/sourceforge/cygbuild
+            $ make install-cvs
+
+        After that, to keep project up to date:
+
+            $ cd <project-dir>/sourceforge/cygbuild
+            $ cvs up
+
+        You may also want to run this make target in order to update the
+        templete files to the latest versions
+
+            $ cd <project-dir>/sourceforge/cygbuild
+            $ make install-etc
+
+Information for developers
+
+    Policy for documenting changes
+
+        All changes are documented using Emacs editor and standard
+        package *add-log.el*, which provides command `C-x' `4' `a' to
+        record a change to any file at point. Emacs will pick up the
+        main `ChangeLog' file and open a change entry there, whose
+        format is:
+
+            * file.txt: (Changed topic,function,heading): Describe
+            the change in consequent lines.
+
+        Since all changes are recorded to this file, no messages are needed
+        to be recorded to any of the CVS files itself. Developer can commit
+        files with empty messages:
+
+            $ cvs ci -m "" file ...
+
+    Using CVS commands from Emacs
+
+        The CVS commands can be easily be used from inside Emacs (That
+        is: from native Cygwin Emacs, not the Win32 version of
+        NTEmacs). A package *pcvs.el* provides CVS support:
+
+            M-x cvs-examine RET <CVS controlled directory>
+            |
+            Means: Press ESC + x
+
+        At the the opened *cvs* buffer, the available commands can be
+        listed by pressing mode help key sequence `C-h' `m'. The quick
+        commands are:
+
+            m   Mark the file or directory
+            u   unmark
+            c   Commit => press C-c C-c to close log buffer
+
+    Makefiles
+
+        The make file logic has been separated into `etc/makefile'
+        directory from where they are included to main `Makefile'. If you
+        have similar needs to build Cygwin Net releases for other projects,
+        it could be possible to copy `cygwin.mk' and use it out of the box.
+        The makefiles included are:
+
+            id.mk           Project maintainer information (variables)
+            vars.mk         General variables
+            unix.mk         Making General Unix targests (clean, install etc.)
+            cygwin.mk       Cygwin specific targets (making Net releases)
+            net.mk          Network connections (sourceforge uploads)
+
+            Makefile        The main controller, additional targests
+                            needed in project file, which cannot be
+                            used generally.
+
+    Making binary package
+
+        First, make world release. It is a preliminary step for Cygwin
+        release
+
+            make release-world
+
+        Now Cygwin binary and source packages can be done with these steps.
+        The first make target will make the package and the `list-cygwin'
+        shows the content of the package. The source package (not really
+        needed) is done with: make release-cygwin-source.
+
+            make RELEASE=1 release-cygwin-bin
+            make list-cygwin
+
+        The package is put to local Apache web server's publish area with
+        following target. 'make publish-cygwin' (not needed; fiels are
+        release at Sourceforge). See RELEASEDIR variable in etc/makefile/*
+        for more information.
+
+    Releasing package to sourceforge
+
+        A ready package is found under directory `.build/' and it can be
+        uploaded to sourceforge:
+
+                 make USER=username sf-upload-release
+
+        Log in sourceforge, go to project page (sf.net/projects/<project>)
+        and select [Admin] page in which there is a button to [File
+        Releases] page. Follow the page's instructions and use button [add
+        release]. The release name is YYYY.MMDD.
+
+        The "File Type" is set as "i386" ".exe; 32-bit Windows" to signify
+        that this project is solely for Windows and the package files is
+        "binary" release, which should be unpacked in place.
+
+        To upload documentation, use following make target and
+        Sourceforge's login name:
+
+            make USER=<SF_LOGINNAME> sf-upload-doc
+
+        To make package available for Cygwin setup.exe installer:
+
+            make cygwin-setup-ini-update
+            make USER=<SF_LOGINNAME> sf-upload-cygwin-setup-ini
+            make USER=<SF_LOGINNAME> sf-upload-cygwin-release
+
+    Source package note
+
+        Although the make target includes `release-cygwin-source' it's not
+        clear if any source package from thsi project makes sense since the
+        project is hosted at sourceforge CVS. Target for making "source"
+        has been left in etc/makefile/cygwin.mk. It was used in
+        pre-releases of this project to meet complete Cygwin Net release
+        specification, where both *binary* and a *source* packages were
+        expected.
+
+    Exporting CVS development
+
+        There is a make target `release-world' that makes a tar.gz file
+        from arbitrary CVS checkout. Should that ever be needed. This
+        target can be used to make a backup of the project without CVS and
+        temporary files.
+
+    Converting text files into HTML
+
+        In order to convert text files (README) into HTML, program
+        *t2html.pl* is needed. See http://perl-text2html.sourceforge.net/
+
+End of file

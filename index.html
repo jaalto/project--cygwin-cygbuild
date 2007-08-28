@@ -1,0 +1,663 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<!--
+
+    $Id: index.html,v 1.35 2006/02/22 22:07:13 jaalto Exp $
+
+    ///////////////////////////////////////////////////////////////////////
+
+    This is the sourceforge home page at http://cygbuild.sourceforge.net/
+
+    Developers: Copy this page to sourceforge with command:
+
+    scp index.html jaalto@shell.sourceforge.net:/home/groups/c/cy/cygbuild/htdocs
+
+    ///////////////////////////////////////////////////////////////////////
+-->
+
+
+<HEAD>
+
+    <META HTTP-EQUIV="Content-Type"
+        CONTENT="text/html; charset=utf-8">
+
+
+    <TITLE>
+        Cygbuild - A porting tool for making Cygwin Net Releases
+    </TITLE>
+
+
+    <!--   ................................................................
+            META TAGS (FOR SEARCH ENGINES)
+            ................................................................
+    -->
+  <META HTTP-EQUIV="keywords"
+        CONTENT="Cygwin, gcc, make">
+
+  <META HTTP-EQUIV="description"
+        CONTENT="Utilities for Win32 Cygwin source and binary package maintainers. To configure, build, strip, produce diffs and generate cygwin specific template files. To put it simply: Convert Unix/Linux/Perl package into complete Cygwin Net Release distribution"
+
+
+  <META NAME="Version"
+        CONTENT="$Id: index.html,v 1.35 2006/02/22 22:07:13 jaalto Exp $">
+
+
+    <STYLE TYPE="text/css">
+
+        a
+        {
+            text-decoration: none;
+        }
+
+
+        address
+        {
+            font-size: 0.8em;
+        }
+
+        samp.file
+        {
+            color: #4C9CD4;
+            font-weight: bold;
+        }
+
+        samp.code
+        {
+            color: navy;
+        }
+
+        i.show
+        {
+            color: #228b00;
+        }
+
+        i.show2
+        {
+            color: blue;
+        }
+
+
+        em.show
+        {
+            color: #228b00;
+        }
+
+
+        pre.code
+        {
+            color: navy;
+        }
+
+
+        span.link
+        {
+            color: teal;
+            font-size:  0.7em;
+            font-family: verdana, sans-serif;
+        }
+
+        span.cmd
+        {
+            color: #5595C0;
+            font-size: 0.8em;
+            font-weight: bolder;
+        }
+
+        span.cmd-opt
+        {
+            font-size: 0.8em;
+            color: #5595C0;
+        }
+
+        span.cmd-rest
+        {
+            color: #399C6A;
+            font-size: 0.8em;
+            font-weight: bolder;
+        }
+
+        a:hover
+        {
+            text-decoration: none;
+            color:           purple;
+            background:      #afb;
+        }
+
+        a.main:hover
+        {
+            text-decoration: none;
+            color:           purple;
+            background:      #afb;
+            font-weight:     bolder;
+        }
+
+    </STYLE>
+
+    <SCRIPT TYPE="javascript"
+            SRC="http://js-tools.sourceforge.net/lib/libtime-bmt.js">
+    </SCRIPT>
+
+    <SCRIPT TYPE="javascript">
+        var bmt = new LibTimeBMT();
+        bmt.activate(7000);
+    </SCRIPT>
+
+</HEAD>
+
+
+
+<BODY>
+
+<!--  .......................................................................
+
+      PROJECT TITLE
+
+      .......................................................................
+-->
+
+<HR NOSHADE SIZE=1>
+
+        <TABLE BORDER       = "0"
+               bgcolor      = "#EEEEF8"
+               WIDTH        = "100%"
+               CELLPADDING  = "2"
+               CELLSPACING  = "0"
+               >
+
+            <TR>
+            <TD ALIGN=center>
+
+
+            </TD>
+            <TD ALIGN="center">
+
+                    <FONT SIZE="+10">
+                        Cygbuild - A Porting tool for making Cygwin Net Releases
+                    </FONT>
+            </TD>
+            </TR>
+        </TABLE>
+
+<HR NOSHADE SIZE=1>
+
+<!--  .......................................................................
+
+      START OF BODY TEXT
+
+      .......................................................................
+-->
+
+<H1> Links and download </H1>
+
+<UL>
+
+  <LI><B> Release </B> downloads at
+
+        <A HREF="http://www.sourceforge.net/projects/cygbuild/"
+        CLASS="main">
+        http://www.sourceforge.net/projects/cygbuild/
+        </A>
+
+   <LI>Project's WWW homepage is at
+
+        <A HREF="http://cygbuild.sourceforge.net/"
+        CLASS="main">
+        http://cygbuild.sourceforge.net/
+        </A>
+
+    <LI> <B>manual page</B>
+
+        <A HREF="doc/cygbuild.html"
+        CLASS="main">
+        doc/cygbuild.html
+        </A>
+
+    <LI> Project's <B>REAME</B> document
+
+        <A HREF="doc/README.html"
+        CLASS="main">
+        doc/README.html
+        </A>
+
+    <LI> Read latest and ongoing changes in the project from
+
+        <A
+        HREF="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/cygbuild/cygbuild/ChangeLog?rev=HEAD"
+        CLASS="main">
+        ChangeLog file.
+        </A>
+        This file is generated by editing relevent file in Emacs and then pressing
+        key binding (C-x 4 a) to record the changes.
+        <SPAN class="link">&ndash;
+        http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/cygbuild/cygbuild/ChangeLog?rev=HEAD
+        </SPAN>
+
+    <LI> For further information, refer to
+
+        <A HREF="http://sources.redhat.com/cygwin-apps/setup.html">
+        Cygwin setup format </A> and
+        <A HREF="http://cygwin.com/setup.html">
+        Cygwin Package Contributor's Guide
+        </A>
+
+</UL>
+
+        <P><I> All code in this project has been released under GPL (<A
+        HREF="http://www.gnu.org/copyleft/gpl.html">GNU General Public
+        Licence</A>) </I>
+
+
+        <P> <B>Note:</B>At this stage of development, the interested
+        porters are <I>highly encouraged</I> to use only the CVS
+        version. To get help for possible bugs and to get timed
+        corrections for the tool, use CVS version if you're serious
+        about doing ports with the help of Cygbuild. The <SAMP
+        class="file">README</SAMP> includes incructions how to install
+        the project to Cygwin from CVS checkout.
+
+
+<!--  .......................................................................
+      HEADING
+      .......................................................................
+-->
+
+
+<H1>
+General
+</H1>
+
+
+<H2>
+What is Cygbuild?
+</H2>
+
+        <I class="show">Cygbuild</I> is something like Debian
+        <TT>dh_make(1)</TT> .deb or <TT>rpm(1)</TT> .rpm maker utility, but
+        for Win32 Cygwin platform. This is just an analogy and you can read
+        more details from the disclaimer below.
+
+        <P> If you are familiar with .deb or .rpm making or Activestate
+        Perl .ppm and .ppd files, the Cygwin Net Release packaging <A
+        HREF="http://www.cygwin.com">http://www.cygwin.com</A> is just
+        another variant of these existing packaging methods. The process is
+        quite straight forward: one must mirror whole system directory
+        structure where the files would go, place the files in the correct
+        directories and finally wrap all aup into a single package <SAMP
+        class="file"> package-NN.NN-RELEASE.tar.bz2</SAMP>. The end user
+        installs this premade Cygwin Net install tar package at system root
+        <SAMP class="file">/</SAMP>. In a nutshell this is roughly the
+        methodology of making Cygwin Net Releases. For more information,
+        refer to Cygwin Package Contributor's Guide at <A
+        HREF="http://cygwin.com/setup.html">http://cygwin.com/setup.html</A>
+
+
+        <P>
+        Normally the porting process starts by downloading some Unix or
+        Linux package that would be nice to have under Cygwin as well. So
+        the porter must:
+
+<OL>
+
+        <LI>  Unpack package (<SAMP class="cmd">tar -zxvf *tar.gz</SAMP>)
+              </LI>
+
+        <LI>  Configure it (<SAMP class="cmd">./configure</SAMP>)
+              </LI>
+
+        <LI> Build it (<SAMP class="cmd">make all</SAMP>). This is where
+              the porting may stuck and some other Cygwin related work may
+              need to be done before package can be contributed. Perhaps
+              you need download more libraries befofore compile can finish.
+              And this means that you need to port extra libraries first to
+              Cygwin ...
+              </LI>
+
+        <LI>  If the Makefile does not use <SAMP
+              class="code">install(1)</SAMP>, the porter must modify
+              Makefile or make his own install method. The culprit is many
+              times the <SAMP class="code">cp(1)</SAMP> command that is
+              used in Makefiles to copy files to install location. The
+              correct way is to use program <SAMP
+              class="code">install(1)</SAMP> Here the porter's
+              experience is needed.
+              </LI>
+
+</OL>
+
+
+        <P> All of these steps can be automated in a certain degree at
+        least for Unix/Linux packages that use standard packaging shemes.
+        These packages are:
+
+<OL>
+
+        <LI> Standard GNU packages (<SAMP class="cmd">./configure ; make
+             prefix=.... install</SAMP>)
+             </LI>
+
+        <LI> Debian <SAMP class="cmd">.orig.tar.gz</SAMP> packages
+             </LI>
+
+        <LI> Library packages (lib*.a etc). Cygbuild contains
+             command 'package-devel' for these.
+             </LI>
+
+        <LI> Standard Perl packages that use <SAMP class="cmd">Makefile.PL</SAMP>
+             </LI>
+
+        <LI> Standard Python packages that use <SAMP class="cmd">setup.py</SAMP>
+             </LI>
+
+</OL>
+
+
+        If the standard build commands cannot be used (<SAMP
+        class="cmd">./configure; make all test install</SAMP>), it is
+        possible to use custom shell script files, which the porter can
+        tweak. The manual page will explain this in detail, so see link at
+        the top of page for further details and read section <I
+        class="show">Optional external scripts</I>.
+
+
+<!--  .......................................................................
+      HEADING
+      .......................................................................
+-->
+
+<H2>
+    What are the benefits of using Cygbuild?
+</H2>
+
+        There is a generic bourne shell example script (usually
+        referred as g-b-s) in Cygwin's Package Contributor's Guide It
+        can be used for maintaining a Cygwin Net Release. Cygbuild has
+        been evolved from it and combines "Method One" and "Method
+        Two" and adds "Method three++" (automation). The benefits of
+        using Cygbuild are:
+
+<UL>
+
+        <LI> You do not have to modify or write separate installation
+        script to every package you are porting.
+        </LI>
+
+        <LI>Cygbuild can can generate the build script over and over;
+        every time you port a new version of some package.
+        </LI>
+
+        <LI> To start porting the package, the templates are
+        automatically populated under directory <SAMP
+        class="cmd">CYGWIN-PATCHES/</SAMP>. The only need is to fill
+        in and activate the ones needed.
+        </LI>
+
+        <LI> If package does not provide manual page(s), it is simple
+        matter of filling in the manaula page template which is in
+        readable Perl POD format. No need to master cryptic <SAMP
+        class="code">nroff(1)</SAMP> formats. User contributed manual
+        pages are automatically installed from directory <SAMP
+        class="cmd">CYGWIN-PATCHES/</SAMP>.
+        </LI>
+
+        <LI> The detection of packaging type (Perl, Python, Library,
+        Stripping of *.exe *.dll etc.) is all automatic.
+        </LI>
+
+        <LI> There is <I class="show">check</I> command that helps
+        verifying the install and package integrity for e.g.: missing
+        manual pages, incorrect <SAMP
+        class="cmd">package.README</SAMP> file content, missing
+        library dependencies in <SAMP class="cmd">setup.hint</SAMP>
+        etc.
+        </LI>
+
+        <LI> It is possible to delegate custom or difficult configuration
+        opttions to user written external scripts. This provides
+        modularised way of handling difficult ports.
+        </LI>
+
+</UL>
+
+<!--  .......................................................................
+      HEADING
+      .......................................................................
+-->
+
+<H1>
+Disclaimer
+</H1>
+
+        The references to <TT>.deb</TT> and <TT>.rpm</TT> are actually a
+        bit misleading, but they hopefully give some directions to what is
+        sketched in this project. In reality Cygwin does <B>not</B> have
+        any official package build method and it does not intend to
+        encourage one. This project has evolved from the existing generic
+        build script; some things needed improvements, the langauge was
+        changed to bash, Perl was added, 5000+ more lines were coded; it
+        just took off while doing porting work. The goal is practical: to
+        make porting and maintenance of ports as easy as possible - with
+        added automatisation and smart code base with high level languages
+        like perl, python, ruby; please step in to propose your porting
+        experience and your tools.
+
+        <P> A person who is interested in porting software to Cygwin uses
+        any tools he sees fit to make the port to happen. Most of the
+        Cygwin application maintainers use some versions of the generic
+        Bourne Shell script as a starting point. That suits to simple
+        porting tasks, but usually requires keeping the script up to date
+        for each new version. Many write additional tools and shell
+        scripts which they use to maintain packages they contribute.
+
+        <P> This project aims to help making the porting more automatic and
+        maintaining it in the long term. Cygbuild's core is basicly the
+        same as in the original Bourne Shell script, but with lot of
+        enhancements and external modularity. It's written in Bash, which
+        provides more programming rope than Bourne shell.
+
+        <P> Whether a potential new Cygwin porter find Cygbuild's approach
+        too complex at the porting task at hand, he might consider using
+        the generic Bourne Shell script. But most likely the appetite grows
+        and he may soon be porting projects A, B, C, D, E, F, and versions
+        A-1, A-2, A-3, B-1, B-2, ... which mean more maintenance work for
+        all of them when new versions appear. That may eventually become a
+        big and time hogging task to manage if done manually for each
+        package. Even if the ported wrote additional helper scripts, it is
+        not guaranteed that other porter could adapt to them easily in case
+        where porter ceases to maintain the port.
+
+        <P> Cygbuild is single utility to handle all subsequent version
+        updates easier and to keep them ported with minimum of efforts. The
+        porting tasks are done in standard and predictable manner. The
+        module structure allows using using external helper scripts (where
+        needed) to provide reproducible results even if the maintainership
+        of a port switches to a new person. Handing over a Cygbuild managed
+        port to another person requires no additional learning of user's
+        private scrips or his directory structure layouts, environment
+        variable settings etc.
+
+        <P> Cygbuild tries to help the port to happen in matter if minutes
+        while keeping the maintenance cost at minimum. It is hoped that
+        over the time, the added automatisation and experiences from
+        different ports will help to produce a tool, which will take the
+        unnecessary routine tasks off the porter's shoulders.
+
+<!--  .......................................................................
+      HEADING
+      .......................................................................
+-->
+
+<H1>
+Intallation instructions
+</H1>
+
+<PRE>
+  <b>$</b> <SPAN class="cmd">cvs</SPAN> <SPAN class="cmd-opt">-z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/cygbuild</SPAN> <SPAN class="cmd-rest">co cygbuild</span>
+  <b>$</b> <SPAN class="cmd">cd</SPAN> <SPAN class="cmd-rest">cygbuild</SPAN>
+  <b>$</b> <SPAN class="cmd">make</SPAN> <SPAN class="cmd-rest">install-cvs</SPAN>
+
+  ... time passes - time to refresh with the latest<br>
+  <b>$</b> <SPAN class="cmd">cd</SPAN> <SPAN class="cmd-rest">cygbuild</SPAN>
+  <b>$</b> <SPAN class="cmd">cvs</SPAN> <SPAN class="cmd-rest">update</SPAN>
+  <b>$</b> <SPAN class="cmd">make</SPAN> <SPAN class="cmd-rest">install-etc</SPAN>
+</PRE>
+
+<!-- 2006-02-22 commented out. Only CVS install is supported
+
+
+<H2>
+Using Cygwin GUI setup.exe
+</H2>
+
+<P>
+
+<I><B>Warning:</B> The CVS version is the one recommended. The
+following instructions are mainly for the future when project matures.
+The setup.exe packages currently are way out of date.</I>
+
+
+<P>
+    Start Cygwin's update tool <I class="show">setup.exe</I> and
+    press [Next] button until you arrive to dialog named
+    "Choose a download site", where you can add additional URLs.
+    After typing following URL and pressing [next] button, you should see <SAMP
+    class="code">cygbuild</SAMP> package to appear in category "Misc".
+
+<PRE>
+    <B>User URL:</B> http://cygbuild.sourceforge.net
+</PRE>
+
+
+
+<H2>
+Manual installation
+</H2>
+
+
+    The released tar files, like <SAMP class="file">
+    cygbuild-2003.0629-1.tar.bz2</SAMP>, are packages that comply with the
+    Cygwin Net Release specification. This means, that the installation
+    procedure is as simple as extracting the file at correct directory. In
+    your Windows Cygwin installation, give following commands from
+    <B><TT>bash</TT></B>. Installing a newer version happens by repeating
+    these same commands.
+
+<PRE>
+
+    <B>$</B> <SPAN class="cmd">mkdir</SPAN> <SPAN class="cmd-opt">-p</SPAN> <SPAN class="cmd-rest">/tmp/cygwin-packages</SPAN>
+    <B>$</B> <SPAN class="cmd">cd</SPAN> <SPAN class="cmd">/tmp/cygwin-packages</SPAN>
+
+    ... download the latest version and check the content
+
+    <B>$</B> <SPAN class="cmd">tar</SPAN> <SPAN class="cmd-opt">-jtvf</SPAN> <SPAN class="cmd-rest">*bz2</SPAN>
+
+    ...
+    drwxr-xr-x root/None         0 2003-06-29 19:28:12 usr/
+    drwxr-xr-x root/None         0 2003-06-29 19:28:12 usr/share/
+    drwxr-xr-x root/None         0 2003-06-29 19:28:12 usr/share/doc/
+    drwxr-xr-x root/None         0 2003-06-29 19:28:12 usr/share/doc/cygbuild-2003.0629/
+    -rw-r--r-- root/None      4923 2003-06-29 19:28:12 usr/share/doc/cygbuild-2003.0629/README
+    -rw-r--r-- root/None       516 2003-06-29 19:28:12 usr/share/doc/cygbuild-2003.0629/ChangeLog
+    -rw-r--r-- root/None     38831 2003-06-29 19:27:50 usr/share/doc/cygbuild-2003.0629/cygbuild.html
+    -rw-r--r-- root/None     30546 2003-06-29 19:27:52 usr/share/doc/cygbuild-2003.0629/cygbuild.txt
+    drwxr-xr-x root/None         0 2003-06-29 19:28:14 usr/share/doc/Cygwin/
+    -rw-r--r-- root/None      1376 2003-06-29 19:28:14 usr/share/doc/Cygwin/cygbuild-2003.0629.README
+    drwxr-xr-x root/None         0 2003-06-29 19:28:22 usr/share/man/
+    drwxr-xr-x root/None         0 2003-06-29 19:28:24 usr/share/man/man1/
+    -rw-r--r-- root/None     36810 2003-06-29 19:28:24 usr/share/man/man1/cygbuild.1
+    drwxr-xr-x root/None         0 2003-06-29 19:28:24 usr/bin/
+    -rwxr-xr-x root/None     44933 2003-06-29 19:28:24 usr/bin/cygbuild.pl
+    -rwxr-xr-x root/None     69799 2003-06-29 19:28:24 usr/bin/cygbuild.sh
+    ...
+
+
+    ... Verify that listing looks okay?
+    ... If you think so, extract it at root directory
+
+    <B>$</B> <SPAN class="cmd">tar</SPAN> <SPAN class="cmd-opt">-C</SPAN> <SPAN class="cmd-rest">/</SPAN> <SPAN class="cmd-opt">-jxvf</SPAN>  <SPAN class="cmd-rest">/tmp/cygwin-packages/cygbuild*bz2</SPAN>
+
+    ... That's it, now you should be able to read the manual with
+    ... one of these commands
+
+    <B>$</B> <SPAN class="cmd">man</SPAN> <SPAN class="cmd-rest">cygbuild</SPAN>
+    <B>$</B> <SPAN class="cmd">cygbuild.sh</SPAN>  <SPAN class="cmd-opt">--help</SPAN>
+</PRE>
+
+
+-->
+
+<!--  .......................................................................
+      HEADING
+      .......................................................................
+-->
+
+<H1>
+Contact
+</H1>
+
+    <P> There no mailing list for the project. Please send mail to the
+    maintainer as needed. Include project's name in the subject or message
+    may be classified as spam and discarded.
+
+<!--  .......................................................................
+      HEADING
+      .......................................................................
+-->
+
+
+<P>
+
+
+<!--  .......................................................................
+      FOOTER: The sourceforge button.
+      .......................................................................
+-->
+
+<HR NOSHADE SIZE=1>
+
+    <TABLE BORDER="0"
+           bgcolor="#EEEEF8"
+           WIDTH="100%"
+           CELLPADDING="2"
+           CELLSPACING="0"
+           >
+
+        <TR>
+          <TD>
+              <A HREF="http://sourceforge.net">
+              <IMG SRC="http://sourceforge.net/sflogo.php?group_id=4467&amp;type=1"
+                    width   = "88"
+                    height  = "31"
+                    border  = "0"
+                    alt     = "SourceForge Logo"
+                    >
+              </A>
+          </TD>
+          <TD WIDTH="100%">
+              <FONT SIZE="-1">
+                  <I>
+                  This project, as well as many other opensource projects
+                  sites, is hosted by
+                  <A HREF="http://sourceforge.net/">sourceforge.net</A>.
+                  </I>
+              </FONT>
+          </TD>
+        </TR>
+        <TR>
+          <TD>
+          </TD>
+          <TD>
+            Visit Cygwin homepage at
+
+            <a href="http://www.cygwin.com">
+            http://www.cygwin.com
+            </a>
+
+          </TD>
+        </TR>
+    </TABLE>
+
+
+
+
+</BODY>
+</HTML>
