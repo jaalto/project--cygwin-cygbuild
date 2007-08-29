@@ -33,10 +33,11 @@ Project Description
 
     Requirements
 
-        The project uses intepreted languages and no tools need to be
+        The aplication consists of set of programs that use intepreted
+        languages. No external windows program or other tools need to be
         compiled. The program dependencies are:
 
-        o   Bash                    2.04+
+	o   Bash                    2.04+
         o   Perl                    5.004+
         o   GNU make                any version
         o   GNU binutils            any version
@@ -47,7 +48,7 @@ Project Description
         o   Cygwin          any version
         o   Standard *nix utils: awk, sed, ls etc.
 
-        It might be possible to setup a Cygwin cross compiling
+        It is possible to setup a Cygwin cross compiling
         environment in other OS than Windows, but the author has no
         experince on that setup.
 
