@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0829.2309"
+CYGBUILD_VERSION="2007.0830.0018"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6650,7 +6650,7 @@ function CygbuildCmdPrepMain()
         return 1
     fi
 
-    local msg="--   [prep] Skipping patch; source already unpacked"
+    local msg="--   [prep] Skipping Cygwin patch; source already unpacked"
 
     if ! CygbuildCmdPrepIsUnpacked "$msg" ; then
         CygbuildExtractMain         || return $?
@@ -6675,26 +6675,45 @@ function CygbuildCmdPrepMain()
     fi
 }
 
+function CygbuildShellEnvironenment()
+{
+    local list
+
+    [ "$CYGBUILD_CC" ] &&
+    list="$list CC='${CYGBUILD_CC}'"
+
+    [ "$CYGBUILD_CXX" ] &&
+    list="$list CXX='${CYGBUILD_CXX}'"
+
+    [ "$CYGBUILD_LDFLAGS" ] &&
+    list="$list LDFLAGS='${CYGBUILD_LDFLAGS}'"
+
+    [ "$CYGBUILD_CFLAGS" ] &&
+    list="$list CFLAGS='${CYGBUILD_CFLAGS}'"
+
+    if CygbuildIsEmpty "$list" ; then
+        return 1
+    fi
+
+    echo $list
+}
+
 function CygbuildRunShell()
 {
-    #   Make sure minimal compiler settings exists
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
-    CygbuildIsEmpty "$CYGBUILD_CC"   && CC="gcc"
-    CygbuildIsEmpty "$CYGBUILD_CXX"  && CXX="g++"
+    local env
+    CygbuildShellEnvironenment > $retval
+    [ -s $retval ] && env=$(< $retval)
 
-    local cmd
-
-    cmd="$cmd CC='${CYGBUILD_CC:-$CC}'"
-    cmd="$cmd CXX='${CYGBUILD_CXX:-$CXX}'"
-    cmd="$cmd CFLAGS= LDFLAGS='${CYGBUILD_LDFLAGS:-$LDFLAGS}'"
-
-    CygbuildVerb "--   Running $(eval $cmd) $@"
+    CygbuildVerb "--   Running $(eval $env) $@"
 
     local status
 
     CygbuildPushd
         cd "$builddir"      || exit $?
-        eval ${test:+echo} $cmd "$@"
+        eval ${test:+echo} $env "$@"
         status=$?
     CygbuildPopd
 
@@ -7138,13 +7157,13 @@ function CygbuildCmdBuildMainMakefile()
 
                 local dummy=$(pwd)   # For debugging
 
-                $MAKE -f $makefile                      \
+                local env
+                CygbuildShellEnvironenment > $retval
+                [ -s $retval ] && env=$(< $retval)
+
+                eval $MAKE -f $makefile                 \
                     AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
-                    CFLAGS="$CYGBUILD_CFLAGS"           \
-                    CXXLAGS="$CYGBUILD_CXXFLAGS"        \
-                    LDFLAGS="$CYGBUILD_LDFLAGS"         \
-                    CC="${CYGBUILD_CC:-${CC:-gcc}}"     \
-                    CXX="${CYGBUILD_CXX:-${CXX:-g++}}"  \
+                    $env                                \
                     $CYGBUILD_MAKEFLAGS
             )
 
