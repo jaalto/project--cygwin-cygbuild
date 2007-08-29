@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+#  :COMMENT:
+
+set -e
+
+PATH="/bin:/usr/bin:/sbin:/usr/sbin:$PATH"
+
+CVSROOT=":URL:"
+DATE=":CHECKOUTDATE:"
+DIR=":CHECKOUTDIR:"
+MODULE=":CHECKOUTMODULE:"
+PASS=":PASS:"
+verbose="verbose"
+
+PrintBanner ()
+{
+    [ ! "$verbose" ] && return
+
+    echo "\
+-- Script to download CVS snapshot sources
+-- Internet connection is needed"
+
+}
+
+CheckBin ()
+{
+    if ! which $1 > /dev/null 2>&1 ; then
+        echo "$0: [FATAL] Program $1 was not found in PATH"
+        exit 1
+    fi
+}
+
+CheckBinList ()
+{
+    for bin in $*
+    do
+        CheckBin $bin
+    done
+}
+
+Checkout()
+{
+    if [ "$verbose" ]; then
+        echo "\
+-- This script was generated $DATE
+Will download sources by running commands:
+  cvs -d $CVSROOT login
+  cvs -d $CVSROOT co -D '$DATE' $ROOT -d $DIR $MODULE
+"
+    fi
+
+    expect -c << EOF
+        send "cvs login"
+        expect "password:"
+        send "$PASS\n"
+EOF
+    cvs co -D "$DATE" $ROOT -d $DIR $MODULE
+}
+
+Main ()
+{
+    [ "$1" == "--quiet" ] && verbose=""
+
+    PrintBanner "$@"
+    CheckBinList expect cvs
+    Checkout "$@"
+}
+
+Main "$@"
+
+# End of file

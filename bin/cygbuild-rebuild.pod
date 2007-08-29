@@ -77,8 +77,8 @@ None known.
 =head1 AUTHOR
 
 Copyright (C) 2003-2007 Jari Aalto.
-This program is free software; you can redistribute and/or modify program
-under the same terms as Perl itself or in terms of Gnu General Public
-licence v2 or later.
+
+This program is free software; you can redistribute and/or modify it
+under Gnu General Public licence v2 or later.
 
 =cut

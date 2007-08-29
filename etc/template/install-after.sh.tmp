@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# install-after.sh -- Custom installation
+#
+# The script will receive one argument: relative path to
+# installation root directory. Script is called like:
+#
+#    $ install-after.sh .inst
+#
+# This script is run after [install] command.
+
+Cmd()
+{
+    echo "$@"
+    [ "$test" ] && return
+    "$@"
+}
+
+Main()
+{
+    root=${1:-".inst"}
+
+    if [ "$root"  ] && [ -d $root ]; then
+
+        root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
+
+        # example 1) Copy whole 'doc' directory to package dir
+        # Cmd mv $root/doc $root/usr/share/doc
+        #
+        # example 2) copy missing t.sh to package dir
+        # Cmd install -m 755 $root/usr/share/bin/t.sh $root/usr/bin
+
+    fi
+}
+
+Main "$@"
+
+# End of file

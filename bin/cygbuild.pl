@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 #
-#       Copyright (C)  2003-2007 Jari Aalto
-#       Author:        Jari Aalto
-#       Created:       2003-06
+#   cygbuild.pl --- A Perl library for Cygwin Net Release packager
+#
+#       Copyright (C) 2003-2007 Jari Aalto
+#
+#   Copyright
 #
 #       This program is free software; you can redistribute it and/or
 #       modify it under the terms of the GNU General Public License as
@@ -14,10 +16,7 @@
 #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #       General Public License for more details.
 #
-#       You should have received a copy of the GNU General Public License along
-#       with this program; if not, write to the Free Software Foundation,
-#       Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-#       Visit http://www.gnu.org/copyleft/gpl.html
+#    Description
 #
 #       This program is part of the cygbuild: Utilities for Cygwin package
 #       maintainers.
@@ -25,7 +24,7 @@
 #       This file is bifunctional. It's a callable perl script, but also a perl
 #       function library. It is controlled from cygbuild.sh which see:
 #
-#               $ cygbuild --help
+#           $ cygbuild --help
 
 use 5.004;
 use strict;
@@ -707,10 +706,10 @@ content is examined and README file is updated accordingly. Follow these
 steps:
 
     1. Generate initial binary package with command [package].
-       Ignore all errors that may be displayed concerning 
+       Ignore all errors that may be displayed concerning
        PKG, VER etc. tags.
     2. Run [readmefix]
-    3. Run [install] to update the changed README to 
+    3. Run [install] to update the changed README to
        the correct location
     3. Generate binary package again with command [package}
 
@@ -842,7 +841,7 @@ sources.
 =item B<patch-check>
 
 Display content of C<CYGWIN-PATCHES/done-patches.tmp> if any and list
-filenames from result of command B<[mkpatch]>. 
+filenames from result of command B<[mkpatch]>.
 
 =item B<unpatch>
 

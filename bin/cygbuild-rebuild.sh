@@ -1,14 +1,31 @@
 #!/bin/bash
 #
-#   This script build everything under current top level directory.
-#   Used for rebuilding Cygwin Net Release packages. The logic is:
+#       Copyright (C) 2003-2007 Jari Aalto
 #
-#   - Ascend to every package dir (./foo/)
-#   - Find latest package directory (./foo/foo-1.4/)
-#   - Build everything using cygbuild.sh
+#   Copyright
+#
+#       This program is free software; you can redistribute it and/or
+#       modify it under the terms of the GNU General Public License as
+#       published by the Free Software Foundation; either version 2 of
+#       the License, or (at your option) any later version.
+#
+#       This program is distributed in the hope that it will be useful, but
+#       WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#       General Public License for more details.
+#       Visit <http://www.gnu.org/copyleft/gpl.html>
+#
+#    Description
+#
+#       This script build everything under current top level directory.
+#       Used for rebuilding Cygwin Net Release packages. The logic is:
+#
+#       - Ascend to every package dir (./foo/)
+#       - Find latest package directory (./foo/foo-1.4/)
+#       - Build everything using cygbuild.sh
 
 NAME="cygbuild-rebuild"
-VERSION="2007.0828.2310"
+VERSION="2007.0829.1325"
 
 find='find . -type d -maxdepth 1 | grep -Eve "^\.$|-orig" | sort'
 

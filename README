@@ -1,4 +1,4 @@
-Copyright
+Copyright information
 
         #T2HTML-TITLE Cygbuild README
         #T2HTML-OPTION --as-is
@@ -6,10 +6,13 @@ Copyright
         #T2HTML-OPTION --css-code-note
         #T2HTML-OPTION Note:
 
-        Copyright (C) Jari Aalto
-        All files and documentaiton in this project is released under GPL.
+        Copyright (C) 2003-2007 Jari Aalto
 
-        This program is free software; you can redistribute it and/or
+        All files and documentaton in this project are released under
+        GNU General Public License.
+
+        This program (referring to all files distributed in project
+        "cygbuild") is free software; you can redistribute it and/or
         modify it under the terms of the GNU General Public License as
         published by the Free Software Foundation; either version 2 of
         the License, or (at your option) any later version.
