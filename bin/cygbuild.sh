@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0828.2335"
+CYGBUILD_VERSION="2007.0829.2309"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6544,7 +6544,7 @@ function CygbuildCmdPrepIsUnpacked()
     local id="$0.$FUNCNAME"
     local msg="$1"
 
-    if [[ -d "$srcdir" ]]; then
+    if [ -d "$srcdir" ]; then
         [ "$msg" ] && echo "$msg"
     else
         return 1
@@ -6556,10 +6556,10 @@ function CygbuildCmdPrepPatch()
     local id="$0.$FUNCNAME"
     local status=0
 
-    if ! CygbuildCmdPrepIsUnpacked ; then
+    if [ ! -f $DIR_CYGPATCH/$PKG.README ]; then
         CygbuildPushd
             cd $TOPDIR              &&
-            $RM -f *.o 2> /dev/null &&  # Otherwise does not start compiling
+            $RM -f *.o 2> /dev/null && # Otherwise does not start compiling
             CygbuildPatchApplyRun ${FILE_SRC_PATCH##*/}
             status=$?
         CygbuildPopd
@@ -6654,15 +6654,15 @@ function CygbuildCmdPrepMain()
 
     if ! CygbuildCmdPrepIsUnpacked "$msg" ; then
         CygbuildExtractMain         || return $?
-        CygbuildCmdPrepPatch        || return $?
-
-        CygbuildPushd
-            echo "--   [NOTE] applying included patches to sources (if any)"
-            cd "$srcdir"            || return $?
-            CygbuildPatchApplyMaybe || return $?
-        CygbuildPopd
-
     fi
+
+    CygbuildCmdPrepPatch        || return $?
+
+    CygbuildPushd
+      echo "--   [NOTE] applying included patches to sources (if any)"
+      cd "$srcdir"            || return $?
+      CygbuildPatchApplyMaybe || return $?
+    CygbuildPopd
 
     CygbuildCmdMkdirs || return $?
 
@@ -9678,6 +9678,7 @@ function CygbuildCommandMain()
                     if CygbuildAskYes "There was an error. Run [finish]"
                     then
                         CygbuildCmdFinishMain
+                        break
                     else
                         echo "... remove the SRC directory when ready"
                     fi
