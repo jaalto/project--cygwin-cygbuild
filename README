@@ -22,44 +22,51 @@ Copyright information
         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
         General Public License for more details.
 
-        You should have received a copy of the GNU General Public License
-        along with this program; if not, write to the Free Software
-        Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
         Visit http://www.gnu.org/copyleft/gpl.html
 
 Project Description
 
     Requirements
 
-        This is README file of *cygbuild* project. The are no files
-        that would need to be compiled. The project uses intepreted
-        languages. To install and run these utilities, you need:
+        The are no files that would need to be compiled. The project
+        uses intepreted languages. The program dependencies are:
 
-        o   Bash            2.04
-        o   Perl            5.004
+        o   Bash            2.04+
+        o   Perl            5.004+
         o   GNU make        any version
+        o   GNU binutils    any version
+        o   GNU gcc         any version
+
+        OS requirements:
+
+        o   Cygwin          any version
+        o   Standard *nix utils: awk, sed, ls etc.
+
+        It might be possible to setup a Cygwin cross compiling
+        environment in other OS than Windows, but the author has no
+        experince on those setups.
 
     Description
 
         Short project's description
 
-            Utilities for Win32 Cygwin source and binary package
+            Utilities for Cygwin source and binary package
             maintainers. To configure, build, strip, produce diffs and
             generate cygwin specific template files. To put it simply:
             Convert Unix/Linux/Perl package into complete Cygwin Net
             Release distribution.
 
         Cygbuild is like Debian dh_make(1) .deb or rpm(1) .rpm maker
-        utility, but for Win32 Cygwin platform. If you are familiar with
-        .deb or .rpm making or Activestate Perl .ppm and .ppd files, the
-        Cygwin Net release packaging <http://www.cygwin.com> is just
-        another variant of these existing packaging methods. The process is
-        quite straight forward: one must mirror whole system directory
-        structure where the files would go, place the les there and wrap
-        all in a package-NN.NN-RELEASE.tar.bz2 package. The end user
-        installs this premade tar package at system root /. This is the
-        methodology of making Cygwin Net releases.
+        utility, but for Cygwin platform. If you are familiar with
+        .deb or .rpm making or Activestate Perl .ppm and .ppd files,
+        the Cygwin Net release packaging <http://www.cygwin.com> is
+        just another variant of these existing packaging methods. The
+        process is quite straight forward: one must mirror whole
+        system directory structure where the files would go, place the
+        les there and wrap all in a package-NN.NN-RELEASE.tar.bz2
+        package. The end user installs this premade tar package at
+        system root /. This is the methodology of making Cygwin Net
+        releases.
 
         Normally the porting process starts by downloading some Unix or
         Linux package that would be nice to have under Cygwin as well. So

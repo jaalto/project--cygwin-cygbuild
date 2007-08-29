@@ -1488,7 +1488,7 @@ the directory structure would look like this (listing has been condensed):
     .inst/usr/share/doc/foo-1.13
     .inst/usr/share/doc/foo-1.13/AUTHORS
     .inst/usr/share/doc/foo-1.13/BUGS
-    .inst/usr/share/doc/foo-1.13/INSTALL.win32
+    .inst/usr/share/doc/foo-1.13/INSTALL
     .inst/usr/share/doc/foo-1.13/NEWS
     .inst/usr/share/doc/Cygwin
     .inst/usr/share/doc/Cygwin/foo-1.13.README
