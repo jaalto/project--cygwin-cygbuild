@@ -28,14 +28,14 @@ Project Description
 
     Requirements
 
-        The are no files that would need to be compiled. The project
-        uses intepreted languages. The program dependencies are:
+        The project uses intepreted languages and no tools need to be
+        compiled. The program dependencies are:
 
-        o   Bash            2.04+
-        o   Perl            5.004+
-        o   GNU make        any version
-        o   GNU binutils    any version
-        o   GNU gcc         any version
+        o   Bash                    2.04+
+        o   Perl                    5.004+
+        o   GNU make                any version
+        o   GNU binutils            any version
+        o   GNU compiler collection any version
 
         OS requirements:
 
@@ -44,117 +44,113 @@ Project Description
 
         It might be possible to setup a Cygwin cross compiling
         environment in other OS than Windows, but the author has no
-        experince on those setups.
+        experince on that setup.
 
     Description
 
-        Short project's description
+        Short project description
 
             Utilities for Cygwin source and binary package
             maintainers. To configure, build, strip, produce diffs and
-            generate cygwin specific template files. To put it simply:
-            Convert Unix/Linux/Perl package into complete Cygwin Net
-            Release distribution.
+            generate Cygwin specific files. To put it simply: convert
+            any freely available program or package into complete
+            Cygwin Net Release distribution.
 
         Cygbuild is like Debian dh_make(1) .deb or rpm(1) .rpm maker
         utility, but for Cygwin platform. If you are familiar with
-        .deb or .rpm making or Activestate Perl .ppm and .ppd files,
-        the Cygwin Net release packaging <http://www.cygwin.com> is
-        just another variant of these existing packaging methods. The
+        .deb or .rpm or Activestate Perl .ppm and .ppd files, the
+        Cygwin Net release packaging <http://www.cygwin.com> is just
+        another variant of these similar packaging methods. The
         process is quite straight forward: one must mirror whole
-        system directory structure where the files would go, place the
-        les there and wrap all in a package-NN.NN-RELEASE.tar.bz2
-        package. The end user installs this premade tar package at
-        system root /. This is the methodology of making Cygwin Net
-        releases.
+        system directory structure where the files would go (a la
+        Slackware), fill in the files and wrap all in a
+        package-NN.NN-RELEASE.tar.bz2 archive. The end user unpacks
+        this premade tar package at system root /. This is the
+        methodology of making Cygwin Net releases.
 
-        Normally the porting process starts by downloading some Unix or
-        Linux package that would be nice to have under Cygwin as well. So
-        the porter must
+        Normally the porting process starts by downloading some
+        interesting package that would be nice to have in Cygwin as
+        well. So the porter must
 
-        o   Unpack package (tar.gz)
-        o   Configure it (.configure)
-        o   Build it .. usually there are some Cygwin work to do (make all)
-        o   See if the install method uses install(1), if not, the porter
-            must make his own install method
+        o   Unpack original package (tar -zxf tar.gz)
+        o   Configure it (./configure)
+        o   Build it (make all) .. usually there are some Cygwin work to doa
+        o   Verify that installation uses install(1). If not, the porter
+            must make corrections and adjustments.
 
         All of these steps can be automated in a certain degree for
-        Unix/Linux packages that use standard packaging shemes like:
+        those that use standard conventions:
 
-        o   Standard GNU packages than include ./configure
-        o   Debian .orig.tar.gz packages
-        o   Library package (lib*.a etc) => see command 'package-devel'
-        o   Standard Perl packages that include Makefile.PL
+        o   GNU packaging, which use automake, autoconf and ./configure
+        o   Debian *.orig.tar.gz packages
+        o   Perl packages that include standard Makefile.PL
+        o   Python packages that include standard setup.py
 
-        If the automatic packaging cannot be use (make all, make install),
-        there are custom install files that the porter can tweak. The manual
-        explains this in detail (see doc/ directory):
-
-            cygbuild.sh --help
+        If the automatic packaging cannot be used (./configure && make
+        all && make install), there are custom install files that the
+        porter can tweak. The manual explains this in detail. See doc/
+        directory for details.
 
     What are the benefits of using Cygbuild?
 
-        There is much more simple (some ~300 lines) generic bourne shell
-        example script at <http://cygwin.com/setup.html> which can also
-        be used for maintaining a Cygwin Net Release. Cygbuild has been
-        evolved from it and combines "Method One" and "Method Two" and adds
-        "Method three++" (automation) from Package Contributor's Guide. The
+        Years back the portes used simple (some ~300 lines) bourne
+        shell example script at (see <http://cygwin.com/setup.html>)
+        which outlined the rudimentary helper tasks. During developing
+        Cygbuild, the command names from the original porting tool has
+        been preserved (conf, prep, make, strip pkg, spkg ...). The
         advantages are:
 
         o   You do not have to write separate installation scripts to every
             package. The same script can be used over and over; every time
             you port a new version of some package.
-        o   The detection of packaging type (Perl, Library, Stripping of
+        o   The detection of packaging type (Perl, Library, stripping of
             *.exe *.dll etc.) is all automatic.
-        o   Possibility to to use optional user written external scripts
+        o   It is possible to use optional user written external scripts
             which provide modularised way of handling difficult ports.
-        o   Extra checks to prevent developer missing things that
-            should have been taken cared of; command: [check]
-        o   Automatic package.README file update reflaecting the current
-            build and release numbers.
-        o   Recognizes Perl packages and treats them accordingly.
-        o   Ability to package both binary and source packages
+            This is similar to how Debian packages work.
+        o   A 'check' command is provided to help developer notify things
+            missing that should have been taken cared of.
+        o   A 'readmefix' is provided to help maintaining the  Cygwin
+            specific <package>.README.
+        o   Perl packages are recognized and treated accordingly.
+        o   It is possibly to build snapshot packges
             straight from version control sources.
-        o   Extensible. Written in bash and uses Perl module cygbuild.pl for
+        o   Extendable. Written in bash and uses Perl module cygbuild.pl for
             tasks that are too hard or slow for bash.
 
-    The manual porting method
+        Cygbuild resembles in many respects how Debian packaging is
+        handled with separate control files and patching
+        possibilities. There is also alternative utility, cygport.
+        that resembles more like how Gentoo manages the ports. See
+        Yaakov Selkowitz's <http://cygwinports.sunsite.dk/> for more
+        information.
 
-        If this utility does not provide the rope needed, it is always
-        possible to do all manually and start from scratch. Use and tweak
-        the Generic build script that is provided at page
-        <http://cygwin.com/setup.html>. Read it for detailed information
-        how to the Cygwin Net release packaging system works.
+Install instructions
 
-Package install instructions
+    If you received cygbuild in standard Cygwin binary archive format,
+    it is installed by unpacking it at root directory:
 
-    Installing package
-
-        <see `index.html' for this section>
+        tar -C / -jxf <name-of-package.tar.bz2>
 
     Installing from a version control checkout:
 
-        Details how to check out the project can ve found from
-        project page. After checkout, help is vailable at:
+        Details how to check out the project can ve found from project
+        page. After checkout, various development commands can be
+        listed with:
 
             make help
 
-        Following command updates current environment to the latest
-        versions. The `install-in-place' does not copy the files to
-        /usr/bin, but uses symbolic links.
+        The command `install-in-place' does not copy the files to
+        /usr/bin, but uses symbolic links that refer to current
+        checkout location.
 
-            $ cd <project-dir>/cygbuild
             $ make install-in-place
 
-        After that, to keep project up to date:
+        After that, you only need to update the project from time to
+        time from version control repository. After each checkout or
+        update, you may want to update the templete files to their
+        latest versions with:
 
-            $ cd <project-dir>/cygbuild
-            $ git pull
-
-        You may also want to run this make target in order to update
-        the templete files to the latest versions
-
-            $ cd <project-dir>/cygbuild
             $ make install-etc
 
 Information for developers
@@ -163,71 +159,57 @@ Information for developers
 
         All changes are documented using Emacs editor and standard
         package *add-log.el*, which provides command `C-x' `4' `a' to
-        record a change to any file at point. Emacs will pick up the
-        main `ChangeLog' file and open a change entry there, whose
-        format is:
+        record a change to file at point. Emacs will pick up the main
+        `ChangeLog' file and open an entry there. An example:
 
-            * file.txt: (Changed topic,function,heading): Describe
-            the change in consequent lines.
+            * Makefile: (TOP LEVEL): Added new variable $USER
 
         Since all changes are recorded to this file, a copy from
-        Changelog can be pasted when making a checkin.
+        Changelog can be pasted when making a commit.
 
     Makefiles
 
-        The make file logic has been separated into `etc/makefile'
-        directory from where they are included to main `Makefile'. If you
-        have similar needs to build Cygwin Net releases for other projects,
-        it could be possible to copy `cygwin.mk' and use it out of the box.
-        The makefiles included are:
+        The make files are in separate directory `etc/makefile' from
+        where they are included to main `Makefile'. File are:
 
-            id.mk           Project maintainer information (variables)
+            Makefile        The main controller.
+            id.mk           Maintainer information (variables)
             vars.mk         General variables
-            unix.mk         Making General Unix targests (clean, install etc.)
+            unix.mk         Common targets (clean, install etc.)
             cygwin.mk       Cygwin specific targets (making Net releases)
-            net.mk          Network connections
+            net*.mk         Network connection targets
 
-            Makefile        The main controller, additional targests
-                            needed in project file, which cannot be
-                            used generally.
+    To convert Cygbuild into installable Cygwin binary package
 
-    Making binary package
-
-        First, make world release. It is a preliminary step for Cygwin
-        release
+        First, make world release. It is a preliminary preparation step:
 
             make release-world
 
-        Now Cygwin binary and source packages can be done with these steps.
-        The first make target will make the package and the `list-cygwin'
-        shows the content of the package. The source package (not really
-        needed) is done with: make release-cygwin-source.
+        After that Cygwin binary and source packages can be made. The
+        first command will make the Cygwin binary package and the
+        `list-cygwin' will show the content of the made package. The
+        Cygwin source package (not really needed) can be made with
+        'make release-cygwin-source'.
 
             make RELEASE=1 release-cygwin-bin
             make list-cygwin
 
-        The package can be put to local Apache web server's publish
-        area with make target: 'make publish-cygwin'. See RELEASEDIR
+        There is also command 'make publish-cygwin'. See RELEASEDIR
         variable in etc/makefile/* for more information.
 
-    Releasing package
+    Releasing cygbuild package
 
-        A ready package is found under directory `.build/' and it can be
-        uploaded:
+        Made packages are found under directory `.build/' from where
+        files can be uploaded:
 
-                 make USER=username sf-upload-release
+            make USER=username sf-upload-release
 
-        Log in to project, go to project page and select [Admin] page
-        in which there is a button to [File Releases] page. Follow the
-        page's instructions and use button [add release]. The release
-        name is YYYY.MMDD.
+        Log in to project page, select [Admin] page and button to
+        [File Releases]. Follow the page's instructions and use button
+        [add release]. The release name is YYYY.MMDD.HHMM.
 
-        The "File Type" is set as "i386" ".exe; 32-bit Windows" to signify
-        that this project is solely for Windows and the package files is
-        "binary" release, which should be unpacked in place.
-
-        To upload documentation, use following make target and login
-        name:
+        Select "File Type" to "i386; .exe; 32-bit Windows". To upload
+        documentation, use following make target:
 
             make USER=<SF_LOGINNAME> sf-upload-doc
 
@@ -237,11 +219,11 @@ Information for developers
             make USER=<SF_LOGINNAME> sf-upload-cygwin-setup-ini
             make USER=<SF_LOGINNAME> sf-upload-cygwin-release
 
-    Source package note
+    Source packages
 
         See make target `release-cygwin-source'.
 
-    Exporting development
+    Exporting archive
 
         There is a make target `release-world' that makes a tar.gz
         file from checkout. Should that ever be needed. This target
@@ -250,7 +232,8 @@ Information for developers
 
     Converting text files into HTML
 
-        In order to convert text files (README) into HTML, program
-        *t2html.pl* is needed. See http://perl-text2html.sourceforge.net/
+        In order to convert text files (README) into HTML, free
+        program *t2html.pl* is needed. See
+        http://perl-text2html.sourceforge.net/
 
 End of file
