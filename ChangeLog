@@ -21,6 +21,8 @@
 	parameter $type, which control if exclude or include is wanted.
 	(function CygbuildInstallPackageDocs()): 1.937 Support new
 	--include from install.tar.options
+	(function CygbuildPatchPrefixStripCountFromContent()): 1.937
+	Removed `mercurical' variable and replaced with generic one.
 
 2007-08-29 Wed  Jari Aalto  <jari dot aalto A T cante dot net>
 

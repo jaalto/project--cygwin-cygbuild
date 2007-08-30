@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0830.1518"
+CYGBUILD_VERSION="2007.0830.1819"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6132,7 +6132,7 @@ function CygbuildPatchPrefixStripCountFromContent()
     local tmp=0
     local saved="$IFS"
     local path=$(< $retval)
-    local mercurial
+    local prefix1
 
     if [ -f "$path" ]; then
         echo 0      # No strip needed
@@ -6140,10 +6140,10 @@ function CygbuildPatchPrefixStripCountFromContent()
     fi
 
     if [[ "$path" == b/* ]]; then
-        #  Mercurical uses format:
+        #  Mercurical and Git outputs 'patch -p1' format:
         #   --- a/Makefile.in       Sun Aug 05 20:45:37 2007 +0300
         #   +++ b/Makefile.in       Sun Aug 05 23:55:17 2007 +0300
-        mercurial="$path"
+        prefix1="$path"
     fi
 
     #   If PART name match the package name, then that is
@@ -6168,7 +6168,7 @@ function CygbuildPatchPrefixStripCountFromContent()
 
     #  If no PKG was found, then perhaps this is patch generated from VCS
 
-    if [ ! "$count" ] && [ "$mercurial" ] && [ ! -f "$mercurial" ]; then
+    if [ ! "$count" ] && [ "$prefix1" ] && [ ! -f "$prefix1" ]; then
         count=1
     fi
 
