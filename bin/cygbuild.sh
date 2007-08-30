@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0830.1103"
+CYGBUILD_VERSION="2007.0830.1252"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5476,9 +5476,17 @@ function CygbuildMakefilePrefixCheck()
                 return 0
             fi
 
+            local file="$DIR_CYGPATCH/install.sh"
+            local msg
+
+            if [ ! -f $file ]; then
+                msg=". You may need to write custom install.sh"
+            fi
+
             CygbuildWarn \
                 "--   [WARN] Makefile may not use variables 'DESTDIR'" \
-                "or 'prefix'. You may need to write custom install.sh"
+                "or 'prefix'$msg"
+
         fi
     fi
 }

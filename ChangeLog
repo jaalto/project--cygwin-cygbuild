@@ -6,8 +6,11 @@
 	`CygbuildShellEnvironenment'
 	(function CygbuildCmdBuildMainMakefile()): 1.937 Removed duplicate
 	environment code. Use `CygbuildShellEnvironenment'
-	(function CygbuildDefineGlobalCompile()): 1.937 Permanently
-	override CC=gcc, CXX=g++
+	(function CygbuildDefineGlobalCompile()): 1.937 Initially
+	set CC=gcc and CXX=g++
+	(function CygbuildMakefilePrefixCheck()): 1.937 Check
+	if there already is custom install.sh and do not display
+	message about it.
 
 2007-08-29 Wed  Jari Aalto  <jari dot aalto A T cante dot net>
 
