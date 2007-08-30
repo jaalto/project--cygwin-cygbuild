@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0830.1819"
+CYGBUILD_VERSION="2007.0831.0010"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1531,7 +1531,7 @@ function CygbuildPathResolveSymlink()
 
         /usr/bin/namei $abs \
             | tail -3 \
-            | $EGREP -i ' l .* -> ' \
+            | $EGREP --ignore-case ' l .* -> ' \
             > $retval
 
         if [ -s $retval ]; then
@@ -3561,8 +3561,8 @@ function CygbuildDetermineDocDir()
     #   There must be trailing slash, because DIR may be a symlink and
     #   the content is important.
 
-    if $LS -F $dir/ |\
-       $EGREP -i "^doc.*/|docs?/$" > $retval
+    if $LS -F $dir/ |
+       $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
     then
         for try in $(< $retval)
         do
@@ -3652,7 +3652,7 @@ function CygbuildGPGverify()
             CygbuildGrepCheck "Good.*signature" $tmp
             status=$?
         elif [ "$quiet" ]; then
-            $EGREP -i "(Good|bad).*signature" $tmp
+            $EGREP --ignore-case "(Good|bad).*signature" $tmp
         else
             $CAT $tmp
         fi
@@ -5031,7 +5031,7 @@ function CygbuildCmdPkgSourceCvsdiff()
             status=0
         else
             CygbuildWarn "$id: [ERROR] Making a patch failed, check $out"
-            $EGREP -n -i 'files.*differ' $out
+            $EGREP -n --ignore-case 'files.*differ' $out
             status=$(( $status + 10 ))
         fi
 
@@ -7462,12 +7462,12 @@ function CygbuildInstallPackageDocs()
 
     local done name file match
 
-    for file in $srcdir/[A-Z][A-Z][A-Z]* \
-                $srcdir/changelog        \
-                $srcdir/ChangeLog        \
-                $srcdir/*.html           \
-                $srcdir/*.pdf            \
-                $srcdir/*.txt
+    for file in $builddir/[A-Z][A-Z][A-Z]* \
+                $builddir/changelog        \
+                $builddir/ChangeLog        \
+                $builddir/*.html           \
+                $builddir/*.pdf            \
+                $builddir/*.txt
 
     do
 
@@ -7504,7 +7504,7 @@ function CygbuildInstallPackageDocs()
     if [ "$matchInclude" ]; then
         CygbuildPushd
 
-            cd "$srcdir"
+            cd "$builddir"
 
             # @(<pattern>) => <pattern>
 
@@ -7523,7 +7523,7 @@ function CygbuildInstallPackageDocs()
 
     #   Next, install whole doc/, Docs/ ... directory
 
-    CygbuildDetermineDocDir $srcdir > $retval
+    CygbuildDetermineDocDir $builddir > $retval
     local dir=$(< $retval)
 
     if [ "$dir" ]; then
