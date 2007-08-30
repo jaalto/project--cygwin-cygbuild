@@ -1,6 +1,6 @@
 2007-08-30 Thu  Jari Aalto  <jari dot aalto A T cante dot net>
 
-	* bin/cygbuild.pl (Version): 1.257 Correct handling of exotic
+	* bin/cygbuild.pl (Version): 1.257 Correct handling of complex
 	package name foo-1.80+dbg-0.61.tar.gz
 
 	* bin/cygbuild.sh (function CygbuildShellEnvironenment()): 1.937
