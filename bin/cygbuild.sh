@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0830.0018"
+CYGBUILD_VERSION="2007.0830.1103"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2780,6 +2780,9 @@ function CygbuildDefineGlobalCompile()
 
     fi
 
+    CYGBUILD_CC="gcc"                                           # global-def
+    CYGBUILD_CXX="g++"                                          # global-def
+
     if [ -x /usr/bin/ccache ]; then
 
         if [ "$libtool" ]; then
@@ -2798,20 +2801,14 @@ function CygbuildDefineGlobalCompile()
             fi
         else
             local msg
+            msg="-- [INFO] Using ccache for CC environment variable"
 
-            if [ "$CC" = "gcc" ]; then
-                msg="-- [INFO] Using ccache for CC environment variable"
+            CYGBUILD_CC="ccache gcc"                        # global-def
 
-                CYGBUILD_CC="ccache gcc"                        # global-def
-
-                if CygbuildIsMakefileCplusplus ; then
-                    CYGBUILD_CC="ccache g++"
-                fi
+            if CygbuildIsMakefileCplusplus ; then
+                CYGBUILD_CC="ccache g++"
             fi
-
-            if [ "$CXX" = "g++" ]; then
-                CYGBUILD_CXX="ccache g++"                       # global-def
-            fi
+            CYGBUILD_CXX="ccache g++"                       # global-def
 
             CygbuildVerb $msg
         fi
