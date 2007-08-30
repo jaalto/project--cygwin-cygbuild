@@ -1,6 +1,7 @@
 # -- THIS AN EXAMPLE; Remove .tmp extension to activate --
-# This file contains extra options passed to tar when files from doc/
+# This file contains extra options when files from doc/
 # are installed. The options are given one option per line.
 #
 # --exclude=Makefile.in
 # --exclude=package.1.in
+# --include=DOCU/*.rtf

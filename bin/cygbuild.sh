@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0830.1252"
+CYGBUILD_VERSION="2007.0830.1518"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7406,12 +7406,21 @@ function CygbuildInstallTaropt2match ()
 {
     #   Convert each --exclude=  option into BASH match format.
 
+    local type="$1"   # exclude or include
+    shift
+
+    local find="--exclude="
+
+    if [ "$type" = "include" ]; then
+        find="--include="
+    fi
+
     local ret item
 
     for item in $*
     do
-        if [[ "$item" == --exclude=* ]]; then
-            item=${item/--exclude=}     # Delete this portion
+        if [[ "$item" == $find* ]]; then
+            item=${item/$find}     # Delete this portion
             if [[ "$ret"  &&  "$item" ]]; then
                 ret="$ret|$item"
             else
@@ -7441,11 +7450,14 @@ function CygbuildInstallPackageDocs()
     CygbuildFileReadOptionsMaybe "$EXTRA_TAR_OPTIONS_INSTALL" > $retval
     local optExtra=$(< $retval)
 
-    local matchExtra
+    local matchExclude matchInclude
 
     if [ "$$optExtra" ]; then
-        CygbuildInstallTaropt2match "$optExtra" > $retval
-        [ -s $retval ] && matchExtra=$(< $retval)
+        CygbuildInstallTaropt2match exclude "$optExtra" > $retval
+        [ -s $retval ] && matchExclude=$(< $retval)
+
+        CygbuildInstallTaropt2match include "$optExtra" > $retval
+        [ -s $retval ] && matchInclude=$(< $retval)
     fi
 
     local done name file match
@@ -7475,7 +7487,7 @@ function CygbuildInstallPackageDocs()
         CygbuildMatchBashPatternList \
             "$file" $CYGBUILD_INSTALL_IGNORE && continue
 
-        if [[ "$matchExtra"  &&  "$name" == $matchExtra ]]; then
+        if [[ "$matchExclude"  &&  "$name" == $matchExclude ]]; then
             continue
         fi
 
@@ -7488,6 +7500,26 @@ function CygbuildInstallPackageDocs()
         CygbuildRun $scriptInstallFile $file $dest
 
     done
+
+    if [ "$matchInclude" ]; then
+        CygbuildPushd
+
+            cd "$srcdir"
+
+            # @(<pattern>) => <pattern>
+
+            matchInclude=${matchInclude/\@(}
+            matchInclude=${matchInclude/)}
+            matchInclude=${matchInclude//\|/ }
+
+            for file in $matchInclude
+            do
+              [ -f "$file" ] || continue
+              CygbuildRun $scriptInstallFile $file $dest
+            done
+
+        CygbuildPopd
+    fi
 
     #   Next, install whole doc/, Docs/ ... directory
 
