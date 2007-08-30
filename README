@@ -29,35 +29,14 @@ Copyright information
 
         Visit <http://www.gnu.org/copyleft/gpl.html> for more information
 
-Project Description
-
-    Requirements
-
         This application runs solely with Free Software. It does not
         rely on any component of non-Free Software.
 
-        The aplication consists of set of programs that use intepreted
-        languages. No external windows program or other tools need to be
-        compiled. The program dependencies are:
-
-	o   Bash                    2.04+
-        o   Perl                    5.004+
-        o   GNU make                any version
-        o   GNU binutils            any version
-        o   GNU compiler collection any version
-
-        OS requirements:
-
-        o   Cygwin          any version
-        o   Standard *nix utils: awk, sed, ls etc.
-
-        It is possible to setup a Cygwin cross compiling
-        environment in other OS than Windows, but the author has no
-        experince on that setup.
+Project Description
 
     Description
 
-        Short project description
+        A Porting tool for making Cygwin Net Releases
 
             Utilities for Cygwin source and binary package
             maintainers. To configure, build, strip, produce diffs and
@@ -136,10 +115,33 @@ Project Description
 
 Install instructions
 
-    If you received cygbuild in standard Cygwin binary archive format,
-    it is installed by unpacking it at root directory:
+    Requirements
 
-        tar -C / -jxf <name-of-package.tar.bz2>
+        The aplication consists of set of programs that use intepreted
+        languages. No external windows program or other tools need to be
+        compiled. The program dependencies are:
+
+	o   Bash                    2.04+
+        o   Perl                    5.004+
+        o   GNU make                any version
+        o   GNU binutils            any version
+        o   GNU compiler collection any version
+
+        OS requirements:
+
+        o   Cygwin          any version
+        o   Standard *nix utils: awk, sed, ls etc.
+
+        It is possible to setup a Cygwin cross compiling
+        environment in other OS than Windows, but the author has no
+        experince on that setup.
+
+    Cygwin binary package install
+
+        If you received cygbuild in standard Cygwin binary archive format,
+        it is installed by unpacking it at root directory:
+
+            tar -C / -jxf <name-of-package.tar.bz2>
 
     Installing from a version control checkout:
 
