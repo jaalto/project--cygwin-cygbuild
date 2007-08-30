@@ -2393,7 +2393,8 @@ sub Release ($)
 #   DESCRIPTION
 #
 #       Read version number from filename. The version number is like
-#       foo-N.N[.N]* or non-numeric version scheme like foo-1.1alpha3.
+#       foo-N.N[.N]* or non-numeric version scheme like foo-1.1alpha3
+#       or foo-1.80+dbg-0.61.tar.gz
 #
 #   INPUT PARAMETERS
 #
@@ -2415,10 +2416,18 @@ sub Version ($)
     #   foo-N.N, foo-YYYYMMDD
 
     s/(-src)?(\.orig)?\.t.+$//;         # Remove orig.tar.gz
+
+    $debug > 2  and  warn "$id: substitute 1 [$_]\n";
+
     s/\.(zip)$//;
+
+    $debug > 2  and  warn "$id: substitute 2 [$_]\n";
+
     s/-([1-9]|\d\d)$//;                 # Remove release -1
 
-    my $ret = $1 if /-(\d+[^-]+|\d{8,})$/;
+    $debug > 2  and  warn "$id: substitute 3 [$_]\n";
+
+    my $ret = $1 if /-(\d+\..+|\d+)$/;
 
     $debug  and  warn "$id: RET $ARG => [$ret]\n";
 
@@ -4578,6 +4587,10 @@ sub Main (;@)
 
 #   Interactive call from command line contains parameters
 #   like in "cygbuild.pl help --man"
+
+#$debug = 10;
+#$a = "remake-3.80+dbg-0.61.tar.gz";
+#print Version $a, "\n", Package $a, "\n";
 
 @ARGV  and  Main @ARGV;
 
