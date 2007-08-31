@@ -118,23 +118,23 @@ Install instructions
     Requirements
 
         The aplication consists of set of programs that use intepreted
-        languages. No external windows program or other tools need to be
-        compiled. The program dependencies are:
+        languages. The dependencies are:
 
 	o   Bash                    2.04+
         o   Perl                    5.004+
-        o   GNU make                any version
+        o   patchutils              any version
+        o   GNU make, grep, tar...  any version
         o   GNU binutils            any version
         o   GNU compiler collection any version
 
-        OS requirements:
+        Other dependencies:
 
-        o   Cygwin          any version
-        o   Standard *nix utils: awk, sed, ls etc.
+        o   Cygwin                  any version
+        o   Standard programs: ls, sed, awk, etc.
 
-        It is possible to setup a Cygwin cross compiling
-        environment in other OS than Windows, but the author has no
-        experince on that setup.
+        It is possible to setup a Cygwin cross compiling environment
+        in Free OS. See document "Cygwin/X Contributor's Guide" at
+        <http://x.cygwin.com/docs/cg/prog-build-cross.html>
 
     Cygwin binary package install
 
