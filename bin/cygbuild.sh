@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0831.0010"
+CYGBUILD_VERSION="2007.0831.0022"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7500,6 +7500,8 @@ function CygbuildInstallPackageDocs()
         CygbuildRun $scriptInstallFile $file $dest
 
     done
+
+    #  tar does not yet support --include options, so do it here
 
     if [ "$matchInclude" ]; then
         CygbuildPushd
