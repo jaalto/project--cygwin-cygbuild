@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0831.0022"
+CYGBUILD_VERSION="2007.0901.0949"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -961,12 +961,17 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
         return 1
     fi
 
+    if [ ! "$file" ] || [ ! -e $file ]; then
+        CygbuildDie "[FATAL] $id: empty 'file' argument"
+    fi
+
     # Cache lines in format: <package path>:<tar listing>.
     # Here is example of the "path":
     # .../release/X11/xorg-x11-bin-dlls/xorg-x11-bin-dlls-6.8.99.901-1.tar.bz2
     #
     # In some situations, --mmap yields better performance.
 
+set -x
     $SED 's/ \+//' "$file" > $retval.fgrep  # Remove space at front
     $EGREP --mmap -f $retval.fgrep $cache > $retval.grep
 
@@ -976,7 +981,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
 
         paste "$file" $retval.grep > $retval.results
     fi
-
+exit 444
     #   Always depends on this
 
     echo "cygwin" > $retval.collect
@@ -1005,12 +1010,13 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
             gsub("-[0-9].*", "", path);
 
             print space path;
+            exit;
           }
-        ' re="$lib" $retval.results > $retval.tmp
+        ' re="$lib\$" $retval.results > $retval.tmp
 
         if [ -s $retval.tmp ]; then
-            cat $retval.tmp >&2
-            cat $retval.tmp >> $retval.collect
+            $SED 's/^ \+//' $retval.tmp >&2
+            $CAT $retval.tmp >> $retval.collect
         else
             CygbuildWarn " ... can't find depends package"
         fi
@@ -2586,103 +2592,44 @@ setup.exe and see value 'Local Package Directory'
 function CygbuildDefineGlobalCommands()
 {
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    #   Make an exeption here.
-
-    CygbuildPathBinFast gpg /usr/local/bin > $retval
-    [ -s $retval ] && GPG=$(< $retval)                  # global-def
-
     local file=$CYGBUILD_CONFIG_PROGRAMS
 
     if [ "$file" ] && [ -r $file ]; then
         CygbuildVerb "-- Reading configuration $file"
         if ! source $file ; then
-            echo "$id: [ERROR] Syntax error in $file"
-            exit 1
+            CygbuildDie "$id: [ERROR] Syntax error in $file"
         fi
-        return
+        return 0
     fi
 
-    #  Use absolute paths for faster execution
+    CygbuildPathBinFast gpg /usr/local/bin > $retval
+    [ -s $retval ] && GPG=$(< $retval)                  # global-def
 
-    CygbuildPathBinFast cp > $retval &&
-    CP=$(< $retval)                               # global-def
-
-    CygbuildPathBinFast ls > $retval &&
-    LS=$(< $retval)                               # global-def
-
-    CygbuildPathBinFast ln > $retval &&
-    LN=$(< $retval)                               # global-def
-
-    CygbuildPathBinFast mv > $retval &&
-    MV=$(< $retval)                               # global-def
-
-    CygbuildPathBinFast rm > $retval &&
-    RM=$(< $retval)                               # global-def
-
-    CygbuildPathBinFast tr > $retval &&
-    TR=$(< $retval)                               # global-def
-
-
-    CygbuildPathBinFast awk > $retval &&
-    AWK=$(< $retval)                              # global-def
-
-    CygbuildPathBinFast cat > $retval &&
-    CAT=$(< $retval)                              # global-def
-
-    CygbuildPathBinFast sed > $retval &&
-    SED=$(< $retval)                              # global-def
-
-    CygbuildPathBinFast tar > $retval &&
-    TAR=$(< $retval)                              # global-def
-
-
+    AWK=awk
     BASH=/bin/bash
     BASHX="$BASH -x"
-
-
-    CygbuildPathBinFast diff > $retval &&
-    DIFF=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast find > $retval &&
-    FIND=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast file > $retval &&
-    FILE=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast gzip > $retval &&
-    GZIP=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast make > $retval &&
-    MAKE=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast perl > $retval &&
-    PERL=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast sort > $retval &&
-    SORT=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast mkdir > $retval &&
-    MKDIR=$(< $retval)                            # global-def
-
-# Not needed
-#    CygbuildPathBinFast which > $retval &&
-#    WHICH=$(< $retval)                            # global-def
-
-    CygbuildPathBinFast patch > $retval &&
-    PATCH=$(< $retval)                             # global-def
-
-    #   Under cygwin egrep(1) is shell script, so call grep -E which is
-    #   faster
-
-    CygbuildPathBinFast grep > $retval &&
-    EGREP="$(< $retval) --binary-files=without-match --extended-regexp" x# global-def
-
-    CygbuildPathBinFast python > $retval &&
-    PYTHON=$(< $retval)                            # global-def
-
-    CygbuildPathBinFast wget > $retval &&
-    WGET=$(< $retval)                              # global-def
+    CAT=cat
+    CP=cp                               # global-def
+    DIFF=diff
+    EGREP="grep --binary-files=without-match --extended-regexp" # global-def
+    FILE=file
+    FIND=find
+    GZIP=bzip
+    LN=ln                               # global-def
+    LS=ls                               # global-def
+    MAKE=make
+    MKDIR=mkdir
+    MV=mv                               # global-def
+    PATCH=patch
+    PERL=perl
+    PYTHON=python
+    RM=rm                               # global-def
+    SED=sed
+    SORT=sort
+    TAR=tar
+    TR=tm                               # global-def
+    WGET=wget
+#    WHICH=which
 }
 
 function CygbuildIsArchiveScript()
@@ -10049,6 +9996,10 @@ function Test ()
 #    CygbuildStrPackage $tmp
 }
 
-CygbuildMain "$@"
+#CygbuildMain "$@"
+CygbuildDefineGlobalCommands
+
+CygbuildCygcheckLibraryDepList    ~/tmp/t.lst >  ~/tmp/t.lst.1
+CygbuildCygcheckLibraryDepGrepPgkNames ~/tmp/t.lst.1
 
 # End of file

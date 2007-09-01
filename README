@@ -121,9 +121,13 @@ Install instructions
         languages. The dependencies are:
 
 	o   Bash                    2.04+
+        o   Awk                     any verision (nawk, mawk, gawk ...)
+        o   Wget                    any version
         o   Perl                    5.004+
+        o   Python                  any version
         o   patchutils              any version
         o   GNU make, grep, tar...  any version
+        o   GNU diffutils           any verision
         o   GNU binutils            any version
         o   GNU compiler collection any version
 
