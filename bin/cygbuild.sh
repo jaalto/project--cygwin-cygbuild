@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0901.0949"
+CYGBUILD_VERSION="2007.0901.1028"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -968,51 +968,53 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
     # Cache lines in format: <package path>:<tar listing>.
     # Here is example of the "path":
     # .../release/X11/xorg-x11-bin-dlls/xorg-x11-bin-dlls-6.8.99.901-1.tar.bz2
-    #
-    # In some situations, --mmap yields better performance.
 
-set -x
-    $SED 's/ \+//' "$file" > $retval.fgrep  # Remove space at front
-    $EGREP --mmap -f $retval.fgrep $cache > $retval.grep
-
-    if [ -s $retval.grep ]; then
-        #  Glue these to gether in order to preserve indentation level
-        #  "  cygiconv-2.dll  ...libiconv/libiconv2/libiconv2-1.11-1.tar.bz2"
-
-        paste "$file" $retval.grep > $retval.results
-    fi
-exit 444
     #   Always depends on this
 
     echo "cygwin" > $retval.collect
 
     #   write messages to stderr
 
-    local lib
+    $TR '\n' ',' < $file > $retval
+    local list=$(< $retval)
 
-    while read lib
-    do
-        printf "   %-25s" $lib >&2
+    local lib list
+    $AWK -F: \
+    '
+        BEGIN {
+            len = split(liblist, hash, ",");
 
-        $AWK -F: \
-        '
-          $0 ~ re {
-
-            space = "";
-
-            if ( match($0, "^ +") > 0 )
+            for (i=0; i < len; i++)
             {
-                space = substr($0, RSTART, RLENGTH - minus);
+                space = ""
+                val   = arr[i];
+
+                if ( match (val, "^ +") > 0 )
+                {
+                    space = subst(val, 1, RLENGTH);
+                }
+
+                hash[
             }
+        }
 
-            path=$1;
-            gsub(".*/", "", path);
-            gsub("-[0-9].*", "", path);
+        $0 ~ re {
 
-            print space path;
-            exit;
+          space = "";
+
+          if ( match($0, "^ +") > 0 )
+          {
+              space = substr($0, RSTART, RLENGTH - minus);
           }
-        ' re="$lib\$" $retval.results > $retval.tmp
+
+          path=$1;
+          gsub(".*/", "", path);
+          gsub("-[0-9].*", "", path);
+
+          print space path;
+          exit;
+      }
+    ' liblist="$list" $cache > $retval.tmp
 
         if [ -s $retval.tmp ]; then
             $SED 's/^ \+//' $retval.tmp >&2
@@ -1021,7 +1023,6 @@ exit 444
             CygbuildWarn " ... can't find depends package"
         fi
 
-    done < $file
 
     [ -s $retval.collect ] && cat $retval.collect
 }
