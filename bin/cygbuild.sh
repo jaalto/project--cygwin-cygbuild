@@ -96,8 +96,8 @@
 #       not sure if this is what existing X packages use, but this seems
 #       to be the latest reference to paths from the archive.
 
-CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0901.1028"
+CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild/"
+CYGBUILD_VERSION="2007.0906.2147"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -165,7 +165,7 @@ function CygbuildBootVariablesId()
     #  Be cautious with the PATH. Putting /bin etc. first make finding
     #  programs faster.
 
-    PATH=/bin:/sbin:/usr/bin:/usr/local/bin:$PATH
+    PATH="/bin:/sbin:/usr/bin:/us/sbin:/usr/local/bin:$PATH"
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
 
     if [ "" ]; then  # Disabled, work for CVS Id strings only
@@ -950,6 +950,9 @@ CygbuildCygcheckLibraryDepSetup ()
 
 function CygbuildCygcheckLibraryDepGrepPgkNames()
 {
+    #   NOTE: informational messages are written to stderr
+    #   because this function returns list of depends.
+
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local file="$1"  # list of library names
@@ -973,58 +976,97 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
 
     echo "cygwin" > $retval.collect
 
-    #   write messages to stderr
-
     $TR '\n' ',' < $file > $retval
     local list=$(< $retval)
 
     local lib list
     $AWK -F: \
     '
-        BEGIN {
-            len = split(liblist, hash, ",");
+        function setup(val, name, space, i, len) {
+            len = split(liblist, arr, ",");
 
-            for (i=0; i < len; i++)
+            #  Convert "A,  B,C, D" into
+            #  re = "(A|B|C)$"
+
+            for (i=1; i < len ; i++)
             {
-                space = ""
                 val   = arr[i];
+                name  = val;
+                space = "";
 
                 if ( match (val, "^ +") > 0 )
                 {
-                    space = subst(val, 1, RLENGTH);
+                    space = substr(val, 1, RLENGTH);
                 }
 
-                hash[
+                if ( match (val, "[^ ]+") > 0 )
+                {
+                    name = substr(val, RSTART, RLENGTH);
+                }
+
+                HASH[name] = space;
+
+                if ( add )
+                {
+                    RE = RE "|" name;
+                }
+                else
+                {
+                    RE  = name;
+                    add = 1;
+                }
+#print i " VAL [" val "] space [" space "] RE [" RE "]";
+            }
+
+            if ( length(RE) > 0 )
+            {
+                RE = "(" RE ")$";
             }
         }
 
-        $0 ~ re {
+        {
+            if ( ! boot )
+            {
+                setup();
+                boot = 1;
+            }
 
-          space = "";
+            if ( match($0, RE) > 0 )
+            {
+                lib   = substr($0, RSTART, RLENGTH);
+                space = HASH[lib];
 
-          if ( match($0, "^ +") > 0 )
-          {
-              space = substr($0, RSTART, RLENGTH - minus);
-          }
+                path=$1;
+                gsub(".*/", "", path);
+                gsub("-[0-9].*", "", path);
 
-          path=$1;
-          gsub(".*/", "", path);
-          gsub("-[0-9].*", "", path);
+                DEPENDS[lib]   = path;
+                DEP_SPACE[lib] = space;  # Save indentation information
+            }
+        }
 
-          print space path;
-          exit;
-      }
+        END {
+            for (name in HASH)
+            {
+                dep = DEPENDS[name];
+
+                if ( dep == "" )
+                {
+                    dep ="... cannot determine depends";
+                }
+
+                printf("%-25s %s\n", name, dep);
+            }
+        }
+
     ' liblist="$list" $cache > $retval.tmp
 
-        if [ -s $retval.tmp ]; then
-            $SED 's/^ \+//' $retval.tmp >&2
-            $CAT $retval.tmp >> $retval.collect
-        else
-            CygbuildWarn " ... can't find depends package"
-        fi
+    if [ -s $retval.tmp ]; then
+        $SED 's/^/   /' $retval.tmp >&2
+        $AWK '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
+    fi
 
-
-    [ -s $retval.collect ] && cat $retval.collect
+    [ -s $retval.collect ] && $CAT $retval.collect
 }
 
 function CygbuildCygcheckLibraryDepMain()
@@ -1063,6 +1105,12 @@ function CygbuildCygcheck()
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local file path
+    local bin="/usr/bin/cygpath"
+
+    if [ -x "$bin" ]; then
+        CygbuildWarn "[ERROR] $id: Not exists $path"
+        return 1
+    fi
 
     for file in "$@"
     do
@@ -2603,32 +2651,30 @@ function CygbuildDefineGlobalCommands()
         return 0
     fi
 
-    CygbuildPathBinFast gpg /usr/local/bin > $retval
-    [ -s $retval ] && GPG=$(< $retval)                  # global-def
-
-    AWK=awk
-    BASH=/bin/bash
-    BASHX="$BASH -x"
-    CAT=cat
+    AWK=awk                             # global-def
+    BASH=/bin/bash                      # global-def
+    BASHX="$BASH -x"                    # global-def
+    CAT=cat                             # global-def
     CP=cp                               # global-def
-    DIFF=diff
+    DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
-    FILE=file
-    FIND=find
-    GZIP=bzip
+    FILE=file                           # global-def
+    FIND=find                           # global-def
+    GZIP=bzip                           # global-def
+    GPG=gpg                             # global-def
     LN=ln                               # global-def
     LS=ls                               # global-def
-    MAKE=make
-    MKDIR=mkdir
+    MAKE=make                           # global-def
+    MKDIR=mkdir                         # global-def
     MV=mv                               # global-def
-    PATCH=patch
-    PERL=perl
-    PYTHON=python
+    PATCH=patch                         # global-def
+    PERL=perl                           # global-def
+    PYTHON=python                       # global-def
     RM=rm                               # global-def
-    SED=sed
-    SORT=sort
-    TAR=tar
-    TR=tm                               # global-def
+    SED=sed                             # global-def
+    SORT=sort                           # global-def
+    TAR=tar                             # global-def
+    TR=tr                               # global-def
     WGET=wget
 #    WHICH=which
 }
@@ -3533,7 +3579,7 @@ function CygbuildDetermineDocDir()
 
 function CygbuildGPGavailableCheck()
 {
-    if [ ! $GPG ] || [ ! -x $GPG ]; then
+    if [ ! "$GPG" ] || [ ! -x "$GPG" ]; then
         return 1
     fi
 }
@@ -9997,10 +10043,6 @@ function Test ()
 #    CygbuildStrPackage $tmp
 }
 
-#CygbuildMain "$@"
-CygbuildDefineGlobalCommands
-
-CygbuildCygcheckLibraryDepList    ~/tmp/t.lst >  ~/tmp/t.lst.1
-CygbuildCygcheckLibraryDepGrepPgkNames ~/tmp/t.lst.1
+CygbuildMain "$@"
 
 # End of file

@@ -36,7 +36,8 @@ Project Description
 
     Description
 
-        A Porting tool for making Cygwin Net Releases
+        A Porting tool for making Cygwin Net Releases.
+        <http://freshmeat.net/projects/cygbuild/>
 
             Utilities for Cygwin source and binary package
             maintainers. To configure, build, strip, produce diffs and

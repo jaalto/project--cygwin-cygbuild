@@ -1,7 +1,21 @@
+2007-09-06  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/etc/programs.conf: Arrange all entries in alphabetical
+	order. Added missing GPG variable.
+
+	* bin/cygbuild.sh (CygbuildBootVariablesId): Put quotes around
+	$PATH
+	(CygbuildDefineGlobalCommands): Removed /usr/local special
+	case for GPG.
+
 2007-09-01 Sat  Jari Aalto  <jari dot aalto A T cante dot net>
 
 	* bin/cygbuild.sh (function CygbuildDefineGlobalCommands()): 1.937
 	Streamlines. The PATH makes sure /usr/bin programs are used.
+	(function CygbuildCygcheckLibraryDepGrepPgkNames()): 1.937
+	Completely rewritten. Now uses solely awk. The new implemention
+	is simpler and faster.
+	(top level::CYGBUILD_HOMEPAGE_URL): Updated to freshmeat.
 
 2007-08-30 Thu  Jari Aalto  <jari dot aalto A T cante dot net>
 
