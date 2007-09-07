@@ -137,6 +137,95 @@ shopt -s extglob      # Use extra pattern matching options
 LC_ALL=C              # So that sort etc. works as expected.
 LANG=C
 
+#######################################################################
+#
+#       Primitives
+#
+#######################################################################
+
+function CygbuildAskYes()
+{
+    echo -n -e "$* (y/N) "
+    local ans
+    read ans
+
+    [[ "$ans" == [yN]* ]]
+}
+
+function CygbuildPushd()
+{
+    pushd . > /dev/null
+}
+
+function CygbuildPopd()
+{
+    popd > /dev/null
+}
+
+function CygbuildRun()
+{
+    ${test+echo} "$@"
+}
+
+function CygbuildDate()
+{
+    date "+%Y%m%d%H%M"
+}
+
+function CygbuildPathBinFast()
+{
+    #   ARG 1: binary name
+    #   ARG 2: possible additional search path like /usr/local/bin
+
+    local bin="$1"
+    local try="${2%/}"      # Delete trailing slash
+
+    local dir
+
+    #   If it's not in these directories, then just use
+    #   plain "cmd" and let bash search whole PATH
+
+    if [ -x /usr/bin/$bin ]; then
+        echo /usr/bin/$bin
+    elif [ -x /usr/sbin/$bin ]; then
+        echo /usr/sbin/$bin
+    elif [ -x /bin/$bin ]; then
+        echo /bin/$bin
+    elif [ -x /sbin/$bin ]; then
+        echo /sbin/$bin
+    elif [ "$try" ] && [ -x $try/$bin ]; then
+        echo $try/$bin
+    else
+        echo $bin
+    fi
+}
+
+function CygbuildWhich()
+{
+    type -p "$1" 2> /dev/null
+}
+
+function CygbuildTarOptionCompress()
+{
+    local id="$0.$FUNCNAME"
+
+    #   Return correct packaging command based on the filename
+    #   .tar.gz or .tgz     => "z" option
+    #   .bz2                => "j" option
+
+    case "$1" in
+        *tar.gz|*tgz)   echo "z" ;;
+        *bz2)           echo "j" ;;
+        *)              return 1 ;;
+    esac
+}
+
+#######################################################################
+#
+#       VARIABLES
+#
+#######################################################################
+
 function CygbuildBootVariablesId()
 {
     #######################################################################
@@ -168,20 +257,23 @@ function CygbuildBootVariablesId()
     PATH=/bin:/sbin:/usr/bin:/usr/local/bin:$PATH
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
 
+    TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
+
     if [ "" ]; then  # Disabled, work for CVS Id strings only
 
         CYGBUILD_VERSION=${CYGBUILD_ID##*,v[ ]}
         CYGBUILD_VERSION=${CYGBUILD_VERSION%%[ ]*}
 
-        #   This could be more easily done in sed or awk, but it is faster to use
-        #   bash to convert YYYY/MM/DD into ISO8601 format YYYY-MM-DD
+        #   This could be more easily done in sed or awk, but it is
+        #   faster to use bash to convert YYYY/MM/DD into ISO8601
+        #   format YYYY-MM-DD
 
         CYGBUILD_DATE=${CYGBUILD_ID#*.[0-9][0-9][0-9][ ]}   # Delete leading
         CYGBUILD_DATE=${CYGBUILD_DATE%%[ ]*}                # And trailing
         CYGBUILD_DATE=${CYGBUILD_DATE//\//-}       # And substitute / with -
     fi
 
-    CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_DATE $CYGBUILD_VERSION"
+    CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
 
     #  Function return values are stored to files, because bash cannot call
     #  function with parameters in running shell environment. The only way to
@@ -201,7 +293,15 @@ function CygbuildBootVariablesId()
     #       FunctionName "param" > $retval
     #       local val=$(< $retval)
 
-    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}$$"
+    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$"
+
+    CYGBUILD_PROG_NAME=${0##*/}
+
+    if [[ "$0" == */* ]]; then
+	CYGBUILD_PROG_PATH=$(cd ${0%/*} && pwd)
+    else
+	CYGBUILD_PROG_PATH="$(pwd)"
+    fi
 }
 
 function CygbuildBootVariablesCache()
@@ -223,7 +323,117 @@ function CygbuildBootVariablesCache()
     declare CYGBUILD_STATIC_VER_STRING=""
 }
 
-function CygbuildBootVariablesGlobal ()
+function CygbuildBootVariablesGlobalEtcSet()
+{
+    local dir="$1"
+
+    CYGBUILD_ETC_DIR="$dir"					#global-def
+    CYGBUILD_CONFIG_PROGRAMS="$CYGBUILD_ETC_DIR/programs.conf"	#global-def
+    CYGBUILD_TEMPLATE_DIR_USER="$CYGBUILD_ETC_DIR/template"	#global-def
+    CYGBUILD_CONFIG_MAIN="$CYGBUILD_ETC_DIR/cygbuild.conf"	#global-def
+}
+
+function CygbuildBootVariablesGlobalEtcMain()
+{
+    local id="$0.$FUNCNAME"
+    local dir=/etc/cygbuild
+
+    if [ -d "$dir" ]; then
+	CygbuildBootVariablesGlobalEtcSet $dir
+	return 0
+    fi
+
+    #   from current location?
+
+    local tmp="$CYGBUILD_PROG_PATH"
+
+    [ "$tmp" ]    || CygbuildDie "[FATAL] $id: a:No directory found at $dir"
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: b:No directory found at $tmp"
+
+    #  This is the source archive structure
+    #   
+    #  ROOT
+    #  |
+    #  +-bin
+    #  +-etc/etc
+    #  +-etc/template
+
+    tmp=${tmp%/*}  # One directory up (from bin/)
+    tmp="$tmp/etc/etc"
+
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: c:No directory found at $tmp"
+
+    CygbuildBootVariablesGlobalEtcSet "$tmp"
+}
+
+function CygbuildBootVariablesGlobalShareSet()
+{
+    local dir="$1"
+
+    CYGBUILD_SHARE_DIR="$dir"					#global-def
+    CYGBUILD_TEMPLATE_DIR_MAIN="$CYGBUILD_SHARE_DIR/template"	#global-def
+}
+
+function CygbuildBootVariablesGlobalLibSet()
+{
+    local dir="$1"
+
+    CYGBUILD_PERL_MODULE_NAME="cygbuild.pl"			#global-def
+    local tmp="$dir/$CYGBUILD_PERL_MODULE_NAME" #global-def
+    [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE="$tmp"		 #global-def
+}
+
+function CygbuildBootVariablesGlobalShareMain()
+{
+    local id="$0.$FUNCNAME"
+    local dir=/usr/share/cygbuild
+
+    if [ -d "$dir" ]; then
+	CygbuildBootVariablesGlobalShareSet $dir
+	CygbuildBootVariablesGlobalLibSet "$dir/lib"
+	return 0
+    fi
+
+    #   from current location?
+
+    local tmp="$CYGBUILD_PROG_PATH"
+
+    [ "$tmp" ]    || CygbuildDie "[FATAL] $id: a:No directory found at $dir"
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: b:No directory found at $tmp"
+
+    tmp=${tmp%/*}  # One directory up (from bin/)
+    dir="$tmp/etc/template"
+
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: c:No directory found at $tmp"
+
+    CygbuildBootVariablesGlobalShareSet "$tmp/etc"
+    CygbuildBootVariablesGlobalLibSet   "$tmp/bin"
+}
+
+function CygbuildBootVariablesGlobalCacheSet()
+{
+    local dir="$1"
+
+    CYGBUILD_CACHE_DIR="$dir"					#global-def
+    CYGBUILD_CACHE_PAKAGES="$CYGBUILD_CACHE_DIR/packages"       #global-def
+}
+
+function CygbuildBootVariablesGlobalCacheMain()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.cache"
+    local dir=/var/cache/cygbuild
+
+    if [ ! -d "$dir" ]; then
+	CygbuildVerb "[WARN] Using temp. No directory found: $dir"	
+	dir="$retval";
+	CygbuildRun ${MKDIR:-mkdir} "$dir" || exit 1
+    fi
+
+    CygbuildBootVariablesGlobalCacheSet "$dir"
+}
+
+function CygbuildBootVariablesGlobalMain()
 {
     #######################################################################
     #
@@ -247,23 +457,9 @@ function CygbuildBootVariablesGlobal ()
     #
     #######################################################################
 
-    #   From this directory the [files] command copies template files.
-    #   Don't change. The location is in cygbuild's Makefile 'install'
-    #   target as well.
-
-    CYGBUILD_ETC_DIR=/etc/cygbuild
-    CYGBUILD_CONFIG_PROGRAMS=$CYGBUILD_ETC_DIR/programs.conf
-    CYGBUILD_TEMPLATE_DIR_USER=$CYGBUILD_ETC_DIR/template
-    CYGBUILD_CONFIG_MAIN=$CYGBUILD_ETC_DIR/cygbuild.conf
-
-    CYGBUILD_SHARE_DIR=/usr/share/cygbuild
-    CYGBUILD_TEMPLATE_DIR_MAIN=$CYGBUILD_SHARE_DIR/template
-
-    local tmp=$CYGBUILD_SHARE_DIR/lib/cygbuild.pl
-    [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE=$tmp
-
-    CYGBUILD_CACHE_DIR=/var/cache/cygbuild
-    CYGBUILD_CACHE_PAKAGES=$CYGBUILD_CACHE_DIR/packages
+    CygbuildBootVariablesGlobalEtcMain
+    CygbuildBootVariablesGlobalShareMain
+    CygbuildBootVariablesGlobalCacheMain
 
     #  Like: <file>.$CYGBUILD_SIGN_EXT
     CYGBUILD_GPG_SIGN_EXT=.sig
@@ -721,30 +917,6 @@ function CygbuildExitNoFile()
 #       Utility functions
 #
 #######################################################################
-
-function CygbuildAskYes()
-{
-    echo -n -e "$* (y/N) "
-    local ans
-    read ans
-
-    [[ "$ans" == [yN]* ]]
-}
-
-function CygbuildPushd()
-{
-    pushd . > /dev/null
-}
-
-function CygbuildPopd()
-{
-    popd > /dev/null
-}
-
-function CygbuildRun()
-{
-    ${test+echo} "$@"
-}
 
 function CygbuildFileDeleteLine ()
 {
@@ -1417,39 +1589,6 @@ function CygbuildIsBuilddirOk()
     return 1
 }
 
-function CygbuildDate()
-{
-    date "+%Y%m%d%H%M"
-}
-
-function CygbuildPathBinFast()
-{
-    #   ARG 1: binary name
-    #   ARG 2: possible additional search path like /usr/local/bin
-
-    local bin="$1"
-    local try="${2%/}"      # Delete trailing slash
-
-    local dir
-
-    #   If it's not in these directories, then just use
-    #   plain "cmd" and let bash search whole PATH
-
-    if [ -x /usr/bin/$bin ]; then
-        echo /usr/bin/$bin
-    elif [ -x /usr/sbin/$bin ]; then
-        echo /usr/sbin/$bin
-    elif [ -x /bin/$bin ]; then
-        echo /bin/$bin
-    elif [ -x /sbin/$bin ]; then
-        echo /sbin/$bin
-    elif [ "$try" ] && [ -x $try/$bin ]; then
-        echo $try/$bin
-    else
-        echo $bin
-    fi
-}
-
 function CygbuildPathResolveSymlink()
 {
     #   Try to resolve symbolic link.
@@ -1551,11 +1690,6 @@ function CygbuildPathResolveSymlink()
     else
         return 1
     fi
-}
-
-function CygbuildWhich()
-{
-    type -p "$1" 2> /dev/null
 }
 
 function CygbuildPathAbsoluteSearch()
@@ -1741,60 +1875,6 @@ function CygbuildBuildScriptPath()
 
         echo $path
     fi
-}
-
-function CygbuildTemplatePath()
-{
-    local id="$0.$FUNCNAME"
-    local ret
-
-    #   Find out where template files are located
-
-    local dir="$CYGBUILD_TEMPLATE_DIR_MAIN"
-
-    if [ -d "$dir" ]; then
-        ret=$dir
-    else
-
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
-        CygbuildBuildScriptPath > $retval
-        dir=$(< $retval)
-
-        #   It is relative to the installation of the *.sh file, this may be an
-        #   CVS checkout directory
-        #
-        #   dir/bin/cygbuild.sh
-        #   dir/etc/template        # Here
-
-        dir=${dir%/*}       # Remove filename: /path/to/FILE.SH => /path/to
-
-        if [ -d "$dir/../etc/template" ]; then
-            ret=$dir
-        elif [ -d "$dir/etc/template" ]; then
-            ret=$dir/etc/template
-        fi
-    fi
-
-    if [ "$ret" ]; then
-        echo $ret
-    else
-        return 1
-    fi
-}
-
-function CygbuildTarOptionCompress()
-{
-    local id="$0.$FUNCNAME"
-
-    #   Return correct packaging command based on the filename
-    #   .tar.gz or .tgz     => "z" option
-    #   .bz2                => "j" option
-
-    case "$1" in
-        *tar.gz|*tgz)   echo "z" ;;
-        *bz2)           echo "j" ;;
-        *)              return 1 ;;
-    esac
 }
 
 function CygbuildTarDirectory()
@@ -3035,7 +3115,7 @@ function CygbuildDefineGlobalMain()
 
     #   user executables
 
-    PATH=$DIR_CYGPATCH:$PATH                                    # global-def
+    PATH="$DIR_CYGPATCH:$PATH"                                  # global-def
     CygbuildChmodExec $DIR_CYGPATCH/*.sh
 
     #   Other files
@@ -3933,8 +4013,9 @@ function CygbuildCmdGPGVerifyMain()
 
 function CygbuildPerlModuleLocation()
 {
+set -x
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   Find out if we can use cygbuild.pl module
     #   Return 1) Perl interpreter and 2) module path
@@ -3944,15 +4025,28 @@ function CygbuildPerlModuleLocation()
         return 1
     fi
 
-    local name="cygbuild.pl"
+    local name="$CYGBUILD_PERL_MODULE_NAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
     if [ ! "$module" ]; then
-
         if CygbuildCommandPath $name > $retval; then
             module=$(< $retval)
             CYGBUILD_STATIC_PERL_MODULE="$module"
         fi
+    fi
+
+    if [ ! "$module" ] && [[ "$0" == */* ]] ; then
+	#  Check if it's in same location as where the
+	#  program is run (unpacked sources; VCS checkout)
+	
+	local path=${0%/*}
+	local path="$path/bin"
+	local lib="$path/$CYGBUILD_PERL_MODULE_NAME"
+
+	if [ -f "$lib" ]; then
+            module="$lib"
+            CYGBUILD_STATIC_PERL_MODULE="$module"
+	fi
     fi
 
     if [ "$module" ]; then
@@ -7064,7 +7158,7 @@ function CygbuildCmdConfMain()
 
         else
 
-            echo "--   No standard configre script found" \
+            echo "--   No standard configre script found." \
                  "If it's there, run 'reshadow' to update."
 
         fi
@@ -8999,17 +9093,15 @@ function CygbuildCmdFilesMain()
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
-    local templatedir
-    CygbuildTemplatePath > $retval
-    [ -s $retval ] && templatedir=$(< $retval)
+    local templatedir="$CYGBUILD_TEMPLATE_DIR_MAIN"
 
-    if [ ! "$templatedir" ]; then
-        CygbuildWarn "$id [ERROR] variable templatedir is empty"
+    if [ ! "$templatedir" ] || [ ! -d "$templatedir" ]; then
+        CygbuildWarn "$id [ERROR] Can access templatedir: '$templatedir'"
         return 1
     fi
 
-    local destdir=$DIR_CYGPATCH
-    local userdir=$CYGBUILD_TEMPLATE_DIR_USER
+    local destdir="$DIR_CYGPATCH"
+    local userdir="$CYGBUILD_TEMPLATE_DIR_USER"
 
     if [ ! "$destdir" ]; then
         CygbuildWarn "$id [ERROR] variable 'destdir' is empty"
@@ -9320,7 +9412,7 @@ function CygbuildCommandMain()
 
     CygbuildBootVariablesId
     CygbuildBootVariablesCache
-    CygbuildBootVariablesGlobal
+    CygbuildBootVariablesGlobalMain
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
