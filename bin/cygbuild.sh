@@ -102,8 +102,8 @@
 #       not sure if this is what existing X packages use, but this seems
 #       to be the latest reference to paths from the archive.
 
-CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild/"
-CYGBUILD_VERSION="2007.0907.0919"
+CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
+CYGBUILD_VERSION="2007.0907.1219"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -120,7 +120,7 @@ CYGBUILD_NAME="cygbuild"
 
     eval "[[ 1 ]]" 2> /dev/null
 
-#   Check result, do we need to exchange shell?
+    #   Check result, do we need to exchange shell?
 
     if [ "$?" != "0" ] ; then
 
