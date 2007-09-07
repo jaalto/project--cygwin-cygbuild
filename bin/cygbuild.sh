@@ -97,7 +97,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild/"
-CYGBUILD_VERSION="2007.0906.2147"
+CYGBUILD_VERSION="2007.0907.0625"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4167,12 +4167,12 @@ function CygbuildCmdPublishToDir()
     CygbuildExitNoDir \
         $dest "$id: [ERROR] No dir $dest. Define CYGBUILD_PUBLISH_DIR"
 
-    dest=$dest/$PKG
+    dest="$dest/$PKG"
 
     echo "-- Publishing to $dest"
 
     if [ ! -d "$dest" ]; then
-        $MKDIR $verbose  -p "$dest" || return 1
+        $MKDIR $verbose -p "$dest" || return 1
     fi
 
     #  For library packages, the hierarchy is
@@ -4228,7 +4228,7 @@ function CygbuildCmdPublishExternal()
     echo "--   Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
 
     CygbuildChmodExec "$prg"
-    $prg "$TOPDIR" "$signer" "$pass"
+    $prg "$TOPDIR" "$VER" "$REL" "$signer" "$pass"
 }
 
 function CygbuildCmdPublishMain()

@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0828';
+$VERSION = '2007.0907.0632';
 
 # ..................................................................
 
@@ -623,7 +623,7 @@ Take for example a sample garbage collection library, whose name is simply
 'gc' available at <http://www.hpl.hp.com/personal/Hans_Boehm>. There
 are no executable files in. You should not use the name C<gc> to package
 this. The problem is the initial unpack directory name C<gc-6.2.1.6> which
-is used to generate the package names. Don't do like this:
+is used to generate the package names. The following is not optimal:
 
     $ cd /usr/src/build
       ... make sure contains only source file
@@ -638,8 +638,8 @@ is used to generate the package names. Don't do like this:
     --   [devel-doc] /usr/src/build/gc-doc-6.2.1.6-1.tar.bz2
     --   [devel-dev] /usr/src/build/gc-devel-6.2.1.6-1.tar.bz2
 
-It would be better use the C<libgc6> name, as it is used in Debian, instead
-of the homepage's name C<gc>, like this:
+It would be better to use the C<libgc6> name, as it is used in Debian,
+instead of the homepage's name C<gc>, like this:
 
     ... Unpack as above, but symlink to 'lib' directory
     $ ln -s gc6.2alpha6  libgc6-6.2.1.6
@@ -652,7 +652,7 @@ of the homepage's name C<gc>, like this:
     --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.bz2
                                     ======
 
-Notice how all released files now correctly inlcude prefix C<libgc>.
+Notice how all released files now correctly inlcude prefix C<libgc6>.
 
 =item B<source-package>
 
@@ -772,22 +772,25 @@ internal build process testing command B<[all]>.
 =item B<publish>
 
 If environment variable C<CYGBUILD_PUBLISH_BIN> is set, the external
-program is called with 1 mandatory and 2 optional arguments (See options
-B<--sign> and B<--passphrase>) if those were available. The shell escape
-call is in form:
+program is called with 3 mandatory and 2 optional arguments from options
+B<--sign> and B<--passphrase> if those were available. The shell call
+weill be in form:
 
     $CYGBUILD_PUBLISH_BIN \
         /directory/where/package-N.N/.sinst/
-        [gpg signer]
+        <version string>
+        <release number>
+        [gpg sign id]
         [gpg pass phrase]
 
 If no C<CYGBUILD_PUBLISH_BIN> exists, source and binary packages are copied
-under publish directory C<$CYGBUILD_PUBLISH_DIR/package/>. It makes sense
-to run this command only after commands B<[source-package]> and
-B<[package]>. If command B<[package-devel]> was used, then the published
-files are copied to separate sub directories below
-C<$CYGBUILD_PUBLISH_DIR/package/>. See command B<[package-devel]> for more
-information.
+under publish directory C<$CYGBUILD_PUBLISH_DIR/package/>.
+
+It makes sense to run publish command only after commands
+B<[source-package]> and B<[package]>. If command B<[package-devel]>
+was used, then the published files are copied to separate
+subdirectories below C<$CYGBUILD_PUBLISH_DIR/package/>. See command
+B<[package-devel]> for more information.
 
 =back
 

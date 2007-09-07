@@ -1,3 +1,12 @@
+2007-09-07  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: Send 2 additional arguments to
+	CYGBUILD_PUBLISH_BIN: version and release.
+
+	* bin/cygbuild.pl: (HELP::Packaging commands::publish). Document
+	that CYGBUILD_PUBLISH_BIN now takes 5 arguments instead of previous
+	3.
+
 2007-09-06  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/etc/programs.conf: Arrange all entries in alphabetical
