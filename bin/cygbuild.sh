@@ -15,6 +15,12 @@
 #       WITHOUT ANY WARRANTY; without even the implied warranty of
 #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #       General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License
+#	along with program; see the file COPYING. If not, write to the
+#	Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#	Boston, MA 02110-1301, USA.
+#
 #       Visit <http://www.gnu.org/copyleft/gpl.html>
 #
 #   WARNING
@@ -97,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild/"
-CYGBUILD_VERSION="2007.0907.0625"
+CYGBUILD_VERSION="2007.0907.0919"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
