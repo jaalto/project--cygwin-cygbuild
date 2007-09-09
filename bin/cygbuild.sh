@@ -4,7 +4,7 @@
 #
 #       Copyright (C) 2003-2007 Jari Aalto
 #
-#   Copyright
+#   License
 #
 #       This program is free software; you can redistribute it and/or
 #       modify it under the terms of the GNU General Public License as
@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0909.1412"
+CYGBUILD_VERSION="2007.0909.1454"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################

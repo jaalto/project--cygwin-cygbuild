@@ -2,7 +2,7 @@
 #
 #       Copyright (C) 2003-2007 Jari Aalto
 #
-#   Copyright
+#   License
 #
 #       This program is free software; you can redistribute it and/or
 #       modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #       - Build everything using cygbuild.sh
 
 NAME="cygbuild-rebuild"
-VERSION="2007.0829.1325"
+VERSION="2007.0909.1459"
 
 find='find . -type d -maxdepth 1 | grep -Eve "^\.$|-orig" | sort'
 

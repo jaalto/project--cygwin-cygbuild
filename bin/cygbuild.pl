@@ -4,7 +4,7 @@
 #
 #       Copyright (C) 2003-2007 Jari Aalto
 #
-#   Copyright
+#   License
 #
 #       This program is free software; you can redistribute it and/or
 #       modify it under the terms of the GNU General Public License as
@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0907.0632';
+$VERSION = '2007.0909.1457';
 
 # ..................................................................
 
