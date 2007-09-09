@@ -29,7 +29,7 @@ Copyright information
 
         Visit <http://www.gnu.org/copyleft/gpl.html> for more information
 
-        This application runs solely with Free Software. It does not
+        This application runs solely with Free Software and does not
         rely on any component of non-Free Software.
 
 Project Description
@@ -122,19 +122,19 @@ Install instructions
         languages. The dependencies are:
 
 	o   Bash                            2.04+
-        o   Wget                            any version
         o   Perl                            5.004+
-        o   Python                          any version
-        o   patchutils                      any version
         o   GNU awk, make, grep, tar...     any version
         o   GNU diffutils                   any version
+        o   patchutils                      any version
+        o   Wget                            any version
+        o   Python                          any version
         o   GNU binutils                    any version
         o   GNU compiler collection         any version
 
         Other dependencies:
 
-        o   Cygwin                  any version
-        o   Standard programs: ls, sed, awk, etc.
+        o   Cygwin                          any version
+        o   Standard programs: ls, etc.     any version
 
         It is possible to setup a Cygwin cross compiling environment
         in Free OS. See document "Cygwin/X Contributor's Guide" at
