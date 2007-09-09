@@ -1,5 +1,30 @@
 2007-09-07  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh:
+	- Moved many function to the beginning as "primitives"
+	- Added initial support to run program under Linux
+	(CygbuildPerlModuleLocation): Check
+	'in place installation'. If user has just unpacked the sources
+	or uses a VCS checkout, then determine the Perl library location.
+	(CygbuildBootVariablesGlobal): New variable
+	CYGBUILD_PERL_MODULE_NAME
+	(CygbuildBootVariablesGlobalCacheSet): New.
+	(CygbuildBootVariablesGlobalCacheMain): New.
+	(CygbuildBootVariablesGlobalShareSet): New.
+	(CygbuildBootVariablesGlobalShareMain): New.
+	(CygbuildBootVariablesGlobalEtcSet): New.
+	(CygbuildBootVariablesGlobalEtcMain): New.
+	(CygbuildBootVariablesGlobalLibSet): New.
+	(CygbuildBootVariablesGlobal): Moved functionality to new
+	functions above.
+	(CygbuildBootVariablesGlobalMain): Renamed. Was
+	`CygbuildBootVariablesGlobal'
+	(CygbuildBootVariablesId): New variables CYGBUILD_PROG_PATH and
+	CYGBUILD_PROG_NAME
+	(CygbuildTemplatePath): Removed.
+	(CygbuildCmdFilesMain): Removed call to `CygbuildTemplatePath'
+	and used $CYGBUILD_TEMPLATE_DIR_MAIN
+
 	* bin/cygbuild.sh: Send 2 additional arguments to
 	CYGBUILD_PUBLISH_BIN: version and release.
 
