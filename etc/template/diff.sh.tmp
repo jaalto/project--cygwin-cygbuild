@@ -1,5 +1,6 @@
 #!/bin/sh
-# -- THIS AN EXAMPLE; Remove .tmp extension to activate --
+# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+#
 # This file runs the diff(1) command to generate the patch agains original
 # source package. The script is called like this:
 #

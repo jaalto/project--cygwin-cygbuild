@@ -1,4 +1,6 @@
-#  When ./confgure is being run, options listed here are appended
-#  after default Cygwin option set.
+# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+#
+# When ./confgure is being run, options listed here are appended
+# after default Cygwin option set.
 
 # --disable-nls ---disable-static --enable-tempstore

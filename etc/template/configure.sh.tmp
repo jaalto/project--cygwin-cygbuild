@@ -1,9 +1,10 @@
 #!/bin/sh
+# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
 #
 # configure.sh -- Custom configure script
-# Call: CYGWIN-PATCHES/configure.sh <absolute-install-dir>
 #
-# -- THIS AN EXAMPLE: MODIFY AS NEEDED --
+#   Call: CYGWIN-PATCHES/configure.sh <absolute-install-dir>
+#   -- THIS AN EXAMPLE: MODIFY AS NEEDED --
 
 Bootstrap()
 {

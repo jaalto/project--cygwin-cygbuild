@@ -1,5 +1,7 @@
 #!/bin/sh
-# Libotool does not understand "--mode=compile ccache gcc", because it
+# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+#
+# Note: Libotool does not understand "--mode=compile ccache gcc", because it
 # expects one WORD. The workaround is to use separate command file.
 
 bin=/usr/bin/ccache
