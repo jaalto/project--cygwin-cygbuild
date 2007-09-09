@@ -130,10 +130,6 @@ Install instructions
         o   Python                          any version
         o   GNU binutils                    any version
         o   GNU compiler collection         any version
-
-        Other dependencies:
-
-        o   Cygwin                          any version
         o   Standard programs: ls, etc.     any version
 
         It is possible to setup a Cygwin cross compiling environment
