@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0910.1628"
+CYGBUILD_VERSION="2007.0910.1639"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4013,7 +4013,6 @@ function CygbuildCmdGPGVerifyMain()
 
 function CygbuildPerlModuleLocation()
 {
-set -x
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
