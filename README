@@ -121,7 +121,7 @@ Install instructions
         The aplication consists of set of programs that use intepreted
         languages. The dependencies are:
 
-	o   Bash                            2.04+
+	o   Bash                            3.x
         o   Perl                            5.004+
         o   GNU awk, make, grep, tar...     any version
         o   GNU diffutils                   any version
