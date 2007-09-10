@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0909.1454"
+CYGBUILD_VERSION="2007.0910.1628"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8457,6 +8457,36 @@ function CygbuildCmdInstallCheckDocPages()
     return $status
 }
 
+function CygbuildCmdInstallCheckSymlinks()
+{
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local dir="$instdir"
+
+    $FIND $dir -ls | $EGREP --regexp='-> +/' > $retval || return 0
+
+    local status=0
+    local path link i j
+    local -a arr
+
+    #  find -ls listing looks like:
+    #  xx 0 lrwxrwxrwx 1 root None 65 Sep  8 00:16 a -> b
+
+    while read line
+    do
+        set -- $line
+        arr=($line)
+        i=$(( $# - 3 ))
+        j=$(( $# - 1 ))
+
+        path=${arr[$i]}
+        link=${arr[$j]}
+
+        if [[ "$link" == /* ]]; then
+            CygbuildWarn "-- [WARN] Absolute symlink $path -> $link"
+        fi
+    done < $retval
+}
+
 function CygbuildCmdInstallCheckBinFiles()
 {
     local id="$0.$FUNCNAME"
@@ -8753,6 +8783,7 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckManualPages  || stat=$?
     CygbuildCmdInstallCheckDocPages     || stat=$?
     CygbuildCmdInstallCheckBinFiles     || stat=$?
+    CygbuildCmdInstallCheckSymlinks     || stat=$?
     CygbuildCmdInstallCheckLibFiles     || stat=$?
     CygbuildCmdInstallCheckDirStructure || stat=$?
     CygbuildCmdInstallCheckEtc          || stat=$?
