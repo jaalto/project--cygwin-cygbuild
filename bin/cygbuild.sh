@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1512"
+CYGBUILD_VERSION="2007.0911.1634"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -224,6 +224,44 @@ function CygbuildTarOptionCompress()
         *bz2)           echo "j" ;;
         *)              return 1 ;;
     esac
+}
+
+function CygbuildMatchRegexp()
+{
+    #   Argument 1: regexp
+    #   Argument 2: string to match
+
+    if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
+        [[ $2 =~ $1 ]]
+    else
+        echo "$2" | $EGREP -q "$1"
+    fi
+}
+
+function CygbuildIsEmpty()
+{
+    CygbuildMatchRegexp '^[ \t]*$' "$1"
+}
+
+function CygbuildIsNumber()
+{
+    CygbuildMatchRegexp '^[0-9]+$' "$1"
+}
+
+function CygbuildIsNumberLike()
+{
+    CygbuildMatchRegexp '[0-9]' "$1"
+}
+
+#######################################################################
+#
+#       Primitives 2
+#
+#######################################################################
+
+function CygbuildIsGbsCompat()
+{
+    [ "$OPTION_GBS_COMPAT" ]
 }
 
 #######################################################################
@@ -447,22 +485,6 @@ function CygbuildBootVariablesGlobalCacheMain()
 
 function CygbuildBootVariablesGlobalMain()
 {
-    #######################################################################
-    #
-    #       Private: Unpack sript variables
-    #
-    #######################################################################
-
-    #   If this file is named like foo-2.1-1.sh then this is part of
-    #   the source archive. These variables get set during Main()
-
-    SCRIPT_FULLPATH=         # /path/to/foo-2.1-1.sh
-    SCRIPT_FILENAME=         # foo-2.1-1.sh
-    SCRIPT_PKGVER=           # foo-2.1
-    SCRIPT_PACKAGE=          # foo
-    SCRIPT_VERSION=          # 2.1
-    SCRIPT_RELEASE=          # 1
-
     #######################################################################
     #
     #       Private: directories
@@ -947,7 +969,7 @@ function CygbuildFileDaysOld ()
     local file="$1"
 
     if [ -f "$file" ]; then
-        echo -n $file | $PERL -ane "print -M"
+        echo -n $file | LC_ALL=C $PERL -ane "print -M"
     else
         return 1
     fi
@@ -1339,7 +1361,7 @@ function CygbuildVersionInfo()
     #       /usr/src/build/neon/foo-NN.NN/.build/tmp/verify
     #
 
-    echo -n "$str" | $PERL -e \
+    echo -n "$str" | LC_ALL=C $PERL -e \
     '
         $_  = <>;
         s,.+/,,;
@@ -1557,18 +1579,6 @@ function CygbuildStrVersion()
     fi
 }
 
-function CygbuildMatchRegexp()
-{
-    #   Argument 1: regexp
-    #   Argument 2: string to match
-
-    if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
-        [[ $2 =~ $1 ]]
-    else
-        echo "$2" | $EGREP -q "$1"
-    fi
-}
-
 function CygbuildMatchBashPatternList()
 {
     local str="$1"
@@ -1595,26 +1605,6 @@ function CygbuildMatchBashPatternList()
     set +o noglob
 
     return $ret
-}
-
-function CygbuildIsGbsCompat()
-{
-    [ "$OPTION_GBS_COMPAT" ]
-}
-
-function CygbuildIsEmpty()
-{
-    CygbuildMatchRegexp '^[ \t]*$' "$1"
-}
-
-function CygbuildIsNumber()
-{
-    CygbuildMatchRegexp '^[0-9]+$' "$1"
-}
-
-function CygbuildIsNumberLike()
-{
-    CygbuildMatchRegexp '[0-9]' "$1"
 }
 
 function CygbuildIsSrcdirOk()
@@ -2784,8 +2774,18 @@ function CygbuildIsArchiveScript()
 function CygbuildDefineGlobalScript()
 {
     local id="$0.$FUNCNAME"
-
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    #   If this file is named like foo-2.1-1.sh then this is part of
+    #   the source archive. These variables get set during Main()
+
+    SCRIPT_FULLPATH=         # /path/to/foo-2.1-1.sh
+    SCRIPT_FILENAME=         # foo-2.1-1.sh
+    SCRIPT_PKGVER=           # foo-2.1
+    SCRIPT_PACKAGE=          # foo
+    SCRIPT_VERSION=          # 2.1
+    SCRIPT_RELEASE=          # 1
+
     CygbuildBuildScriptPath  > $retval
     local script=$(< $retval)
     SCRIPT_FULLPATH=$script                             # global-def
@@ -6765,9 +6765,8 @@ function CygbuildCmdPrepMain()
 
     if ! CygbuildCmdPrepIsUnpacked "$msg" ; then
         CygbuildExtractMain         || return $?
+        CygbuildCmdPrepPatch        || return $?
     fi
-
-    CygbuildCmdPrepPatch        || return $?
 
     CygbuildPushd
       echo "--   [NOTE] applying included patches to sources (if any)"
@@ -7219,7 +7218,7 @@ function CygbuildCmdBuildPython()
     return $status
 }
 
-function CygbuildCmdBuildMainMakefile()
+function CygbuildCmdBuildStdMakefile()
 {
     local id="$0.$FUNCNAME"
     local status=0
@@ -7314,7 +7313,7 @@ function CygbuildCmdBuildMain()
 
     else
 
-        CygbuildCmdBuildMainMakefile
+        CygbuildCmdBuildStdMakefile
         status=$?
 
     fi
@@ -9479,6 +9478,7 @@ function CygbuildCommandMain()
     local id="$0.$FUNCNAME"
 
     CygbuildBootVariablesId
+    CygbuildDefineGlobalScript
     CygbuildBootVariablesCache
     CygbuildBootVariablesGlobalMain
 
@@ -9752,7 +9752,6 @@ function CygbuildCommandMain()
     fi
 
     CygbuildCheckRunDir
-    CygbuildDefineGlobalScript
 
     #  See if user supplied the RELEASE. This can be implicit in the
     #  package name, in which case it is ok. Otherwise user has to

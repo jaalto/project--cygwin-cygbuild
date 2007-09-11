@@ -3,7 +3,10 @@
 	* bin/cygbuild.pl (Version): Support exotic version number like
 	foo-R31b.tar.gz
 
-	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonMain): Set
+	* bin/cygbuild.sh
+	- Fix "perl: warning: Setting locale failed" by defininf LC_ALL=C
+	  in suitable places.
+	(CygbuildMakefileRunInstallPythonMain): Set
 	prefix to /usr, not /usr/share. Rewrote input argument
 	handling to use shift and $@.
 	(CygbuildCmdInstallCheckDirStructure): Warn about deprecated
@@ -18,6 +21,14 @@
 	(CygbuildIsNumberLike): Relax regexp not to include leading anchor.
 	(CygbuildCmdInstallCheckReadme): README file name checking
 	simplified.
+	(CygbuildCommandMain): Move `CygbuildDefineGlobalScript'
+	to the beginning.
+	(CygbuildCmdBuildStdMakefile): Renamed, was
+	`CygbuildCmdBuildMainMakefile'
+	(CygbuildCmdPrepMain): Move `CygbuildCmdPrepPatch' call inside
+	`CygbuildCmdPrepIsUnpacked'.
+	(CygbuildDefineGlobalScript): Moved initialization of variables
+	here.
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
