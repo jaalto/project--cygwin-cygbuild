@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1634"
+CYGBUILD_VERSION="2007.0911.1650"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3486,8 +3486,8 @@ function CygbuildHelpSourcePackage()
     bin=$(< $retval)
 
     if [ ! "$bin" ]; then
-        echo "-- [WARN] Can't make a source package. " \
-             "Additional libraries and templates are needed" \
+        echo "-- [WARN] Not attempting to make a source package. " \
+             "Full cygbuild suite is needed" \
              "See $CYGBUILD_HOMEPAGE_URL"
         return 1
     fi

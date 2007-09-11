@@ -29,6 +29,7 @@
 	`CygbuildCmdPrepIsUnpacked'.
 	(CygbuildDefineGlobalScript): Moved initialization of variables
 	here.
+	(CygbuildHelpSourcePackage): Message improved for no-build-source.
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
