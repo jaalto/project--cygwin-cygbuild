@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1718"
+CYGBUILD_VERSION="2007.0911.1723"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7166,8 +7166,7 @@ function CygbuildCmdConfMain()
 
         else
 
-            echo "--   No standard configre script found." \
-                 "If it's there, run 'reshadow' to update."
+            echo "--   No standard configre script found."
 
         fi
 
