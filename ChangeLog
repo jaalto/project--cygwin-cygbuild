@@ -10,6 +10,8 @@
 	X11R6 directory.
 	(CygbuildVersionInfo): Support exotic version number like
 	foo-R31b.tar.gz
+	(CygbuildBootVariablesGlobalEtcMain): Check GBS compat and do
+	not require ETC to be installed.
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 

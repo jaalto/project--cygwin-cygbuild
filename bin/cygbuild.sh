@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1124"
+CYGBUILD_VERSION="2007.0911.1335"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -367,9 +367,15 @@ function CygbuildBootVariablesGlobalEtcMain()
     tmp=${tmp%/*}  # One directory up (from bin/)
     tmp="$tmp/etc/etc"
 
-    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: c:No directory found at $tmp"
-
-    CygbuildBootVariablesGlobalEtcSet "$tmp"
+    if [ -d "$tmp" ]; then
+        CygbuildBootVariablesGlobalEtcSet "$tmp"
+    elif CygbuildIsGbsCompat ; then
+        #  Ignore. The cygbuild full suite is not installed
+        :
+    else
+        #  This is fatal only when trying to build sources
+        CygbuildDie "[FATAL] $id: c:No ETC directory found"
+    fi
 }
 
 function CygbuildBootVariablesGlobalShareSet()
