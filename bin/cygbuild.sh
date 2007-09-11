@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1650"
+CYGBUILD_VERSION="2007.0911.1718"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -318,6 +318,8 @@ function CygbuildBootVariablesId()
     fi
 
     CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
+
+    DIR_CYGPATCH_RELATIVE=CYGWIN-PATCHES                        # global-def
 
     #  Function return values are stored to files, because bash cannot call
     #  function with parameters in running shell environment. The only way to
@@ -3057,7 +3059,6 @@ function CygbuildDefineGlobalMain()
 
     if [ "$OPTION_PREFIX_CYGSINST" ]; then
         export srcinstdir=$OPTION_PREFIX_CYGSINST
-
     else
         export srcinstdir_relative=.sinst
         export srcinstdir=$srcdir/$srcinstdir_relative
@@ -3119,7 +3120,6 @@ function CygbuildDefineGlobalMain()
 
     local tmpdocdir=$CYGBUILD_DOCDIR_RELATIVE   # _docdir is temp variable
 
-    DIR_CYGPATCH_RELATIVE=CYGWIN-PATCHES                        # global-def
     DIR_CYGPATCH=$srcdir/$DIR_CYGPATCH_RELATIVE                 # global-def
 
     CYGPATCH_DONE_PATCHES_FILE=$DIR_CYGPATCH_RELATIVE/done-patch.tmp # global-def
@@ -3241,16 +3241,13 @@ function CygbuildDefineGlobalSrcOrig()
 
     local id="$0.$FUNCNAME"
     local sourcefile="$OPTION_FILE"
-
     local dummy="pwd $(pwd)"    # for debugging
 
     if [ ! "$PKG" ] || [ ! "$VER" ]; then
-        CygbuildWarn "$id: [FATAL] variables PKG and VER not known." \
-             "Are you inside package-NN.NN/ ?"
+        CygbuildWarn "$id: [FATAL] variables PKG and VER" \
+             "are not known. Is current dir package-N.N/ ?"
         return 1
     fi
-
-    #   CygbuildBuildScriptPath
 
     if [ -f "$sourcefile" ]; then
         #  If user told where the source file is, then examine that
@@ -3258,7 +3255,7 @@ function CygbuildDefineGlobalSrcOrig()
         SRC_ORIG_PKG_NAME=$name         # global-def
         SRC_ORIG_PKG=$sourcefile        # global-def
     else
-        #  No chance. Try guessing where that source file is
+        #  Try guessing where that source file is
         if [ ! "$SRC_ORIG_PKG" ]; then
             CygbuildCygbuildDefineGlobalSrcOrigGuess
         fi
@@ -3316,15 +3313,16 @@ function CygbuildSrcDirLocation()
     local id="$0.$FUNCNAME"
     local dir="$1"
 
-    #   Find src directory.
-    #   - If scriptdir ends in SPECS, then top is $scriptdir/..
-    #   - If scriptdir ends in $DIR_CYGPATCH_RELATIVE, then top is $scriptdir/../..
-    #   - Otherwise, we assume that top = scriptdir
-
-    local top=$dir
+    local name=${dir##*/}
     local src=$dir
+    local top
 
-    if [ -f "$dir/configure" ] || [ -f "$dir/buildconf" ] ; then
+    if [ "$name" = *-$VER       ] ||
+         [ -f "$dir/configure"  ] ||
+         [ -f "$dir/buildconf"  ] ||
+         [ -f "$dir/setup.py"   ] ||
+         [ -d "$dir/$DIR_CYGPATCH_RELATIVE" ]
+    then
         top=$(cd $dir/..; pwd)
 
     elif [[    "$top" == *-[0-9]*.*[0-9]
@@ -3334,7 +3332,6 @@ function CygbuildSrcDirLocation()
         top=$(cd $dir/..; pwd)
 
     elif [[     $dir == */$DIR_CYGPATCH_RELATIVE
-             || $dir == */SPECS
              || $dir == */debian
          ]] ; then
         src=$(cd $dir/..; pwd)
