@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1509"
+CYGBUILD_VERSION="2007.0911.1512"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8118,9 +8118,8 @@ function CygbuildCmdInstallCheckReadme()
     local name=${path##*/}
     local pkg=$name
     pkg=${pkg%.README}
-    pkg=${pkg%-[0-9.]*}
 
-    if [ "$pkg" != "$PKG" ]; then
+    if [ "$pkg" != "$PKG-$VER" ]; then
         echo "--   [ERROR] README name mismatch: $pkg != $PKG-$VER"
         let "status=status + 10"
     fi

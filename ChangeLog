@@ -16,6 +16,8 @@
 	(CygbuildVersionInfo): Greatly simplified the version explode
 	code.
 	(CygbuildIsNumberLike): Relax regexp not to include leading anchor.
+	(CygbuildCmdInstallCheckReadme): README file name checking
+	simplified.
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
