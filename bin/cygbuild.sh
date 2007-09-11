@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1434"
+CYGBUILD_VERSION="2007.0911.1509"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1348,28 +1348,22 @@ function CygbuildVersionInfo()
         # Remove release number (if any)
         # e.g. xterm-299, where 229 is NOT a release to be removed
 
-        s,([_-]\d.*)-[0-9]+$,$1,;
+        if ( /^(.+)-(\d|1\d?)$/ )
+        {
+            $_   = $1;
+            $rel = $2;
+        }
 
-        @a = (/^(.+?)[-_](\d.*)/);
+        @a = (/^(.+?)[-_](.*\d.*)/);
 
         if ( @a )
         {
-            print qq(@a\n);
-        }
-        elsif ( @a = ( m,/([^/]+)-([\d.]+\d)-?(\d+)*, ) )
-        {
+            push @a, $rel if $rel;
             print qq(@a\n);
         }
         else
         {
-            @words = split qq([_-]);
-
-            exit 1 if @words < 2;
-
-            $last = $words[1];
-            s/[_-]$last$//;
-
-            print qq($_ $last\n);
+            exit 1;
         }
     ' || exit 1
 }
@@ -1620,7 +1614,7 @@ function CygbuildIsNumber()
 
 function CygbuildIsNumberLike()
 {
-    CygbuildMatchRegexp '^[0-9]' "$1"
+    CygbuildMatchRegexp '[0-9]' "$1"
 }
 
 function CygbuildIsSrcdirOk()
@@ -8121,13 +8115,13 @@ function CygbuildCmdInstallCheckReadme()
     fi
 
     local path=$(< $retval)
-    local pkg=${path##*/}
+    local name=${path##*/}
+    local pkg=$name
     pkg=${pkg%.README}
     pkg=${pkg%-[0-9.]*}
 
     if [ "$pkg" != "$PKG" ]; then
-        echo "--   [ERROR] package and dir name mismatch: $pkg != $PKG" \
-             " $pkg != $PKG (searched for $readme)"
+        echo "--   [ERROR] README name mismatch: $pkg != $PKG-$VER"
         let "status=status + 10"
     fi
 
@@ -8285,7 +8279,7 @@ function CygbuildCmdInstallCheckDirEmpty()
         [ "$dir" = "$instdir" ] && continue
 
         if ! $LS -A $dir | $EGREP --quiet '[a-zA-Z]' ; then
-            CygbuildWarn "-- [WARN] empty directory $dir"
+            CygbuildWarn "--   [WARN] empty directory $dir"
         fi
 
     done < <($FIND $instdir -type d)
@@ -10208,12 +10202,11 @@ function Test ()
 #    CygbuildDefineGlobalCommands
     set -x
 
-    local tmp=mksh-R31b
+    local tmp=mksh-R31b-1
 
     CygbuildVersionInfo $tmp
 #    CygbuildStrPackage $tmp
 }
-
 
 CygbuildMain "$@"
 

@@ -13,6 +13,9 @@
 	(CygbuildBootVariablesGlobalEtcMain): Check GBS compat and do
 	not require ETC to be installed.
 	(CygbuildCmdInstallCheckDirEmpty): New.
+	(CygbuildVersionInfo): Greatly simplified the version explode
+	code.
+	(CygbuildIsNumberLike): Relax regexp not to include leading anchor.
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
