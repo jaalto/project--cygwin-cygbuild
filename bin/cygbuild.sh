@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1335"
+CYGBUILD_VERSION="2007.0911.1434"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8181,15 +8181,17 @@ function CygbuildCmdInstallCheckReadme()
 
     local rever=$(echo $VER | sed 's/\./[.]/g; s/+/[+]/g; ')    # regexp version
     local sversion=$rever-${REL:-1}                             # search version
-    local version=$VER-${REL:-1}
 
     notes=""
 
     $EGREP --line-number --ignore-case -e \
         "-- +($PKG-|version +)?$sversion +--" $path /dev/null > $retval
+
     [ -s $retval ] && notes=$(< $retval)
 
     if [[ ! "$notes" ]]; then
+        local version=$VER-${REL:-1}
+
         CygbuildWarn \
             "--   [WARN] Missing reference $version" \
             "(Perhaps you didn't run [install] after edit?)" \
@@ -8270,6 +8272,23 @@ function CygbuildCmdInstallCheckSetupHint()
             CygbuildWarn "--   [ERROR] setup.hint $lib package not installed"
         fi
     done
+}
+
+function CygbuildCmdInstallCheckDirEmpty()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local dir
+
+    while read dir
+    do
+        [ "$dir" = "$instdir" ] && continue
+
+        if ! $LS -A $dir | $EGREP --quiet '[a-zA-Z]' ; then
+            CygbuildWarn "-- [WARN] empty directory $dir"
+        fi
+
+    done < <($FIND $instdir -type d)
 }
 
 function CygbuildCmdInstallCheckDirStructure()
@@ -8808,6 +8827,7 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckSymlinks     || stat=$?
     CygbuildCmdInstallCheckLibFiles     || stat=$?
     CygbuildCmdInstallCheckDirStructure || stat=$?
+    CygbuildCmdInstallCheckDirEmpty     || stat=$?
     CygbuildCmdInstallCheckEtc          || stat=$?
     CygbuildCmdInstallSymlinkExe        || stat=$?
 
@@ -10193,6 +10213,7 @@ function Test ()
     CygbuildVersionInfo $tmp
 #    CygbuildStrPackage $tmp
 }
+
 
 CygbuildMain "$@"
 

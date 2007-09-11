@@ -12,6 +12,7 @@
 	foo-R31b.tar.gz
 	(CygbuildBootVariablesGlobalEtcMain): Check GBS compat and do
 	not require ETC to be installed.
+	(CygbuildCmdInstallCheckDirEmpty): New.
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
