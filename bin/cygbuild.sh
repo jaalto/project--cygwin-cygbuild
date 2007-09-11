@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.0858"
+CYGBUILD_VERSION="2007.0911.0941"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8263,13 +8263,17 @@ function CygbuildCmdInstallCheckDirStructure()
 
     local ok try
 
-    for try in $pfx/bin $pfx/sbin $pfx/lib $pfx/X11R6/bin
+    for try in $pfx/bin $pfx/sbin $pfx/lib
     do
         if [ -d "$try" ]; then
             ok=1
             break
         fi
     done
+
+    if [ -d $pfx/X11R6 ]; then
+        CygbuildWarn "--   [ERROR] deprecated $pfx/X11R6"
+    fi
 
     local dir="$pfx/lib/X11/app-defaults"
 
