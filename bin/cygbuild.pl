@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0909.1457';
+$VERSION = '2007.0911.0959';
 
 # ..................................................................
 
@@ -2431,6 +2431,13 @@ sub Version ($)
     $debug > 2  and  warn "$id: substitute 3 [$_]\n";
 
     my $ret = $1 if /-(\d+\..+|\d+)$/;
+
+    unless ( $ret )
+    {
+        # Exotic version like foo-R31b
+        my @words = split '[-_]';
+        $ret = $words[-1];
+    }
 
     $debug  and  warn "$id: RET $ARG => [$ret]\n";
 

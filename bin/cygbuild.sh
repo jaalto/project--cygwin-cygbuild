@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.0941"
+CYGBUILD_VERSION="2007.0911.1124"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1354,6 +1354,17 @@ function CygbuildVersionInfo()
         {
             print qq(@a\n);
         }
+        else
+        {
+            @words = split qq([_-]);
+
+            exit 1 if @words < 2;
+
+            $last = $words[1];
+            s/[_-]$last$//;
+
+            print qq($_ $last\n);
+        }
     ' || exit 1
 }
 
@@ -1462,7 +1473,7 @@ function CygbuildDefineVersionVariables()
     local mm=$digit2
     local dd=$digit2
 
-    [[ "$CYGBUILD_STATIC_VER_VERSION" == [0-9]* ]] ||
+    [[ "$CYGBUILD_STATIC_VER_VERSION" == *[0-9]* ]] ||
     [[ "$CYGBUILD_STATIC_VER_VERSION" == $yyyy$mm$dd*  ]]
 }
 
@@ -10171,7 +10182,7 @@ function Test ()
 #    CygbuildDefineGlobalCommands
     set -x
 
-    local tmp=/tmp/xterm-229
+    local tmp=mksh-R31b
 
     CygbuildVersionInfo $tmp
 #    CygbuildStrPackage $tmp

@@ -1,10 +1,15 @@
 2007-09-11  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl (Version): Support exotic version number like
+	foo-R31b.tar.gz
+
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonMain): Set
 	prefix to /usr, not /usr/share. Rewrote input argument
 	handling to use shift and $@.
 	(CygbuildCmdInstallCheckDirStructure): Warn about deprecated
 	X11R6 directory.
+	(CygbuildVersionInfo): Support exotic version number like
+	foo-R31b.tar.gz
 
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
