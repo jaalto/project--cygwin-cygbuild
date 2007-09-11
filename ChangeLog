@@ -1,3 +1,9 @@
+2007-09-11  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonMain): Set
+	prefix to /usr, not /usr/share. Rewrote input argument
+	handling to use shift and $@.
+
 2007-09-10  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckSymlinks); New.

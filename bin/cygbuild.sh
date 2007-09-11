@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0910.1639"
+CYGBUILD_VERSION="2007.0911.0858"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3598,7 +3598,7 @@ function CygbuildCygDirCheck()
     if [ "$?" = "0" ]; then
         CygbuildWarn \
             "-- [WARN] $DIR_DOC_CYGWIN/package.README contains tags." \
-            "Edit or use [readmefix]; and run [install]"
+            "Edit, use [readmefix] and run [install]"
     fi
 }
 
@@ -5708,8 +5708,10 @@ function CygbuildMakefileRunInstallPythonMain()
     local root="$instdir$CYGBUILD_PREFIX"
 
     local pfx=${1:-$root}
-    local docpfx=${2:-$root/share/doc}
-    local rest=$3
+    [ "$1" ] && shift
+
+    local docpfx=${1:-$root/share/doc}
+    [ "$1" ] && shift
 
     #   See "2 Standard Build and Install" and section 3, 4
     #   http://python.active-venture.com/inst/standard-install.html
@@ -5722,9 +5724,9 @@ function CygbuildMakefileRunInstallPythonMain()
 
     CygbuildRunPythonSetupCmd       \
          install                    \
-         --prefix=$pfx/share        \
+         --prefix=$pfx              \
          --exec-prefix=$pfx/bin     \
-         $rest
+         ${1:-"$@"}
 }
 
 function CygbuildMakefileRunPythonInDir ()
