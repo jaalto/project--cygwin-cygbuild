@@ -11,6 +11,8 @@
 	treatment in while loop to set OPTION_BZIP. Removed
 	options -V|--version that are already handled in
 	`CygbuildCommandMainCheckHelp'. Call `CygbuildProgramVersion'.
+	Don't call `CygbuildReadmeReleaseMatchCheck' when GBS mode
+	in on (when running the *.sh source script).
 
 2007-09-11  Jari Aalto  <jari.aalto@cante.net>
 

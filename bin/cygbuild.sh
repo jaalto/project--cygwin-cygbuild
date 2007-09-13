@@ -9866,7 +9866,7 @@ function CygbuildCommandMain()
         exit 1
     fi
 
-    CygbuildReadmeReleaseMatchCheck
+    CygbuildIsGbsCompat || CygbuildReadmeReleaseMatchCheck
 
     # ................................................ user commands ...
 
