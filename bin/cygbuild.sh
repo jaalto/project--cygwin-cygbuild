@@ -3498,9 +3498,9 @@ function CygbuildHelpSourcePackage()
 #######################################################################
 
 
-function CygbuildCompress ()
+function CygbuildCompress()
 {
-    if [ "OPTION_BZIP" ]; then
+    if [ "$OPTION_BZIP" ]; then
         ${BZIP:-"bzip2"} "$@"
     else
         ${GZIP:-"gzip"} "$@"
@@ -7821,6 +7821,9 @@ function CygbuildInstallExtraManualCompress()
 
                     if [ "$path" ] && [ -f "$path.gz" ]; then
                         $LN -sf $verbose "$path.gz" "$name.gz" || exit 1
+                        $RM "$name"
+                    elif [ "$path" ] && [ -f "$path.bz2" ]; then
+                        $LN -sf $verbose "$path.bz2" "$name.bz2" || exit 1
                         $RM "$name"
                     fi
                 CygbuildPopd
