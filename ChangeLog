@@ -1,3 +1,15 @@
+2007-09-13  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	- Added new option --bzip2 to choose *.bz2 compression for manual
+	  pages.
+	(CygbuildDefineGlobalCommands): GZIP
+	incorrectly defined as 'bzip'. New variable BZIP.
+	(CygbuildCompress): New. Support both gzip and bzip2.
+	(CygbuildInstallExtraManualCompress): Call `CygbuildCompress'
+	(CygbuildCommandMain): Added getop handling for --bzip2 and
+	treatment in while loop to set OPTION_BZIP.
+
 2007-09-11  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl (Version): Support exotic version number like

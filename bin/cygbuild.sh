@@ -2743,13 +2743,14 @@ function CygbuildDefineGlobalCommands()
     AWK=awk                             # global-def
     BASH=/bin/bash                      # global-def
     BASHX="$BASH -x"                    # global-def
+    BZIP=bzip2                          # global-def
     CAT=cat                             # global-def
     CP=cp                               # global-def
     DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     FILE=file                           # global-def
     FIND=find                           # global-def
-    GZIP=bzip                           # global-def
+    GZIP=gzip                           # global-def
     GPG=gpg                             # global-def
     LN=ln                               # global-def
     LS=ls                               # global-def
@@ -3495,6 +3496,16 @@ function CygbuildHelpSourcePackage()
 #       Misc functions
 #
 #######################################################################
+
+
+function CygbuildCompress ()
+{
+    if [ "OPTION_BZIP" ]; then
+        ${BZIP:-"bzip2"} "$@"
+    else
+        ${GZIP:-"gzip"} "$@"
+    fi
+}
 
 function CygbuildNoticeCygwinPatches()
 {
@@ -7786,7 +7797,7 @@ function CygbuildInstallExtraManualCompress()
 
         if $FIND $DIR_DOC_GENERAL -type f  > $retval
         then
-            $GZIP --force --best $(< $retval) || return $?
+            CygbuildCompress --force --best $(< $retval) || return $?
         fi
 
         if $FIND $DIR_DOC_GENERAL -type l -name "*.[1-9]" > $retval
@@ -9530,7 +9541,7 @@ function CygbuildCommandMain()
 
     getopt \
         -n $id \
-        --long checkout,debug:,Debug:,email:,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,file:,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,version,Version,no-strip \
+        --long bip2,checkout,debug:,Debug:,email:,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,file:,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,version,Version,no-strip \
         --option cDd:e:f:gmp:Pr:s:tvVx -- "$@" \
         > $retval
 
@@ -9556,8 +9567,13 @@ function CygbuildCommandMain()
 
       case $1 in
 
+            --bzip2)
+                OPTION_BZIP="opt-bzip"          # global-def
+                shift 1
+                ;;
+
             -c|--checkout)
-                OPTION_VC_PACKAGE="yes"         # global-def
+                OPTION_VC_PACKAGE="opt-vc"      # global-def
                 shift 1
                 ;;
 
