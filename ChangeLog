@@ -6,8 +6,11 @@
 	incorrectly defined as 'bzip'. New variable BZIP.
 	(CygbuildCompress): New. Support both gzip and bzip2.
 	(CygbuildInstallExtraManualCompress): Call `CygbuildCompress'
+	(CygbuildProgramVersion): New.
 	(CygbuildCommandMain): Added getop handling for --bzip2 and
-	treatment in while loop to set OPTION_BZIP.
+	treatment in while loop to set OPTION_BZIP. Removed
+	options -V|--version that are already handled in
+	`CygbuildCommandMainCheckHelp'. Call `CygbuildProgramVersion'.
 
 2007-09-11  Jari Aalto  <jari.aalto@cante.net>
 

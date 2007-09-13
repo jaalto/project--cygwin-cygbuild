@@ -9462,6 +9462,15 @@ function CygbuildFileReleaseGuess()
 #
 #######################################################################
 
+function CygbuildProgramVersion()
+{
+    local code="$1"
+
+    echo "$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
+
+    [ "$code" ] && exit $code
+}
+
 function CygbuildCommandMainCheckHelp()
 {
     local tmp
@@ -9475,9 +9484,8 @@ function CygbuildCommandMainCheckHelp()
             --help)
                 CygbuildHelpLong 0
                 ;;
-            -V|--version)
-                echo "$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
-                exit 0
+            -V|--Version|--version)
+                CygbuildProgramVersion 0
                 ;;
         esac
     done
@@ -9487,6 +9495,7 @@ function CygbuildCommandMain()
 {
     local id="$0.$FUNCNAME"
 
+    CygbuildProgramVersion
     CygbuildBootVariablesId
     CygbuildDefineGlobalScript
     CygbuildBootVariablesCache
@@ -9544,7 +9553,7 @@ function CygbuildCommandMain()
 
     getopt \
         -n $id \
-        --long bip2,checkout,debug:,Debug:,email:,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,file:,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,version,Version,no-strip \
+        --long bip2,checkout,debug:,Debug:,email:,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,file:,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
         --option cDd:e:f:gmp:Pr:s:tvVx -- "$@" \
         > $retval
 
@@ -9712,11 +9721,6 @@ function CygbuildCommandMain()
             -v|--verbose)
                 verbose="--verbose"             # global-def
                 shift
-                ;;
-
-            -V|--version|--Version)
-                echo $CYGBUILD_VERSION
-                return
                 ;;
 
             -x|--no-strip)
