@@ -3729,7 +3729,7 @@ function CygbuildGPGverify()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local file
 
-    for file in $*
+    for file in "$@"
     do
         [ ! -f "$file" ]  && continue
         [ ! "$quiet"   ]  && echo "-- Verifying using $file"
@@ -3742,7 +3742,7 @@ function CygbuildGPGverify()
         #   gpg: please see http://www.gnupg.org/faq.html for more information
 
         $GPG --verify $file$sigext $file 2>&1 \
-            | $EGREP -Ev 'insecure memory|faq.html'
+            | $EGREP -Ev 'insecure memory|faq.html' \
             > $tmp
 
         status=$?
@@ -4269,7 +4269,7 @@ function CygbuildCmdPublishSignature()
             echo "ok."
             $CP $verbose "$sigfile" "$dest"
         else
-            echo "failed! Signature not published."
+            echo "FAILED! Signature not published."
         fi
 
     fi

@@ -13,6 +13,9 @@
 	`CygbuildCommandMainCheckHelp'. Call `CygbuildProgramVersion'.
 	Don't call `CygbuildReadmeReleaseMatchCheck' when GBS mode
 	in on (when running the *.sh source script).
+	(CygbuildGPGverify): Added missing backslash from comand
+	continuation at gpg --verify. The log file appeared empty and caused
+	message 'FAILED! Signature not published'.
 
 2007-09-11  Jari Aalto  <jari.aalto@cante.net>
 
