@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.0841"
+CYGBUILD_VERSION="2007.0914.0843"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2034,7 +2034,7 @@ function CygbuildMakefileName()
         elif [ -h "$path" ]; then
             CygbuildWarn "-- [ERROR] inconsistent links." \
                  "Perhaps sources moved. Run [reshadow]."
-            $LS -la "$path"
+            $LS -l --all "$path"
             break
         fi
     done
@@ -9256,7 +9256,7 @@ function CygbuildCmdFinishMain()
 
             CygbuildPushd
                 #   Display *-src package and binary package
-                cd "$TOPDIR" && ls -lat | head -3 | sed 's/^/   /'
+                cd "$TOPDIR" && ls --all -lt | head -3 | sed 's/^/   /'
             CygbuildPopd
         fi
 
