@@ -21,6 +21,8 @@
 	(CygbuildPatchApplyMaybe): Improved patch/unpatch and error
 	checking in case the commands were called multiple times.
 	Show the full patch command only if --verbose is set.
+	(CygbuildCmdInstallCheckDirStructure): Changer ERROR
+	to WARN if /bin was found.
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 

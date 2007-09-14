@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.1621"
+CYGBUILD_VERSION="2007.0914.1731"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8323,7 +8323,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
     local ok try
 
-    for try in $pfx/bin $pfx/sbin $pfx/lib
+    for try in $instdir/bin $pfx/bin $pfx/sbin $pfx/lib
     do
         if [ -d "$try" ]; then
             ok=1
@@ -8346,12 +8346,13 @@ function CygbuildCmdInstallCheckDirStructure()
     fi
 
     if [ -d $instdir/bin ]; then
-        CygbuildWarn "--   [ERROR] /bin should be /usr/bin"
+        #  For shells this is valied, but for anything else...
+        CygbuildWarn "--   [WARN] /bin found. Should it be /usr/bin?"
     fi
 
     if [ ! "$ok" ]; then
         CygbuildWarn "--   [ERROR] incorrect directory structure," \
-             "$instdir contain no usr/bin, usr/sbin or usr/lib"
+             "$instdir contain no bin/ usr/bin, usr/sbin or usr/lib"
         return 1
     fi
 }
