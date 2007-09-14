@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.1234"
+CYGBUILD_VERSION="2007.0914.1621"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6329,19 +6329,19 @@ function CygbuildPatchApplyRun()
     local id="$0.$FUNCNAME"
     local patch=$1
     shift
-    local addopt="$*"
+    # $@ contains additional options
 
     local dummy=$(pwd)                      # For debug
-    local patchopt="$CYGBUILD_PATCH_OPT $addopt"
+    local patchopt="$CYGBUILD_PATCH_OPT"
 
     if [ ! "$verbose" ]; then
         patchopt="$patchopt --quiet"
     fi
 
     if [ -f "$patch" ]; then
-        echo "-- cd $dummy && patch $patchopt < $patch"
-        CygbuildVerb "--   [NOTE] If patch fails, you may need rm -rf $srcdir"
-        ${test:+echo} $PATCH $patchopt < $patch
+        CygbuildVerb "-- cd $dummy && patch $patchopt < $patch"
+#       CygbuildVerb "--   [NOTE] If patch fails, you may need rm -rf $srcdir"
+        ${test:+echo} $PATCH $patchopt "$@" < $patch
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
              "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
@@ -6352,9 +6352,9 @@ function CygbuildPatchApplyRun()
 function CygbuildPatchApplyMaybe()
 {
     local id="$0.$FUNCNAME"
-    local dir=$DIR_CYGPATCH
-    local statfile=$CYGPATCH_DONE_PATCHES_FILE
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local dir="$DIR_CYGPATCH"
+    local statfile="$CYGPATCH_DONE_PATCHES_FILE"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local cmd=${1:-"patch"}  # unpatch?
 
@@ -6371,9 +6371,12 @@ function CygbuildPatchApplyMaybe()
             $EGREP --quiet --regexp="$name" $statfile && done=1
 
             if [ "$cmd" = "patch" ] && [ "$done" ]; then
-                echo "-- [INFO] Skip, patch already applied: $file"
+                echo "-- [INFO] Patch already applied: $name"
                 continue
             fi
+        elif [ "$cmd" = "unpatch" ]; then
+                echo "-- [INFO] No patches applied, no $statfile"
+                break
         fi
 
         CygbuildPatchPrefixStripCountMain "$file" > $retval
@@ -6385,7 +6388,14 @@ function CygbuildPatchApplyMaybe()
 
         [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
 
-        CygbuildPatchApplyRun "$file" "$opt" ||
+        if [ ! "$verbose" ]; then
+            local msg="Unpatching"
+            [ "$cmd" = "patch" ] && msg="Patching"
+
+            echo "-- $msg with" $name
+        fi
+
+        CygbuildPatchApplyRun "$file" $opt ||
         CygbuildDie "-- [FATAL] Exiting."
 
         if [ "$cmd" = "unpatch" ]; then
@@ -8850,9 +8860,9 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         fi
 
         if $EGREP --line-number --ignore-case \
-           'copyright.*YYYY' $file > $retval
+           'copyright.*YYYY|[<]your +name|[<]firstname' $file > $retval
         then
-            echo "--   [WARN] Copyright template"
+            echo "--   [WARN] Possible unfilled template line"
             $SED 's/^/     /' $retval
         fi
 

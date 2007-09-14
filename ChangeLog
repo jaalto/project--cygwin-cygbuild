@@ -16,7 +16,11 @@
 	(CygbuildCmdInstallCheckCygpatchDirectory): New.
 	(CygbuildCmdInstallCheckMain): Use
 	`CygbuildCmdInstallCheckTrailingWspc'.
-
+	(CygbuildPatchApplyRun): Improved handling of additional options
+	by using $@.
+	(CygbuildPatchApplyMaybe): Improved patch/unpatch and error
+	checking in case the commands were called multiple times.
+	Show the full patch command only if --verbose is set.
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
