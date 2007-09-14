@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.0843"
+CYGBUILD_VERSION="2007.0914.1234"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8816,7 +8816,7 @@ function CygbuildCmdInstallCheckSymlinkExe()
     fi
 }
 
-function CygbuildCmdInstallCheckTrailingWspc()
+function CygbuildCmdInstallCheckCygpatchDirectory()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
@@ -8844,10 +8844,19 @@ function CygbuildCmdInstallCheckTrailingWspc()
 
         if $EGREP --line-number '[ \t]$' $file > $retval
         then
-            echo "-- [WARN] Trailing whitespaces found in $file"
+            echo "--   [WARN] Trailing whitespaces found in $file"
             $CAT --show-nonprinting --show-tabs --show-ends $retval |
-            $SED 's/^/   /'
+            $SED 's/^/     /'
         fi
+
+        if $EGREP --line-number --ignore-case \
+           'copyright.*YYYY' $file > $retval
+        then
+            echo "--   [WARN] Copyright template"
+            $SED 's/^/     /' $retval
+        fi
+
+
     done
 }
 
@@ -8879,7 +8888,7 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckDirEmpty     || stat=$?
     CygbuildCmdInstallCheckEtc          || stat=$?
     CygbuildCmdInstallCheckSymlinkExe   || stat=$?
-    CygbuildCmdInstallCheckTrailingWspc || stat=$?
+    CygbuildCmdInstallCheckCygpatchDirectory || stat=$?
 
     echo "-- Check done. Please verify messages above."
 

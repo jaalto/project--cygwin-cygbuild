@@ -13,9 +13,10 @@
 	no library dependencies found.
 	(CygbuildCmdInstallCheckSymlinkExe): Renamed. Was
 	`CygbuildCmdInstallSymlinkExe'.
-	(CygbuildCmdInstallCheckTrailingWspc): New.
+	(CygbuildCmdInstallCheckCygpatchDirectory): New.
 	(CygbuildCmdInstallCheckMain): Use
 	`CygbuildCmdInstallCheckTrailingWspc'.
+
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
