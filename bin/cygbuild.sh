@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0911.1723"
+CYGBUILD_VERSION="2007.0914.0719"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1294,6 +1294,12 @@ function CygbuildCygcheckLibraryDepMain()
     echo "-- Trying to resolve depends for $file"
 
     CygbuildCygcheckLibraryDepList   "$data" > $retval
+
+    if [ ! -s $retval ]; then
+        echo "-- No dependencies other than cygwin"
+        return 0
+    fi
+
     CygbuildCygcheckLibraryDepSource
 
     if CygbuildCygcheckLibraryDepGrepPgkNames $retval > $retval.pkglist
@@ -1308,21 +1314,21 @@ function CygbuildCygcheckLibraryDepMain()
     fi
 }
 
-function CygbuildCygcheck()
+function CygbuildCygcheckMain()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local bin="cygpath"
     local file path
-    local bin="/usr/bin/cygpath"
 
-    if [ -x "$bin" ]; then
-        CygbuildWarn "[ERROR] $id: Not exists $path"
+    if ! CygbuildWhich $bin > /dev/null; then
+        CygbuildWarn "[WARN] $id: Not found in PATH: $bin"
         return 1
     fi
 
     for file in "$@"
     do
-        if /usr/bin/cygpath --windows "$file" > $retval
+        if $bin --windows "$file" > $retval
         then
             path=$(< $retval)
             /usr/bin/cygcheck $path | tee $retval
@@ -8674,7 +8680,7 @@ function CygbuildCmdInstallCheckBinFiles()
             echo "--   $name: $str"
 
             #   Show library dependencies
-            [[ $file == *.exe ]] && CygbuildCygcheck $file
+            [[ $file == *.exe ]] && CygbuildCygcheckMain $file
         fi
 
     done

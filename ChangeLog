@@ -1,3 +1,10 @@
+2007-09-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCygcheckMain): Renamed. Was
+	`CygbuildCygcheck'.
+	(CygbuildCygcheckLibraryDepMain): Exit immediately if
+	no library dependencies found.
+
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
