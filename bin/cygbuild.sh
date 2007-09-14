@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.0827"
+CYGBUILD_VERSION="2007.0914.0841"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2445,7 +2445,8 @@ function CygbuildMoveToTempDir()
 
     CygbuildPushd
         cd $dir &&
-        $MV $(LC_ALL=C $LS | $EGREP -v "$dest|cygbuild.*sh" ) $dest
+        $MV $(LC_ALL=C $LS |
+              $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
     CygbuildPopd
 
     echo $temp
@@ -2596,7 +2597,7 @@ function CygbuildTreeSymlinkCopy()
             #   Ignore these
 
             if echo $item |
-               $EGREP -q "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
+               $EGREP --quiet "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
             then
                 CygbuildVerb "--   Ignored $item"
                 continue
@@ -3618,7 +3619,7 @@ function CygbuildCygDirCheck()
                "Did forget to run [files]'?"
     fi
 
-    $EGREP -n -e '[<](PKG|VER|REL)[>]' $readme /dev/null
+    $EGREP --line-number --regexp='[<](PKG|VER|REL)[>]' $readme /dev/null
 
     if [ "$?" = "0" ]; then
         CygbuildWarn \
@@ -3748,7 +3749,7 @@ function CygbuildGPGverify()
         #   gpg: please see http://www.gnupg.org/faq.html for more information
 
         $GPG --verify $file$sigext $file 2>&1 \
-            | $EGREP -Ev 'insecure memory|faq.html' \
+            | $EGREP --invert-match 'insecure memory|faq.html' \
             > $tmp
 
         status=$?
@@ -4491,7 +4492,7 @@ function CygbuildCmdPkgDevelStandard()
             # usr/bin/cygfontconfig-1.dll => 1
 
             $EGREP "$PKG.*dll" $retval.lib |
-                $EGREP --only-matching -e "-[0-9]" |
+                $EGREP --only-matching --regexp="-[0-9]" |
                 cut -d"-" -f2 \
                 > $retval.ver
 
@@ -4877,7 +4878,7 @@ function CygbuildCmdMkpatchMain()
                      "check $origpkgdir and $out"        \
                      "Do you need to run [reshadow]?"
 
-                $EGREP -in 'files.*differ' $out
+                $EGREP --line-number --invert-match 'files.*differ' $out
 
                 return $status
 
@@ -4986,7 +4987,8 @@ function CygbuildCmdPkgSourceStandard()
 
         local pkg=$PKG-$VER-$REL
 
-        ls *$PKG-$VER*-* 2> /dev/null | $EGREP -v "$pkg" > $retval
+        ls *$PKG-$VER*-* 2> /dev/null |
+            $EGREP --invert-match "$pkg" > $retval
 
         if [ -s $retval ]; then
             CygbuildWarn "--   [NOTE] Deleting old releases from $srcinstdir"
@@ -5149,7 +5151,7 @@ function CygbuildCmdPkgSourceCvsdiff()
             status=0
         else
             CygbuildWarn "$id: [ERROR] Making a patch failed, check $out"
-            $EGREP -n --ignore-case 'files.*differ' $out
+            $EGREP --line-number --ignore-case 'files.*differ' $out
             status=$(( $status + 10 ))
         fi
 
@@ -5366,7 +5368,7 @@ function CygbuildMakefileCheck()
 
     if [ "$file" ]; then
 
-        $EGREP -ne '^[^#]+-lc\>' $file /dev/null > $retval
+        $EGREP --line-number --regexp='^[^#]+-lc\>' $file /dev/null > $retval
 
         if [ -s $retval ]; then
             CygbuildWarn "--  [WARN] Linux -lc found. Make it read -lcygwin"
@@ -5520,7 +5522,7 @@ $commands
 from=$from
 to=$to
 if [ -f \$from ] &&  [ -f \$to ]; then
-    if ! $EGREP -q $modulename \$to ; then
+    if ! $EGREP --quiet $modulename \$to ; then
         $CAT \$from >> \$to && $RM -f \$from
     else
         $RM -f \$from
@@ -6211,7 +6213,7 @@ function CygbuildPatchCheck()
 
         notes=""
 
-        $EGREP -n "No newline at end of file" $file > $retval
+        $EGREP --line-number "No newline at end of file" $file > $retval
         [ -s $retval ] && notes=$(< $retval)
 
         if [ "$notes" ]; then
@@ -6366,7 +6368,7 @@ function CygbuildPatchApplyMaybe()
         done=
 
         if [ -f "$statfile" ]; then
-            $EGREP -qe "$name" $statfile && done=1
+            $EGREP --quiet --regexp="$name" $statfile && done=1
 
             if [ "$cmd" = "patch" ] && [ "$done" ]; then
                 echo "-- [INFO] Skip, patch already applied: $file"
@@ -6390,7 +6392,7 @@ function CygbuildPatchApplyMaybe()
 
             #   Remove name from patch list
             if [ -f "$statfile" ]; then
-                $EGREP -ve "$name" "$statfile" > $retval
+                $EGREP --invert-match --regexp="$name" "$statfile" > $retval
                 $MV "$retval" "$statfile"
             fi
 
@@ -6634,7 +6636,8 @@ CygbuildCmdGetSource ()
 
     #  explode the patch to manageable pieces
 
-    local patch=$(ls *.patch 2> /dev/null | grep -Ev '-rest' )
+    local patch=$(ls *.patch 2> /dev/null |
+                  $EGREP --invert-match --regexp='-rest' )
 
     local fdiff
     CygbuildWhich filterdiff > $retval &&
@@ -8148,7 +8151,8 @@ function CygbuildCmdInstallCheckReadme()
     local tags="(Your +name|Your +email)"
     local notes=""
 
-    $EGREP -nie "$tags" $path /dev/null > $retval
+    $EGREP --line-number --ignore-case --regexp="$tags" \
+        $path /dev/null > $retval
 
     [ -s $retval ] && notes=$(< $retval)
 
@@ -8167,7 +8171,7 @@ function CygbuildCmdInstallCheckReadme()
     local tags="[<](PKG|VER|older VER|REL|date)[>]"
     notes=""
 
-    $EGREP -ne "$tags" $path /dev/null > $retval
+    $EGREP --line-number --regexp="$tags" $path /dev/null > $retval
 
     [ -s $retval ] && notes=$(< $retval)
 
@@ -8192,8 +8196,9 @@ function CygbuildCmdInstallCheckReadme()
 
     notes=""
 
-    $EGREP --line-number --ignore-case -e \
-        "-- +($PKG-|version +)?$sversion +--" $path /dev/null > $retval
+    $EGREP --line-number --ignore-case \
+        --regexp="-- +($PKG-|version +)?$sversion +--" \
+        $path /dev/null > $retval
 
     [ -s $retval ] && notes=$(< $retval)
 
@@ -8274,7 +8279,8 @@ function CygbuildCmdInstallCheckSetupHint()
 
     for lib in $( $AWK  '/^requires:/ { sub("requires:", ""); print}' $path)
     do
-        if $EGREP -q --files-with-matches "$lib" $database ; then
+        if $EGREP --quiet --files-with-matches "$lib" $database
+        then
             echo "--   [OK] setup.hint $lib"
         else
             CygbuildWarn "--   [ERROR] setup.hint $lib package not installed"
@@ -9466,7 +9472,7 @@ function CygbuildFileReleaseGuess()
     local -a arr
 
     $LS 2> /dev/null \
-        | $EGREP -e '[-_][0-9]+(-src\.tar|\.orig\.tar|\.patch)' \
+        | $EGREP '[-_][0-9]+(-src\.tar|\.orig\.tar|\.patch)' \
         > $retval
 
     [ -s $retval ] && arr=( $(< $retval) )
@@ -9483,9 +9489,9 @@ function CygbuildFileReleaseGuess()
         #  package-N.N-RELEASE-src.tar.bz2
         #  package-N.N-RELEASE.tar.bz2
 
-        echo "${arr[*]}"                \
-             | $TR ' ' '\n'             \
-             | $EGREP -e '-src|\.orig.' \
+        echo "${arr[*]}"                      \
+             | $TR ' ' '\n'                   \
+             | $EGREP --regexp='\.orig.|-src' \
              > $retval
 
         ret=$(< $retval)
