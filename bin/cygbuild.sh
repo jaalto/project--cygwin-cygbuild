@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.0719"
+CYGBUILD_VERSION="2007.0914.0827"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2753,7 +2753,7 @@ function CygbuildDefineGlobalCommands()
     CAT=cat                             # global-def
     CP=cp                               # global-def
     DIFF=diff                           # global-def
-    EGREP="grep --binary-files=without-match --extended-regexp" # global-def
+    EGREP="grep --binary-files=without-match --perl-regexp" # global-def
     FILE=file                           # global-def
     FIND=find                           # global-def
     GZIP=gzip                           # global-def
@@ -8791,7 +8791,7 @@ function CygbuildCmdInstallCheckLineEndings()
     fi
 }
 
-function CygbuildCmdInstallSymlinkExe()
+function CygbuildCmdInstallCheckSymlinkExe()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
@@ -8808,6 +8808,41 @@ function CygbuildCmdInstallSymlinkExe()
             "Recompile with coreutils 6.9 installed."
         return 1
     fi
+}
+
+function CygbuildCmdInstallCheckTrailingWspc()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local dir="$DIR_CYGPATCH_RELATIVE"
+
+    [ -d "$dir" ] || return 0
+
+    local file
+
+    FIND $dir \
+    -type d '(' -name ".bzr" \
+                -o -name ".git" \
+                -o -name ".svn" \
+                -o -name ".hg" \
+                -o -name "_MTN" \
+                -o -name "RCS" \
+                -o -name "CVS" ')' -prune  \
+    -o -type f \
+    |
+    while read file
+    do
+        [ -f $file          ] || continue
+        [[ $file == *patch ]] && continue
+        [[ $file == *diff  ]] && continue
+
+        if $EGREP --line-number '[ \t]$' $file > $retval
+        then
+            echo "-- [WARN] Trailing whitespaces found in $file"
+            $CAT --show-nonprinting --show-tabs --show-ends $retval |
+            $SED 's/^/   /'
+        fi
+    done
 }
 
 function CygbuildCmdInstallCheckMain()
@@ -8837,7 +8872,8 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckDirStructure || stat=$?
     CygbuildCmdInstallCheckDirEmpty     || stat=$?
     CygbuildCmdInstallCheckEtc          || stat=$?
-    CygbuildCmdInstallSymlinkExe        || stat=$?
+    CygbuildCmdInstallCheckSymlinkExe   || stat=$?
+    CygbuildCmdInstallCheckTrailingWspc || stat=$?
 
     echo "-- Check done. Please verify messages above."
 
