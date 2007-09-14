@@ -1,9 +1,9 @@
 #/bin/bash
-# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
 #
 # package-bin.sh -- Custom configure script
 #
-# -- THIS AN EXAMPLE: MODIFY AS NEEDED --
+# -- THIS AN EXAMPLE: WRITE THE PACKAGING COMMANDS AS NEEDED --
 
 
 

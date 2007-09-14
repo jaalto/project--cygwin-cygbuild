@@ -1,6 +1,6 @@
+# Copyright (C) YYY Your Name; Licenced under GPL v2 or later
+#
 # Just before make(1) is about to be run, this file is sourced
-# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
-
 # CYGBUILD_CC="gcc"
 # CYGBUILD_CXX="g++"
 # CYGBUILD_CFLAGS="-O2 -g"
