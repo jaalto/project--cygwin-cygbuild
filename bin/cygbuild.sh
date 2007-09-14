@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.2312"
+CYGBUILD_VERSION="2007.0914.2337"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8556,7 +8556,7 @@ function CygbuildCmdInstallCheckSymlinks()
         link=${arr[$j]}
 
         if [[ "$link" == /* ]]; then
-            CygbuildWarn "-- [WARN] Absolute symlink $path -> $link"
+            CygbuildWarn "--   [WARN] Absolute symlink $path -> $link"
         fi
     done < $retval
 }
@@ -8869,7 +8869,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         fi
 
         if $EGREP --line-number --ignore-case \
-           'copyright.*YYYY|[<]your +name|[<]firstname' $file > $retval
+           'copyright.*YYYY|your +name|[<]firstname' $file > $retval
         then
             echo "--   [WARN] Possible unfilled template line in $file"
             $SED 's/^/     /' $retval

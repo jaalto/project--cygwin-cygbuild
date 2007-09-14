@@ -27,6 +27,10 @@
 	into *.N. Delete these generated pages after the install.
 	(CygbuildCmdInstallCheckCygpatchDirectory): Display file in error:
 	Possible unfilled template line
+	(CygbuildCmdInstallCheckSymlinks): Fix iWARN indentation: 2 more
+	spaces to the right.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Adjust 'your name'
+	regexp by leaving out [<] test.
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
