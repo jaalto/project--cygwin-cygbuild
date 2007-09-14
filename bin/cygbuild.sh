@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.2337"
+CYGBUILD_VERSION="2007.0914.2356"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5871,16 +5871,18 @@ function CygbuildMakefileRunInstall()
 
     #   install under .inst/
 
-    echo "--   Running 'make install' (or equiv.) in $builddir"
+    echo "--   Running 'make install' (or equiv.) in" ${builddir/$srcdir\/}
 
     if [ -f "$makeScript" ]; then
 
-        echo "--     Running external make: $makeScript" \
-             "$instdir $CYGBUILD_PREFIX $exec_prefix"
+        echo "--     Running external make:" ${makeScript/$srcdir\/} \
+             ${instdir/$srcdir\/} \
+             $CYGBUILD_PREFIX \
+             ${exec_prefix/$srcdir\/}
 
         echo "$id: NOT YET IMPLEMENTED"
 
-        #todo: unfinished idea.
+        #todo: FIXME unfinished idea.
         exit 1
 
         CygbuildPushd
@@ -6709,7 +6711,7 @@ function CygbuildCmdPrepPatch()
 function CygbuildCmdShadowDelete()
 {
     local id="$0.$FUNCNAME"
-    echo "-- Emptying shadow directory $builddir"
+    echo "-- Emptying shadow directory" ${builddir/$srcdir\/}
 
     if [[ ! -d "$srcdir" ]]; then
         CygbuildVerb "--   Nothing to do. No directory found: $srcdir"
@@ -7625,7 +7627,8 @@ function CygbuildInstallPackageDocs()
         if [ ! "$done" ]; then      #  Do this only once
             CygbuildRun $scriptInstallDir $dest || return $?
             done=1
-            echo "--   Installing docs to $dest ${test:+(TEST MODE)}"
+            echo "--   Installing docs to" ${dest/$srcdir\/} \
+                 ${test:+(TEST MODE)}
         fi
 
         CygbuildRun $scriptInstallFile $file $dest
@@ -7669,7 +7672,7 @@ function CygbuildInstallPackageDocs()
 
         if [ "$status" = "0" ]; then
 
-            echo "--   Installing docs from $dir"
+            echo "--   Installing docs from" ${dir/$srcdir\/}
 
             CygbuildRun $scriptInstallDir $dest || return $?
 
@@ -7702,7 +7705,7 @@ function CygbuildInstallPackageDocs()
                 return $status
             fi
 
-            CygbuildVerb "--  Fixing permissions in $dest"
+            CygbuildVerb "--  Fixing permissions in" ${dest/$srcdir\/}
 
             $FIND $dest -print > $retval
 
@@ -7794,7 +7797,8 @@ function CygbuildInstallExtraManual()
         nbr=${nbr%$addsect}
         mansect=$mandest/man$nbr
 
-        echo "--   Copying external manual page $manpage to $mandest"
+        echo "--   Copying external manual page" \
+             ${manpage/$srcdir\/} "to" ${mandest/$srcdir\/}
 
         $scriptInstallDir  $mansect
         $scriptInstallFile $manpage $mansect
@@ -8943,7 +8947,7 @@ function CygbuildCmdInstallMain()
 
                 #   Other terminal is in this directory, so this might fail.
 
-                echo "--   Emptying $dir"
+                echo "--   Emptying" ${dir/$srcdir\/}
 
                 $RM -rf $dir/*
 
@@ -8986,7 +8990,7 @@ function CygbuildCmdInstallMain()
             fi
 
         else
-            echo "--   Running install to $instdir"
+            echo "--   Running install to" ${instdir/$srcdir\/}
 
             CygbuildMakefileRunInstall ||
             {
@@ -9000,7 +9004,9 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptAfter" ]; then
 
-            echo "--   [NOTE] Running external: $scriptAfter $dir"
+            echo "--   [NOTE] Running external:" \
+                 ${scriptAfter/$srcdir\/} \
+                 ${dir/$srcdir\/}
 
             CygbuildChmodExec $scriptAfter
 
@@ -9025,7 +9031,7 @@ function CygbuildCmdInstallMain()
     CygbuildInstallExtraManualCompress
 
     if [ "$verbose" ]; then
-        echo "--   Content of: $instdir"
+        echo "--   Content of:" ${instdir/$srcdir\/}
         $FIND -L ${instdir##$(pwd)/} -print
     else
         echo "-- See also: find .inst/ -print" \

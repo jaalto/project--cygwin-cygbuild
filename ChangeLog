@@ -7,6 +7,7 @@
 
 	* bin/cygbuild.sh:
 	- Check CYGWIN-PATCHES/* for trailing whitespace.
+	- Shorted many messages relative to srcdir.
 	(CygbuildCygcheckMain): Renamed. Was
 	`CygbuildCygcheck'.
 	(CygbuildCygcheckLibraryDepMain): Exit immediately if
