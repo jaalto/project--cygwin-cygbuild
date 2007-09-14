@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.2259"
+CYGBUILD_VERSION="2007.0914.2312"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8871,11 +8871,9 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         if $EGREP --line-number --ignore-case \
            'copyright.*YYYY|[<]your +name|[<]firstname' $file > $retval
         then
-            echo "--   [WARN] Possible unfilled template line"
+            echo "--   [WARN] Possible unfilled template line in $file"
             $SED 's/^/     /' $retval
         fi
-
-
     done
 }
 

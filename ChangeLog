@@ -25,6 +25,8 @@
 	to WARN if /bin was found.
 	(CygbuildInstallExtraManual): The *.N.pod pages are converted
 	into *.N. Delete these generated pages after the install.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Display file in error:
+	Possible unfilled template line
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
