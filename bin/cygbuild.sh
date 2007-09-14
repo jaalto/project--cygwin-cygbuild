@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.1731"
+CYGBUILD_VERSION="2007.0914.2259"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4350,7 +4350,7 @@ function CygbuildCmdPublishExternal()
     local signer="$2"
     local pass="$3"
 
-    echo "--   Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
+    echo "-- Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
 
     CygbuildChmodExec "$prg"
     $prg "$TOPDIR" "$VER" "$REL" "$signer" "$pass"
@@ -7743,7 +7743,7 @@ function CygbuildInstallExtraManual()
 
     #   Convert Perl pod pages to manuals.
 
-    local done=''
+    local done podcopy
 
     for file in $DIR_CYGPATCH/*.pod           \
                 $DIR_CYGPATCH/*.[1-9]         \
@@ -7753,6 +7753,7 @@ function CygbuildInstallExtraManual()
         [[ $file == *\[*  ]]    && continue # Name was not expanded
         [ ! -f "$file" ]        && continue
 
+        podcopy=
         name=${file##*/}        # /path/to/program.1x.pod => program.1x.pod
         name=${name%.pod}       # program.1x.pod => program.1x
         manpage=$DIR_CYGPATCH/$name
@@ -7784,6 +7785,8 @@ function CygbuildInstallExtraManual()
                      -e "s/$name/$program/ig"                       \
                 > $manpage  ||                                      \
                 return $?
+
+            podcopy=$manpage
         fi
 
         #  Copy manual pages to installation directory
@@ -7795,6 +7798,11 @@ function CygbuildInstallExtraManual()
 
         $scriptInstallDir  $mansect
         $scriptInstallFile $manpage $mansect
+
+        if [ "$podcopy" ]; then
+            #  This was generated and installed, so remove it
+            $RM $podcopy
+        fi
 
     done
 }

@@ -23,6 +23,8 @@
 	Show the full patch command only if --verbose is set.
 	(CygbuildCmdInstallCheckDirStructure): Changer ERROR
 	to WARN if /bin was found.
+	(CygbuildInstallExtraManual): The *.N.pod pages are converted
+	into *.N. Delete these generated pages after the install.
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
