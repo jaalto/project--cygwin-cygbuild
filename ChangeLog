@@ -1,5 +1,7 @@
 2007-09-14  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::OPTIONS): Document new option --bzip2.
+
 	* etc/etc/programs.conf (GREP): Changed --extended-regexp
 	to --perl-regexp. Needed for TAB \t in regexps.
 
