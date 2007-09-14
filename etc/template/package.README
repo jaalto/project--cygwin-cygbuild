@@ -1,5 +1,4 @@
 <PKG>
-Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
 ------------------------------------------
 
 <one line description - sdesc of setup.hint>
@@ -71,3 +70,4 @@ Other information
 Initial release
 
 Cygwin port maintained by: <Your Name Here> <Your email here>
+Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
