@@ -18,11 +18,15 @@
 	<li><a href="#synopsis">SYNOPSIS</a></li>
 	<li><a href="#quick_overview">QUICK OVERVIEW</a></li>
 	<li><a href="#options">OPTIONS</a></li>
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#quick_overview">QUICK OVERVIEW</a></li>
+	<li><a href="#options">OPTIONS</a></li>
 	<li><a href="#package_maintenance_commands">PACKAGE MAINTENANCE COMMANDS</a></li>
 	<ul>
 
 		<li><a href="#preparation_commands">Preparation commands</a></li>
-		<li><a href="#build_commands__in_order_of_execution_">Build commands (in order of execution)</a></li>
+		<li><a href="#build_commands">Build commands</a></li>
 		<li><a href="#install_commands__in_order_of_execution_">Install commands (in order of execution)</a></li>
 		<li><a href="#packaging_commands">Packaging commands</a></li>
 		<li><a href="#digital_signature_commands">Digital signature commands</a></li>
@@ -76,8 +80,6 @@
 
 	<li><a href="#environment">ENVIRONMENT</a></li>
 	<li><a href="#files">FILES</a></li>
-	<li><a href="#see_also">SEE ALSO</a></li>
-	<li><a href="#dependencies">DEPENDENCIES</a></li>
 	<li><a href="#standards">STANDARDS</a></li>
 	<li><a href="#bugs">BUGS</a></li>
 	<ul>
@@ -99,6 +101,7 @@
 
 	<li><a href="#availability">AVAILABILITY</a></li>
 	<li><a href="#osnames">OSNAMES</a></li>
+	<li><a href="#see_also">SEE ALSO</a></li>
 	<li><a href="#author">AUTHOR</a></li>
 </ul>
 <!-- INDEX END -->
@@ -123,11 +126,10 @@
 <pre>
   ROOT/package
        &lt;downloaded original upstream package(s): package-1.2.3.tar.gz&gt;
-       &lt;perhaps symlinks must be added to fix VERSION schemes; see docs&gt;
        |
        +- package-1.2.3/
-          &lt;*.tar.gz unpacked files here&gt;
-          &lt;ALL cygbuild commands must be given in THIS directory&gt;
+          &lt;*.tar.gz unpacked&gt;
+          &lt;All cygbuild commands must be given in *this* directory&gt;
           |
           +- .build/
           |  &lt;generic working area of temporary files&gt;
@@ -153,8 +155,8 @@ case as simple as running commands:</p>
 <pre>
     $ mkdir -p /tmp/build &amp;&amp; rm /tmp/build/*
     $ cd /tmp/build
-    $ cp path/to/download/package-N.N.tar.gz .
-    $ tar zxvf package-N.N.tar.gz</pre>
+    $ mv /download/path/package-N.N.tar.gz .
+    $ tar -zxvf package-N.N.tar.gz</pre>
 <pre>
     ... source has now been unpacked, go there</pre>
 <pre>
@@ -162,9 +164,11 @@ case as simple as running commands:</p>
 <pre>
     ... If this is the first port ever, it is better to run commands
     ... individually to see possible problems.
-    ...
-    ... If you have GPG key, you can add more options to all commands:
-    ... -s &quot;SignerKeyID&quot; -p &quot;pass phrase&quot;</pre>
+    ...</pre>
+<pre>
+    ... If you have GPG key, you can add options -s &quot;SignerKeyID&quot;
+    ... -p &quot;pass phrase&quot; to commands 'package', 'source-package' and
+    ... 'publish'.</pre>
 <pre>
     $ cygbuild -r 1 makedirs
     $ cygbuild -r 1 files
@@ -179,13 +183,195 @@ case as simple as running commands:</p>
     $ cygbuild -r 1 -v depend        # Check depdencies
     $ cygbuild -r 1 package          # Make Net install binary
     $ cygbuild -r 1 source-package   # Make Net install source
-    $ cygbuild -r 1 publish          # Copy files to publish area</pre>
-<p>To make this easier, a (b)uild alias will help. The -r option is mandatory
-almost for all commands:</p>
+    $ cygbuild -r 1 publish          # Copy files to publish area (if any)</pre>
+<p>To make this easier, a (b)uild alias will help. The option <strong>-r</strong> is
+mandatory almost for all commands:</p>
 <pre>
     $ alias b=&quot;cygbuild -s F701D4B3 -r&quot;    # Save this in ~/.bashrc
-    $ b 1 conf make
-    $ b 1 -v -t install                       # verbose and test mode on
+    $ b 1 mkdirs files conf make
+    $ b 1 -v -t install                    # verbose and test mode on
+    ...</pre>
+<p><strong>CASE B)</strong> If the downloaded Cygwin source release package is
+controlled by cygbuild, then command <strong>[all]</strong> can be used to to
+build binary package:</p>
+<pre>
+    $ mkdir -p /tmp/build
+    $ rm -rf /tmp/build/*
+    $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
+    $ cd /tmp/build  &amp;&amp;  ./*.sh --verbose all</pre>
+<p>
+</p>
+<hr />
+<h1><a name="options">OPTIONS</a></h1>
+<p>#!/usr/bin/perl
+#
+#   cygbuild.pl --- A Perl library for Cygwin Net Release packager
+#
+#       Copyright (C) 2003-2007 Jari Aalto
+#
+#   License
+#
+#       This program is free software; you can redistribute it and/or
+#       modify it under the terms of the GNU General Public License as
+#       published by the Free Software Foundation; either version 2 of
+#       the License, or (at your option) any later version.
+#
+#       This program is distributed in the hope that it will be useful, but
+#       WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#       General Public License for more details.
+#
+#    Description
+#
+#       This program is part of the cygbuild: Utilities for Cygwin package
+#       maintainers.
+#
+#       This file is bifunctional. It's a callable perl script, but also a perl
+#       function library. It is controlled from cygbuild.sh which see:
+#
+#           $ cygbuild --help</p>
+<p>use 5.004;
+use strict;
+use integer;</p>
+<p>use autouse 'Pod::Text'     =&gt; qw( pod2text                 );
+use autouse 'Pod::Html'     =&gt; qw( pod2html                 );
+use autouse 'Text::Tabs'    =&gt; qw( expand                   );
+use autouse 'File::Copy'    =&gt; qw( copy move                );
+use autouse 'File::Path'    =&gt; qw( mkpath rmtree            );
+use autouse 'File::Basename'=&gt; qw( dirname basename         );
+use autouse 'File::Find'    =&gt; qw( find                     );</p>
+<p>package File::Find;
+    use vars qw($name $fullname);
+package main;</p>
+<p>use English;
+use Cwd;
+# use Getopt::Long;
+# use POSIX qw(strftime);</p>
+<p># ..................................................................</p>
+<p>IMPORT:
+{
+    use Env;</p>
+<pre>
+    #   SYSTEMROOT is WinNT/W2k install root directory</pre>
+<pre>
+    use vars qw
+    (
+        $SYSTEMROOT
+        $NAME
+        $DEBFULLNAME
+        $CYGBUILD_FULLNAME
+        $EMAIL
+        $CYGBUILD_EMAIL
+    );
+}</pre>
+<p>my $systemName  = $CYGBUILD_FULLNAME || $NAME || $DEBFULLNAME;
+my $systemEmail = $CYGBUILD_EMAIL    || $EMAIL;</p>
+<p>my $CYGWIN_PACKAGE_LIST_DIR = ``/var/lib/cygbuild/list'';</p>
+<p>#   Sites that use RETURN, i.e. empty, passwords
+my $PASSORD_RET_SITES = 'sourceforge';</p>
+<p>#   When called as library (from cygbuild.sh), the PATH isn't there.
+$PROGRAM_NAME = ``cygbuild.pl''   if  $PROGRAM_NAME eq '-e';</p>
+<p># ..................................................................</p>
+<p>use vars qw ( $VERSION );</p>
+<p>#   This is for use of Makefile.PL and ExtUtils::MakeMaker
+#   So that it puts the tardist number in format YYYY.MMDD
+#   The REAL version number is defined later</p>
+<p>#   The following variable is updated by Emacs setup whenever
+#   this file is saved.</p>
+<p>$VERSION = '2007.0914.1117';</p>
+<p># ..................................................................</p>
+<p>my $LIB       = ``cygbuild.pl'';
+my $debug     = 0;          # Don't touch. use SetDebug();</p>
+<p>#  See <code>wanted()</code> functions</p>
+<p>my @FILE_FILE_LIST;
+my @FILE_DIR_LIST;
+my @FILE_ALL_LIST;
+my $FILE_REGEXP;
+my $FILE_REGEXP_PRUNE = '\.(build|s?inst)';  # Dynamic variable</p>
+<p># ..................................................................</p>
+<p>
+</p>
+<hr />
+<h1><a name="name">NAME</a></h1>
+<p>cygbuild - Cygwin source and binary package build script</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+    cygbuild [options] -r RELEASE CMD [CMD ...]</pre>
+<p>
+</p>
+<hr />
+<h1><a name="quick_overview">QUICK OVERVIEW</a></h1>
+<p>The ``big picture'' of the porting directories used are as follows:</p>
+<pre>
+  ROOT/package
+       &lt;downloaded original upstream package(s): package-1.2.3.tar.gz&gt;
+       |
+       +- package-1.2.3/
+          &lt;*.tar.gz unpacked&gt;
+          &lt;All cygbuild commands must be given in *this* directory&gt;
+          |
+          +- .build/
+          |  &lt;generic working area of temporary files&gt;
+          |  |
+          |  +- build/
+          |  |  &lt;separate &quot;shadow&quot; directory where compiling happens&gt;
+          |  |  &lt;contains only symlinks and object *.o etc. files&gt;
+          |  |
+          |  +- package-1.2.3-orig/
+          |  |  &lt;Used for taking a diff&gt;
+          |  |
+          |  +- vc/
+          |     &lt;Version Control System checkouts are done here&gt;
+          |
+          +- .inst/
+          |  &lt;The &quot;make install&quot; target directory&gt;
+          |
+          +- .sinst/
+              &lt;diffs, signatures, binary and source packages&gt;</pre>
+<p><strong>CASE A)</strong> to build Cygwin Net Release from a package that includes a standard
+<code>./configure</code> script, the quick path for porting would be in the fortunate
+case as simple as running commands:</p>
+<pre>
+    $ mkdir -p /tmp/build &amp;&amp; rm /tmp/build/*
+    $ cd /tmp/build
+    $ mv /download/path/package-N.N.tar.gz .
+    $ tar -zxvf package-N.N.tar.gz</pre>
+<pre>
+    ... source has now been unpacked, go there</pre>
+<pre>
+    $ cd package-N.N</pre>
+<pre>
+    ... If this is the first port ever, it is better to run commands
+    ... individually to see possible problems.
+    ...</pre>
+<pre>
+    ... If you have GPG key, you can add options -s &quot;SignerKeyID&quot;
+    ... -p &quot;pass phrase&quot; to commands 'package', 'source-package' and
+    ... 'publish'.</pre>
+<pre>
+    $ cygbuild -r 1 makedirs
+    $ cygbuild -r 1 files
+    $ cygbuild -r 1 shadow           # [optional]
+    $ cygbuild -r 1 configure
+    $ cygbuild -r 1 make
+    $ cygbuild -r 1 strip            # [optional]
+    $ cygbuild -r 1 -v -t install    # &quot;try and see&quot; mode first
+    $ cygbuild -r 1 install          # The &quot;real&quot; install
+    $ find .inst/ -print                # Verify install structure !!
+    $ cygbuild -r 1 -v check         # Do install integrity check
+    $ cygbuild -r 1 -v depend        # Check depdencies
+    $ cygbuild -r 1 package          # Make Net install binary
+    $ cygbuild -r 1 source-package   # Make Net install source
+    $ cygbuild -r 1 publish          # Copy files to publish area (if any)</pre>
+<p>To make this easier, a (b)uild alias will help. The option <strong>-r</strong> is
+mandatory almost for all commands:</p>
+<pre>
+    $ alias b=&quot;cygbuild -s F701D4B3 -r&quot;    # Save this in ~/.bashrc
+    $ b 1 mkdirs files conf make
+    $ b 1 -v -t install                    # verbose and test mode on
     ...</pre>
 <p><strong>CASE B)</strong> If the downloaded Cygwin source release package is
 controlled by cygbuild, then command <strong>[all]</strong> can be used to to
@@ -200,6 +386,13 @@ build binary package:</p>
 <hr />
 <h1><a name="options">OPTIONS</a></h1>
 <dl>
+<dt><strong><a name="item__2d_2dbzip2"><strong>--bzip2</strong></a></strong>
+
+<dd>
+<p>Use bzip2 compression instead of default gzip(1). This affects the
+manual pages and the usr/share/doc/*/ content.</p>
+</dd>
+</li>
 <dt><strong><a name="item__2dc_7c_2d_2dcheckout"><strong>-c|--checkout</strong></a></strong>
 
 <dd>
@@ -532,7 +725,7 @@ packaging commands <strong>[package]</strong> or <strong>[source-package]</stron
 </dl>
 <p>
 </p>
-<h2><a name="build_commands__in_order_of_execution_">Build commands (in order of execution)</a></h2>
+<h2><a name="build_commands">Build commands</a></h2>
 <dl>
 <dt><strong><a name="item_configure"><strong>configure</strong></a></strong>
 
@@ -560,7 +753,7 @@ run command which resembles something like below (cf. <strong>ENVIRONMENT</stron
 <dt><strong><a name="item_make"><strong>make</strong></a></strong>
 
 <dd>
-<p>Run <code>make all</code></p>
+<p>Synonym for command <strong>[build]</strong>.</p>
 </dd>
 </li>
 <dt><strong><a name="item__5bdist_7creal_5dclean"><strong>[dist|real]clean</strong></a></strong>
@@ -568,12 +761,6 @@ run command which resembles something like below (cf. <strong>ENVIRONMENT</stron
 <dd>
 <p>Run any <em>make</em> target whose name ends to <code>clean</code>. That is: clean,
 distclean, realclean etc.</p>
-</dd>
-</li>
-<dt><strong><a name="item_distclean"><strong>distclean</strong></a></strong>
-
-<dd>
-<p>Run <code>make distclean</code></p>
 </dd>
 </li>
 </dl>
@@ -745,7 +932,7 @@ files are copied to appropriate release directories like this:</p>
 'gc' available at &lt;http://www.hpl.hp.com/personal/Hans_Boehm&gt;. There
 are no executable files in. You should not use the name <code>gc</code> to package
 this. The problem is the initial unpack directory name <code>gc-6.2.1.6</code> which
-is used to generate the package names. Don't do like this:</p>
+is used to generate the package names. The following is not optimal:</p>
 </dd>
 <dd>
 <pre>
@@ -763,8 +950,8 @@ is used to generate the package names. Don't do like this:</p>
     --   [devel-dev] /usr/src/build/gc-devel-6.2.1.6-1.tar.bz2</pre>
 </dd>
 <dd>
-<p>It would be better use the <code>libgc6</code> name, as it is used in Debian, instead
-of the homepage's name <code>gc</code>, like this:</p>
+<p>It would be better to use the <code>libgc6</code> name, as it is used in Debian,
+instead of the homepage's name <code>gc</code>, like this:</p>
 </dd>
 <dd>
 <pre>
@@ -780,7 +967,7 @@ of the homepage's name <code>gc</code>, like this:</p>
                                     ======</pre>
 </dd>
 <dd>
-<p>Notice how all released files now correctly inlcude prefix <code>libgc</code>.</p>
+<p>Notice how all released files now correctly inlcude prefix <code>libgc6</code>.</p>
 </dd>
 </li>
 <dt><strong><a name="item_source_2dpackage"><strong>source-package</strong></a></strong>
@@ -856,10 +1043,10 @@ steps:</p>
 <dd>
 <pre>
     1. Generate initial binary package with command [package].
-       Ignore all errors that may be displayed concerning 
+       Ignore all errors that may be displayed concerning
        PKG, VER etc. tags.
     2. Run [readmefix]
-    3. Run [install] to update the changed README to 
+    3. Run [install] to update the changed README to
        the correct location
     3. Generate binary package again with command [package}</pre>
 </dd>
@@ -948,25 +1135,29 @@ internal build process testing command <strong>[all]</strong>.</p>
 
 <dd>
 <p>If environment variable <code>CYGBUILD_PUBLISH_BIN</code> is set, the external
-program is called with 1 mandatory and 2 optional arguments (See options
-<strong>--sign</strong> and <strong>--passphrase</strong>) if those were available. The shell escape
-call is in form:</p>
+program is called with 3 mandatory and 2 optional arguments from options
+<strong>--sign</strong> and <strong>--passphrase</strong> if those were available. The shell call
+weill be in form:</p>
 </dd>
 <dd>
 <pre>
     $CYGBUILD_PUBLISH_BIN \
         /directory/where/package-N.N/.sinst/
-        [gpg signer]
+        &lt;version string&gt;
+        &lt;release number&gt;
+        [gpg sign id]
         [gpg pass phrase]</pre>
 </dd>
 <dd>
 <p>If no <code>CYGBUILD_PUBLISH_BIN</code> exists, source and binary packages are copied
-under publish directory <code>$CYGBUILD_PUBLISH_DIR/package/</code>. It makes sense
-to run this command only after commands <strong>[source-package]</strong> and
-<strong>[package]</strong>. If command <strong>[package-devel]</strong> was used, then the published
-files are copied to separate sub directories below
-<code>$CYGBUILD_PUBLISH_DIR/package/</code>. See command <strong>[package-devel]</strong> for more
-information.</p>
+under publish directory <code>$CYGBUILD_PUBLISH_DIR/package/</code>.</p>
+</dd>
+<dd>
+<p>It makes sense to run publish command only after commands
+<strong>[source-package]</strong> and <strong>[package]</strong>. If command <strong>[package-devel]</strong>
+was used, then the published files are copied to separate
+subdirectories below <code>$CYGBUILD_PUBLISH_DIR/package/</code>. See command
+<strong>[package-devel]</strong> for more information.</p>
 </dd>
 </li>
 </dl>
@@ -1760,7 +1951,7 @@ the directory structure would look like this (listing has been condensed):</p>
     .inst/usr/share/doc/foo-1.13
     .inst/usr/share/doc/foo-1.13/AUTHORS
     .inst/usr/share/doc/foo-1.13/BUGS
-    .inst/usr/share/doc/foo-1.13/INSTALL.win32
+    .inst/usr/share/doc/foo-1.13/INSTALL
     .inst/usr/share/doc/foo-1.13/NEWS
     .inst/usr/share/doc/Cygwin
     .inst/usr/share/doc/Cygwin/foo-1.13.README
@@ -2377,20 +2568,6 @@ those in <code>/usr/share/cygbuild/template</code>.</p>
 <p>
 </p>
 <hr />
-<h1><a name="see_also">SEE ALSO</a></h1>
-<p><code>gpg(1)</code></p>
-<p>
-</p>
-<hr />
-<h1><a name="dependencies">DEPENDENCIES</a></h1>
-<p>Bash 2.04 or later and Perl 5.4 and later. Some of the commands depend on
-the perl library <code>cygbuild.pl</code>. One of them is <strong>[readmefix]</strong>, which
-manipulates <code>CYGWIN-PATCHES/package.README</code> file.</p>
-<p>The manual pages, HTML pages and the output of <strong>--help</strong> option is
-maintained in perl POD format.</p>
-<p>
-</p>
-<hr />
 <h1><a name="standards">STANDARDS</a></h1>
 <p>Cygwin Package Contributor's Guide' at <a href="http://cygwin.com/setup.html">http://cygwin.com/setup.html</a> .
 Remember to compile libraries using <strong>-Wl,--enable-auto-image-base</strong>
@@ -2409,16 +2586,13 @@ Remember to compile libraries using <strong>-Wl,--enable-auto-image-base</strong
 <p>
 </p>
 <h2><a name="commands_must_be_ordered">Commands must be ordered</a></h2>
-<p>The implementation does not check the sanity of the command line
-arguments. For example this example will certainly not work:</p>
+<p>The application does not check the sanity of the command line
+arguments. For example running commands in wrong order. It makes no
+sense trying to make a binary <em>package</em> before the program has been
+even built or installed.</p>
 <pre>
-   cygbuild -r 1 package make</pre>
-<p>The program tries to execute the commands in order and in above case the
-<strong>[make}</strong> command should be run prior attempting to build <strong>[package]</strong>. To
-be on the safe side:</p>
-<pre>
-    a) run commands in expected order
-    b) OR give only single command at a time</pre>
+   cygbuild -r 1 package make install</pre>
+<p>The commands are always executed in listed order.</p>
 <p>
 </p>
 <h2><a name="perl_and_double_install_is_needed">Perl and double install is needed</a></h2>
@@ -2474,8 +2648,8 @@ same checks of version and release numbers multiple times.</p>
 <p>
 </p>
 <h2><a name="makefiles_and_compiling_libraries">Makefiles and compiling libraries</a></h2>
-<p>To compile libraries for Cygwin, the <code>LDFLAGS</code> should include
-&lt;-no-undefined&gt;. If there is <code>Makefile(.in|.am)</code> you can regenerate the
+<p>To compile libraries for Cygwin, the <code>LDFLAGS</code> should include option
+<code>-no-undefined</code>. If there is <code>Makefile(.in|.am)</code> you can regenerate the
 Makefiles with</p>
 <pre>
     $ autoreconf --install --force --verbose</pre>
@@ -2495,17 +2669,18 @@ error'' at <a href="http://lists.gnu.org/archive/html/help-bison/2004-04/msg0001
 <p>
 </p>
 <h2><a name="cygwin_postinstall_script_conventions">Cygwin postinstall script conventions</a></h2>
-<p>If program X's <a href="#item_postinstall"><code>postinstall</code></a> is doing a cp, it does not preserve the ACL
+<p>If program X's <a href="#item_postinstall"><code>postinstall</code></a> is doing a <code>cp</code>, it does not preserve the ACL
 permissions. The <a href="#item_postinstall"><code>postinstall</code></a> script must be accompanied with <code>touch(1)</code>
 to create the new file before copying unto it or a call to <code>chmod</code> to set
 reasonable permissions after the copying. If that's not done, the user may
-end up having unreadable files. NOTE: <code>Cp -p</code> will not work, but <code>install
--m</code> would. See thread &lt;http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html&gt;.</p>
+end up having unreadable files. NOTE: <code>cp -p</code> will not work, but <code>install
+-m</code> would. See thread
+<a href="http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html">http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html</a></p>
 <p>
 </p>
 <hr />
 <h1><a name="availability">AVAILABILITY</a></h1>
-<p><a href="http://cygbuild.sourceforge.net">http://cygbuild.sourceforge.net</a></p>
+<p><a href="http://freshmeat.net/projects/cygbuild">http://freshmeat.net/projects/cygbuild</a></p>
 <p>
 </p>
 <hr />
@@ -2514,10 +2689,16 @@ end up having unreadable files. NOTE: <code>Cp -p</code> will not work, but <cod
 <p>
 </p>
 <hr />
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><code>cygport(1)</code>
+<code>gpg(1)</code></p>
+<p>
+</p>
+<hr />
 <h1><a name="author">AUTHOR</a></h1>
-<p>Copyright (C) 2003-2007 Jari Aalto. All rights reserved. This program is free
-software; you can redistribute and/or modify program under the terms of Gnu
-General Public licence v2 or later.</p>
+<p>Copyright (C) 2003-2007 Jari Aalto. This program is free software; you
+can redistribute and/or modify program under the terms of Gnu General
+Public licence v2 or, at your option, any later version.</p>
 
 </body>
 
