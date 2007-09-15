@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0915.0003"
+CYGBUILD_VERSION="2007.0915.0034"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4900,7 +4900,7 @@ function CygbuildCmdMkpatchMain()
                     $MV "$out.tmp" "$out"
                 fi
 
-                CygbuildVerb "--   Removing $origpkgdir"
+                CygbuildVerb "--   Removing" ${origpkgdir/$srcdir\/}
 
                 if [ ! "$debug" ]; then
                     $RM -rf "$origpkgdir" "$cleandir"
@@ -5618,7 +5618,7 @@ function CygbuildMakefileRunClean()
     local id="$0.$FUNCNAME"
     local dir=$builddir
 
-    echo "-- Running 'make clean' in $dir"
+    echo "-- Running 'make clean' in" ${dir/$srcdir\/}
 
     local status=0
 
@@ -7404,7 +7404,7 @@ function CygbuildCmdCleanMain()
     local dir=${1:-$builddir}
     local opt="$2"
 
-    echo "-- Running 'make clean' (or equiv.) in $dir"
+    echo "-- Running 'make clean' (or equiv.) in" ${dir/$srcdir\/}
 
     CygbuildExitNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
 
@@ -7462,7 +7462,7 @@ function CygbuildCmdDistcleanMain
     local dir=${1:-$builddir}
     local opt="$2"
 
-    echo "-- Running 'make distclean' (or equiv.) in $dir"
+    echo "-- Running 'make distclean' (or equiv.) in" ${dir/$srcdir\/}
 
     local status=0
 
@@ -8893,7 +8893,7 @@ function CygbuildCmdInstallCheckMain()
 
     CygbuildCmdInstallCheckLineEndings
 
-    echo "** Checking content of installation in $instdir"
+    echo "** Checking content of installation in" ${instdir/$srcdir\/}
 
     CygbuildCmdInstallCheckTempFiles    || stat=$?
     CygbuildCmdInstallCheckInfoFiles    || stat=$?
@@ -9044,7 +9044,7 @@ function CygbuildCmdScriptRunMain()
     local id="$0.$FUNCNAME"
     local script="$1"
 
-    echo "-- Running $script $instdir"
+    echo "-- Running" ${script/$srcdir\/} ${instdir/$srcdir\/}
 
     if [ -f "$script" ]; then
 
