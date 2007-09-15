@@ -1,3 +1,15 @@
+2007-09-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildCmdMkpatchMain): Force unapplying local patches, no
+	matter what while taking the diff.
+	(CygbuildPatchApplyMaybe): Added call argument modifiers options
+	'-force', '-quiet' and '-nostat'.
+	(CygbuildPatchCheck): Removed message that lists applied
+	patches.
+	(CygbuildPatchListDisplay): New.
+	(CygbuildCommandMain::patch-check): Call `CygbuildPatchListDisplay'.
+
 2007-09-14  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl: (HELP::OPTIONS): Document new option --bzip2.

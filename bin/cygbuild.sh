@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0915.0034"
+CYGBUILD_VERSION="2007.0915.0817"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4645,6 +4645,128 @@ CygbuildPackageSourceDirClean()
     fi
 }
 
+function CygbuildPatchApplyRun()
+{
+    local id="$0.$FUNCNAME"
+    local patch=$1
+    shift
+    # $@ contains additional options
+
+    local dummy=$(pwd)                      # For debug
+    local patchopt="$CYGBUILD_PATCH_OPT"
+
+    if [ ! "$verbose" ]; then
+        patchopt="$patchopt --quiet"
+    fi
+
+    if [ -f "$patch" ]; then
+        CygbuildVerb "-- cd $dummy && patch $patchopt" "$@" "< $patch"
+        ${test:+echo} $PATCH $patchopt "$@" < $patch
+    else
+        CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
+             "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
+        return 1
+    fi
+}
+
+function CygbuildPatchApplyMaybe()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$DIR_CYGPATCH"
+    local statfile="$CYGPATCH_DONE_PATCHES_FILE"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local cmd=${1:-"patch"}  # or: unpatch[-nostat][-quiet][-force]
+
+    local verb="$verbose"
+    local statCheck="statCheck"
+    local force
+
+    if [[ "$cmd" == *-force ]]; then
+        force="force"
+        cmd=${cmd%-force}
+    fi
+
+    if [[ "$cmd" == *-quiet ]]; then
+        verb=
+        cmd=${cmd%-quiet}
+    fi
+
+    if [[ "$cmd" == *-nostat ]]; then
+        statCheck=
+        cmd=${cmd%-nostat}
+    fi
+
+    local file done name opt continue
+
+    for file in $dir/*.patch
+    do
+        [ ! -f "$file" ] && continue
+
+        name=${file##*/}
+        done=
+        continue=
+
+        if [ "$statCheck" ]; then
+            if [ -f "$statfile" ]; then
+                $EGREP --quiet --regexp="$name" $statfile && done=1
+
+                if [ "$cmd" = "patch" ] && [ "$done" ]; then
+                    [ "$verb" ] &&
+                    echo "-- [INFO] Patch already applied: $name"
+
+                    continue="continue"
+                fi
+            elif [ "$cmd" = "unpatch" ]; then
+                    [ "$verb" ] &&
+                    echo "-- [INFO] No patches applied, no $statfile"
+
+                    continue="continue"
+            fi
+
+            if [ "$force" ]; then
+                :       # Keep going
+            elif [ "$confinue" ]; then
+                continue;
+            fi
+        fi
+
+        CygbuildPatchPrefixStripCountMain "$file" > $retval
+
+        if [ -s $retval ]; then
+            local count=$(< $retval)
+            opt="--strip=$count"
+        fi
+
+        [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
+
+        if [ ! "$verbose" ]; then
+            local msg="Unpatching"
+            [ "$cmd" = "patch" ] && msg="Patching"
+
+            echo "-- $msg with" $name
+        fi
+
+        CygbuildPatchApplyRun "$file" $opt ||
+        CygbuildDie "-- [FATAL] Exiting."
+
+        if [ "$cmd" = "unpatch" ] && [ "$statCheck" ] ; then
+
+            #   Remove name from patch list
+            if [ -f "$statfile" ]; then
+                $EGREP --invert-match --regexp="$name" "$statfile" > $retval
+                $MV "$retval" "$statfile"
+            fi
+
+            if  [ -f $statfile ] && [ ! -s $statfile ]; then
+                $RM -f "$statfile"  # Remove empty file
+            fi
+
+        else
+            echo $name >> $statfile
+        fi
+    done
+}
+
 function CygbuildCmdMkpatchMain()
 {
     local id="$0.$FUNCNAME"
@@ -4811,7 +4933,14 @@ function CygbuildCmdMkpatchMain()
             echo " Done."
             echo "--   Wait, undoing local patches (if any; in snapshot dir)"
 
-            ( cd $cursrcdir && CygbuildPatchApplyMaybe unpatch )
+            (
+                #   We must not touch the patch status file, because
+                #   this is just temporary unpatching so that we can
+                #   take the diff.
+
+                cd $cursrcdir &&
+                CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
+            )
         fi
 
         cd $cursrcdir || exit 1
@@ -6173,20 +6302,23 @@ function CygbuildExtractMain()
 #
 #######################################################################
 
-function CygbuildPatchCheck()
+function CygbuildPatchListDisplay()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local file
-
-    file="$CYGPATCH_DONE_PATCHES_FILE"
+    local file="$CYGPATCH_DONE_PATCHES_FILE"
 
     if [ -f "$file" ]; then
         echo "--   [INFO] Applied local patches"
         cat $file | sed "s,^,$DIR_CYGPATCH_RELATIVE/,"
     fi
+}
 
-    file="$FILE_SRC_PATCH"
+function CygbuildPatchCheck()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local file="$FILE_SRC_PATCH"
 
     if [ -f "$file" ]; then
 
@@ -6324,98 +6456,6 @@ function CygbuildPatchPrefixStripCountMain ()
 
     CygbuildPatchPrefixStripCountFromFilename "$file"   ||
     CygbuildPatchPrefixStripCountFromContent  "$file"
-}
-
-function CygbuildPatchApplyRun()
-{
-    local id="$0.$FUNCNAME"
-    local patch=$1
-    shift
-    # $@ contains additional options
-
-    local dummy=$(pwd)                      # For debug
-    local patchopt="$CYGBUILD_PATCH_OPT"
-
-    if [ ! "$verbose" ]; then
-        patchopt="$patchopt --quiet"
-    fi
-
-    if [ -f "$patch" ]; then
-        CygbuildVerb "-- cd $dummy && patch $patchopt < $patch"
-#       CygbuildVerb "--   [NOTE] If patch fails, you may need rm -rf $srcdir"
-        ${test:+echo} $PATCH $patchopt "$@" < $patch
-    else
-        CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
-             "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
-        return 1
-    fi
-}
-
-function CygbuildPatchApplyMaybe()
-{
-    local id="$0.$FUNCNAME"
-    local dir="$DIR_CYGPATCH"
-    local statfile="$CYGPATCH_DONE_PATCHES_FILE"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
-    local cmd=${1:-"patch"}  # unpatch?
-
-    local file done name opt
-
-    for file in $dir/*.patch
-    do
-        [ ! -f "$file" ] && continue
-
-        name=${file##*/}
-        done=
-
-        if [ -f "$statfile" ]; then
-            $EGREP --quiet --regexp="$name" $statfile && done=1
-
-            if [ "$cmd" = "patch" ] && [ "$done" ]; then
-                echo "-- [INFO] Patch already applied: $name"
-                continue
-            fi
-        elif [ "$cmd" = "unpatch" ]; then
-                echo "-- [INFO] No patches applied, no $statfile"
-                break
-        fi
-
-        CygbuildPatchPrefixStripCountMain "$file" > $retval
-
-        if [ -s $retval ]; then
-            local count=$(< $retval)
-            opt="--strip=$count"
-        fi
-
-        [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
-
-        if [ ! "$verbose" ]; then
-            local msg="Unpatching"
-            [ "$cmd" = "patch" ] && msg="Patching"
-
-            echo "-- $msg with" $name
-        fi
-
-        CygbuildPatchApplyRun "$file" $opt ||
-        CygbuildDie "-- [FATAL] Exiting."
-
-        if [ "$cmd" = "unpatch" ]; then
-
-            #   Remove name from patch list
-            if [ -f "$statfile" ]; then
-                $EGREP --invert-match --regexp="$name" "$statfile" > $retval
-                $MV "$retval" "$statfile"
-            fi
-
-            if [ ! -s $statfile ]; then
-                $RM -f "$statfile"  # Remove empty file
-            fi
-
-        else
-            echo $name >> $statfile
-        fi
-    done
 }
 
 function CygbuildPatchFindGeneratedFiles()
@@ -10162,6 +10202,7 @@ function CygbuildCommandMain()
                                 ;;
 
           patch-check)          verbose="verbose" CygbuildPatchCheck
+                                CygbuildPatchListDisplay
                                 status=$?
                                 ;;
 
