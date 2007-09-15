@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0915.0825"
+CYGBUILD_VERSION="2007.0915.0834"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5351,12 +5351,12 @@ function CygbuildCmdPkgSourceCvsMain()
     #
     #       source-install.sh => <PKG>-N.N-REL-source-install.sh
 
-    local install=$PKG-$VER-$REL.sh               # foo-VERSION-RELEASE.sh
+    local install="$PKG-$VER-$REL.sh"               # foo-VERSION-RELEASE.sh
     local script=${SCRIPT_SOURCE_GET##*/}
-    script=$PKG-$VER-$REL-$script
+    script="$PKG-$VER-$REL-$script"
 
     $MV "$SCRIPT_SOURCE_GET" "$srcinstdir/$script"  || return $?
-    $CP "$BUILD_SCRIPT" "$srcinstdir/$install"      || return $?
+    $CP "$BUILD_SCRIPT"      "$srcinstdir/$install" || return $?
 
     echo "** Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
 
@@ -5364,7 +5364,7 @@ function CygbuildCmdPkgSourceCvsMain()
 
     CygbuildPushd
         cd $srcinstdir || exit 1
-        $TAR $CYGBUILD_TAR_EXCLUDE $tarOpt $FILE_SRC_PKG *
+        $TAR $CYGBUILD_TAR_EXCLUDE $tarOpt "$FILE_SRC_PKG" *
         status=$?
     CygbuildPopd
 
