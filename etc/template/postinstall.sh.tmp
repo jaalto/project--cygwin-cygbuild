@@ -6,6 +6,7 @@
 #
 # -- NOTE: This script will be run under /bin/sh
 # -- THIS AN EXAMPLE, MODIFY AS NEEDED
+#
 
 PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/X11R6/bin:$PATH"
 
