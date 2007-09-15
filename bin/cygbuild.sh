@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0914.2356"
+CYGBUILD_VERSION="2007.0915.0003"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1384,7 +1384,7 @@ function CygbuildVersionInfo()
             $rel = $2;
         }
 
-        @a = (/^(.+?)[-_](.*\d.*)/);
+        @a = (/^(.+)[-_](.*\d.*)/);
 
         if ( @a )
         {
@@ -7705,7 +7705,7 @@ function CygbuildInstallPackageDocs()
                 return $status
             fi
 
-            CygbuildVerb "--  Fixing permissions in" ${dest/$srcdir\/}
+            CygbuildVerb "--   Fixing permissions in" ${dest/$srcdir\/}
 
             $FIND $dest -print > $retval
 
@@ -10299,7 +10299,7 @@ function Test ()
 #    CygbuildDefineGlobalCommands
     set -x
 
-    local tmp=mksh-R31b-1
+    local tmp=annoyance-filter-R1.0d
 
     CygbuildVersionInfo $tmp
 #    CygbuildStrPackage $tmp

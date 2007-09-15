@@ -32,6 +32,10 @@
 	spaces to the right.
 	(CygbuildCmdInstallCheckCygpatchDirectory): Adjust 'your name'
 	regexp by leaving out [<] test.
+	(CygbuildInstallPackageDocs): Adjust indentation of message
+	'Fixing permission'
+	(CygbuildVersionInfo): once again fix version number handling
+	with multiple word names: one-two-three-N.N.
 
 2007-09-13  Jari Aalto  <jari.aalto@cante.net>
 
