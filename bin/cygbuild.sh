@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0915.0817"
+CYGBUILD_VERSION="2007.0915.0825"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4400,8 +4400,8 @@ function CygbuildCmdPkgExternal()
     CygbuildPushd
         cd $instdir
 
-        echo "** Making package [binary] with external:"
-             "$prg $PKG $VER $REL"
+        echo "** Making package [binary] with external:" \
+             ${prg/$srcdir\/} $PKG $VER $REL
 
         CygbuildChmodExec $prg
         $prg $PKG $VER $REL $TOPDIR
@@ -4596,7 +4596,7 @@ function CygbuildCmdPkgBinaryStandard()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local pkg=$FILE_BIN_PKG
 
-    echo "** Making package [binary] $pkg"
+    echo "** Making package [binary]" ${pkg/$srcdir\/}
 
     CygbuildExitNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
               "Did you forget to run [mkdirs]?"
@@ -5093,7 +5093,7 @@ function CygbuildCmdPkgSourceStandard()
     local name="$SCRIPT_SRC_PKG_BUILD"    # script-VERSION-RELEASE.sh
     local taropt="$verbose -jcf"
 
-    echo "** Making package [source] $FILE_SRC_PKG"
+    echo "** Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
 
     local script=$srcinstdir/$name
 
@@ -5152,7 +5152,7 @@ function CygbuildCmdPkgSourceExternal ()
         cd $instdir || exit 1
 
         echo "** [NOTE] Making package [source] with external:" \
-             "$prg $PKG $VER $REL"
+             ${prg/$srcdir\/} $PKG $VER $REL
 
         CygbuildChmodExec $prg
 
@@ -5358,7 +5358,7 @@ function CygbuildCmdPkgSourceCvsMain()
     $MV "$SCRIPT_SOURCE_GET" "$srcinstdir/$script"  || return $?
     $CP "$BUILD_SCRIPT" "$srcinstdir/$install"      || return $?
 
-    echo "** Making package [source] $FILE_SRC_PKG"
+    echo "** Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
 
     local status=0
 
