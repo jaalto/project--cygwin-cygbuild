@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0915.0834"
+CYGBUILD_VERSION="2007.0915.1706"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1091,7 +1091,7 @@ function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
 
     for lib in $list
     do
-        if $EGREP --quiet "^ *requires:.*\<$lib" $setup ; then
+        if $EGREP --quiet "^ *requires:.*\b$lib" $setup ; then
             CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
         fi
     done
@@ -1115,7 +1115,7 @@ function CygbuildCygcheckLibraryDepAdjust()
       then
           CygbuildFileDeleteLine "$lib" "$file" || return 1
 
-          if $EGREP --quiet "^ *requires:.*\<$lib" $setup ; then
+          if $EGREP --quiet "^ *requires:.*\b$lib" $setup ; then
               CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
           fi
       fi
@@ -1132,7 +1132,7 @@ function CygbuildCygcheckLibraryDepReadme()
 
     for lib in $(< $file)
     do
-        if ! $EGREP --quiet " \<$lib" $readme
+        if ! $EGREP --quiet " \b$lib" $readme
         then
             CygbuildWarn "-- [ERROR] $PKG.README does not mention $lib"
         fi
@@ -1149,7 +1149,7 @@ CygbuildCygcheckLibraryDepSetup ()
 
     for lib in $(< $file)
     do
-        if ! $EGREP --quiet "^ *requires:.*\<$lib\>" $setup
+        if ! $EGREP --quiet "^ *requires:.*\b$lib\b" $setup
         then
             CygbuildWarn "-- [ERROR] setup.hint lacks $lib"
         fi
@@ -2043,7 +2043,7 @@ function CygbuildMakefileName()
 function PackageUsesLibtoolMain()
 {
     CygbuildGrepCheck \
-        '^[^#]*\<libtool\>|--mode=(install|compile|link)'  \
+        '^[^#]*\blibtool\b|--mode=(install|compile|link)'  \
         "$@"
 }
 
@@ -5497,7 +5497,7 @@ function CygbuildMakefileCheck()
 
     if [ "$file" ]; then
 
-        $EGREP --line-number --regexp='^[^#]+-lc\>' $file /dev/null > $retval
+        $EGREP --line-number --regexp='^[^#]+-lc\b' $file /dev/null > $retval
 
         if [ -s $retval ]; then
             CygbuildWarn "--  [WARN] Linux -lc found. Make it read -lcygwin"
@@ -6334,7 +6334,8 @@ function CygbuildPatchCheck()
         # +++ new/lex.yy.c   2004-01-29 18:04:18.000000000 +0000
 
         local notes
-        $EGREP -ie '^(\+\+\+).*\.([ch]|cc|cpp)\>' $file > $retval
+        $EGREP -ie '^(\+\+\+).*\.([ch]|cc|cpp)\b' $file > $retval
+
         [ -s $retval ] && notes=$(< $retval)
 
         if [ "$notes" ]; then

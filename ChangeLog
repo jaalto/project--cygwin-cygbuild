@@ -1,6 +1,7 @@
 2007-09-15  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
+	- Converted all \< and \> in egrep calls to perl syntax \b.
 	(CygbuildCmdMkpatchMain): Force unapplying local patches, no
 	matter what while taking the diff.
 	(CygbuildPatchApplyMaybe): Added call argument modifiers options
