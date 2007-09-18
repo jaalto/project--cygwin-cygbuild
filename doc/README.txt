@@ -1,18 +1,8 @@
-Copyright information
-
         #T2HTML-TITLE Cygbuild README
         #T2HTML-OPTION --as-is
         #T2HTML-OPTION --css-code-bg
         #T2HTML-OPTION --css-code-note
         #T2HTML-OPTION Note:
-
-        Copyright (C) 2003-2007 Jari Aalto
-
-        License: This material may be distributed only subject to the
-        terms and conditions set forth in GNU General Public License
-        v2 or later (GNU GPL); or, at your option, distributed under
-        the terms of GNU Free Documentation License version 1.2 or
-        later (GNU FDL).
 
 Project Description
 
