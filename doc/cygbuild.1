@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "CYGBUILD 1"
-.TH CYGBUILD 1 "2007-08-28" "perl v5.8.8" "Cygwin source and binary packge build script"
+.TH CYGBUILD 1 "2007-09-18" "perl v5.8.8" "Cygwin source and binary packge build script"
 .SH "NAME"
 cygbuild \- Cygwin source and binary package build script
 .SH "SYNOPSIS"
@@ -730,10 +730,10 @@ steps:
 .Sp
 .Vb 7
 \&    1. Generate initial binary package with command [package].
-\&       Ignore all errors that may be displayed concerning 
+\&       Ignore all errors that may be displayed concerning
 \&       PKG, VER etc. tags.
 \&    2. Run [readmefix]
-\&    3. Run [install] to update the changed README to 
+\&    3. Run [install] to update the changed README to
 \&       the correct location
 \&    3. Generate binary package again with command [package}
 .Ve
@@ -874,7 +874,7 @@ sources.
 .IP "\fBpatch-check\fR" 4
 .IX Item "patch-check"
 Display content of \f(CW\*(C`CYGWIN\-PATCHES/done\-patches.tmp\*(C'\fR if any and list
-filenames from result of command \fB[mkpatch]\fR. 
+filenames from result of command \fB[mkpatch]\fR.
 .IP "\fBunpatch\fR" 4
 .IX Item "unpatch"
 Deapply all local patches in \f(CW\*(C`CYGWIN\-PATCHES/*.patch\*(C'\fR. On success,
@@ -1597,7 +1597,7 @@ the directory structure would look like this (listing has been condensed):
 \&    .inst/usr/share/doc/foo-1.13
 \&    .inst/usr/share/doc/foo-1.13/AUTHORS
 \&    .inst/usr/share/doc/foo-1.13/BUGS
-\&    .inst/usr/share/doc/foo-1.13/INSTALL.win32
+\&    .inst/usr/share/doc/foo-1.13/INSTALL
 \&    .inst/usr/share/doc/foo-1.13/NEWS
 \&    .inst/usr/share/doc/Cygwin
 \&    .inst/usr/share/doc/Cygwin/foo-1.13.README
@@ -2400,6 +2400,11 @@ http://cygbuild.sourceforge.net
 Cygwin
 .SH "AUTHOR"
 .IX Header "AUTHOR"
-Copyright (C) 2003\-2007 Jari Aalto. All rights reserved. This program is free
-software; you can redistribute and/or modify program under the terms of Gnu
-General Public licence v2 or later.
+Copyright (C) 2003\-2007 Jari Aalto. The program is free software; you
+can redistribute and/or modify program under the terms of Gnu General
+Public licence v2 or later.
+.PP
+This documentation may be distributed subject to the terms and
+conditions set forth in \s-1GNU\s0 General Public License v2 or later; or, at
+your option, distributed under the terms of \s-1GNU\s0 Free Documentation
+License version 1.2 or later (\s-1GNU\s0 \s-1FDL\s0).
