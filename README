@@ -1,0 +1,32 @@
+Cygbuild - A porting tool for making Cygwin net releases
+--------------------------------------------------------
+
+Cygbuild is something like Debian dh_make(1) .deb or rpm(1) .rpm maker
+utility, but for Win32 Cygwin platform. It automates package
+maintenenance so that with few commands, it is possible to convert a
+software package into a installable Cygwin package.
+
+    doc/            Documentation
+    etc/etc         Files installed in /etc/cygbuild/
+    etc/makefile    Project maintenence dir. Install makefiles
+    etc/template    Files installed in /usr/share/cygbuild/
+    bin/            The "program"
+
+Important files
+
+    doc/README.txt              Install information
+    doc/LICENSE.txt             Licensing information
+    ChangeLog                   Project change records
+
+Project contacts
+
+    Homepage
+      http://freshmeat.net/projects/cygbuild
+
+    Reporting bugs
+      See freshmeat page
+
+    Source code repository
+      See freshmeat page
+
+End of file
