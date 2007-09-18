@@ -2190,9 +2190,14 @@ Cygwin
 
 =head1 AUTHOR
 
-Copyright (C) 2003-2007 Jari Aalto. All rights reserved. This program is free
-software; you can redistribute and/or modify program under the terms of Gnu
-General Public licence v2 or later.
+Copyright (C) 2003-2007 Jari Aalto. The program is free software; you
+can redistribute and/or modify program under the terms of Gnu General
+Public licence v2 or later.
+
+This documentation may be distributed subject to the terms and
+conditions set forth in GNU General Public License v2 or later; or, at
+your option, distributed under the terms of GNU Free Documentation
+License version 1.2 or later (GNU FDL).
 
 =cut
 
