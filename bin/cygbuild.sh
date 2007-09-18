@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0918.1719"
+CYGBUILD_VERSION="2007.0918.1732"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9468,11 +9468,19 @@ function CygbuildFilePackageGuessMain()
 
         #  Debian uses: package_version.orig.tar.gz
 
-        local ver="$SCRIPT_PACKAGE[_-]$SCRIPT_VERSION"
+        local nameRe
+        CygbuildStrToRegexpSafe "$SCRIPT_PACKAGE" > $retval
+        [ -s $retval ] && nameRe=$(< $retval)
+
+        local verRe
+        CygbuildStrToRegexpSafe "$SCRIPT_VERSION" > $retval
+        [ -s $retval ] && verRe=$(< $retval)
+
+        local ver="$nameRe[_-]$verRe"
 
         CygbuildFilePackageGuessArchive \
             "$ver.(tar.gz|tar.bz2|orig.tar.gz|orig.tar.bz2|tgz)" \
-            "(-src.tar.bz2|$SCRIPT_PKGVER-$SCRIPT_RELEASE[.]|[.]sig)" \
+            "(-src.tar.bz2|$nameRe-$verRe-$SCRIPT_RELEASE[.]|[.]sig)" \
             >  $retval
 
         arr=( $(< $retval) )

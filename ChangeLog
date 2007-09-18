@@ -8,6 +8,7 @@
 	(CygbuildStrToRegexpSafe): New
 	(CygbuildCmdInstallCheckReadme): Use `CygbuildStrToRegexpSafe'.
 	(CygbuildCmdPkgSourceStandard): Use `CygbuildStrToRegexpSafe'.
+	(CygbuildFilePackageGuessMain): Use `CygbuildStrToRegexpSafe'.
 
 2007-09-15  Jari Aalto  <jari.aalto@cante.net>
 
