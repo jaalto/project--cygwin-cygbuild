@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0918.1732"
+CYGBUILD_VERSION="2007.0918.1803"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1106,7 +1106,8 @@ function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
 
     for lib in $list
     do
-        if $EGREP --quiet "^ *requires:.*\b$lib" $setup ; then
+        if $EGREP --quiet "^ *requires:.*\b$lib" $setup
+        then
             CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
         fi
     done
@@ -2769,7 +2770,8 @@ function CygbuildDefineGlobalCommands()
     CAT=cat                             # global-def
     CP=cp                               # global-def
     DIFF=diff                           # global-def
-    EGREP="grep --binary-files=without-match --perl-regexp" # global-def
+    EGREP="grep --binary-files=without-match --extended-regexp" # global-def
+    EGREPP="grep --binary-files=without-match" # global-def
     FILE=file                           # global-def
     FIND=find                           # global-def
     GZIP=gzip                           # global-def

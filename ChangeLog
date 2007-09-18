@@ -1,5 +1,9 @@
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/etc/programs.conf (EGREP): Replace option
+	--perl-regexp with --extended-regexp.
+	(EGREPP): New.
+
 	* bin/cygbuild.sh:
 	- Fix source package generation with version number like
 	  foo-0.3+git20070827
@@ -9,6 +13,8 @@
 	(CygbuildCmdInstallCheckReadme): Use `CygbuildStrToRegexpSafe'.
 	(CygbuildCmdPkgSourceStandard): Use `CygbuildStrToRegexpSafe'.
 	(CygbuildFilePackageGuessMain): Use `CygbuildStrToRegexpSafe'.
+	(CygbuildDefineGlobalCommands): EGREP Replace option
+	--perl-regexp with --extended-regexp. New variable EGREPP.
 
 2007-09-15  Jari Aalto  <jari.aalto@cante.net>
 
