@@ -2190,7 +2190,7 @@ Cygwin
 
 =head1 AUTHOR
 
-Copyright (C) 2003-2007 Jari Aalto. The program is free software; you
+Copyright (C) 2003-2007 Jari Aalto. This program is free software; you
 can redistribute and/or modify program under the terms of Gnu General
 Public licence v2 or later.
 
