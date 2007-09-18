@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0918.1803"
+CYGBUILD_VERSION="2007.0918.1919"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -274,9 +274,16 @@ function CygbuildIsNumberLike()
 #
 #######################################################################
 
+function CygbuildIsSourceProgram ()
+{
+    # Check "the packaging script" foo-N.N.sh
+
+    [[ $0 == *[0-9]* ]]
+}
+
 function CygbuildIsGbsCompat()
 {
-    [ "$OPTION_GBS_COMPAT" ]
+    [ "$OPTION_GBS_COMPAT" ] || CygbuildIsSourceProgram
 }
 
 #######################################################################
@@ -3508,9 +3515,9 @@ function CygbuildHelpSourcePackage()
     bin=$(< $retval)
 
     if [ ! "$bin" ]; then
-        echo "-- [WARN] Not attempting to make a source package. " \
+        echo "-- [WARN] Not attempting to make a source package." \
              "Full cygbuild suite is needed" \
-             "See $CYGBUILD_HOMEPAGE_URL"
+             "($CYGBUILD_HOMEPAGE_URL)."
         return 1
     fi
 }
@@ -4094,6 +4101,7 @@ function CygbuildPerlModuleLocation()
     if [ "$module" ]; then
         echo $module
     else
+        CygbuildIsSourceProgram ||
         CygbuildWarn "$id: [ERROR] file not found: [$name] [$module]" \
              "Have you installed $CYGBUILD_HOMEPAGE_URL ?"
         return 1

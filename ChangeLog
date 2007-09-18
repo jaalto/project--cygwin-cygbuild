@@ -15,6 +15,11 @@
 	(CygbuildFilePackageGuessMain): Use `CygbuildStrToRegexpSafe'.
 	(CygbuildDefineGlobalCommands): EGREP Replace option
 	--perl-regexp with --extended-regexp. New variable EGREPP.
+	(CygbuildHelpSourcePackage): Cosmetic change to displayed
+	message.
+	(CygbuildIsSourceProgram): New.
+	(CygbuildIsGbsCompat): Use `CygbuildIsSourceProgram'
+	(CygbuildPerlModuleLocation): Use `CygbuildIsSourceProgram'
 
 2007-09-15  Jari Aalto  <jari.aalto@cante.net>
 
