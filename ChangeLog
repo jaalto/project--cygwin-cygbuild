@@ -1,3 +1,14 @@
+2007-09-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	- Fix source package generation with version number like
+	  foo-0.3+git20070827
+	(CygbuildCmdMkpatchMain): Shorten
+	paths in messages.
+	(CygbuildStrToRegexpSafe): New
+	(CygbuildCmdInstallCheckReadme): Use `CygbuildStrToRegexpSafe'.
+	(CygbuildCmdPkgSourceStandard): Use `CygbuildStrToRegexpSafe'.
+
 2007-09-15  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:

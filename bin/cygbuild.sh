@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0915.1706"
+CYGBUILD_VERSION="2007.0918.1719"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -224,6 +224,21 @@ function CygbuildTarOptionCompress()
         *bz2)           echo "j" ;;
         *)              return 1 ;;
     esac
+}
+
+function CygbuildStrToRegexpSafe()
+{
+    # Just quick conversion
+    local str="$1"
+
+    [ "$str" ] || return 1
+
+    str=${str//./[.]}
+    str=${str//+/[+]}
+    str=${str//\*/[*]}
+    str=${str//\?/[?]}
+
+    echo $str
 }
 
 function CygbuildMatchRegexp()
@@ -4794,7 +4809,7 @@ function CygbuildCmdMkpatchMain()
     local debug
     [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
-    echo "** Making [patch] $out"
+    echo "** Making [patch]" ${out/$srcdir\/}
 
     CygbuildNoticeBuilddirMaybe || return 1
 
@@ -5095,7 +5110,7 @@ function CygbuildCmdPkgSourceStandard()
 
     echo "** Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
 
-    local script=$srcinstdir/$name
+    local script="$srcinstdir/$name"
 
     $CP -f "$orig" "$srcinstdir/$SRC_ORIG_PKG_NAME"  || return $?
     $CP "$BUILD_SCRIPT" "$script"                    || return $?
@@ -5115,18 +5130,24 @@ function CygbuildCmdPkgSourceStandard()
         #   is -3.
 
         local pkg=$PKG-$VER-$REL
+        local re
+
+        CygbuildStrToRegexpSafe "$pkg" > $retval
+        [ -s $retval ] && re=$(< $retval)
 
         ls *$PKG-$VER*-* 2> /dev/null |
-            $EGREP --invert-match "$pkg" > $retval
+            $EGREP --invert-match "$re" > $retval
 
         if [ -s $retval ]; then
-            CygbuildWarn "--   [NOTE] Deleting old releases from $srcinstdir"
+            CygbuildWarn "--   [NOTE] Deleting old releases from" \
+                         ${srcinstdir/$srcdir\/}
+
             $RM $verbose $(< $retval) || exit $?
         fi
 
         #   Do not include binary package. Neither *src packages.
 
-        local pkg=$FILE_SRC_PKG
+        local pkg="$FILE_SRC_PKG"
 
         $TAR $taropt $FILE_SRC_PKG \
              $(ls $PKG*  | $EGREP -v "$pkg(-src)?\.tar")
@@ -8254,8 +8275,12 @@ function CygbuildCmdInstallCheckReadme()
     #  Convert special character like
     #  0.3+git20070827-1 =>  0.3[+]git20070827-1
 
-    local rever=$(echo $VER | sed 's/\./[.]/g; s/+/[+]/g; ')    # regexp version
-    local sversion=$rever-${REL:-1}                             # search version
+    local rever
+
+    CygbuildStrToRegexpSafe "$VER" > $retval
+    [ -s $retval ] && rever=$(< $retval)
+
+    local sversion=$rever-${REL:-1}                 # search version
 
     notes=""
 
@@ -10341,12 +10366,14 @@ function Test ()
 #    CygbuildDefineGlobalCommands
     set -x
 
-    local tmp=annoyance-filter-R1.0d
+    local tmp=$1
+    # annoyance-filter-R1.0d
 
     CygbuildVersionInfo $tmp
 #    CygbuildStrPackage $tmp
 }
 
+#Test odt2txt-0.3+git20070827-1-src.tar.bz2
 CygbuildMain "$@"
 
 # End of file
