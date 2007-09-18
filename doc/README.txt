@@ -8,42 +8,15 @@ Copyright information
 
         Copyright (C) 2003-2007 Jari Aalto
 
-        All files in this project are released under GNU General
-        Public License.
-
-        This program (referring to all files distributed in project
-        "cygbuild") is free software; you can redistribute it and/or
-        modify it under the terms of the GNU General Public License as
-        published by the Free Software Foundation; either version 2 of
-        the License, or (at your option) any later version.
-
-        This program is distributed in the hope that it will be useful, but
-        WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-        General Public License for more details.
-
-        You should have received a copy of the GNU General Public License
-        along with program; see the file COPYING. If not, write to the
-        Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-        Boston, MA 02110-1301, USA.
-
-        Visit <http://www.gnu.org/copyleft/gpl.html> for more information
-
-        This application runs solely with Free Software and does not
-        rely on any component of non-Free Software.
+        License: This material may be distributed only subject to the
+        terms and conditions set forth in GNU General Public License
+        v2 or later (GNU GPL); or, at your option, distributed under
+        the terms of GNU Free Documentation License version 1.2 or
+        later (GNU FDL).
 
 Project Description
 
     Description
-
-        A Porting tool for making Cygwin Net Releases.
-        <http://freshmeat.net/projects/cygbuild/>
-
-            Utilities for Cygwin source and binary package
-            maintainers. To configure, build, strip, produce diffs and
-            generate Cygwin specific files. To put it simply: convert
-            any freely available program or package into complete
-            Cygwin Net Release distribution.
 
         Cygbuild is like Debian dh_make(1) .deb or rpm(1) .rpm maker
         utility, but for Cygwin platform. If you are familiar with
