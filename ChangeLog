@@ -17,8 +17,12 @@
 	(CygbuildCmdBuildMain): Shorten displayed message.
 	(CygbuildInstallPackageDocs): Support new option
 	'cygbuild-no-docdir-install'.
-	(CygbuildCmdInstallCheckCygpatchDirectory): Ignore *.orig files.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Ignore *.orig* files.
 	(CygbuildMatchBashPatternList): Moved to primitives.
+	(CygbuildIsMakefileCplusplus): Change \t to [[:space:]].
+	(CygbuildMakefilePrefixCheck): Change \t to [[:space:]].
+	(CygbuildCmdInstallCheckCygpatchDirectory): Change \t to [[:space:]].
+	(MakefileUsesRedirect): Change \t to [[:space:]].
 
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.0815"
+CYGBUILD_VERSION="2007.0919.1032"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2088,7 +2088,7 @@ function MakefileUsesRedirect()
 
     #   See if we can find:  $(MAKE) -C src
 
-    CygbuildGrepCheck '^[^#]+make[) \t]+-C' $file
+    CygbuildGrepCheck '^[^#]+make[)[:space:]]+-C' $file
 }
 
 function CygbuildIsMakefileTarget()
@@ -2109,7 +2109,6 @@ function CygbuildIsMakefileTarget()
     fi
 
     CygbuildGrepCheck "^$target:" $file
-
 }
 
 function CygbuildIsMakefileCplusplus ()
@@ -2122,7 +2121,7 @@ function CygbuildIsMakefileCplusplus ()
         return 1
     fi
 
-    CygbuildGrepCheck "^[^#]+=[ \t]*g[+][+]" $file
+    CygbuildGrepCheck "^[^#]+=[[:space:]]*g[+][+]" $file
 }
 
 function CygbuildMakefileRunTarget()
@@ -2369,7 +2368,7 @@ function CygbuildDependsList()
     if [ ! -f "$file" ]; then
         return 1
     else
-        sed -ne 's/requires:[ \t]*//p' $file
+        $SED -ne 's/requires:[ \t]*//p' $file
     fi
 }
 
@@ -5729,7 +5728,7 @@ function CygbuildMakefilePrefixCheck()
         [ ! "$verbose" ] && opt="-q"
 
         if $EGREP $opt \
-           "^[ \t]*DESTDIR|^[^ \t]+=.*DESTDIR|^[^#].*[$][({]DESTDIR" \
+           "^[[:space:]]*DESTDIR|^[^[:space:]]+=.*DESTDIR|^[^#].*[$][({]DESTDIR" \
            $makefile $list
         then
             destdir=0
@@ -5741,7 +5740,7 @@ function CygbuildMakefilePrefixCheck()
 
     if [ "$destdir" != "0" ]; then
 
-        local re='^[ \t]*(prefix)[ \t]*='
+        local re='^[[:space:]]*(prefix)[[:space:]]*='
 
         $EGREP "$re" $makefile # >  /dev/null  2>&1
         status=$?
@@ -8354,7 +8353,7 @@ function CygbuildCmdInstallCheckSetupHint()
 
     local path=$(< $retval)
 
-    if $EGREP "^sdesc:.+\.[ \t]*\"" $path /dev/null ; then
+    if $EGREP "^sdesc:.+\.[[:space:]]*\"" $path /dev/null ; then
         CygbuildWarn "--   [ERROR] 'sdesc:' contains period(.)"
     fi
 
@@ -8944,13 +8943,12 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
     |
     while read file
     do
-        [[ "$file" == *@(patch|diff|orig) ]] && continue
+        [[ "$file" == *.@(patch|diff|orig) ]] && continue
         [ -f $file          ] || continue
 
-        if $EGREP --line-number '[ \t]$' $file > $retval
+        if $EGREP --line-number '[[:space:]]$' $file > $retval
         then
             echo "--   [WARN] Trailing whitespaces found in $file"
-exit 444
             $CAT --show-nonprinting --show-tabs --show-ends $retval |
             $SED 's/^/     /'
         fi
