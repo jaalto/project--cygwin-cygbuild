@@ -30,6 +30,10 @@
 	(CygbuildPatchApplyMaybe): Use grep option --fixed-strings to
 	match already applied patches. Fixed $continue variable name
 	which caused reapplying already applied patch.
+	(CygbuildIsCplusplusPackage): New.
+	(CygbuildMakefileName): Fix "$@" handling.
+	(CygbuildDefineGlobalCompile): Fix C++ code check and definition
+	of 'ccache g++'.
 
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 

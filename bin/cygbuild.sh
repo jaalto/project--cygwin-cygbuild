@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.2255"
+CYGBUILD_VERSION="2007.0919.2334"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2047,7 +2047,7 @@ function CygbuildMakefileName()
 
     local file path
 
-    for file in GNUMakefile Makefile makefile "$@"
+    for file in GNUMakefile Makefile makefile ${1+"$@"}
     do
         path="$dir/$file"
 
@@ -2284,6 +2284,18 @@ function CygbuildIsPerlPackage()
 function CygbuildIsPythonPackage()
 {
     [ -f "$srcdir/setup.py" ]
+}
+
+function CygbuildIsCplusplusPackage()
+{
+    #   Search under src/* etc directories
+
+    for file in *.hh *.cc *.cpp */*.hh */*.cc */*.cpp
+    do
+        [ -f "$file" ] && return 0
+    done
+
+    return 1
 }
 
 function CygbuildIsAutomakePackage()
@@ -2930,7 +2942,8 @@ function CygbuildDefineGlobalCompile()
 
             CYGBUILD_CC="ccache gcc"                        # global-def
 
-            if CygbuildIsMakefileCplusplus ; then
+            if CygbuildIsCplusplusPackage || CygbuildIsMakefileCplusplus
+            then
                 CYGBUILD_CC="ccache g++"
             fi
             CYGBUILD_CXX="ccache g++"                       # global-def
