@@ -1,3 +1,13 @@
+2007-09-19  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/Makefile.tmp (clean): Added comments next
+	to targets.
+	(ETCDIR): Remove extra $.
+
+	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe):
+	Shorten displayed message.
+	(CygbuildCmdBuildMain): Shorten displayed message.
+
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/etc/programs.conf (EGREP): Replace option

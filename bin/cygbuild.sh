@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0918.1919"
+CYGBUILD_VERSION="2007.0919.0551"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2686,7 +2686,8 @@ function CygbuildFileReadOptionsMaybe()
         str=$(< $retval)
 
         if [ ! "$msg" ]; then
-            CygbuildWarn "--   Reading more options from $file: $str"
+            CygbuildWarn "--   Reading more options from" \
+                         "${file/$srcdir\/}: $str"
         else
             CygbuildWarn "$msg"
         fi
@@ -7397,7 +7398,8 @@ function CygbuildCmdBuildMain()
 
     if [ -f "$script" ]; then
 
-        echo "--   [NOTE] Building with external: $script $PKG $VER $REL"
+        echo "--   [NOTE] Building with external:" \
+             ${script/$srcdir\/} $PKG $VER $REL
 
         CygbuildPushd
             cd $builddir || exit 1
