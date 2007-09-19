@@ -6,3 +6,4 @@
 # --exclude=Makefile.in
 # --exclude=package.1.in
 # --include=*.html
+# --exclude=cygbuild-no-docdir-install

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.0551"
+CYGBUILD_VERSION="2007.0919.0731"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7652,19 +7652,24 @@ function CygbuildInstallPackageDocs()
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
     local optExclude="$CYGBUILD_TAR_INSTALL_EXCLUDE"
 
-    local dest=$DIR_DOC_GENERAL
+    local dest="$DIR_DOC_GENERAL"
 
     CygbuildFileReadOptionsMaybe "$EXTRA_TAR_OPTIONS_INSTALL" > $retval
     local optExtra=$(< $retval)
 
+    local docdirInstall="docinstall"
     local matchExclude matchInclude
 
-    if [ "$$optExtra" ]; then
+    if [ "$optExtra" ]; then
         CygbuildInstallTaropt2match exclude "$optExtra" > $retval
         [ -s $retval ] && matchExclude=$(< $retval)
 
         CygbuildInstallTaropt2match include "$optExtra" > $retval
         [ -s $retval ] && matchInclude=$(< $retval)
+
+        if [[ "$optExtra" == *cygbuild-no-docdir-install* ]]; then
+            docdirInstall=
+        fi
     fi
 
     local done name file match
@@ -7736,7 +7741,7 @@ function CygbuildInstallPackageDocs()
     CygbuildDetermineDocDir $builddir > $retval
     local dir=$(< $retval)
 
-    if [ "$dir" ]; then
+    if [ "$dir" ] &&  [ "$docdirInstall" ] ; then
 
         #   Are there any files in it?
 

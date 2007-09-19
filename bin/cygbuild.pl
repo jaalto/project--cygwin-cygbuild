@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0914.1137';
+$VERSION = '2007.0919.0724';
 
 # ..................................................................
 
@@ -1575,9 +1575,9 @@ says "turn off internal check":
 
     --exclude=cygbuild-ignore-autochecks
 
-To completely suppress all default cygbuild exclude options (like those of
-C<*.~, *# *.orig> etc. files), and supply options manually, start the file
-with use this line:
+To completely suppress all default cygbuild exclude optionslike those
+of C<*.~, *# *.orig> and other files), start the file with use this
+line:
 
     --exclude=cygbuild-ignore-all-defaults
 
@@ -1586,7 +1586,7 @@ to use wildcards with short option names, like this:
 
     -x *.tmp
 
-Please use the long version instead:
+Please use the long option notation instead:
 
     --exclude=*.tmp
 
@@ -1777,7 +1777,15 @@ ignored. Comments must be palaced in separate lines.
     --exclude=*RISC*
     --exclude=*README.vms
 
+    #  This is not a tar(1) option, but interpreted by cygbuild
+    --include=notes.txt
+
     # End of file
+
+If this option is defined, the automatic detection of possible
+documentation directory and its installation is suppressed:
+
+    --exclude=cygbuild-no-docdir-install
 
 =item B<manualpage.pod>
 
