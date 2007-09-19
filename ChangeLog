@@ -34,6 +34,10 @@
 	(CygbuildMakefileName): Fix "$@" handling.
 	(CygbuildDefineGlobalCompile): Fix C++ code check and definition
 	of 'ccache g++'.
+	(CygbuildDefineGlobalMain): Remove  call to
+	`CygbuildDefineGlobalCompile'. It is too early when package
+	may not be even unpacked yet (Cygwin source pacakging GBS).
+	(CygbuildCmdBuildMain): Call `CygbuildDefineGlobalCompile'
 
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 

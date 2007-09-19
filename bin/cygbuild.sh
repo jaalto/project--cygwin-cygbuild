@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.2334"
+CYGBUILD_VERSION="2007.0919.2345"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2982,8 +2982,6 @@ function CygbuildDefineGlobalMain()
     local argRelease="$3"
     local argPkg="$4"
     local argDirective="$5"
-
-    CygbuildDefineGlobalCompile
 
     #   - If filename or explicit release was given
     #   - or examine source directory name package-NN.NN/ name
@@ -7414,6 +7412,7 @@ function CygbuildCmdBuildMain()
     echo "** Build command"
 
     CygbuildNoticeBuilddirMaybe || return $?
+    CygbuildDefineGlobalCompile
 
     if [ -f "$script" ]; then
 
