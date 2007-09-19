@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.0731"
+CYGBUILD_VERSION="2007.0919.0815"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -266,6 +266,34 @@ function CygbuildIsNumber()
 function CygbuildIsNumberLike()
 {
     CygbuildMatchRegexp '[0-9]' "$1"
+}
+
+function CygbuildMatchBashPatternList()
+{
+    local str="$1"
+
+    [ ! "$str" ] && return 1
+
+    shift
+    local ret=1    # Suppose no match by default
+    local match
+
+    #   In for loop, the patterns in $list
+    #   would expand to file names without 'noglob'.
+
+    set -o noglob
+
+        for match in $*
+        do
+            if  [[ "$str" == $match ]]; then
+                ret=0
+                break
+            fi
+        done
+
+    set +o noglob
+
+    return $ret
 }
 
 #######################################################################
@@ -1608,34 +1636,6 @@ function CygbuildStrVersion()
     if CygbuildDefineVersionVariables $str ; then
         echo $CYGBUILD_STATIC_VER_VERSION
     fi
-}
-
-function CygbuildMatchBashPatternList()
-{
-    local str="$1"
-
-    [ ! "$str" ] && return 1
-
-    shift
-    local ret=1    # Suppose no match by default
-    local match
-
-    #   In for loop, the patterns in $list
-    #   would expand to file names without 'noglob'.
-
-    set -o noglob
-
-        for match in $*
-        do
-            if  [[ "$str" == $match ]]; then
-                ret=0
-                break
-            fi
-        done
-
-    set +o noglob
-
-    return $ret
 }
 
 function CygbuildIsSrcdirOk()
@@ -8944,13 +8944,13 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
     |
     while read file
     do
+        [[ "$file" == *@(patch|diff|orig) ]] && continue
         [ -f $file          ] || continue
-        [[ $file == *patch ]] && continue
-        [[ $file == *diff  ]] && continue
 
         if $EGREP --line-number '[ \t]$' $file > $retval
         then
             echo "--   [WARN] Trailing whitespaces found in $file"
+exit 444
             $CAT --show-nonprinting --show-tabs --show-ends $retval |
             $SED 's/^/     /'
         fi

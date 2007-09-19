@@ -17,6 +17,8 @@
 	(CygbuildCmdBuildMain): Shorten displayed message.
 	(CygbuildInstallPackageDocs): Support new option
 	'cygbuild-no-docdir-install'.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Ignore *.orig files.
+	(CygbuildMatchBashPatternList): Moved to primitives.
 
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 
