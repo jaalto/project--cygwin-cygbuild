@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.1032"
+CYGBUILD_VERSION="2007.0919.2204"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4725,7 +4725,7 @@ function CygbuildPatchApplyMaybe()
 
     for file in $dir/*.patch
     do
-        [ ! -f "$file" ] && continue
+        [ -f "$file" ] || continue
 
         name=${file##*/}
         done=
@@ -4733,24 +4733,25 @@ function CygbuildPatchApplyMaybe()
 
         if [ "$statCheck" ]; then
             if [ -f "$statfile" ]; then
-                $EGREP --quiet --regexp="$name" $statfile && done=1
 
-                if [ "$cmd" = "patch" ] && [ "$done" ]; then
+                $EGREPP --quiet --fixed-strings "$name" $statfile && done=done
+
+                if [ "$cmd" = patch ] && [ "$done" ]; then
                     [ "$verb" ] &&
                     echo "-- [INFO] Patch already applied: $name"
 
                     continue="continue"
                 fi
-            elif [ "$cmd" = "unpatch" ]; then
+            elif [ "$cmd" = unpatch ]; then
                     [ "$verb" ] &&
-                    echo "-- [INFO] No patches applied, no $statfile"
+                    echo "-- [INFO] No patch applied, no $statfile"
 
                     continue="continue"
             fi
 
             if [ "$force" ]; then
                 :       # Keep going
-            elif [ "$confinue" ]; then
+            elif [ "$continue" ]; then
                 continue;
             fi
         fi
@@ -7770,7 +7771,8 @@ function CygbuildInstallPackageDocs()
 
                 status=""
 
-                $TAR $optExclude $optExtra $verbose --create --file=- * \
+                $TAR $optExclude $optExtra $verbose \
+                     --create --dereference --file=- * \
                    | ( $TAR -C "$dest" $taropt --file=- )
 
                 status=$?
@@ -8360,6 +8362,11 @@ function CygbuildCmdInstallCheckSetupHint()
     #   Make case insensitive search for package name in ldesc / first line.
     #   Make sure libraries start with cyg* and not the old lib*
 
+    local re="$PKG"
+
+    CygbuildStrToRegexpSafe "$PKG" > $retval
+    [ -s $retval ] && re=$(< $retval)
+
     $AWK '/^ldesc:/ {
             line = tolower($0);
             name = tolower(name);
@@ -8373,7 +8380,7 @@ function CygbuildCmdInstallCheckSetupHint()
             print "--   [ERROR] ldesc: mentions package name at first line" ;
         }
 
-    ' name="$PKG" $path  >&2
+    ' name="$re" $path  >&2
 
     #  Installed files are here. We assume that developer always has
     #  every package and library installed

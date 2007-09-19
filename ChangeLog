@@ -23,6 +23,13 @@
 	(CygbuildMakefilePrefixCheck): Change \t to [[:space:]].
 	(CygbuildCmdInstallCheckCygpatchDirectory): Change \t to [[:space:]].
 	(MakefileUsesRedirect): Change \t to [[:space:]].
+	(CygbuildInstallPackageDocs): Add option --dereference to tar,
+	so that documentation is copied 'as is'.
+	(CygbuildCmdInstallCheckSetupHint): Convert PKG into safe regexp
+	before testing words from 'ldesc:'.
+	(CygbuildPatchApplyMaybe): Use grep option --fixed-strings to
+	match already applied patches. Fixed $continue variable name
+	which caused reapplying already applied patch.
 
 2007-09-18  Jari Aalto  <jari.aalto@cante.net>
 
