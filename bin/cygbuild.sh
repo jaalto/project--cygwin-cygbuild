@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.2204"
+CYGBUILD_VERSION="2007.0919.2255"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4736,11 +4736,13 @@ function CygbuildPatchApplyMaybe()
 
                 $EGREPP --quiet --fixed-strings "$name" $statfile && done=done
 
-                if [ "$cmd" = patch ] && [ "$done" ]; then
-                    [ "$verb" ] &&
-                    echo "-- [INFO] Patch already applied: $name"
+                if [ "$cmd" = patch ] ; then
+                    if [ "$done" ]; then
+                        [ "$verb" ] &&
+                        echo "-- [INFO] Patch already applied: $name"
 
-                    continue="continue"
+                        continue="continue"
+                    fi
                 fi
             elif [ "$cmd" = unpatch ]; then
                     [ "$verb" ] &&
@@ -4755,6 +4757,8 @@ function CygbuildPatchApplyMaybe()
                 continue;
             fi
         fi
+
+        opt=
 
         CygbuildPatchPrefixStripCountMain "$file" > $retval
 
@@ -4779,7 +4783,9 @@ function CygbuildPatchApplyMaybe()
 
             #   Remove name from patch list
             if [ -f "$statfile" ]; then
-                $EGREP --invert-match --regexp="$name" "$statfile" > $retval
+                $EGREPP --invert-match --fixed-strings "$name" \
+                        "$statfile" > $retval
+
                 $MV "$retval" "$statfile"
             fi
 
