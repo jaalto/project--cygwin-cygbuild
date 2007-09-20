@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1232"
+CYGBUILD_VERSION="2007.0920.1248"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1424,7 +1424,9 @@ function CygbuildVersionInfo()
     '
         $_  = <>;
         s,.+/,,;
-        s,(-src)?(\.orig)?\.(tar\.(gz|bz2)|zip|t[gb]z),,;
+        s,\.(tar\.(gz|bz2)|zip|t[gb]z)$,,;
+        s,\.orig$,,;
+        s,-src$,,;
 
         # Remove release number (if any)
         # e.g. xterm-299, where 229 is NOT a release to be removed
@@ -10433,6 +10435,7 @@ function Test ()
 }
 
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
+
 CygbuildMain "$@"
 
 # End of file

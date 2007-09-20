@@ -1,3 +1,8 @@
+2007-09-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildVersionInfo): Rewrote substitution
+	commands. Now Debian special *.orig extension is handled correctly.
+
 2007-09-19  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/install.tar.options.tmp: Mention
