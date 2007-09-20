@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1255"
+CYGBUILD_VERSION="2007.0920.1438"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5916,6 +5916,20 @@ function CygbuildMakefileRunInstallPythonFix()
     fi
 }
 
+function CygbuildRunShell()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    local env
+    CygbuildShellEnvironenment > $retval
+    [ -s $retval ] && env=$(< $retval)
+
+    CygbuildVerb "--   Running $(eval $env) $@"
+
+    eval ${test:+echo} $env "$@"
+}
+
 function CygbuildRunPythonSetupCmd()
 {
     CygbuildRunShell $PYTHON setup.py "$@"
@@ -6938,28 +6952,6 @@ function CygbuildShellEnvironenment()
     fi
 
     echo $list
-}
-
-function CygbuildRunShell()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    local env
-    CygbuildShellEnvironenment > $retval
-    [ -s $retval ] && env=$(< $retval)
-
-    CygbuildVerb "--   Running $(eval $env) $@"
-
-    local status
-
-    CygbuildPushd
-        cd "$builddir"      || exit $?
-        eval ${test:+echo} $env "$@"
-        status=$?
-    CygbuildPopd
-
-    return $status
 }
 
 function CygbuildCmdDependMain()
@@ -10132,7 +10124,7 @@ function CygbuildCommandMain()
           auto*)                CygbuildCmdAutotool
                                 ;;
 
-          *clean)               CygbuildCmdCleanByType "$opt"
+          *clean)               CygbuildCmdCleanByType $opt
                                 status=$?
                                 ;;
 

@@ -4,6 +4,7 @@
 	commands. Now Debian special *.orig extension is handled correctly.
 	(CygbuildCommandMain::repackage-all,repackage-bin): Remove check
 	commands.
+	(CygbuildRunShell): Removed 'cd'. Run in current directory.
 
 2007-09-19  Jari Aalto  <jari.aalto@cante.net>
 
