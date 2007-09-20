@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0919.0724';
+$VERSION = '2007.0920.1557';
 
 # ..................................................................
 
@@ -1862,7 +1862,7 @@ before installing the upgraded version).
 
 If I<postinstall.sh> file copies any default setup files to C</etc>
 directory the absolute path names of files (one or many) must be listed
-here. See topic B<CYGWIN PACKAGE POLICY NOTES::Using preremove.sh and
+here. See topic I<CYGWIN PACKAGE POLICY NOTES::Using preremove.sh and
 postinstall.sh for upgrading /etc files>.
 
 =item B<preremove-manifest-from.lst>
@@ -1896,7 +1896,7 @@ by C<preremove-manifest.lst> hasn't been changed from the package's
 upstream examples listed in <preremove-manifest-from.lst> which now can
 simply read:
 
-    #PKGDOCDIR/examples/foo.conf
+    $PKGDOCDIR/examples/foo.conf
 
 The special tag C<#PKGDOCDIR> is just a shorthad pointer to the latest
 documentation directory. If these two files do not differ, the
