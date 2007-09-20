@@ -8550,7 +8550,8 @@ function CygbuildCmdInstallCheckManualPages()
 
     if [ ! "$files" ]; then
         #   No executables, this may be a library package
-        echo "--   [INFO] Manual page check: no executables found in $dir"
+        echo "--   [INFO] Manual page check: no executables found in" \
+             ${dir/$srcdir\/}
         return 0
     fi
 
@@ -8590,12 +8591,13 @@ function CygbuildCmdInstallCheckManualPages()
     #       .inst/usr/share/man1/
     #       .inst/usr/man1
 
-    local try=$CYGBUILD_MANDIR_RELATIVE
+    local try="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
 
     for path in $manPathList
     do
         if [[ $path != *$try* ]]; then
-            CygbuildWarn "--   [ERROR] incorrect manual path [$try]: $path"
+            CygbuildWarn "--   [ERROR] incorrect manual path; want $try:" \
+                         ${path/$srcdir\/}
             status=1
         fi
     done
