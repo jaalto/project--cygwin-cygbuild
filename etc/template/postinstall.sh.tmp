@@ -87,8 +87,8 @@ InstallConffiles ()
 
     #  Filter out all comments. Grep only lines with filenames
 
-    grep '^[^#]*/' $conffiles_from > $from
-    grep '^[^#]*/' $conffiles_to   > $to
+    grep -E '^[^#]*/|^[[:space]]*$' $conffiles_from > $from
+    grep -E '^[^#]*/|^[[:space]]*$' $conffiles_to   > $to
 
     paste $from $to  |
     {
@@ -97,6 +97,7 @@ InstallConffiles ()
             from=$(echo $dest$from | sed "s,\$PKGDOCDIR,$pkgdocdir$latest," )
             to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
 
+            #  Install only if not already there
             [ ! -f $to ] && Run install -m 0644 $from $to
         done
     }

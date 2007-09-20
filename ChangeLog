@@ -1,5 +1,8 @@
 2007-09-20  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/template/postinstall.sh.tmp (InstallConffiles): Use 'egrep -E'
+	and better regexp to ignore also empty lines.
+
 	* bin/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES::
 	preremove-manifest-from.lst): Correct #PKGDIR to $PKGDIR.
 
