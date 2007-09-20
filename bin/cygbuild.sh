@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1609"
+CYGBUILD_VERSION="2007.0920.1647"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6947,6 +6947,8 @@ function CygbuildShellEnvironenment()
     [ "$CYGBUILD_CFLAGS" ] &&
     list="$list CFLAGS='${CYGBUILD_CFLAGS}'"
 
+    list="DESTDIR=$instdir prefix=/usr"
+
     if CygbuildIsEmpty "$list" ; then
         return 1
     fi
@@ -7376,10 +7378,14 @@ function CygbuildCmdBuildStdMakefile()
         echo "--   Building with standard make(1) $makefile"
 
         if [ ! "$makefile" ]; then
+
             CygbuildWarn "--   [WARN] No Makefile." \
                  "If you already tried [configure]" \
-                 "You may need to write custom script build.sh (or reshadow)"
+                 "You may need to write custom script build.sh" \
+                 "(remember to run 'reshadow' after changes)"
+
             status=17  # Just random number
+
         else
 
             #   Run in separate shell so that reading configuration
