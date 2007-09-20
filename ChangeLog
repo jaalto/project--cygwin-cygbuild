@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh: (CygbuildVersionInfo): Rewrote substitution
 	commands. Now Debian special *.orig extension is handled correctly.
+	(CygbuildCommandMain::repackage-all,repackage-bin): Remove check
+	commands.
 
 2007-09-19  Jari Aalto  <jari.aalto@cante.net>
 

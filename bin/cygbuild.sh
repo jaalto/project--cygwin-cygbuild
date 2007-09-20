@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1248"
+CYGBUILD_VERSION="2007.0920.1255"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -10268,8 +10268,7 @@ function CygbuildCommandMain()
                                 CygbuildCmdConfMain         &&
                                 CygbuildCmdBuildMain        &&
                                 CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgBinaryMain    &&
-                                CygbuildCmdInstallCheckMain
+                                CygbuildCmdPkgBinaryMain
                                 status=$?
                                 ;;
 
@@ -10279,8 +10278,7 @@ function CygbuildCommandMain()
                                 CygbuildCmdConfMain         &&
                                 CygbuildCmdBuildMain        &&
                                 CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgDevelMain     &&
-                                CygbuildCmdInstallCheckMain
+                                CygbuildCmdPkgDevelMain
                                 status=$?
                                 ;;
 
