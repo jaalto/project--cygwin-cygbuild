@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0919.2345"
+CYGBUILD_VERSION="2007.0920.1232"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2288,9 +2288,20 @@ function CygbuildIsPythonPackage()
 
 function CygbuildIsCplusplusPackage()
 {
+    #   FIXME: This won't be correct for packages which contain
+    #   several different programs that are both C/C++,
+    #   like:
+    #
+    #       root/application-a/C
+    #       root/application-b/C++
+    #       root/application-b/C
+    #
+    #   in this case the first found, would determine that *all*
+    #   would be "C", which is not correct.
+
     #   Search under src/* etc directories
 
-    for file in *.hh *.cc *.cpp */*.hh */*.cc */*.cpp
+    for file in *.hh *.cc *.cpp *.cxx */*.hh */*.cc */*.cpp  */*.cxx
     do
         [ -f "$file" ] && return 0
     done
@@ -3441,7 +3452,7 @@ TO USE CYGBUILD FOR MAKING Cygwin Net Releases
     read from the manual page. Commands are listed in order of
     execution:
 
-        To prepare port : mkdirs files shadow
+        To prepare port : mkdirs files patch shadow
         To port         : conf build strip
         To install      : install
         To check install: check
