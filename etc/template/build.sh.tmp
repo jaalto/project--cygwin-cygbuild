@@ -10,6 +10,6 @@
 #   You could e.g. Pass correct make(1) flags in order to compile the
 #   package. or use different targest than the standard 'all'.
 #
-#       make CFLAGS= world opt
+#       make CFLAGS= LDFLAGS= world opt
 
 # End of file
