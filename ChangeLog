@@ -1,5 +1,8 @@
 2007-09-20  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES::
+	preremove-manifest-from.lst): Correct #PKGDIR to $PKGDIR.
+
 	* bin/cygbuild.sh: (CygbuildVersionInfo): Rewrote substitution
 	commands. Now Debian special *.orig extension is handled correctly.
 	(CygbuildCommandMain::repackage-all,repackage-bin): Remove check
@@ -7,6 +10,7 @@
 	(CygbuildRunShell): Removed 'cd'. Run in current directory.
 	(CygbuildSetLDPATHpython): More careful LD_LIBRARY_PATH and
 	$LD_RUN_PATH treatment.
+	(CygbuildCmdInstallCheckDirStructure): Added /etc check
 
 2007-09-19  Jari Aalto  <jari.aalto@cante.net>
 

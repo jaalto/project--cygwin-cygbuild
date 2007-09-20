@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1444"
+CYGBUILD_VERSION="2007.0920.1609"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8481,6 +8481,25 @@ function CygbuildCmdInstallCheckDirStructure()
     if [ -d $instdir/bin ]; then
         #  For shells this is valied, but for anything else...
         CygbuildWarn "--   [WARN] /bin found. Should it be /usr/bin?"
+    fi
+
+    if [ -d $instdir/etc ]; then
+
+        local file
+        for file in $(  $FIND $instdir/etc \
+                        ! -path "*/postinstall*" \
+                        -a ! -path "*/preremove*" \
+                        -a ! -path "*/default*" \
+                        -type f )
+        do
+            if [ -f $file ]; then
+
+                CygbuildWarn "--   [ERROR] $file found." \
+                             "Use /etc/defaults/etc and postinstall"
+                ok=0
+                break
+            fi
+        done
     fi
 
     if [ ! "$ok" ]; then
