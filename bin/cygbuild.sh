@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1438"
+CYGBUILD_VERSION="2007.0920.1444"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7312,8 +7312,17 @@ function CygbuildSetLDPATHpython()
 
     if  [ "$try" ] && [ -d "$try" ]; then
 
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$try   # global-def
-        export LD_RUN_PATH=$LD_RUN_PATH:$try           # global-def
+        if [ "$LD_LIBRARY_PATH" ]; then
+            export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$try"   # global-def
+        else
+            export LD_LIBRARY_PATH="$try"
+        fi
+
+        if [ "$LD_RUN_PATH" ]; then
+            export LD_RUN_PATH="$LD_RUN_PATH:$try"     # global-def
+        else
+            export LD_RUN_PATH="$try"
+        fi
 
         CygbuildVerb "--    Added Python to paths " \
                  "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" \

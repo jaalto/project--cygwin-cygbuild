@@ -5,6 +5,8 @@
 	(CygbuildCommandMain::repackage-all,repackage-bin): Remove check
 	commands.
 	(CygbuildRunShell): Removed 'cd'. Run in current directory.
+	(CygbuildSetLDPATHpython): More careful LD_LIBRARY_PATH and
+	$LD_RUN_PATH treatment.
 
 2007-09-19  Jari Aalto  <jari.aalto@cante.net>
 
