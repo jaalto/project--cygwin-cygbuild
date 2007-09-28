@@ -6,6 +6,7 @@
 	(CygbuildReadmeReleaseMatchCheck): Impreoved awk gsub() regexp.
 	(CygbuildInstallFixMain): New.
 	(CygbuildInstallFixMandir): New.
+	(CygbuildCmdInstallCheckLibFiles): Comment out one echo.
 
 2007-09-20  Jari Aalto  <jari.aalto@cante.net>
 

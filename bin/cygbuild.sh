@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0928.1037"
+CYGBUILD_VERSION="2007.0928.1124"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5872,9 +5872,6 @@ function CygbuildMakefileRunInstallPythonFix()
 {
     local id="$0.CygbuildMakefileRunInstallPythonFix"
 
-    #   Fix /usr/share/bin to /usr/bin
-    #   Fix /usr/share/lib to /usr/lib
-
     local root="$instdir$CYGBUILD_PREFIX"
     local dir dest
 
@@ -5884,8 +5881,11 @@ function CygbuildMakefileRunInstallPythonFix()
         $MV $verbose "$root/bin/lib" "$root/" ||
             CygbuildDie "$id: mv error"
 
-        [ -d "$root/bin" ] && $RMDIR "$root/bin"
+        # [ -d "$root/bin" ] && $RMDIR "$root/bin"
     fi
+
+    #   Move /usr/share/bin to /usr/bin
+    #   Move /usr/share/lib to /usr/lib
 
     for dir in $root/share/bin \
                $root/share/lib
@@ -8932,8 +8932,8 @@ function CygbuildCmdInstallCheckLibFiles()
         if [[ $file == *dll  &&  $file == *usr/lib/*/* ]]; then
 
             #  This is ok case: /usr/lib/foo/input/file.dll
-
-            echo "--   [NOTE] Hm, dynamically loaded lib?"
+            # echo "--   [NOTE] Hm, dynamically loaded lib?"
+            :
 
         elif [[ $file == *.a  &&  ! $file == *usr/lib/* ]]; then
 
