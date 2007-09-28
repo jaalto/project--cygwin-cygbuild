@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0920.1647"
+CYGBUILD_VERSION="2007.0928.1037"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7993,14 +7993,13 @@ function CygbuildInstallExtraMain()
 function CygbuildInstallFixMandir()
 {
     local id="$0.$FUNCNAME"
-    local dir="$instdir"
 
     [ -d "$dir/usr/man" ] || return 0
 
-    CygbuildVerb "--   Relocating manual pages"
+    CygbuildVerb "--   Fixing manual page locations"
 
-    local manroot="$dir/$todir"
     local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
+    local manroot="$instdir$todir"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
 
@@ -8017,9 +8016,7 @@ function CygbuildInstallFixMandir()
 
 function CygbuildInstallFixMain()
 {
-set -x
     CygbuildInstallFixMandir
-exit 444
 }
 
 function CygbuildInstallCygwinPartPostinstall()
