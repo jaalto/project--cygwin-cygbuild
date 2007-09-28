@@ -4166,7 +4166,7 @@ function CygbuildReadmeReleaseMatchCheck()
     # extract line: ----- version 3.5-2 -----
     # extract line: ----- version package-name-3.5-2 -----
     # where 3.5-2 => "3.5 2"
-set -x
+
     local -a arr=( $(
         $AWK ' /^-.*version / {
                                 gsub("^.*version[ \t]+[-_.a-zA-Z]*","");
@@ -4183,7 +4183,6 @@ set -x
     if [ "$rel" != "$REL" ]; then
         CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel in $file"
     fi
-exit 444
 }
 
 function CygbuildCmdReadmeFix()
