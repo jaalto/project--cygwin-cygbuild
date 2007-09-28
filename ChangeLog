@@ -4,6 +4,8 @@
 	Corrected version regexp.
 	(CygbuildCmdInstallCheckLibFiles): Fix call to cygcheck function.
 	(CygbuildReadmeReleaseMatchCheck): Impreoved awk gsub() regexp.
+	(CygbuildInstallFixMain): New.
+	(CygbuildInstallFixMandir): New.
 
 2007-09-20  Jari Aalto  <jari.aalto@cante.net>
 

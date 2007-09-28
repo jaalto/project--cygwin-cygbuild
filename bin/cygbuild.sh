@@ -2817,6 +2817,7 @@ function CygbuildDefineGlobalCommands()
     PERL=perl                           # global-def
     PYTHON=python                       # global-def
     RM=rm                               # global-def
+    RMDIR=rmdir                         # global-def
     SED=sed                             # global-def
     SORT=sort                           # global-def
     TAR=tar                             # global-def
@@ -7989,6 +7990,38 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraManual
 }
 
+function CygbuildInstallFixMandir()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$instdir"
+
+    [ -d "$dir/usr/man" ] || return 0
+
+    CygbuildVerb "--   Relocating manual pages"
+
+    local manroot="$dir/$todir"
+    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
+    local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
+
+    $scriptInstallDir $manroot || return 1
+
+    local item
+    for item in $dir/usr/man/*
+    do
+      $MV $item $manroot
+    done
+
+    $RMDIR $dir/usr/man
+}
+
+function CygbuildInstallFixMain()
+{
+set -x
+    CygbuildInstallFixMandir
+exit 444
+}
+
 function CygbuildInstallCygwinPartPostinstall()
 {
     local id="$0.$FUNCNAME"
@@ -9176,6 +9209,7 @@ function CygbuildCmdInstallMain()
     CygbuildPopd
 
     CygbuildInstallExtraMain
+    CygbuildInstallFixMain
     CygbuildInstallExtraManualCompress
 
     if [ "$verbose" ]; then
