@@ -4164,11 +4164,12 @@ function CygbuildReadmeReleaseMatchCheck()
     fi
 
     # extract line: ----- version 3.5-2 -----
+    # extract line: ----- version package-name-3.5-2 -----
     # where 3.5-2 => "3.5 2"
-
+set -x
     local -a arr=( $(
         $AWK ' /^-.*version / {
-                                gsub("^-.*version[ \t]+","");
+                                gsub("^.*version[ \t]+[-_.a-zA-Z]*","");
                                 ver=$1;
                                 i = split(ver, arr, /-/);
                                 print arr[1] " " arr[2];
@@ -4182,6 +4183,7 @@ function CygbuildReadmeReleaseMatchCheck()
     if [ "$rel" != "$REL" ]; then
         CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel in $file"
     fi
+exit 444
 }
 
 function CygbuildCmdReadmeFix()
@@ -5840,9 +5842,9 @@ function CygbuildPythonCompileFiles()
 import os, sys, py_compile
 verbose = sys.argv[1]
 
-for arg in  sys.argv[2:]:
-        file  = os.path.basename(arg)
-        dir   = os.path.dirname(arg)
+for arg in sys.argv[2:]:
+        file = os.path.basename(arg)
+        dir  = os.path.dirname(arg)
         if os.path.exists(dir):
             os.chdir(dir)
             if verbose:
@@ -5879,10 +5881,10 @@ function CygbuildMakefileRunInstallPythonFix()
     if [ -d $root/bin/lib/python* ]; then
         #  .inst/usr/bin/lib/python2.4/site-packages/foo/...
 
-        mv $verbose "$root/bin/lib" "$root/" ||
-           CygbuildDie "Error in $id"
+        $MV $verbose "$root/bin/lib" "$root/" ||
+            CygbuildDie "$id: mv error"
 
-        $RMDIR "$root/bin"
+        [ -d "$root/bin" ] && $RMDIR "$root/bin"
     fi
 
     for dir in $root/share/bin \
@@ -5892,7 +5894,7 @@ function CygbuildMakefileRunInstallPythonFix()
 
         if [ -d "$dir" ]; then
             $MV $verbose "$dir/" "$dest/" ||
-               CygbuildDie "Error in $id"
+               CygbuildDie "$id: mv error"
         fi
     done
 
@@ -7877,6 +7879,7 @@ function CygbuildInstallExtraManual()
         podcopy=
         name=${file##*/}        # /path/to/program.1x.pod => program.1x.pod
         name=${name%.pod}       # program.1x.pod => program.1x
+
         manpage=$DIR_CYGPATCH/$name
         program=${name%$addsect}        # program.1x => program.1
         program=${program%.[0-9]}       # program.1 => program
@@ -7925,7 +7928,6 @@ function CygbuildInstallExtraManual()
             #  This was generated and installed, so remove it
             $RM $podcopy
         fi
-
     done
 }
 
@@ -8341,7 +8343,7 @@ function CygbuildCmdInstallCheckReadme()
     notes=""
 
     $EGREP --line-number --ignore-case \
-        --regexp="-- +($PKG-|version +)?$sversion +--" \
+        --regexp="-- +(version +)?($PKG-)?$sversion +--" \
         $path /dev/null > $retval
 
     [ -s $retval ] && notes=$(< $retval)
@@ -8896,7 +8898,7 @@ function CygbuildCmdInstallCheckLibFiles()
         file=${file##$srcdir/}
         echo "--   [INFO] Found lib $file"
 
-        [ "$verbose" ] && CygbuildCygcheck $file
+        [ "$verbose" ] && CygbuildCygcheckMain $file
 
         if [[ $file == *dll  &&  $file == *usr/lib/*/* ]]; then
 

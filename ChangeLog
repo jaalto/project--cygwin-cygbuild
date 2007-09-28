@@ -1,3 +1,10 @@
+2007-09-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckReadme):
+	Corrected version regexp.
+	(CygbuildCmdInstallCheckLibFiles): Fix call to cygcheck function.
+	(CygbuildReadmeReleaseMatchCheck): Impreoved awk gsub() regexp.
+
 2007-09-20  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/postinstall.sh.tmp (InstallConffiles): Use 'egrep -E'
