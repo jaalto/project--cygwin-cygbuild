@@ -1,7 +1,9 @@
-# -- THIS AN EXAMPLE; Remove .tmp extension to activate --
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
+#
 # This file contains extra options when files from doc/
 # are installed. The options are given one option per line.
 #
 # --exclude=Makefile.in
 # --exclude=package.1.in
-# --include=DOCU/*.rtf
+# --include=*.html
+# --exclude=cygbuild-no-docdir-install

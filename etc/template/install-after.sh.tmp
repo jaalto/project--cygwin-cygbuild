@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
 #
 # install-after.sh -- Custom installation
 #

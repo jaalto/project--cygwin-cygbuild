@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
 #
 #	Copyright (C) 2003-2007 Jari Aalto
 #
@@ -11,12 +12,18 @@
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #	General Public License for more details.
+#
+#       You should have received a copy of the GNU General Public License
+#	along with program. If not, write to the Free Software
+#	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#	02110-1301, USA.
+#
 #	Visit <http://www.gnu.org/copyleft/gpl.html>
 
 # ########################################################### &basic ###
 
 DESTDIR =
-prefix		= /usr
+prefix		= /usr/local
 exec_prefix	= $(prefix)
 
 BINDIR		= $(DESTDIR)$(exec_prefix)/bin

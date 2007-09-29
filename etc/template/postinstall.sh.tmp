@@ -1,9 +1,12 @@
 #!/bin/sh
+# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
 #
 # /etc/postinstall/<package>.sh -- Custom installation steps
 #
 # -- NOTE: This script will be run under /bin/sh
 # -- THIS AN EXAMPLE, MODIFY AS NEEDED
+#
 
 PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/X11R6/bin:$PATH"
 
@@ -84,8 +87,8 @@ InstallConffiles ()
 
     #  Filter out all comments. Grep only lines with filenames
 
-    grep '^[^#]*/' $conffiles_from > $from
-    grep '^[^#]*/' $conffiles_to   > $to
+    grep -E '^[^#]*/|^[[:space]]*$' $conffiles_from > $from
+    grep -E '^[^#]*/|^[[:space]]*$' $conffiles_to   > $to
 
     paste $from $to  |
     {
@@ -94,6 +97,7 @@ InstallConffiles ()
             from=$(echo $dest$from | sed "s,\$PKGDOCDIR,$pkgdocdir$latest," )
             to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
 
+            #  Install only if not already there
             [ ! -f $to ] && Run install -m 0644 $from $to
         done
     }

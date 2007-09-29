@@ -1,5 +1,7 @@
 #!/bin/sh
-# -- THIS AN EXAMPLE; Remove .tmp extension to activate --
+# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
+#
 # Cygwin setup.exe runs this file just before package is being removed.
 # The shell must be 'sh'.
 #

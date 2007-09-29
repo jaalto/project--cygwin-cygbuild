@@ -1,5 +1,6 @@
 #!/bin/sh
-# -- THIS AN EXAMPLE; Remove .tmp extension to activate --
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
+#
 # This file runs with command [all]. Prepare package for configure
 # and build phase, which means applying the cygwin specific patch etc.
 #
@@ -20,6 +21,6 @@ Main()
     #  CygbuildCmdPrepPatch
 }
 
-Main $*
+Main "$@"
 
 # End of file

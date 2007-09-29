@@ -1,5 +1,6 @@
 #!/bin/sh
-# -- THIS AN EXAMPLE; Remove .tmp extension to activate --
+# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
+#
 # This file runs BEFORE the diff(1) command is run
 # It used to clean some files that may be on the way; like dangling symlinks
 # from original packagage or if package ships compiled files.
