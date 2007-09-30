@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckShellFiles):
 	shorten message by using relative path. Display symlink destination.
+	Correct for-loop to check only files.
 
 2007-09-30  Jari Aalto  <jari.aalto@cante.net>
 

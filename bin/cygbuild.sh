@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0930.2131"
+CYGBUILD_VERSION="2007.0930.2218"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8130,7 +8130,7 @@ function CygbuildCmdInstallCheckPythonFile ()
     local name=${file##*/}
     local newfile=$retval.fix.$name
 
-    $EGREP '^#!/' $file | head -1 > $retval
+    $EGREP '^#! */' $file | head -1 > $retval
     local binpath=$(< $retval)
 
     if [ ! "$binpath" ]; then
@@ -8247,6 +8247,8 @@ function CygbuildCmdInstallCheckShellFiles ()
     file $dir/bin/* $dir/sbin/* 2> /dev/null |
     while read file rest
     do
+        [ -f $file ] || continue
+
         file=${file%:}
 
         if [ -h $file ]; then
@@ -8268,8 +8270,6 @@ function CygbuildCmdInstallCheckShellFiles ()
         fi
 
         #   Make relative path if possible. Messages are better that way
-
-        file=${file/$(pwd)\//}
 
         if [[ "$rest" == *perl* ]]; then
             CygbuildCmdInstallCheckPerlFile "$file"
