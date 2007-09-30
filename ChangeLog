@@ -1,7 +1,7 @@
 2007-10-01  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckShellFiles):
-	shorten message by using relative path.
+	shorten message by using relative path. Display symlink destination.
 
 2007-09-30  Jari Aalto  <jari.aalto@cante.net>
 

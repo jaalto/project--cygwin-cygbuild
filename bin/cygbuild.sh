@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0930.2121"
+CYGBUILD_VERSION="2007.0930.2131"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8250,7 +8250,15 @@ function CygbuildCmdInstallCheckShellFiles ()
         file=${file%:}
 
         if [ -h $file ]; then
-            echo "--   [NOTE] symbolic link:" ${file/$sinst\/}
+
+            local link=$(
+                cd ${file%/*} &&
+                ls -l ${file##*/} |
+                $AWK '{printf("-> %s\n", $(NF)) }'
+            )
+
+            echo "--   [NOTE] symbolic link:" \
+                 ${file/$srcdir\/} $link
 
             if CygbuildPathResolveSymlink "$file" > $retval ; then
                 file=$(< $retval)
