@@ -77,56 +77,6 @@ Project Description
         Yaakov Selkowitz's <http://cygwinports.sunsite.dk/> for more
         information.
 
-Install instructions
-
-    Requirements
-
-        The aplication consists of set of programs that use intepreted
-        languages. The dependencies are:
-
-	o   Bash                            3.x
-        o   Perl                            5.004+
-        o   GNU awk, make, grep, tar...     any version
-        o   GNU diffutils                   any version
-        o   patchutils                      any version
-        o   Wget                            any version
-        o   Python                          any version
-        o   GNU binutils                    any version
-        o   GNU compiler collection         any version
-        o   Standard programs: ls, etc.     any version
-
-        It is possible to setup a Cygwin cross compiling environment
-        in Free OS. See document "Cygwin/X Contributor's Guide" at
-        <http://x.cygwin.com/docs/cg/prog-build-cross.html>
-
-    Cygwin binary package install
-
-        If you received cygbuild in standard Cygwin binary archive format,
-        it is installed by unpacking it at root directory:
-
-            tar -C / -jxf <name-of-package.tar.bz2>
-
-    Installing from a version control checkout:
-
-        Details how to check out the project can ve found from project
-        page. After checkout, various development commands can be
-        listed with:
-
-            make help
-
-        The command `install-in-place' does not copy the files to
-        /usr/bin, but uses symbolic links that refer to current
-        checkout location.
-
-            $ make install-in-place
-
-        After that, you only need to update the project from time to
-        time from version control repository. After each checkout or
-        update, you may want to update the templete files to their
-        latest versions with:
-
-            $ make install-etc
-
 Information for developers
 
     Policy for documenting changes

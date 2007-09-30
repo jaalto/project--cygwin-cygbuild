@@ -14,7 +14,8 @@ software package into a installable Cygwin package.
 
 Important files
 
-    doc/README.txt              Install information
+    INSTALL                     Install instructions
+    doc/README.txt              Project information
     doc/LICENSE.txt             Licensing information
     ChangeLog                   Project change records
 
