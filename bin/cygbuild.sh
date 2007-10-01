@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0912"
+CYGBUILD_VERSION="2007.1001.0926"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -729,6 +729,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.o \
      --exclude=*.lo \
      --exclude=*.elc \
+     --exclude=*.egg-info \
     "
 
     cygbuild_opt_exclude_library_files="\
@@ -6464,7 +6465,7 @@ function CygbuildPatchCheck()
     if [ -f "$file" ]; then
 
         if [ "$verbose" ]; then
-            echo "--   [INFO] Patch contains files"
+            echo "--   [INFO] content of" ${file/$srcdir\/}
             $AWK '/^\+\+\+ / { print "     " $2}' $file
         fi
 
@@ -6475,7 +6476,7 @@ function CygbuildPatchCheck()
         # +++ new/lex.yy.c   2004-01-29 18:04:18.000000000 +0000
 
         local notes
-        $EGREP -ie '^(\+\+\+).*\.([ch]|cc|cpp)\b' $file > $retval
+        $EGREP -ie '^(\+\+\+).*\.([ch]|cc|cpp) ' $file > $retval
 
         [ -s $retval ] && notes=$(< $retval)
 

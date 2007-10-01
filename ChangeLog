@@ -10,6 +10,10 @@
 	(CygbuildSetLDPATHpython): Use PYTHON_LIBDIR.
 	(CygbuildPatchApplyMaybe): if there is no *.patch, ignore ls(1)
 	message.
+	(CygbuildBootVariablesGlobalMain):
+	cygbuild_opt_exclude_object_files: exclude *egg-info
+	(CygbuildPatchCheck): Adjusted regexp to check *.c files.
+	Display file name in message 'patch contains files'.
 
 2007-09-30  Jari Aalto  <jari.aalto@cante.net>
 
