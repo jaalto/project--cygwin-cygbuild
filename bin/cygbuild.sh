@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0903"
+CYGBUILD_VERSION="2007.1001.0907"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6332,12 +6332,12 @@ function CygbuildExtractTar()
     echo "-- Extracting $file"
 
     if [ "$dir" != "$expectdir" ]; then
-        echo "--    [WARN] archive does not contain $expectdir/"
+        echo "--   [WARN] archive does not contain $expectdir/"
     fi
 
     if [[ "$dir" != *[a-zA-Z]* ]]; then
 
-        echo "--    Hm,  archive does not have good subdirectory, so" \
+        echo "--   Hm,  archive does not have good subdirectory, so" \
              "creating dir $expectdir and unpacking there"
         $MKDIR "$expectdir" || return $?
 
@@ -6373,9 +6373,9 @@ function CygbuildExtractTar()
             local name2=$(< $retval)
 
             if [ "$name2" = "$name1" ]; then
-                echo "--     Interesting, unpack dir $dir => $name2 - Skipped"
+                echo "--   Interesting, unpack dir $dir => $name2 - Skipped"
             else
-                echo "--     Renaming unpack dir: mv $dir $expectdir"
+                echo "--   Renaming unpack dir: mv $dir $expectdir"
                 $MV "$dir" "$expectdir" || return $?
             fi
 
