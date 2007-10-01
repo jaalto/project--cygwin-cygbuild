@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.0930.2218"
+CYGBUILD_VERSION="2007.1001.0808"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8418,7 +8418,7 @@ function CygbuildCmdInstallCheckReadme()
 function CygbuildCmdInstallCheckSetupHint()
 {
     local id="$0.$FUNCNAME"
-    local retva=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local dir=$DIR_CYGPATCH
     local file="setup.hint"
     local status=0
@@ -8466,6 +8466,7 @@ function CygbuildCmdInstallCheckSetupHint()
 
             print;
             print "--   [ERROR] ldesc: mentions package name at first line" ;
+            exit 0;
         }
 
     ' name="$re" $path  >&2
@@ -8485,6 +8486,33 @@ function CygbuildCmdInstallCheckSetupHint()
             CygbuildWarn "--   [ERROR] setup.hint $lib package not installed"
         fi
     done
+
+    #  Check category line
+
+    local package=
+
+    if [ -d $instdir/usr/lib/python*/ ]; then
+        package="Python"
+    elif [ -d $instdir/usr/lib/perl5/*/ ]; then
+        # FIXME: check if this is correct
+        package="Perl"
+    fi
+
+    if [ "$package" ]; then
+
+        $AWK '/^category:/ {
+                if ( match(line, name) > 0 )
+                {
+                    exit 0;
+                }
+
+                print;
+                print "--   [WARN] setup.hint category should include: " name
+                exit 0;
+            }
+
+        ' name="$package" $path  >&2
+    fi
 }
 
 function CygbuildCmdInstallCheckDirEmpty()
