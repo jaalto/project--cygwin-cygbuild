@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0926"
+CYGBUILD_VERSION="2007.1001.1035"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1040,16 +1040,23 @@ function CygbuildGrepCheck()
            > /dev/null 2>&1
 }
 
+function CygbuildChmodDo()
+{
+    local mode="$1"
+    shift
+
+    local file
+
+    for file in "$@"
+    do
+        [ -f "$file" ] || continue
+        chmod ugo+x $file || return $?
+    done
+}
+
 function CygbuildChmodExec()
 {
-    local bin
-
-    for bin in "$@"
-    do
-        if [ -f "$bin" ] && [ ! -x "$bin" ]; then
-            chmod +x $bin
-        fi
-    done
+    CygbuildChmodDo ugo+x "$@"
 }
 
 CygbuildCygcheckLibraryDepList ()
@@ -8080,9 +8087,16 @@ function CygbuildInstallFixMandir()
     $RMDIR $dir/usr/man
 }
 
+function CygbuildInstallFixPermissions()
+{
+    CygbuildChmodExec $(FIND $instdir -name "*.exe" 2> /dev/null)
+    CygbuildChmodDo 644 $(FIND $instdir/usr/share/man -type f 2> /dev/null)
+}
+
 function CygbuildInstallFixMain()
 {
     CygbuildInstallFixMandir
+    CygbuildInstallFixPermissions
 }
 
 function CygbuildInstallCygwinPartPostinstall()

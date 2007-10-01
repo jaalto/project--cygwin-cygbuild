@@ -14,6 +14,9 @@
 	cygbuild_opt_exclude_object_files: exclude *egg-info
 	(CygbuildPatchCheck): Adjusted regexp to check *.c files.
 	Display file name in message 'patch contains files'.
+	(CygbuildInstallFixPermissions): New.
+	(CygbuildChmodExec): Change +x to ugo+x.
+	(CygbuildChmodDo): New.
 
 2007-09-30  Jari Aalto  <jari.aalto@cante.net>
 
