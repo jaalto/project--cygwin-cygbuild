@@ -10,3 +10,5 @@ Features to work on (in order of priority; highest first):
 - Packaging from Version control checkout is *not* working.
   The plan was skepthed long time ago, but I have now new
   ideas waiting for it.
+
+- Use gpg-agent (if running) for querying passwords.
