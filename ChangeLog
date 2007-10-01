@@ -5,6 +5,8 @@
 	Correct for-loop to check only files.
 	(CygbuildCmdInstallCheckSetupHint): Correct variable name 'retval'.
 	Added 'category:' line check.
+	(CygbuildDefineGlobalCommands): Rewrote perl and python handling.
+	Define variables PERL_VERSION and PYTHON_VERSION.
 
 2007-09-30  Jari Aalto  <jari.aalto@cante.net>
 

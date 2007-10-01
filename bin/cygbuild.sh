@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0808"
+CYGBUILD_VERSION="2007.1001.0846"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2786,14 +2786,53 @@ function CygbuildDefineGlobalCommands()
 {
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local file=$CYGBUILD_CONFIG_PROGRAMS
+    local load
 
     if [ "$file" ] && [ -r $file ]; then
         CygbuildVerb "-- Reading configuration $file"
         if ! source $file ; then
             CygbuildDie "$id: [ERROR] Syntax error in $file"
         fi
-        return 0
+        load="loaded"
     fi
+
+    local tmp
+
+    if [ ! "$load" ]; then
+
+        CygbuildPathBinFast perl > $retval
+        [ -s $retval ] && tmp=$(< $retval)
+
+        if [ "$tmp" ]; then
+            PERL="$tmp"
+        fi
+
+        CygbuildPathBinFast python > $retval
+        [ -s $retval ] && tmp=$(< $retval)
+
+        if [ "$tmp" ]; then
+            PYTHON="$tmp"
+        fi
+
+    fi
+
+    if [ "$PERL" ]; then
+        PERL_VERSION=$(
+            $PERL --version |
+            ${AWK:-awk} '
+                /This is perl/ {
+                    ver = $4;
+                    sub("v", "", ver);
+                    print ver;
+                }
+            ')
+    fi
+
+    if [ "$PYTHON" ]; then
+        PYTHON_VERSION=$( $PYTHON -V 2>&1 | ${AWK:-awk} '{print $2}' )
+    fi
+
+    [ "$load" ] && return 0
 
     AWK=awk                             # global-def
     BASH=/bin/bash                      # global-def
@@ -2814,8 +2853,6 @@ function CygbuildDefineGlobalCommands()
     MKDIR=mkdir                         # global-def
     MV=mv                               # global-def
     PATCH=patch                         # global-def
-    PERL=perl                           # global-def
-    PYTHON=python                       # global-def
     RM=rm                               # global-def
     RMDIR=rmdir                         # global-def
     SED=sed                             # global-def
@@ -2823,7 +2860,7 @@ function CygbuildDefineGlobalCommands()
     TAR=tar                             # global-def
     TR=tr                               # global-def
     WGET=wget
-#    WHICH=which
+    WHICH=which
 }
 
 function CygbuildIsArchiveScript()
@@ -10541,6 +10578,8 @@ function Test ()
 
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
 
-CygbuildMain "$@"
-
+#CygbuildMain "$@"
+set -x
+CygbuildDefineGlobalCommands
+#CygbuildSetLDPATHpython
 # End of file
