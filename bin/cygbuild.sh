@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0858"
+CYGBUILD_VERSION="2007.1001.0903"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4809,7 +4809,7 @@ function CygbuildPatchApplyMaybe()
           list="$file $list"
         done
     else
-        list=$(ls $dir/*.patch)
+        list=$(ls $dir/*.patch 2> /dev/null)
     fi
 
     for file in $list
