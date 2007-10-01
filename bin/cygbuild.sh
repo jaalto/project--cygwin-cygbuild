@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0907"
+CYGBUILD_VERSION="2007.1001.0912"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7393,7 +7393,7 @@ function CygbuildSetLDPATHpython()
             export LD_RUN_PATH="$try"
         fi
 
-        CygbuildVerb "--    Added Python to paths " \
+        CygbuildVerb "-- [INFO] Added Python to paths " \
                  "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" \
                  "LD_RUN_PATH=$LD_RUN_PATH"
 
