@@ -6,7 +6,8 @@
 	(CygbuildCmdInstallCheckSetupHint): Correct variable name 'retval'.
 	Added 'category:' line check.
 	(CygbuildDefineGlobalCommands): Rewrote perl and python handling.
-	Define variables PERL_VERSION and PYTHON_VERSION.
+	Define variables PERL_VERSION, PYTHON_VERSION, PYTHON_LIBDIR.
+	(CygbuildSetLDPATHpython): Use PYTHON_LIBDIR.
 
 2007-09-30  Jari Aalto  <jari.aalto@cante.net>
 

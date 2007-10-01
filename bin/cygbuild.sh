@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1001.0846"
+CYGBUILD_VERSION="2007.1001.0858"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2804,20 +2804,20 @@ function CygbuildDefineGlobalCommands()
         [ -s $retval ] && tmp=$(< $retval)
 
         if [ "$tmp" ]; then
-            PERL="$tmp"
+            PERL="$tmp"                                     # global-def
         fi
 
         CygbuildPathBinFast python > $retval
         [ -s $retval ] && tmp=$(< $retval)
 
         if [ "$tmp" ]; then
-            PYTHON="$tmp"
+            PYTHON="$tmp"                                   # global-def
         fi
 
     fi
 
     if [ "$PERL" ]; then
-        PERL_VERSION=$(
+        PERL_VERSION=$(                                     # global-def
             $PERL --version |
             ${AWK:-awk} '
                 /This is perl/ {
@@ -2829,7 +2829,22 @@ function CygbuildDefineGlobalCommands()
     fi
 
     if [ "$PYTHON" ]; then
-        PYTHON_VERSION=$( $PYTHON -V 2>&1 | ${AWK:-awk} '{print $2}' )
+
+        PYTHON_VERSION=$(                                   # global-def
+            $PYTHON -V 2>&1 |
+            ${AWK:-awk} '{print $2}' )
+
+        local minor=$PYTHON_VERSION                         # global-def
+
+        if [[ "$minor" == *.*.* ]]; then                    # 2.5.1
+            minor=${minor%.*}
+        fi
+
+        local tmp=/usr/lib/python$minor
+
+        if [ -d $tmp ]; then
+            PYTHON_LIBDIR=$tmp/config   # global-def
+        fi
     fi
 
     [ "$load" ] && return 0
@@ -7360,9 +7375,11 @@ function CygbuildSetLDPATHpython()
 
     #  Make sure all paths are there
 
-    local try=$(cd /usr/lib/python2.*/config && pwd)
+    local try="$PYTHON_LIBDIR"
 
-    if  [ "$try" ] && [ -d "$try" ]; then
+    if  [ ! "$try" ]; then
+        CygbuildWarn "-- [WARN] $PYTHON library dir /usr/lib not defined"
+    elif [ -d "$try" ]; then
 
         if [ "$LD_LIBRARY_PATH" ]; then
             export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$try"   # global-def
@@ -10577,9 +10594,6 @@ function Test ()
 }
 
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
+CygbuildMain "$@"
 
-#CygbuildMain "$@"
-set -x
-CygbuildDefineGlobalCommands
-#CygbuildSetLDPATHpython
 # End of file
