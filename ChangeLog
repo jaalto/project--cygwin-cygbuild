@@ -5,6 +5,9 @@
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckReadme): Search
 	phrase 'Firstname Lastname'.
+	(CygbuildConfCC): Change variable $conf from srcdir to
+	builddir.
+	(CygbuildCmdConfMain): Handle autoreconf case better.
 
 2007-10-01  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1018.1459"
+CYGBUILD_VERSION="2007.1018.1555"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7141,7 +7141,7 @@ function CygbuildConfCC()
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
-    local conf=$srcdir/configure
+    local conf=$builddir/configure
     local envfile=$EXTRA_CONF_ENV_OPTIONS
     local userOptFile=$EXTRA_CONF_OPTIONS
 
@@ -7341,7 +7341,7 @@ function CygbuildCmdConfMain()
             CygbuildConfPerlMain
             status=$?
 
-        elif [ -x configure ]; then
+        elif [ -f configure ]; then
 
             CygbuildConfCC
             status=$?
@@ -7352,8 +7352,16 @@ function CygbuildCmdConfMain()
             #   after the previous one.
 
             echo "--   Running: make configure (auto detected; no ./configure)"
+
             $MAKE configure
             status=$?
+
+            #  If that generated the script, we must run it
+
+            if [ "$status" = "0" ] && [ -f configure ]; then
+                CygbuildConfCC
+                status=$?
+            fi
 
         elif [ -f Imakefile ]; then
 
