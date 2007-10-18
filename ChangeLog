@@ -8,6 +8,8 @@
 	(CygbuildConfCC): Change variable $conf from srcdir to
 	builddir.
 	(CygbuildCmdConfMain): Handle autoreconf case better.
+	(CygbuildBootVariablesGlobalMain): Add .git and
+	.darcs to CYGBUILD_SHADOW_TOPLEVEL_IGNORE.
 
 2007-10-01  Jari Aalto  <jari.aalto@cante.net>
 

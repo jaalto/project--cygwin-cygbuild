@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1018.1734"
+CYGBUILD_VERSION="2007.1018.1946"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -590,8 +590,8 @@ function CygbuildBootVariablesGlobalMain()
     #   This is egrep(1) match for files found in toplevel. Case sensitive.
 
     CYGBUILD_SHADOW_TOPLEVEL_IGNORE="\
-[.](build|s?inst)\
-|(CVS|RCS|MT|[.]svn|[.]bzr|[.]hg)$\
+[.](build|s?inst|tmp)\
+|(CVS|RCS|MT|[.](svn|bzr|hg|git|darcs))$\
 |[.]([oa]|exe|la|dll)$\
 "
 
