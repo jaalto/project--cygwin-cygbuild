@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.0920.1557';
+$VERSION = '2007.1018.1455';
 
 # ..................................................................
 
@@ -959,7 +959,7 @@ listing from built binary package.
 This line will be updated to reflect your name and email
 address (See ENVIRONMENT):
 
-    Cygwin port maintained by: <Your Name Here>  <Your email here>
+    Cygwin port maintained by: <Firstname Lastname>  <Your email here>
 
 You must update manually C<Build requirement>, but the dependencies line
 will be fixed:
