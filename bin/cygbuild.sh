@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1018.1555"
+CYGBUILD_VERSION="2007.1018.1734"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -114,7 +114,7 @@ CYGBUILD_NAME="cygbuild"
 
 #   Check correct shell and detect user mistakes like this:
 #
-#       sh ./our-file.sh
+#       sh ./program.sh
 #
 #   The following will succeed under bash, but will give error under sh
 
@@ -127,7 +127,7 @@ CYGBUILD_NAME="cygbuild"
 	prg="$0"
 
 	# If we did not find ourselves, most probably we were run as
-        # 'sh # COMMAND' in which case we are not to be found in the path.
+        # 'sh PROGRAM' in which case we are not to be found in the path.
 
 	if [ -f "$prg" ]; then
 	    [ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
