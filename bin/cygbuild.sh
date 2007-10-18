@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1018.1946"
+CYGBUILD_VERSION="2007.1018.1954"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2605,7 +2605,7 @@ function CygbuildTreeSymlinkCopy()
     fi
 
     #   lndir(1) cannot be used directly, because we are copying UNDER
-    #   the current directory (.build). It would cause recursive copying.
+    #   the current directory .build; it would cause recursive copying.
     #
     #   So, first copy top level manually, an then let lndir copy
     #   subdirectories.
@@ -2648,8 +2648,6 @@ function CygbuildTreeSymlinkCopy()
 
         for item in * .*
         do
-
-            #   Ignore these
 
             if echo $item |
                $EGREP --quiet "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
