@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "CYGBUILD 1"
-.TH CYGBUILD 1 "2007-09-14" "perl v5.8.8" "Cygwin source and binary packge build script"
+.TH CYGBUILD 1 "2007-10-18" "perl v5.8.8" "Cygwin source and binary packge build script"
 .SH "NAME"
 cygbuild \- Cygwin source and binary package build script
 .SH "SYNOPSIS"
@@ -1023,7 +1023,7 @@ This line will be updated to reflect your name and email
 address (See \s-1ENVIRONMENT\s0):
 .Sp
 .Vb 1
-\&    Cygwin port maintained by: <Your Name Here>  <Your email here>
+\&    Cygwin port maintained by: <Firstname Lastname>  <Your email here>
 .Ve
 .Sp
 You must update manually \f(CW\*(C`Build requirement\*(C'\fR, but the dependencies line
@@ -1707,9 +1707,9 @@ says \*(L"turn off internal check\*(R":
 \&    --exclude=cygbuild-ignore-autochecks
 .Ve
 .Sp
-To completely suppress all default cygbuild exclude options (like those of
-\&\f(CW\*(C`*.~, *# *.orig\*(C'\fR etc. files), and supply options manually, start the file
-with use this line:
+To completely suppress all default cygbuild exclude optionslike those
+of \f(CW\*(C`*.~, *# *.orig\*(C'\fR and other files), start the file with use this
+line:
 .Sp
 .Vb 1
 \&    --exclude=cygbuild-ignore-all-defaults
@@ -1722,7 +1722,7 @@ to use wildcards with short option names, like this:
 \&    -x *.tmp
 .Ve
 .Sp
-Please use the long version instead:
+Please use the long option notation instead:
 .Sp
 .Vb 1
 \&    --exclude=*.tmp
@@ -1937,8 +1937,20 @@ ignored. Comments must be palaced in separate lines.
 \&    --exclude=*README.vms
 .Ve
 .Sp
+.Vb 2
+\&    #  This is not a tar(1) option, but interpreted by cygbuild
+\&    --include=notes.txt
+.Ve
+.Sp
 .Vb 1
 \&    # End of file
+.Ve
+.Sp
+If this option is defined, the automatic detection of possible
+documentation directory and its installation is suppressed:
+.Sp
+.Vb 1
+\&    --exclude=cygbuild-no-docdir-install
 .Ve
 .IP "\fBmanualpage.pod\fR" 4
 .IX Item "manualpage.pod"
@@ -2017,7 +2029,7 @@ before installing the upgraded version).
 .IX Item "preremove-manifest.lst"
 If \fIpostinstall.sh\fR file copies any default setup files to \f(CW\*(C`/etc\*(C'\fR
 directory the absolute path names of files (one or many) must be listed
-here. See topic \fB\s-1CYGWIN\s0 \s-1PACKAGE\s0 \s-1POLICY\s0 NOTES::Using preremove.sh and
+here. See topic \fI\s-1CYGWIN\s0 \s-1PACKAGE\s0 \s-1POLICY\s0 NOTES::Using preremove.sh and
 postinstall.sh for upgrading /etc files\fR.
 .IP "\fBpreremove\-manifest\-from.lst\fR" 4
 .IX Item "preremove-manifest-from.lst"
@@ -2057,7 +2069,7 @@ upstream examples listed in <preremove\-manifest\-from.lst> which now can
 simply read:
 .Sp
 .Vb 1
-\&    #PKGDOCDIR/examples/foo.conf
+\&    $PKGDOCDIR/examples/foo.conf
 .Ve
 .Sp
 The special tag \f(CW\*(C`#PKGDOCDIR\*(C'\fR is just a shorthad pointer to the latest

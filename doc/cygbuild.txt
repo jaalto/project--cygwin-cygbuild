@@ -768,7 +768,7 @@ PACKAGE MAINTENANCE COMMANDS
             This line will be updated to reflect your name and email address
             (See ENVIRONMENT):
 
-                Cygwin port maintained by: <Your Name Here>  <Your email here>
+                Cygwin port maintained by: <Firstname Lastname>  <Your email here>
 
             You must update manually "Build requirement", but the
             dependencies line will be fixed:
@@ -1349,9 +1349,9 @@ OPTIONAL EXTERNAL FILES
 
                 --exclude=cygbuild-ignore-autochecks
 
-            To completely suppress all default cygbuild exclude options
-            (like those of "*.~, *# *.orig" etc. files), and supply options
-            manually, start the file with use this line:
+            To completely suppress all default cygbuild exclude optionslike
+            those of "*.~, *# *.orig" and other files), start the file with
+            use this line:
 
                 --exclude=cygbuild-ignore-all-defaults
 
@@ -1360,7 +1360,7 @@ OPTIONAL EXTERNAL FILES
 
                 -x *.tmp
 
-            Please use the long version instead:
+            Please use the long option notation instead:
 
                 --exclude=*.tmp
 
@@ -1553,7 +1553,15 @@ OPTIONAL EXTERNAL FILES
                 --exclude=*RISC*
                 --exclude=*README.vms
 
+                #  This is not a tar(1) option, but interpreted by cygbuild
+                --include=notes.txt
+
                 # End of file
+
+            If this option is defined, the automatic detection of possible
+            documentation directory and its installation is suppressed:
+
+                --exclude=cygbuild-no-docdir-install
 
         manualpage.pod
             In case package does not include manual page or pages for
@@ -1629,9 +1637,9 @@ OPTIONAL EXTERNAL FILES
         preremove-manifest.lst
             If *postinstall.sh* file copies any default setup files to
             "/etc" directory the absolute path names of files (one or many)
-            must be listed here. See topic CYGWIN PACKAGE POLICY
+            must be listed here. See topic *CYGWIN PACKAGE POLICY
             NOTES::Using preremove.sh and postinstall.sh for upgrading /etc
-            files.
+            files*.
 
         preremove-manifest-from.lst
             This file is used by *preremove.sh*. Contains list original
@@ -1664,7 +1672,7 @@ OPTIONAL EXTERNAL FILES
             been changed from the package's upstream examples listed in
             <preremove-manifest-from.lst> which now can simply read:
 
-                #PKGDOCDIR/examples/foo.conf
+                $PKGDOCDIR/examples/foo.conf
 
             The special tag "#PKGDOCDIR" is just a shorthad pointer to the
             latest documentation directory. If these two files do not

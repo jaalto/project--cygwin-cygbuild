@@ -1108,7 +1108,7 @@ address (See ENVIRONMENT):</p>
 </dd>
 <dd>
 <pre>
-    Cygwin port maintained by: &lt;Your Name Here&gt;  &lt;Your email here&gt;</pre>
+    Cygwin port maintained by: &lt;Firstname Lastname&gt;  &lt;Your email here&gt;</pre>
 </dd>
 <dd>
 <p>You must update manually <code>Build requirement</code>, but the dependencies line
@@ -1791,9 +1791,9 @@ says ``turn off internal check'':</p>
     --exclude=cygbuild-ignore-autochecks</pre>
 </dd>
 <dd>
-<p>To completely suppress all default cygbuild exclude options (like those of
-<code>*.~, *# *.orig</code> etc. files), and supply options manually, start the file
-with use this line:</p>
+<p>To completely suppress all default cygbuild exclude optionslike those
+of <code>*.~, *# *.orig</code> and other files), start the file with use this
+line:</p>
 </dd>
 <dd>
 <pre>
@@ -1808,7 +1808,7 @@ to use wildcards with short option names, like this:</p>
     -x *.tmp</pre>
 </dd>
 <dd>
-<p>Please use the long version instead:</p>
+<p>Please use the long option notation instead:</p>
 </dd>
 <dd>
 <pre>
@@ -2054,7 +2054,20 @@ ignored. Comments must be palaced in separate lines.</p>
 </dd>
 <dd>
 <pre>
+    #  This is not a tar(1) option, but interpreted by cygbuild
+    --include=notes.txt</pre>
+</dd>
+<dd>
+<pre>
     # End of file</pre>
+</dd>
+<dd>
+<p>If this option is defined, the automatic detection of possible
+documentation directory and its installation is suppressed:</p>
+</dd>
+<dd>
+<pre>
+    --exclude=cygbuild-no-docdir-install</pre>
 </dd>
 </li>
 <dt><strong><a name="item_manualpage_2epod"><strong>manualpage.pod</strong></a></strong>
@@ -2156,8 +2169,8 @@ before installing the upgraded version).</p>
 <dd>
 <p>If <em>postinstall.sh</em> file copies any default setup files to <code>/etc</code>
 directory the absolute path names of files (one or many) must be listed
-here. See topic <strong>CYGWIN PACKAGE POLICY NOTES::Using preremove.sh and
-postinstall.sh for upgrading /etc files</strong>.</p>
+here. See topic <em>CYGWIN PACKAGE POLICY NOTES::Using preremove.sh and
+postinstall.sh for upgrading /etc files</em>.</p>
 </dd>
 </li>
 <dt><strong><a name="item_preremove_2dmanifest_2dfrom_2elst"><strong>preremove-manifest-from.lst</strong></a></strong>
@@ -2204,7 +2217,7 @@ simply read:</p>
 </dd>
 <dd>
 <pre>
-    #PKGDOCDIR/examples/foo.conf</pre>
+    $PKGDOCDIR/examples/foo.conf</pre>
 </dd>
 <dd>
 <p>The special tag <code>#PKGDOCDIR</code> is just a shorthad pointer to the latest
