@@ -1,4 +1,4 @@
-# Copyright (C) YYY Your Name; Licenced under GPL v2 or later
+# Copyright (C) YYY Firstname Lastname; Licenced under GPL v2 or later
 #
 # Just before make(1) is about to be run, this file is sourced
 # CYGBUILD_CC="gcc"

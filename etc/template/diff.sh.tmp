@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) YYYY Your Name; Licenced under GPL v2 or later
+# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
 #
 # This file runs the diff(1) command to generate the patch agains original
 # source package. The script is called like this:
