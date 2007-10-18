@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1018.1452"
+CYGBUILD_VERSION="2007.1018.1459"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8407,7 +8407,7 @@ function CygbuildCmdInstallCheckReadme()
     #   It is easy to mistakenly forgot to fill in:
     #   Cygwin port maintained by: <Firstname Lastname>  <your email here>
 
-    local tags="(Your +name|Your +email)"
+    local tags="(Your +name|Your +email|Firname +Lastname)"
     local notes=""
 
     $EGREP --line-number --ignore-case --regexp="$tags" \

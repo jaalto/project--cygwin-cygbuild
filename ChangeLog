@@ -3,6 +3,9 @@
 	* etc/template/*: Change all 'Your Name' phrases to
 	'Firstname Lastname'.
 
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckReadme): Search
+	phrase 'Firstname Lastname'.
+
 2007-10-01  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckShellFiles):
