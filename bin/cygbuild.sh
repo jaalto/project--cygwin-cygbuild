@@ -9163,11 +9163,15 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
                 -o -name "RCS" \
                 -o -name "CVS" ')' -prune  \
     -o -type f \
+        '(' \
+        ! -name "*.tmp" \
+        ! -name "*[#~]*" \
+        ')' \
     |
     while read file
     do
         [[ "$file" == *.@(patch|diff|orig) ]] && continue
-        [ -f $file          ] || continue
+        [ -f $file ] || continue
 
         if $EGREP --line-number '[[:space:]]$' $file > $retval
         then

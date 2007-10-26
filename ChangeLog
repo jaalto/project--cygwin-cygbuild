@@ -4,6 +4,8 @@
 	Remove find(1) calls from if-statements. This fixes bug,
 	where function got stalled, because there was no files
 	to compress.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Ignore
+	*.tmp and *[#~] files from whitespace check.
 
 2007-10-18  Jari Aalto  <jari.aalto@cante.net>
 
