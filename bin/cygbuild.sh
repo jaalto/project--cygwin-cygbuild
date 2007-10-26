@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1026.1418"
+CYGBUILD_VERSION="2007.1026.1525"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8618,12 +8618,12 @@ function CygbuildCmdInstallCheckDirStructure()
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local pfx="$instdir$CYGBUILD_PREFIX"
 
-    local ok try
+    local error try
 
     for try in $instdir/bin $pfx/bin $pfx/sbin $pfx/lib
     do
         if [ -d "$try" ]; then
-            ok=1
+            error=1
             break
         fi
     done
@@ -8660,13 +8660,29 @@ function CygbuildCmdInstallCheckDirStructure()
 
                 CygbuildWarn "--   [ERROR] $file found." \
                              "Use /etc/defaults/etc and postinstall"
-                ok=0
+                error=1
                 break
             fi
         done
     fi
 
-    if [ ! "$ok" ]; then
+    if [ -d $instdir/user-share ]; then
+
+        local item
+
+        for item in $instdir/user-share/*
+        do
+            if [ -f "$item" ]; then
+                CygbuildWarn "--   [ERROR] Use subdir for file $item"
+                error=1
+            elif [ -h $item ]; then
+                CygbuildWarn "--   [NOTE] Symlink found: $item"
+            fi
+        done
+    fi
+
+
+    if [ ! "$error" ]; then
         CygbuildWarn "--   [ERROR] incorrect directory structure," \
              "$instdir contain no bin/ usr/bin, usr/sbin or usr/lib"
         return 1

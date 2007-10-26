@@ -8,6 +8,8 @@
 	*.tmp and *[#~] files from whitespace check.
 	(CygbuildMakefileRunInstall): If there is no Makefile,
 	Call CygbuildNoticeBuilddirMaybe() first.
+	(CygbuildCmdInstallCheckDirStructure): Added /use/share/
+	content check.
 
 2007-10-18  Jari Aalto  <jari.aalto@cante.net>
 
