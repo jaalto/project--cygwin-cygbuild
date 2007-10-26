@@ -8025,12 +8025,16 @@ function CygbuildInstallExtraManualCompress()
         echo "--   [WARN] Directory not found: $DIR_DOC_GENERAL"
     else
 
-        if $FIND $DIR_DOC_GENERAL -type f  > $retval
+        $FIND $DIR_DOC_GENERAL -type f  > $retval
+
+        if [ -s $retval ]
         then
             CygbuildCompress --force --best $(< $retval) || return $?
         fi
 
-        if $FIND $DIR_DOC_GENERAL -type l -name "*.[1-9]" > $retval
+        $FIND $DIR_DOC_GENERAL -type l -name "*.[1-9]" > $retval
+
+        if [ -s $retval ]
         then
             for file in $(< $retval)
             do

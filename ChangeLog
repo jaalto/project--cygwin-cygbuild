@@ -1,3 +1,10 @@
+2007-10-26  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallExtraManualCompress):
+	Remove find(1) calls from if-statements. This fixes bug,
+	where function got stalled, because there was no files
+	to compress.
+
 2007-10-18  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/*: Change all 'Your Name' phrases to
