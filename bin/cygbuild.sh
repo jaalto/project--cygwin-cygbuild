@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1018.1954"
+CYGBUILD_VERSION="2007.1026.1418"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6200,7 +6200,7 @@ function CygbuildMakefileRunInstall()
 
         return $status
 
-    elif [ -f "$makefile" ]; then
+    elif [ "$makefile" ] && [ -f "$makefile" ]; then
 
         #   DESTDIR is standard GNU ./configure macro,
         #   which points to root of install.
@@ -6243,6 +6243,7 @@ function CygbuildMakefileRunInstall()
 
     else
 
+        CygbuildNoticeBuilddirMaybe ||
         CygbuildWarn "--     [WARN] There is no Makefile." \
              "Did you forget to run [configure]?"
 
