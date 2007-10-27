@@ -89,6 +89,6 @@ install-man:
 	$(INSTALL_BIN) -d $(MANDIR1)
 	$(INSTALL_DATA) $(INSTALL_OBJS_MAN1) $(MANDIR1)
 
-install: $(PACKAGE) install-bin install-man
+install: all install-bin install-man
 
 # End of file
