@@ -63,11 +63,8 @@ Files included in the binary distribution:
 
 Port Notes:
 
------ version <newer VER> -----
-Other information
-
 ----- version <VER>-<REL> -----
-Initial release
+- Initial release YYY-MM-DD Firstname Lastname
 
 Cygwin port maintained by: <Firstname Lastname> <Your email here>
 Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later

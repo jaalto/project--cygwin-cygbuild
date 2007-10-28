@@ -62,7 +62,7 @@ ASM_FLAGS	=
 
 all: $(PACKAGE)
 
-$(EXE): $(SRCS)
+$(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
 .asm.o: $(ASM_OBJS)

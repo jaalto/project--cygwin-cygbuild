@@ -1,7 +1,13 @@
+2007-10-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/package.README: Remove 'Other version' tag
+	from the end.
+
 2007-10-27  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/Makefile.tmp (install): Replace
 	$(PACKAGE) target with 'all'.
+	(EXE): Fix rule to use $OBJS, not $SRCS
 
 2007-10-26  Jari Aalto  <jari.aalto@cante.net>
 
