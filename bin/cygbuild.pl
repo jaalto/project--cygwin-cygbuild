@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1018.1455';
+$VERSION = '2007.1029.0434';
 
 # ..................................................................
 
@@ -2634,12 +2634,12 @@ sub Version ($)
 
     $debug > 2  and  warn "$id: substitute 3 [$_]\n";
 
-    my $ret = $1 if /-(\d+\..+|\d+)$/;
+    my $ret = $1 if /-v?(\d+\..+|\d+)$/i;
 
     unless ( $ret )
     {
         # Exotic version like foo-R31b
-        my @words = split '[-_]';
+        my @words = split '[-_][vV]?';
         $ret = $words[-1];
     }
 
@@ -4799,12 +4799,19 @@ sub Main (;@)
     }
 }
 
+sub Test ()
+{
+    $debug = 10;
+    my $a;
+    # $a = "remake-3.80+dbg-0.61.tar.gz";
+    $a = "foo_V22.1";
+    print "[Version] ", Version $a, " [Package] ", Package $a, "\n";
+}
+
+# Test; die;
+
 #   Interactive call from command line contains parameters
 #   like in "cygbuild.pl help --man"
-
-#$debug = 10;
-#$a = "remake-3.80+dbg-0.61.tar.gz";
-#print Version $a, "\n", Package $a, "\n";
 
 @ARGV  and  Main @ARGV;
 
