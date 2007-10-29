@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1029.0428"
+CYGBUILD_VERSION="2007.1029.0450"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1445,7 +1445,8 @@ function CygbuildVersionInfo()
             $rel = $2;
         }
 
-        @a = (/^(.+)[-_]v?(.*\d.*)/i);
+        @a = /^(.+)[-_]v?([\d.]+[_-]?rc.*)/i;
+        @a = /^(.+)[-_]v?(.*\d.*)/i unless @a;
 
         if ( @a )
         {
@@ -10633,13 +10634,16 @@ function Test ()
     set -x
 
     local tmp=$1
-    # annoyance-filter-R1.0d
+    # tmp=annoyance-filter-R1.0d
+    # tmp=xterm-229
+    # tmp=remake-3.80+dbg-0.61.tar.gz
 
     CygbuildVersionInfo $tmp
 #    CygbuildStrPackage $tmp
 }
 
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
+#Test findbugs-1.3.0-rc1.tar.gz
 
 CygbuildMain "$@"
 

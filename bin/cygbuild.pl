@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1029.0434';
+$VERSION = '2007.1029.0453';
 
 # ..................................................................
 
@@ -2636,6 +2636,11 @@ sub Version ($)
 
     my $ret = $1 if /-v?(\d+\..+|\d+)$/i;
 
+    if ( not $ret  and  /^.+[-_]v?([\d.]+[_-]?rc.*)/i )
+    {
+        $ret = $1;
+    }
+
     unless ( $ret )
     {
         # Exotic version like foo-R31b
@@ -4804,7 +4809,8 @@ sub Test ()
     $debug = 10;
     my $a;
     # $a = "remake-3.80+dbg-0.61.tar.gz";
-    $a = "foo_V22.1";
+    # $a = "foo_V22.1";
+    $a = "foo-bar-1.1-rc1";
     print "[Version] ", Version $a, " [Package] ", Package $a, "\n";
 }
 

@@ -1,9 +1,9 @@
 2007-10-29  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildVersionInfo): Add support for
-	'foo_V1.1" tokens.
+	foo_V1.1, foo-1.1-rc1
 	* bin/cygbuild.pl (Version): Add support for
-	'foo_V1.1" tokens.
+	foo_V1.1, foo-1.1-rc1
 
 2007-10-28  Jari Aalto  <jari.aalto@cante.net>
 
