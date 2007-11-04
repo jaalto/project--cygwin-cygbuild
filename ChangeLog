@@ -1,3 +1,8 @@
+2007-11-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckSetupHint):
+	Add check for finding double quotes from ldesc: portion.
+
 2007-10-29  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildVersionInfo): Add support for

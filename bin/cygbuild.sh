@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1029.0450"
+CYGBUILD_VERSION="2007.1104.2114"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8552,6 +8552,22 @@ function CygbuildCmdInstallCheckSetupHint()
 
     ' name="$re" $path  >&2
 
+    #  The ldesc: itself is already in double quotes, so there must be
+    #  no extra quotes inside.
+
+    $AWK '/^ldesc:/,/^category:/ {
+            if ( match($0, /\"./) > 0 )
+            {
+                print;
+                print "--   [ERROR] ldesc: extra quotes: " $0
+                exit 1;
+            }
+        }
+
+    ' $path  >&2
+
+    status=$?
+
     #  Installed files are here. We assume that developer always has
     #  every package and library installed
 
@@ -8594,6 +8610,8 @@ function CygbuildCmdInstallCheckSetupHint()
 
         ' name="$package" $path  >&2
     fi
+
+    return $status
 }
 
 function CygbuildCmdInstallCheckDirEmpty()
