@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1104.2114"
+CYGBUILD_VERSION="2007.1106.1516"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8556,6 +8556,9 @@ function CygbuildCmdInstallCheckSetupHint()
     #  no extra quotes inside.
 
     $AWK '/^ldesc:/,/^category:/ {
+
+            gsub("ldesc: *\"","");
+
             if ( match($0, /\"./) > 0 )
             {
                 print;
