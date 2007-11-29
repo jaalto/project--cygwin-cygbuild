@@ -14,7 +14,7 @@ set -e
 
 Environment()
 {
-    #  Define variables to the rest of the script
+    #  Define variables for the rest of the script
 
     [ "$1" ] && dest="$1"        # install destination
 
@@ -65,7 +65,7 @@ Run ()
 
 InstallConffiles ()
 {
-    [ ! -f $conffiles_to ] && return
+    [ ! -f "$conffiles_to" ] && return
 
     #  Install default configuration files for system wide
 
@@ -78,12 +78,12 @@ InstallConffiles ()
         exit 1
     fi
 
-    [ ! -f $conffiles_from ] && return
-    [ ! -f $conffiles_to   ] && return
+    [ ! -f "$conffiles_from" ] && return
+    [ ! -f "$conffiles_to"   ] && return
 
-    tmpprefix=${TEMPDIR:-/tmp}/tmp$$
-    from=$tmpprefix.from
-    to=$tmpprefix.to
+    tmpprefix="${TEMPDIR:-/tmp}/tmp$$"
+    from="$tmpprefix.from"
+    to="$tmpprefix.to"
 
     #  Filter out all comments. Grep only lines with filenames
 
@@ -98,7 +98,7 @@ InstallConffiles ()
             to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
 
             #  Install only if not already there
-            [ ! -f $to ] && Run install -m 0644 $from $to
+            [ ! -f "$to" ] && Run install -m 0644 $from $to
         done
     }
 
@@ -107,9 +107,9 @@ InstallConffiles ()
 
 InstalInfo()
 {
-    cd $infodir || return $?
+    cd "$infodir" || return $?
 
-    central=$infodir/dir
+    central="$infodir/dir"
 
     # -- This part is optional --
 
@@ -124,7 +124,7 @@ InstalInfo()
 
     for file in $infodir/$package*.info
     do
-        [ ! -f $file ] && continue      # ls failed, no info files
+        [ ! -f "$file" ] && continue      # ls failed, no info files
 
         Run install-info --dir-file="$central" $file
     done
