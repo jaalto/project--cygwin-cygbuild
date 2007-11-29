@@ -122,11 +122,11 @@ InstalInfo()
 
     # text="* $package: ($package). One line description here" #!! CHANGE
 
-    for file in $(ls $infodir/$package*.info)
+    for file in $infodir/$package*.info
     do
         [ ! -f $file ] && continue      # ls failed, no info files
 
-        Run install-info --dir-file=$central $file
+        Run install-info --dir-file="$central" $file
     done
 }
 
