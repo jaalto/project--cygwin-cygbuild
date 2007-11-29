@@ -124,7 +124,7 @@ InstalInfo()
 
     for file in $infodir/$package*.info
     do
-        [ ! -f "$file" ] && continue      # ls failed, no info files
+        [ ! -f "$file" ] && continue
 
         Run install-info --dir-file="$central" $file
     done
