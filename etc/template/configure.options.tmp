@@ -1,5 +1,3 @@
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
-#
 # When ./confgure is being run, options listed here are appended
 # after default Cygwin option set.
 

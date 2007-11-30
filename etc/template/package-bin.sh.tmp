@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/sh
 # Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
 #
 # package-bin.sh -- Custom configure script
