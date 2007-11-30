@@ -1,6 +1,18 @@
+2007-11-30  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildBootVariablesGlobalMain):
+	CYGBUILD_DIFF_OPTIONS: Ignore config.status.
+	(CygbuildCommandMain): Add alias 'pchk' as 'patch-check'.
+
+2007-11-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/postinstall.sh.tmp (InstalInfo): Added quotes
+	and removed extra $(ls ...) call. Not neeed in for-loop.
+
 2007-11-06  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/cygbuild.sh:(CygbuildCmdInstallCheckSetupHint):
+	* bin/cygbuild.sh:(CygbuildCmdInstallCheckSetupHintx):
 	Improve ldesc: double quote check.
 
 2007-11-04  Jari Aalto  <jari.aalto@cante.net>

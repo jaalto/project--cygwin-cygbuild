@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1106.1516"
+CYGBUILD_VERSION="2007.1130.1608"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -829,6 +829,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.Tpo \
      --exclude=*.Po \
      --exclude=config.cache \
+     --exclude=config.status \
      --exclude=config.log \
      --exclude=*.cache \
      $cygbuild_opt_exclude_archive_files \
@@ -10515,7 +10516,7 @@ function CygbuildCommandMain()
                                 status=$?
                                 ;;
 
-          patch-check)          verbose="verbose" CygbuildPatchCheck
+          patch-check|pchk)     verbose="verbose" CygbuildPatchCheck
                                 CygbuildPatchListDisplay
                                 status=$?
                                 ;;
