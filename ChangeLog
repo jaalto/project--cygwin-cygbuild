@@ -1,9 +1,20 @@
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/template/install.tar.options.tmp: Remove Copyright
+	template.
+
+	* etc/template/upstream.perl-webget: Remove Copyright
+	template.
+
+	* etc/template/setup.hint: Adjust comments
+
 	* bin/cygbuild.sh:
 	(CygbuildBootVariablesGlobalMain):
 	CYGBUILD_DIFF_OPTIONS: Ignore config.status.
 	(CygbuildCommandMain): Add alias 'pchk' as 'patch-check'.
+	(CygbuildCmdInstallCheckSetupHint):
+	Fix 'setup.hint category should include...'. The
+	awk variable 'line' was replaced with correct '$0'.
 
 2007-11-29  Jari Aalto  <jari.aalto@cante.net>
 

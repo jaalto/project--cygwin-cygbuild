@@ -1,5 +1,3 @@
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
-#
 # This file contains extra options when files from doc/
 # are installed. The options are given one option per line.
 #

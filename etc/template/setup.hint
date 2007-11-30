@@ -1,5 +1,6 @@
 # See http://cygwin.com/setup.html   The 'category' can be:
-# Admin Archive Audio Base Database Devel Doc Editors Games Gnome Graphics Interpreters
+# Admin Archive Audio Base Database Devel Doc Editors
+# Games Gnome Graphics Interpreters
 # Libs Mail Math Net Science Security Shells System Text Utils Web X11
 sdesc: ""
 ldesc: ""
