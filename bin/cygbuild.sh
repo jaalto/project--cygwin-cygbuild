@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1130.1608"
+CYGBUILD_VERSION="2007.1130.1650"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8599,10 +8599,11 @@ function CygbuildCmdInstallCheckSetupHint()
         package="Perl"
     fi
 
+set -x
     if [ "$package" ]; then
 
         $AWK '/^category:/ {
-                if ( match(line, name) > 0 )
+                if ( match($0, name) > 0 )
                 {
                     exit 0;
                 }
@@ -8615,6 +8616,7 @@ function CygbuildCmdInstallCheckSetupHint()
         ' name="$package" $path  >&2
     fi
 
+exit 444
     return $status
 }
 
