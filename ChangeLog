@@ -21,6 +21,7 @@
 	(CygbuildInstallFixPermissions): Wrong syntax FIND => $FIND
 	(CygbuildMakeRunInstallFixPerl): Impre error checking of
 	perllocal.pod
+	(CygbuildMakeRunInstallFixPerlManpage): New.
 
 2007-11-29  Jari Aalto  <jari.aalto@cante.net>
 

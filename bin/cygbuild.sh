@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1130.1928"
+CYGBUILD_VERSION="2007.1130.2132"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -888,7 +888,7 @@ function CygbuildBootFunctionExport()
     #   and refer to these functions
 
     export -f CygbuildCmdPrepPatch
-    export -f CygbuildMakeRunInstallFixPerl
+    export -f CygbuildMakeRunInstallFixPerlMain
     export -f CygbuildPostinstallWrite
     export -f CygbuildVersionInfo
     export -f CygbuildDetermineReadmeFile
@@ -1023,7 +1023,7 @@ function CygbuildFileDaysOld ()
     local file="$1"
 
     if [ -f "$file" ]; then
-        echo -n $file | LC_ALL=C $PERL -ane "print -M"
+        echo -n $file | $PERL -ane "print -M"
     else
         return 1
     fi
@@ -1429,7 +1429,7 @@ function CygbuildVersionInfo()
     #       /usr/src/build/neon/foo-NN.NN/.build/tmp/verify
     #
 
-    echo -n "$str" | LC_ALL=C $PERL -e \
+    echo -n "$str" | $PERL -e \
     '
         $_  = <>;
         s,.+/,,;
@@ -2502,8 +2502,7 @@ function CygbuildMoveToTempDir()
 
     CygbuildPushd
         cd $dir &&
-        $MV $(LC_ALL=C $LS |
-              $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
+        $MV $($LS | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
     CygbuildPopd
 
     echo $temp
@@ -5732,13 +5731,10 @@ function CygbuildPerlPodModule()
     fi
 }
 
-function CygbuildMakeRunInstallFixPerl()
+function CygbuildMakeRunInstallFixPerlPostinstall()
 {
     local id="$0.$FUNCNAME"
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local module="$1"
 
     if [ ! "$module" ]; then
         return 1
@@ -5800,6 +5796,71 @@ fi
         CygbuildPostinstallWrite "$commands" || return $?
 
     done
+}
+
+function CygbuildPod2man()
+{
+    local file="$1"
+    local mansect=${2:-1}
+
+    local package=${file##*/}
+    local package=${package%.*}
+
+    local podcenter=$(date "+%Y-%m-%d")
+
+    local mandir="$instdir/usr/share/man"
+    local destdir="$mandir/man$mansect"
+    local manpage="$destdir/$package.$mansect"
+
+    mkdir -p $destdir
+
+    pod2man --center="$podcenter" \
+            --name="$package" \
+            --section="$mansect" \
+            $file \
+    | sed "s,[Pp]erl v[0-9.]\+,$package," > $manpage &&
+    rm -f pod*.tmp
+}
+
+function CygbuildMakeRunInstallFixPerlManpage()
+{
+    local id="$0.$FUNCNAME"
+
+    local bindir="$instdir/usr/bin"
+
+    [ -d $bindir ] || return 0
+
+    if [ -d $mandir ] ; then
+        if $LS $mandir | $EGREP --quiet '\.[0-9]' ; then
+            #  Manual pages already exists
+            return 0
+        fi
+    fi
+
+    #  See of we can use POD section to generate manuals
+
+    local file
+
+    for file in $bindir/*
+    do
+        echo "--   [NOTE] Making POD manpage from ${file/$srcdir\/}"
+        CygbuildPod2man "$file"
+    done
+}
+
+function CygbuildMakeRunInstallFixPerlMain()
+{
+    local id="$0.$FUNCNAME"
+
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    CygbuildPerlModuleLocation  > $retval
+    local module=$(< $retval)
+
+    if [ "$module" ]; then
+        CygbuildMakeRunInstallFixPerlPostinstall "$module"
+    fi
+
+    CygbuildMakeRunInstallFixPerlManpage
 }
 
 function CygbuildMakefilePrefixCheck()
@@ -6198,7 +6259,7 @@ function CygbuildMakefileRunInstall()
         CygbuildPushd
             cd $builddir || exit 1
             CygbuildMakefileRunInstallCygwinOptions &&
-            CygbuildMakeRunInstallFixPerl           &&
+            CygbuildMakeRunInstallFixPerlMain       &&
             CygbuildInstallCygwinPartPostinstall
             status=$?
         CygbuildPopd
@@ -8610,7 +8671,7 @@ function CygbuildCmdInstallCheckSetupHint()
 
     if [ -d $instdir/usr/lib/python*/ ]; then
         package="Python"
-    elif [ -d $instdir/usr/lib/perl5/*/ ]; then
+    elif [ -d $instdir/usr/lib/perl5/ ]; then
         # FIXME: check if this is correct
         package="Perl"
     fi
