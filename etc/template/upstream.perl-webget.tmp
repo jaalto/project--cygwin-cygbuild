@@ -2,5 +2,5 @@
 # tag1: msmtp
 #  http://prdownloads.sourceforge.net/foo/foo-1.4.5.tar.bz2 mirror:mesh page: new: x:
 
-tag1: program
-  http://program.example.com/download pregexp:tar.gz file:program-0.1.1.tar.gz new: x:
+tag1: package
+  new: x: http://example.com/page pregexp:tar.gz file:program-0.1.1.tar.gz
