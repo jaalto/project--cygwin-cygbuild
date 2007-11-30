@@ -15,6 +15,12 @@
 	(CygbuildCmdInstallCheckSetupHint):
 	Fix 'setup.hint category should include...'. The
 	awk variable 'line' was replaced with correct '$0'.
+	(CygbuildConfPerlMain):
+	Read user options from CYGWIN-PATCHES/configure.options.
+	Add INSTALLDIRS=vendor and set correct PREFIX=/usr
+	(CygbuildInstallFixPermissions): Wrong syntax FIND => $FIND
+	(CygbuildMakeRunInstallFixPerl): Impre error checking of
+	perllocal.pod
 
 2007-11-29  Jari Aalto  <jari.aalto@cante.net>
 

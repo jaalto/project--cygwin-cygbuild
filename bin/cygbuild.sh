@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1130.1650"
+CYGBUILD_VERSION="2007.1130.1928"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5752,7 +5752,10 @@ function CygbuildMakeRunInstallFixPerl()
     #
     #  and upon unpack it would replace the existing file. Tackle that.
 
-    if ! $FIND $instdir -name perllocal.pod > $retval ; then
+    $FIND "$instdir" -name perllocal.pod > $retval
+
+    if [ ! -s $retval ]; then
+        CygbuildVerb "$id: [NOTE] perllocal.pod not found?"
         return
     fi
 
@@ -5765,7 +5768,7 @@ function CygbuildMakeRunInstallFixPerl()
         local modulename=$(< $retval)
 
         if [ ! "$modulename" ]; then
-            CygbuildWarn "--    [WARN] Couldn't find Perl module name $file"
+            CygbuildWarn "--   [WARN] Couldn't find Perl module name $file"
             return 1
         fi
 
@@ -5778,7 +5781,7 @@ function CygbuildMakeRunInstallFixPerl()
         local from="$realdir/$name$ext"
         local to="$realdir/$name"
 
-        echo "--    Perl install fix: $realdir/$name$ext"
+        echo "--   Perl install fix: $realdir/$name$ext"
 
         local commands="
 $commands
@@ -7262,20 +7265,33 @@ EOF
 function CygbuildConfPerlMain()
 {
     local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
     local conf="$srcdir/Makefile.PL"
+    local userOptFile=$EXTRA_CONF_OPTIONS
     local status=0
 
-    #   Not good, Perl make Maker is broken. User cannot control PREFIX.
-    #   See message http://www.makemaker.org/drafts/prefixification.txt
-
     if [ -f "$conf" ]; then
-        echo "--   Running: perl Makefile.PL PREFIX=$instdir/usr"
+        CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
+        local userOptExtra=$(< $retval)
 
-        local _prefix=$instdir/usr
+        local _prefix="/usr"
+
+        echo "--   Running: perl Makefile.PL" \
+             "INSTALLDIRS=vendor PREFIX=$_prefix" \
+             "SITEPREFIX=$_prefix $userOptExtra"
 
         CygbuildPushd
             cd $builddir || exit 1
-            $PERL Makefile.PL # PREFIX=$_prefix SITEPREFIX=$_prefix
+
+            #   See http://www.makemaker.org/drafts/prefixification.txt
+
+            $PERL Makefile.PL           \
+                  INSTALLDIRS=vendor    \
+                  PREFIX="$_prefix"     \
+                  SITEPREFIX="$_prefix" \
+                  $userOptExtra
+
             status=$?
         CygbuildPopd
 
@@ -7468,7 +7484,7 @@ function CygbuildCmdBuildStdMakefile()
                  "You may need to write custom script build.sh" \
                  "(remember to run 'reshadow' after changes)"
 
-            status=17  # Just random number
+            status="17"  # Just random number
 
         else
 
@@ -8102,8 +8118,8 @@ function CygbuildInstallFixMandir()
 
 function CygbuildInstallFixPermissions()
 {
-    CygbuildChmodExec $(FIND $instdir -name "*.exe" 2> /dev/null)
-    CygbuildChmodDo 644 $(FIND $instdir/usr/share/man -type f 2> /dev/null)
+    CygbuildChmodExec   $( $FIND $instdir -name "*.exe" 2> /dev/null)
+    CygbuildChmodDo 644 $( $FIND $instdir/usr/share/man -type f 2> /dev/null)
 }
 
 function CygbuildInstallFixMain()
@@ -8123,7 +8139,7 @@ function CygbuildInstallCygwinPartPostinstall()
         local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
         local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
 
-        local tofile=$dest/$PKG.sh
+        local tofile="$dest/$PKG.sh"
 
         echo "--   Installing [Cygwin] postinstall script to dir $tofile"
 
@@ -8599,7 +8615,6 @@ function CygbuildCmdInstallCheckSetupHint()
         package="Perl"
     fi
 
-set -x
     if [ "$package" ]; then
 
         $AWK '/^category:/ {
@@ -8616,7 +8631,6 @@ set -x
         ' name="$package" $path  >&2
     fi
 
-exit 444
     return $status
 }
 
