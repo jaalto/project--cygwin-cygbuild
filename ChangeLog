@@ -25,6 +25,7 @@
 	(CygbuildRunIfExist): New.
 	(CygbuildPatchDiffstat): New.
 	(CygbuildGPGsignFiles): Display relative filename
+	(CygbuildGPGsignFiles): Adjust output messages.
 
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 

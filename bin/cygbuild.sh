@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.2002"
+CYGBUILD_VERSION="2007.1202.2028"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3856,10 +3856,11 @@ function CygbuildGPGverify()
     #   but .sig extension removed.
 
     local id="$0.$FUNCNAME"
+    local tmp=$CYGBUILD_RETVAL.$FUNCNAME
+
     local quiet="$1"
     shift
 
-    local tmp=$CYGBUILD_RETVAL.$FUNCNAME
     local status=0
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local file
@@ -3899,6 +3900,7 @@ function CygbuildGPGverify()
 function CygbuildGPGsignFiles()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local signkey="$1"
     local passphrase="$2"
@@ -3931,32 +3933,44 @@ function CygbuildGPGsignFiles()
 
             echo "$passphrase" |                            \
             $GPG                                            \
+                --verbose                                   \
+                --no-tty                                    \
+                --batch                                     \
                 --passphrase-fd 0                           \
                 --detach-sign                               \
                 --armor                                     \
                 --local-user    "$signkey"                  \
                 --output        $sigfile                    \
                 --comment "GPG signature of $name ($time)"  \
-                $file
+                $file > $retval 2>&1
 
                 status=$?
+
         else
 
             $GPG                                            \
+                --no-batch                                  \
                 --detach-sign                               \
                 --armor                                     \
                 --local-user    "$signkey"                  \
                 --output        $sigfile                    \
                 --comment "GPG signature of $name ($time)"  \
-                $file
+                $file > $retval 2>&1
 
                 status=$?
         fi
 
+        local display=
+
+        [ "$verbose" ] && display="display"
+
         if [ "$status" != "0" ]; then
             STATUS=$status
             CygbuildWarn "-- [ERROR] signing failed: ${file##*/}"
+            display="display"
         fi
+
+        [ "$display" ] && cat $retval
 
     done
 
@@ -4888,7 +4902,7 @@ function CygbuildPatchApplyMaybe()
             local msg="Unpatching"
             [ "$cmd" = "patch" ] && msg="Patching"
 
-            echo "-- $msg with" $name
+            CygbuildVerb "-- $msg with" $name
         fi
 
         CygbuildPatchApplyRun "$file" $opt ||
@@ -8145,7 +8159,7 @@ function CygbuildInstallExtraManualCompress()
 
     local DIR_DOC_GENERAL=$instdir/$CYGBUILD_MANDIR_FULL
 
-    echo "-- Compressing manual pages"
+    CygbuildVerb "-- Compressing manual pages"
 
     if [ ! -d "$DIR_DOC_GENERAL" ]; then
         echo "-- [WARN] Directory not found: $DIR_DOC_GENERAL"
@@ -9537,7 +9551,7 @@ function CygbuildCmdInstallMain()
 
                 #   Other terminal is in this directory, so this might fail.
 
-                echo "-- Emptying" ${dir/$srcdir\/}
+                CygbuildVerb "-- Emptying" ${dir/$srcdir\/}
 
                 $RM -rf $dir/*
 
@@ -9580,7 +9594,7 @@ function CygbuildCmdInstallMain()
             fi
 
         else
-            echo "-- Running install to" ${instdir/$srcdir\/}
+            CygbuildVerb "-- Running install to" ${instdir/$srcdir\/}
 
             CygbuildMakefileRunInstall ||
             {
