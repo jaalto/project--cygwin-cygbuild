@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.1621"
+CYGBUILD_VERSION="2007.1202.1627"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -792,7 +792,7 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_object_files \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
-     $cygbuild_opt_exclude_other= \
+     $cygbuild_opt_exclude_other \
     "
 
     #   What files to ignore while running CygbuildInstallPackageDocs
