@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.1627"
+CYGBUILD_VERSION="2007.1202.1724"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6552,6 +6552,32 @@ function CygbuildPatchListDisplay()
         cat $file | sed "s,^,$DIR_CYGPATCH_RELATIVE/,"
     fi
 }
+function CygbuildPatchDiffstat()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local file="$1"
+
+    if [ ! "$file" ]; then
+        CygbuildWarn "$id: Missing argument FILE"
+        return 1
+    fi
+
+    CygbuildWhichCheck diffstat || return 0
+
+    local check="$file"
+
+    #  We're not interested in CYGWIN-PATCHES/
+
+    if CygbuildWhichCheck filterdiff ; then
+        $EGREP -v "^diff " $file |
+        filterdiff -x "*$DIR_CYGPATCH_RELATIVE*" > $retval.diff
+
+        check="$retval.diff"
+    fi
+
+    [ -s "$check" ] && diffstat "$check"
+}
 
 function CygbuildPatchCheck()
 {
@@ -6566,24 +6592,7 @@ function CygbuildPatchCheck()
             $AWK '/^\+\+\+ / { print "     " $2}' $file
         fi
 
-        if CygbuildWhichCheck diffstat ; then
-            local check="$file"
-
-            #  We're not interested in CYGWIN-PATCHES/
-
-            if CygbuildWhichCheck filterdiff ; then
-                $EGREP -v "^diff " $file |
-                filterdiff -x "*$DIR_CYGPATCH_RELATIVE*" > $retval.diff
-
-                check="$retval.diff"
-            fi
-
-            if [ -s "$check" ]; then
-                diffstat $check
-            fi
-        fi
-
-        CygbuildRunIfExist diffstat $file | $SED 's/^/    /'
+        CygbuildPatchDiffstat "$file"
 
         #  Seldom anyone makes changes in C-code or headers
         #  files. Let user audit these changes.

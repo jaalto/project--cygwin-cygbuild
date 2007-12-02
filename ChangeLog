@@ -21,6 +21,7 @@
 	`cygbuild_opt_exclude_auto_files'.
 	(CygbuildWhichCheck); New.
 	(CygbuildRunIfExist): New.
+	(CygbuildPatchDiffstat): New.
 
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 
