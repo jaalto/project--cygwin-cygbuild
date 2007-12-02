@@ -1,3 +1,13 @@
+2007-12-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles):
+	Check 1st line Perl and Python interpreter correctness.
+	(CygbuildInstallFixInterpreterPerl): New.
+	(CygbuildInstallFixInterpreterPython): New
+	(CygbuildInstallFixInterpreterMain): New
+	(CygbuildInstallFixMain): Use
+	`CygbuildInstallFixInterpreterMain'.
+
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/install.tar.options.tmp: Remove Copyright

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1130.2132"
+CYGBUILD_VERSION="2007.1202.0048"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5832,8 +5832,7 @@ function CygbuildMakeRunInstallFixPerlManpage()
 
     if [ -d $mandir ] ; then
         if $LS $mandir | $EGREP --quiet '\.[0-9]' ; then
-            #  Manual pages already exists
-            return 0
+            return 0        #  Manual pages already exists
         fi
     fi
 
@@ -8183,8 +8182,80 @@ function CygbuildInstallFixPermissions()
     CygbuildChmodDo 644 $( $FIND $instdir/usr/share/man -type f 2> /dev/null)
 }
 
+function CygbuildInstallFixInterpreterPerl ()
+{
+    local id="$0.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ] || [ ! -f "$file" ] ; then
+        CygbuildWarn "$id: No such file $file"
+        return 1
+    fi
+
+    #  Clean also line:
+    #
+    #    eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    #      if 0; # not running under some shell
+
+    $SED -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,' \
+         -e '/.*eval.*exec.*bin\/perl.*/d' \
+         -e '/.*not running under some shell/d' \
+         $file > $file.tmp &&
+    $MV --force $file.tmp $file
+}
+
+function CygbuildInstallFixInterpreterPython ()
+{
+    local id="$0.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ] || [ ! -f "$file" ] ; then
+        CygbuildWarn "$id: No such file $file"
+        return 1
+    fi
+
+    $SED -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' $file > $file.tmp &&
+    $MV --force $file.tmp $file
+}
+
+CygbuildInstallFixInterpreterMain ()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    local file
+
+    for file in $instdir/usr/bin/*
+    do
+        [ -f $file ] || continue
+
+        local _file=${file/$srcdir\/}       # relative path
+
+        head -1 $file > $retval 2> /dev/null
+
+        if $EGREP --quiet "perl" $retval &&
+           ! $EGREP --quiet "/usr/bin/perl([ \t]|$)" $retval
+        then
+            echo "--   [NOTE] Fixing wrong Perl call" \
+                 "in $_file: $(cat $retval)"
+
+            CygbuildInstallFixInterpreterPerl "$file"
+
+        elif $EGREP --quiet "python" $retval &&
+           ! $EGREP --quiet "/usr/bin/python([ \t]|$)" $retval
+        then
+            echo "--   [NOTE] Fixing wrong Python call" \
+                 "in $_file: $(cat $retval)"
+
+            CygbuildInstallFixInterpreterPython "$file"
+        fi
+
+    done
+}
+
 function CygbuildInstallFixMain()
 {
+    CygbuildInstallFixInterpreterMain
     CygbuildInstallFixMandir
     CygbuildInstallFixPermissions
 }
@@ -9062,7 +9133,8 @@ function CygbuildCmdInstallCheckBinFiles()
         fi
 
         local str=""
-        local name=${file##*/}            # remove path
+        local name=${file##*/}              # remove path
+        local _file=${file/$srcdir\/}       # relative path
 
         #   Make sure none of the files clash with existing binaries
 
@@ -9120,10 +9192,31 @@ function CygbuildCmdInstallCheckBinFiles()
                  "for $name"
             status=1
 
+        elif [[ "$str" == *perl*   ]]; then
+
+            head -1 $file > $retval.1st
+
+            if ! $EGREP --quiet "/usr/bin/perl([ \t]|$)" $retval.1st
+            then
+                echo "--   [WARN] possibly wrong Perl call" \
+                     "in $_file: $(cat $retval.1st)"
+            fi
+
         elif [[ "$str" == *python* ]] && [[ ! $depends == *python* ]]  ; then
             echo "--   [ERROR] setup.hint may need Python dependency" \
                  "for $name"
             status=1
+
+        elif [[ "$str" == *python* ]]; then
+
+            head -1 $file > $retval.1st
+
+            if ! $EGREP --quiet "/usr/bin/python([ \t]|$)" $retval.1st
+            then
+                echo "--   [WARN] possibly wrong Python call" \
+                     "in $_file: $(cat $retval.1st)"
+            fi
+
         fi
 
         if [ "$verbose"  ]; then
