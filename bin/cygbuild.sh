@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.0056"
+CYGBUILD_VERSION="2007.1202.1621"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -168,9 +168,24 @@ function CygbuildPopd()
     popd > /dev/null
 }
 
+function CygbuildWhich()
+{
+    [ "$1" ] && type -p "$1" 2> /dev/null
+}
+
+function CygbuildWhichCheck()
+{
+    CygbuildWhich "$1" > /dev/null
+}
+
 function CygbuildRun()
 {
     ${test+echo} "$@"
+}
+
+function CygbuildRunIfExist()
+{
+    [ "$1" ] && CygbuildWhichCheck "$1" && "$@"
 }
 
 function CygbuildDate()
@@ -204,11 +219,6 @@ function CygbuildPathBinFast()
     else
         echo $bin
     fi
-}
-
-function CygbuildWhich()
-{
-    type -p "$1" 2> /dev/null
 }
 
 function CygbuildTarOptionCompress()
@@ -694,11 +704,19 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=DEADJOE \
     "
 
-    #  GNU automake files
+    #  GNU automake and yacc files
     cygbuild_opt_exclude_auto_files="\
      --exclude=*.in \
      --exclude=*.am \
+     --exclude=ylwrap \
+     --exclude=depcomp \
+     --exclude=ltmain.sh \
+     --exclude=install-sh \
+     --exclude=mkinstalldirs \
+     --exclude=missing \
+     --exclude=mdate-sh \
     "
+
     cygbuild_opt_exclude_info_files="\
      --exclude=*.info \
      --exclude=*.info-[0-9] \
@@ -761,6 +779,11 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=tmp \
     "
 
+    cygbuild_opt_exclude_other="\
+      --exclude=COPYING \
+      --exclude=INSTALL \
+    "
+
     #  1) When making snapshot copy of the original sources to elsewhere.
     #  2) when building Cygwin Net Release source and binary packages
 
@@ -769,6 +792,7 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_object_files \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
+     $cygbuild_opt_exclude_other= \
     "
 
     #   What files to ignore while running CygbuildInstallPackageDocs
@@ -3520,7 +3544,9 @@ TO USE CYGBUILD FOR MAKING Cygwin Net Releases
         To check install: check
         To package      : package source-package
         To sign         : package-sign
-        To publish      : publish (copy files to publish area)
+        To publish      : publish (copy files to publish area
+        All phases      : all
+        All, no finish  : almostall
 
 CYGBUILD CONTROLLED SOURCE PACKAGE
 
@@ -6539,6 +6565,25 @@ function CygbuildPatchCheck()
             echo "--   [INFO] content of" ${file/$srcdir\/}
             $AWK '/^\+\+\+ / { print "     " $2}' $file
         fi
+
+        if CygbuildWhichCheck diffstat ; then
+            local check="$file"
+
+            #  We're not interested in CYGWIN-PATCHES/
+
+            if CygbuildWhichCheck filterdiff ; then
+                $EGREP -v "^diff " $file |
+                filterdiff -x "*$DIR_CYGPATCH_RELATIVE*" > $retval.diff
+
+                check="$retval.diff"
+            fi
+
+            if [ -s "$check" ]; then
+                diffstat $check
+            fi
+        fi
+
+        CygbuildRunIfExist diffstat $file | $SED 's/^/    /'
 
         #  Seldom anyone makes changes in C-code or headers
         #  files. Let user audit these changes.
@@ -9816,6 +9861,58 @@ function CygbuildCmdFilesMain()
     CygbuildCmdFilesWrite $destdir $userdir $templatedir
 }
 
+function CygbuildCmdAllMain()
+{
+    local id="$0.$FUNCNAME"
+    local finish="$1"
+
+    #   The "prep" will also run "clean" and "distclean"
+    #   because there are misconfigured source packages
+    #   that dstribute compiled binaries.
+
+    echo "-- [NOTE] command [all] is used for checking" \
+         "build procedure only." \
+         "See -h for source development options."
+
+    #   The "{ A && B; } || :" reads:
+    #
+    #       IF command A succeeds, then run B. In either
+    #       case always return true
+
+    CygbuildCmdGPGVerifyMain Yn     &&
+    CygbuildCmdPrepMain             &&
+    CygbuildCmdShadowMain           &&
+    CygbuildCmdConfMain             &&
+    CygbuildCmdBuildMain            &&
+    CygbuildCmdInstallMain          &&
+    CygbuildCmdStripMain            &&
+    CygbuildCmdPkgBinaryMain        &&
+    {
+        if CygbuildHelpSourcePackage ; then
+            CygbuildCmdPkgSourceMain
+        elif [ "$OPTION_GBS_COMPAT" ] ; then
+            echo "-- Not attempting to build a source package"
+        fi ;
+    }
+
+    local status=$?
+
+    if [ ! "$finish" ] ; then
+        return $status
+    fi
+
+    if [ "$status" != "0" ]; then
+        if CygbuildAskYes "There was an error. Run [finish]"
+        then
+            CygbuildCmdFinishMain
+        else
+            echo "... remove the SRC directory when ready"
+        fi
+    else
+        CygbuildCmdFinishMain
+    fi
+}
+
 function CygbuildCmdFinishMain()
 {
     local id="$0.$FUNCNAME"
@@ -10508,51 +10605,13 @@ function CygbuildCommandMain()
     do
         case $opt in
 
-          all)
-                #   The "prep" will also run "clean" and "distclean"
-                #   because there are misconfigured source packages
-                #   that dstribute compiled binaries.
+          all)                  CygbuildCmdAllMain finish
+                                status=$?
+                                ;;
 
-                echo "-- [NOTE] command [all] is used for checking" \
-                     "build procedure only." \
-                     "See -h for source development options."
-
-                #   The "{ A && B; } || :" reads:
-                #
-                #       IF command A succeeds, then run B. In either
-                #       case always return true, so that we can continue.
-
-                CygbuildCmdGPGVerifyMain Yn     &&
-                CygbuildCmdPrepMain             &&
-                CygbuildCmdShadowMain           &&
-                CygbuildCmdConfMain             &&
-                CygbuildCmdBuildMain            &&
-                CygbuildCmdInstallMain          &&
-                CygbuildCmdStripMain            &&
-                CygbuildCmdPkgBinaryMain        &&
-                {
-                    if CygbuildHelpSourcePackage ; then
-                        CygbuildCmdPkgSourceMain
-                    elif [ "$OPTION_GBS_COMPAT" ] ; then
-                        echo "-- Not attempting to build a source package"
-                    fi ;
-                }
-
-                status=$?
-
-                if [ "$status" != "0" ]; then
-                    if CygbuildAskYes "There was an error. Run [finish]"
-                    then
-                        CygbuildCmdFinishMain
-                        break
-                    else
-                        echo "... remove the SRC directory when ready"
-                    fi
-                else
-                    CygbuildCmdFinishMain
-                fi
-
-                ;;
+          almostall)            CygbuildCmdAllMain
+                                status=$?
+                                ;;
 
           auto*)                CygbuildCmdAutotool
                                 ;;
@@ -10781,7 +10840,7 @@ function CygbuildCommandMain()
                                 status=$?
                                 ;;
 
-          upstream-download|udl)
+          download|dl)
                                 CygbuildCmdDownloadUpstream
                                 status=$?
                                 ;;

@@ -1,5 +1,8 @@
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl (ReadmeFix): Correct tags like: YYYY-MM-DD,
+	Firstname Lastname and YYYY.
+
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles):
 	Check 1st line Perl and Python interpreter correctness.
 	(CygbuildInstallFixInterpreterPerl): New.
@@ -9,7 +12,15 @@
 	(CygbuildInstallFixMain): Use
 	`CygbuildInstallFixInterpreterMain' and
 	`CygbuildInstallFixPerlPacklist'.
-
+	(CygbuildCmdAllMain): New.
+	(CygbuildCommandMain): New command 'almostall'.
+	Changed command 'upstream-download' to 'download'
+	(Help): Document 'almostall'.
+	(CygbuildBootVariablesGlobalMain): New variable
+	`cygbuild_opt_exclude_other'. Update variable
+	`cygbuild_opt_exclude_auto_files'.
+	(CygbuildWhichCheck); New.
+	(CygbuildRunIfExist): New.
 
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 

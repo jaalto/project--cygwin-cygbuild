@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1029.0453';
+$VERSION = '2007.1202.1450';
 
 # ..................................................................
 
@@ -1070,20 +1070,19 @@ Run all relevant steps: B<prep, conf, build, install, strip, package,
 source-package, finish>. This command is used to test the integrity of
 Cygwin net release. Like this:
 
- step 1)
-    root@foo:/usr/src/buildt# ls
-        package-N.N-1-src.tar.bz2
-
- stemp 2)
-    root@foo:/usr/src/build# tar -jxvf *bz2
+    root@foo:/usr/src/build# tar -xvf package-N.N-1-src.tar.bz2
         package-N.N-1.sh
         package-N.N-1.patch
         package-N.N-src.tar.gz
 
-If the build process breaks, then the fault is in the packaging. Contact
-maintainer of C<package-N.N-1-src.tar.bz2> for details:
-
     root@foo:/usr/src/build# ./package-N.N-1.sh all
+
+If the build process breaks, then the fault is in the packaging.
+Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
+
+=item <almostall>
+
+Same as command B<[all]> but without the B<[finish]> step.
 
 =item B<getsrc PACKAGE>
 
@@ -1135,7 +1134,7 @@ command C<[reshadow]>.
 This command is not usually needed, because the B<[configure]> will notice
 missing shadow directory and make it as needed.
 
-=item B<upstream-download>
+=item B<download>
 
 Check upstream site for new versions. External program I<mywebget.pl>
 http://perl-webget.sourceforge.net/ is used to do the download. The
@@ -3972,6 +3971,14 @@ sub ReadmeFix ($ $ $)
     s,\Q<VER>\E,$ver,g;
     s,\Q<REL>\E,$rel,g;
 
+    #   Dates and all that
+
+    my $iso8601 = Date(-utc => 1);
+    my $YYYY    = 1900 + (gmtime time)[5];
+
+    s,YYYY-MM-DD,$iso8601,;
+    s,YYYY,$YYYY,g;
+
     #   User idenification from environment
 
     my $name  = $systemName;
@@ -3985,6 +3992,11 @@ sub ReadmeFix ($ $ $)
     else
     {
         warn "[WARN] Can't update 'maintained by'. No Env. vars NAME or EMAIL";
+    }
+
+    if ($name)
+    {
+        s,Firstname\s+Lastname,$name,g;
     }
 
     $ARG = ReadMeFilesIncluded $binpkg, $ARG;
