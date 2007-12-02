@@ -3,7 +3,9 @@
 	* bin/cygbuild.pl (ReadmeFix): Correct tags like: YYYY-MM-DD,
 	Firstname Lastname and YYYY.
 
-	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles):
+	* bin/cygbuild.sh:
+	- Adjust indentation of all messages to '-- '
+	(CygbuildCmdInstallCheckBinFiles):
 	Check 1st line Perl and Python interpreter correctness.
 	(CygbuildInstallFixInterpreterPerl): New.
 	(CygbuildInstallFixInterpreterPython): New
