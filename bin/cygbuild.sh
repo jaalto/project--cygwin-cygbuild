@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.1724"
+CYGBUILD_VERSION="2007.1202.1727"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3908,8 +3908,7 @@ function CygbuildGPGsignFiles()
 
     local signkey="$1"
     local passphrase="$2"
-    shift
-    shift
+    shift 2
 
     [ ! "$signkey" ] && return
     [ $# -eq 0     ] && return
@@ -3924,9 +3923,9 @@ function CygbuildGPGsignFiles()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local file sigfile name status
 
-    for file in $*
+    for file in "$@"
     do
-        echo "-- Signing with key [$signkey] file $file"
+        echo "-- Signing with key [$signkey] file ${file/$srcdir\/}"
 
         sigfile=$file$sigext
 

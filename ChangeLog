@@ -22,6 +22,7 @@
 	(CygbuildWhichCheck); New.
 	(CygbuildRunIfExist): New.
 	(CygbuildPatchDiffstat): New.
+	(CygbuildGPGsignFiles): Display relative filename
 
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 
