@@ -5,8 +5,11 @@
 	(CygbuildInstallFixInterpreterPerl): New.
 	(CygbuildInstallFixInterpreterPython): New
 	(CygbuildInstallFixInterpreterMain): New
+	(CygbuildInstallFixPerlPacklist): New
 	(CygbuildInstallFixMain): Use
-	`CygbuildInstallFixInterpreterMain'.
+	`CygbuildInstallFixInterpreterMain' and
+	`CygbuildInstallFixPerlPacklist'.
+
 
 2007-11-30  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.0048"
+CYGBUILD_VERSION="2007.1202.0056"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8253,9 +8253,34 @@ CygbuildInstallFixInterpreterMain ()
     done
 }
 
+CygbuildInstallFixPerlPacklist ()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    local file
+
+    # .inst/usr/lib/perl5/site_perl/5.8/cygwin/auto/<pkg>/.packlist
+
+    for file in $instdir/usr/lib/perl5/*/*/*/*/*/.packlist
+    do
+        [ -f "$file" ] || continue
+
+        #  Remove the "...path/to/.inst" portion
+
+        local _file=${file/$srcdir\/}       # relative path
+
+        CygbuildVerb "--   Adjusting $_file"
+
+        $SED 's/.*.inst//' $file > $file.tmp &&
+        $MV $file.tmp $file
+    done
+}
+
 function CygbuildInstallFixMain()
 {
     CygbuildInstallFixInterpreterMain
+    CygbuildInstallFixPerlPacklist
     CygbuildInstallFixMandir
     CygbuildInstallFixPermissions
 }
