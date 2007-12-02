@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.1727"
+CYGBUILD_VERSION="2007.1202.1959"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -779,11 +779,6 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=tmp \
     "
 
-    cygbuild_opt_exclude_other="\
-      --exclude=COPYING \
-      --exclude=INSTALL \
-    "
-
     #  1) When making snapshot copy of the original sources to elsewhere.
     #  2) when building Cygwin Net Release source and binary packages
 
@@ -792,7 +787,6 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_object_files \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
-     $cygbuild_opt_exclude_other \
     "
 
     #   What files to ignore while running CygbuildInstallPackageDocs
@@ -4061,7 +4055,7 @@ function CygbuildGPGsignatureCheck()
 
     for file in $list
     do
-        CygbuildGPGverify "$quiet" $file
+        CygbuildGPGverify "$quiet" "$file"
         status=$?
 
         if [ "$status" != "0" ]; then
