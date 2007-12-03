@@ -1,7 +1,7 @@
 # See http://cygwin.com/setup.html   The 'category' can be:
 # Admin Archive Audio Base Database Devel Doc Editors
-# Games Gnome Graphics Interpreters
-# Libs Mail Math Net Science Security Shells System Text Utils Web X11
+# Games Gnome Graphics Interpreters Libs Mail Math Net
+# Perl Python Science Security Shells System Text Utils Web X11
 sdesc: ""
 ldesc: ""
 category: name1[ name2...]
