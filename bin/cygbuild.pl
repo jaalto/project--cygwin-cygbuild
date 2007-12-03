@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1203.1513';
+$VERSION = '2007.1203.1517';
 
 # ..................................................................
 
@@ -3148,7 +3148,12 @@ sub BinPkgListing ($)
     #
     #   => This is the return answer from the function
 
-    join "\n", sort map { $ARG = "/$ARG" } grep ! m{/$}, split '\n';
+    join "\n", sort
+        map
+        {
+            $ARG = "/$ARG" unless m,^/,;
+            $ARG;
+        } grep ! m{/$}, split '\n';
 }
 
 # ****************************************************************************
