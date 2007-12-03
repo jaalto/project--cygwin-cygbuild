@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1203.1509';
+$VERSION = '2007.1203.1513';
 
 # ..................................................................
 
@@ -3138,16 +3138,17 @@ sub BinPkgListing ($)
 
     s/^.*:\d\d\s+//mg;
 
-    #   This may look hairy, but it's fairly simple. Read from right:
+    #   This may look hairy, but it's fairly simple. Read from right to left:
     #
     #   1. convert to array with split
     #   2. Leave out empty directory names with grep
-    #   3. sort
-    #   4. join back to asingle line
+    #   3. Add leading slash (/)
+    #   4. sort
+    #   5. join back to asingle line
     #
     #   => This is the return answer from the function
 
-    join "\n", sort grep ! m{/$}, split '\n';
+    join "\n", sort map { $ARG = "/$ARG" } grep ! m{/$}, split '\n';
 }
 
 # ****************************************************************************
