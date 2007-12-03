@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1202.2028"
+CYGBUILD_VERSION="2007.1203.1300"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6101,7 +6101,16 @@ function CygbuildRunShell()
 
 function CygbuildRunPythonSetupCmd()
 {
-    CygbuildRunShell $PYTHON setup.py "$@"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    echo "-- Running Python command: $1"
+
+    CygbuildRunShell $PYTHON setup.py "$@" > $retval 2>&1
+    local status=$?
+
+    [ "$verbose" ] && cat $retval
+
+    return $status
 }
 
 function CygbuildMakefileRunInstallPythonMain()

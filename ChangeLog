@@ -1,3 +1,9 @@
+2007-12-03  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildRunShell): Less output.
+	Collect python output to file and dispay them only
+	if verbose is set.
+
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl (ReadmeFix): Correct tags like: YYYY-MM-DD,
