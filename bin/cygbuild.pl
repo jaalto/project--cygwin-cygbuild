@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1202.1450';
+$VERSION = '2007.1203.1509';
 
 # ..................................................................
 
@@ -3130,7 +3130,11 @@ sub BinPkgListing ($)
 
     return unless -f $file;
 
-    local $ARG = qx(tar jtvf $file);
+    my $optz = "j";
+
+    $optz = "z" if $file =~ /gz$/;
+
+    local $ARG = qx(tar -${optz}tvf $file);
 
     s/^.*:\d\d\s+//mg;
 
@@ -3141,7 +3145,7 @@ sub BinPkgListing ($)
     #   3. sort
     #   4. join back to asingle line
     #
-    #   => This is the return answer as well from function
+    #   => This is the return answer from the function
 
     join "\n", sort grep ! m{/$}, split '\n';
 }
