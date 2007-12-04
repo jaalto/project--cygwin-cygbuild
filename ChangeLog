@@ -17,6 +17,9 @@
 	(CygbuildCmdStripMain): Add '**' start message.
 	(CygbuildInstallExtraManualCompress): Ignore already compressed
 	files.
+	(CygbuildPatchCheck): Use relative patch in messages.
+	(CygbuildCmdShadowDelete): Write message only if verbose on.
+	(CygbuildCmdShadowMain): Display relative paths.
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.0801"
+CYGBUILD_VERSION="2007.1204.0927"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6613,6 +6613,8 @@ function CygbuildPatchCheck()
 
     if [ -f "$file" ]; then
 
+        local _file=${file/$srcdir\/}   # Relative path name
+
         if [ "$verbose" ]; then
             echo "-- [INFO] content of" ${file/$srcdir\/}
             $AWK '/^\+\+\+ / { print "     " $2}' $file
@@ -6632,8 +6634,7 @@ function CygbuildPatchCheck()
         [ -s $retval ] && notes=$(< $retval)
 
         if [ "$notes" ]; then
-            CygbuildWarn "-- [WARN] Patch check." \
-                         "Please verify ${file/$srcdir\/}"
+            CygbuildWarn "-- [WARN] Patch check. Please verify $_file"
             echo "-- [NOTE] I'm just cautious. Perhaps files below"
             echo "-- [NOTE] are auto-generated or modified by you."
             CygbuildWarn "$notes"
@@ -6646,17 +6647,17 @@ function CygbuildPatchCheck()
         [ -s $retval ] && notes=$(< $retval)
 
         if [ "$notes" ]; then
-            CygbuildWarn "-- [WARN] Patch check. Please verify $file"
+            CygbuildWarn "-- [WARN] Patch check. Please verify $_file"
             CygbuildWarn "$notes"
             return 0
         fi
 
         if [[ ! -s $file ]]; then
-            CygbuildWarn "-- [ERROR] Patch file is empty $file"
+            CygbuildWarn "-- [ERROR] Patch file is empty $_file"
             return 1
         fi
     else
-        CygbuildWarn "-- [ERROR] Patch file is missing $file"
+        CygbuildWarn "-- [ERROR] Patch file is missing $_file"
         return 1
     fi
 }
@@ -7046,7 +7047,7 @@ function CygbuildCmdPrepPatch()
 function CygbuildCmdShadowDelete()
 {
     local id="$0.$FUNCNAME"
-    echo "-- Emptying shadow directory" ${builddir/$srcdir\/}
+    CygbuildVerb "-- Emptying shadow directory" ${builddir/$srcdir\/}
 
     if [[ ! -d "$srcdir" ]]; then
         CygbuildVerb "-- Nothing to do. No directory found: $srcdir"
@@ -7084,9 +7085,9 @@ function CygbuildCmdShadowMain()
 
         CygbuildPopd
 
-        echo "-- Wait, shadowing source files to $builddir"
+        CygbuildVerb "-- Wait, shadowing source files to ${builddir/$srcdir\/}"
         CygbuildTreeSymlinkCopy "$srcdir" "$builddir"
-        echo "-- Shadow finished."
+        CygbuildVerb "-- Shadow finished."
     fi
 }
 
@@ -7616,7 +7617,7 @@ function CygbuildCmdBuildStdMakefile()
         CygbuildMakefileName "." > $retval
         local makefile=$(< $retval)
 
-        echo "-- Building with standard make(1) $makefile"
+        CygbuildVerb "-- Building with standard make(1) $makefile"
 
         if [ ! "$makefile" ]; then
 
@@ -7969,7 +7970,7 @@ function CygbuildInstallPackageDocs()
 
         [[ $file == @(*[~#]|*.bak|*.rej|*.orig) ]]    && continue
 
-        name=${file##*/}
+        name="${file##*/}"
         match=""
 
         CygbuildMatchBashPatternList \
@@ -7980,10 +7981,10 @@ function CygbuildInstallPackageDocs()
         fi
 
         if [ ! "$done" ]; then      #  Do this only once
-            CygbuildRun $scriptInstallDir $dest || return $?
+            CygbuildRun $scriptInstallDir "$dest" || return $?
             done=1
-            echo "-- Installing docs to" ${dest/$srcdir\/} \
-                 ${test:+(TEST MODE)}
+            CygbuildVerb "-- Installing docs to" ${dest/$srcdir\/} \
+                         ${test:+(TEST MODE)}
         fi
 
         CygbuildRun $scriptInstallFile $file $dest
