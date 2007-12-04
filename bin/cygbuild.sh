@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.1124"
+CYGBUILD_VERSION="2007.1204.1145"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3571,16 +3571,13 @@ Version $CYGBUILD_VERSION <$CYGBUILD_HOMEPAGE_URL>
 Call syntax: $bin [option] CMD ...
 
   -d LEVEL              Debug mode with numeric LEVEL
-  -f ORIG-SRC.tar.gz    Original author's source package location
+  -C                    Activate colors
   -h                    This short help
   --help                Long help (requires full cygbuild suite)
-  -m                    Use (no more) space. mkpatch doesn't make a copy
-                        of source dir and preserves all *.o files.
   -r RELEASE            Mandatory option for packaging related commands
   -t                    Run in test mode
   -v                    More verbose messages
   -V                    Print version information
-  -x                    Do not strip executables
 
   GPG support options
 

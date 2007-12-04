@@ -29,6 +29,8 @@
 	(CygbuildMsgFilter): New. Support colored messages.
 	(CygbuildProgramVersion): prepend '-- ' to output.
 	(CygbuildProgramVersion): Add color support
+	(CygbuildHelpShort): Remove non-essential option -x, -m and
+	add new option -C.
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 
