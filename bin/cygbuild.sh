@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.2223"
+CYGBUILD_VERSION="2007.1204.2248"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8309,9 +8309,9 @@ function CygbuildInstallExtraBinFiles
 
         todir="$instdir$dest"
 
-        CygbuildVerb "-- install ${todir/$srcdir\//}$_file"
+        CygbuildVerb "-- install ${todir/$srcdir\//}/$_file"
 
-        CygbuildRun $scriptInstallFile $item $todir || return $?
+        CygbuildRun $scriptInstallFile $item $todir/$_file || return $?
     done
 }
 
@@ -8469,7 +8469,8 @@ function CygbuildInstallCygwinPartPostinstall()
 
         local tofile="$dest/$PKG.sh"
 
-        CygbuildEcho "-- Installing [Cygwin] postinstall script to dir $tofile"
+        CygbuildEcho "-- Installing [Cygwin] postinstall script to" \
+                     " directory ${tofile/$srcdir\//}"
 
         $scriptInstallDir $dest
         $scriptInstallFile $file $tofile
