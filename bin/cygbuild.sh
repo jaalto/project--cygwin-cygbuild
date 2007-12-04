@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.2248"
+CYGBUILD_VERSION="2007.1204.2332"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -138,9 +138,10 @@ CYGBUILD_NAME="cygbuild"
         exit 1
     fi
 
-shopt -s extglob      # Use extra pattern matching options
+shopt -s extglob    # Use extra pattern matching options
+set -o pipefail     # status comes from the failed pipe command
 
-LC_ALL=C              # So that sort etc. works as expected.
+LC_ALL=C            # So that sort etc. works as expected.
 LANG=C
 
 #######################################################################
@@ -7566,7 +7567,8 @@ function CygbuildCmdConfMain()
             #   ./configure generated "Makefile", so this elif must be
             #   after the previous one.
 
-            CygbuildEcho "-- Running: make configure (auto detected; no ./configure)"
+            CygbuildEcho "-- Running: make configure" \
+                         "(auto detected; no ./configure)"
 
             $MAKE configure
             status=$?
