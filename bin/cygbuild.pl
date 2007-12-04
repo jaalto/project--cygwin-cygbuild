@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1203.1517';
+$VERSION = '2007.1204.1101';
 
 # ..................................................................
 
@@ -184,9 +184,9 @@ case as simple as running commands:
 To make this easier, a (b)uild alias will help. The option B<-r> is
 mandatory almost for all commands:
 
-    $ alias b="cygbuild -s F701D4B3 -r"    # Save this in ~/.bashrc
+    $ alias b="cygbuild --color -s F701D4B3 -r" # Save this in ~/.bashrc
     $ b 1 mkdirs files conf make
-    $ b 1 -v -t install                    # verbose and test mode on
+    $ b 1 -v -t install                         # verbose and test mode on
     ...
 
 B<CASE B)> If the downloaded Cygwin source release package is
@@ -422,6 +422,10 @@ been checked out, it is possible to package current snapshot straight
 from the directory tree with this option. It will create a separate
 source script based on current timestamp to retrive same files from
 version control repository.
+
+=item B<-C|--color>
+
+Activate colors in displayed messages.
 
 =item B<--cygbuiddir DIR>
 

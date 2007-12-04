@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.pl (BinPkgListing): Add support for *.gz
 	tar file.
+	(HELP::OPTIONS): Document -C|--color option.
 
 	* bin/cygbuild.sh (CygbuildRunShell): Less output.
 	Collect python output to file and dispay them only
@@ -20,6 +21,12 @@
 	(CygbuildPatchCheck): Use relative patch in messages.
 	(CygbuildCmdShadowDelete): Write message only if verbose on.
 	(CygbuildCmdShadowMain): Display relative paths.
+	(CygbuildCommandMain): New command line option -C|--color and
+	new variable OPTION_COLOR.
+	(CygbuildBootVariablesGlobalMain): Define CYGBUILD_COLOR_*
+	variables.
+	(CygbuildEcho): New
+	(CygbuildMsgFilter): New. Support colored messages.
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 
