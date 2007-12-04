@@ -1,5 +1,5 @@
-# This file contains extra options when files from doc/
-# are installed. The options are given one option per line.
+# This file contains extra options when files are
+# installed. The options are given one option per line.
 #
 # --exclude=Makefile.in
 # --exclude=package.1.in
