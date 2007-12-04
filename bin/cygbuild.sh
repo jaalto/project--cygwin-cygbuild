@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.0748"
+CYGBUILD_VERSION="2007.1204.0801"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8174,7 +8174,7 @@ function CygbuildInstallExtraManualCompress()
 
     #  Compress all manual pages
 
-    local DIR_DOC_GENERAL=$instdir/$CYGBUILD_MANDIR_FULL
+    local DIR_DOC_GENERAL="$instdir/$CYGBUILD_MANDIR_FULL"
 
     CygbuildVerb "-- Compressing manual pages"
 
@@ -8182,7 +8182,11 @@ function CygbuildInstallExtraManualCompress()
         echo "-- [WARN] Directory not found: $DIR_DOC_GENERAL"
     else
 
-        $FIND $DIR_DOC_GENERAL -type f  > $retval
+        $FIND $DIR_DOC_GENERAL -type f \
+            '(' \
+            ! -name "*gz" -a ! -name "*.bz2"  \
+            ')' \
+            > $retval
 
         if [ -s $retval ]
         then
