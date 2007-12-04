@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.1435"
+CYGBUILD_VERSION="2007.1204.2223"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1201,10 +1201,10 @@ CygbuildCygcheckLibraryDepSource ()
     #
     #  execvp("/bin/diff")
 
-    if $FIND $builddir -name "*.c" -o -name "*.cc" |
+    if $FIND "$builddir" -name "*.c" -o -name "*.cc" |
        $EGREP "^[^/]*exec[a-z]* *\("
     then
-        CygbuildWarn "-- [WARN] External shell call detected. More dependencies"
+        CygbuildWarn "-- [WARN] External shell call found. More dependencies"
           "may be needed. (an example: binutils)"
     fi
 }
@@ -8232,15 +8232,15 @@ function CygbuildInstallExtraManualCompress()
 
     #  Compress all manual pages
 
-    local DIR_DOC_GENERAL="$instdir/$CYGBUILD_MANDIR_FULL"
+    local instdocdir="$instdir/$CYGBUILD_MANDIR_FULL"
 
     CygbuildVerb "-- Compressing manual pages"
 
-    if [ ! -d "$DIR_DOC_GENERAL" ]; then
-        CygbuildEcho "-- [WARN] Directory not found: $DIR_DOC_GENERAL"
+    if [ ! -d "$instdocdir" ]; then
+        CygbuildEcho "-- [WARN] Directory not found: $instdocdir"
     else
 
-        $FIND $DIR_DOC_GENERAL -type f \
+        $FIND $instdocdir -type f \
             '(' \
             ! -name "*gz" -a ! -name "*.bz2"  \
             ')' \
@@ -8251,7 +8251,7 @@ function CygbuildInstallExtraManualCompress()
             CygbuildCompress --force --best $(< $retval) || return $?
         fi
 
-        $FIND $DIR_DOC_GENERAL -type l -name "*.[1-9]" > $retval
+        $FIND $instdocdir -type l -name "*.[1-9]" > $retval
 
         if [ -s $retval ]
         then
@@ -8285,11 +8285,42 @@ function CygbuildInstallExtraManualCompress()
     fi
 }
 
+function CygbuildInstallExtraBinFiles
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    local extrabindir="$DIR_CYGPATCH_RELATIVE/bin"
+
+    [ -d "$extrabindir" ] || return 0
+
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
+    local item dest todir tmp _file
+
+    CygbuildEcho "-- [NOTE] Installing external programs from $extrabindir"
+
+    for item in $extrabindir/*
+    do
+        _file=${item##*/}
+        dest="/usr/bin"         # default location
+        tmp=$( $AWK '/cyginstdir:/ { print $(NF)}' "$item" )
+
+        [ "$tmp" ] && dest=${tmp%/} # Change destination
+
+        todir="$instdir$dest"
+
+        CygbuildVerb "-- install ${todir/$srcdir\//}$_file"
+
+        CygbuildRun $scriptInstallFile $item $todir || return $?
+    done
+}
+
 function CygbuildInstallExtraMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildInstallExtraManual
+    CygbuildInstallExtraManual &&
+    CygbuildInstallExtraBinFiles
 }
 
 function CygbuildInstallFixMandir()
@@ -8679,12 +8710,12 @@ function CygbuildCmdInstallCheckTempFiles()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir=$instdir
+    local dir="$instdir"
     local ignore="$CYGBUILD_IGNORE_ZERO_LENGTH"
     local done file ret
 
-    for file in $( $FIND -L $dir -type f                   \
-                   '(' -size 0 -name "*[#~]*" ')'    \
+    for file in $( $FIND -L $dir -type f            \
+                   '(' -size 0 -name "*[#~]*" ')'   \
                  )
     do
         [[ "$file" == $ignore ]] && continue
@@ -8698,6 +8729,27 @@ function CygbuildCmdInstallCheckTempFiles()
     done
 
     return $ret
+}
+
+function CygbuildCmdInstallCheckMakefiles()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local done file ret
+
+    $FIND -L "$builddir" -type f    \
+        '(' -name Makefile          \
+            -o -name makefile       \
+            -o -name GNUMakefile    \
+         ')' |
+    xargs --no-run-if-empty \
+    $EGREP --line-number '^[^#]*lib[a-z0.9]+\.a' /dev/null |
+    $EGREP --invert-match '\.dll'  > $retval
+
+    if [ -s "$retval" ]; then
+        CygbuildEcho "-- [NOTE] Possibly linked by using static libraries"
+        cat $retval | $SED "s,^$srcdir/,,"
+    fi
 }
 
 function CygbuildCmdInstallCheckReadme()
@@ -9577,6 +9629,8 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckLineEndings
 
     CygbuildEcho "** Checking content of installation in" ${instdir/$srcdir\/}
+
+    [ "$verb" ] && CygbuildCmdInstallCheckMakefiles || stat=$?
 
     CygbuildCmdInstallCheckTempFiles    || stat=$?
     CygbuildCmdInstallCheckInfoFiles    || stat=$?
@@ -10760,7 +10814,7 @@ function CygbuildCommandMain()
                                 ;;
 
           install-extra)        #  Generate POD manuals and
-                                #  compress manual pages
+                                #  compress manual pages etc.
                                 CygbuildInstallExtraMain
                                 status=$?
                                 ;;

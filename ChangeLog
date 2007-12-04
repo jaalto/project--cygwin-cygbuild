@@ -3,6 +3,8 @@
 	* bin/cygbuild.pl (BinPkgListing): Add support for *.gz
 	tar file.
 	(HELP::OPTIONS): Document -C|--color option.
+	(HELP::OPTIONAL EXTERNAL DIRECTORIES):
+	New topic. Document new feature CYGWIN-PATCHES/bin.
 
 	* bin/cygbuild.sh (CygbuildRunShell): Less output.
 	Collect python output to file and dispay them only
@@ -34,6 +36,9 @@
 	(CygbuildMsgFilter): Treat FATAL texts.
 	(CygbuildInstallPackageDocs): Fix --test more behavior. Do not
 	run the tar command.
+	(CygbuildInstallExtraBinFiles): New. Handle CYGWIN-PATCHES/bin
+	(CygbuildCmdInstallCheckMakefiles): New. Try to detect use of
+	static libraries.
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 
