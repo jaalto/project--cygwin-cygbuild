@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.0927"
+CYGBUILD_VERSION="2007.1204.0953"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -304,6 +304,68 @@ function CygbuildMatchBashPatternList()
     set +o noglob
 
     return $ret
+}
+
+#######################################################################
+#
+#       Error functions
+#
+#######################################################################
+
+function CygbuildVerb()
+{
+    if [ "$verbose" ] && [ "$1" ]; then
+        echo -e "$*"
+    fi
+}
+
+function CygbuildVerbWarn()
+{
+    if [ "$verbose" ] ; then
+        echo -e "$@" >&2
+    fi
+}
+
+function CygbuildWarn()
+{
+    echo -e "$@" >&2
+}
+
+function CygbuildExit()
+{
+    local code=${1:-1}
+    shift
+
+    if [ $# -gt 0 ]; then
+        CygbuildWarn "$@"
+    fi
+
+    exit $code
+}
+
+function CygbuildDie()
+{
+    CygbuildExit 1 "$@"
+}
+
+function CygbuildExitNoDir()
+{
+    local dir="$1"
+    shift
+
+    if [[ ! -d "$dir" ]]; then
+        CygbuildDie "$@"
+    fi
+}
+
+function CygbuildExitNoFile()
+{
+    local file="$1"
+    shift
+
+    if [[ ! -f "$file" ]]; then
+        CygbuildDie "$@"
+    fi
 }
 
 #######################################################################
@@ -964,68 +1026,6 @@ function CygbuildLibInstallEnvironment()
     export INSTALL=${CYGWIN_BUILD_INSTALL:-"/usr/bin/install"}
     export INSTALL_DATA=${CYGWIN_BUILD_F_MODES:-"-m 644"}
     export INSTALL_BIN=${CYGWIN_BUILD_X_MODES:-"-m 755"}
-}
-
-#######################################################################
-#
-#       Error functions
-#
-#######################################################################
-
-function CygbuildVerb()
-{
-    if [ "$verbose" ] && [ "$1" ]; then
-        echo -e "$*"
-    fi
-}
-
-function CygbuildVerbWarn()
-{
-    if [ "$verbose" ] ; then
-        echo -e "$@" >&2
-    fi
-}
-
-function CygbuildWarn()
-{
-    echo -e "$@" >&2
-}
-
-function CygbuildExit()
-{
-    local code=${1:-1}
-    shift
-
-    if [ $# -gt 0 ]; then
-        CygbuildWarn "$@"
-    fi
-
-    exit $code
-}
-
-function CygbuildDie()
-{
-    CygbuildExit 1 "$@"
-}
-
-function CygbuildExitNoDir()
-{
-    local dir="$1"
-    shift
-
-    if [[ ! -d "$dir" ]]; then
-        CygbuildDie "$@"
-    fi
-}
-
-function CygbuildExitNoFile()
-{
-    local file="$1"
-    shift
-
-    if [[ ! -f "$file" ]]; then
-        CygbuildDie "$@"
-    fi
 }
 
 #######################################################################
