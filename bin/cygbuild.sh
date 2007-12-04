@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.2332"
+CYGBUILD_VERSION="2007.1204.2339"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -636,7 +636,7 @@ function CygbuildBootVariablesGlobalCacheMain()
     local dir=/var/cache/cygbuild
 
     if [ ! -d "$dir" ]; then
-	CygbuildVerb "[WARN] Using temp. No directory found: $dir"
+	CygbuildVerb "-- [WARN] Using temp. No directory found: $dir"
 	dir="$retval";
 	CygbuildRun ${MKDIR:-mkdir} "$dir" || exit 1
     fi
@@ -7424,8 +7424,17 @@ function CygbuildConfCC()
             echo
         fi
 
-        CygbuildRunShell $conf $opt
+        CygbuildRunShell $conf $opt | tee $retval.log
         status=$?
+
+        #   checking how to link with libfoo... /usr/lib/libfoo.a
+
+        if $EGREP "checking how to link.*\<lib[a-z0-9]+\.a\>" \
+           $retval.log > $retval.log.1
+        then
+            CygbuildWarn "-- [WARN] static library linking"
+            cat $retval.log.1
+        fi
 
     fi
 

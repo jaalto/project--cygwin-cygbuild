@@ -1,3 +1,14 @@
+2007-12-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh
+	(CygbuildInstallPackageDocs): Fix --test more behavior. Do not
+	run the tar command.
+	(CygbuildInstallExtraBinFiles): New. Handle CYGWIN-PATCHES/bin
+	(CygbuildCmdInstallCheckMakefiles): New. Try to detect use of
+	static libraries.
+	(CygbuildConfCC): Warn about static library linking during
+	./configure
+
 2007-12-03  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl (BinPkgListing): Add support for *.gz
@@ -34,11 +45,6 @@
 	(CygbuildHelpShort): Remove non-essential option -x, -m and
 	add new option -C.
 	(CygbuildMsgFilter): Treat FATAL texts.
-	(CygbuildInstallPackageDocs): Fix --test more behavior. Do not
-	run the tar command.
-	(CygbuildInstallExtraBinFiles): New. Handle CYGWIN-PATCHES/bin
-	(CygbuildCmdInstallCheckMakefiles): New. Try to detect use of
-	static libraries.
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 
