@@ -27,6 +27,8 @@
 	variables.
 	(CygbuildEcho): New
 	(CygbuildMsgFilter): New. Support colored messages.
+	(CygbuildProgramVersion): prepend '-- ' to output.
+	(CygbuildProgramVersion): Add color support
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 

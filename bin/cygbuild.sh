@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.1057"
+CYGBUILD_VERSION="2007.1204.1124"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -332,35 +332,29 @@ function CygbuildIsGbsCompat()
 
 function CygbuildMsgFilter()
 {
-    if [ "$OPTION_COLOR" ]; then
+    topic="$CYGBUILD_COLOR_BLACK1"
+    error="$CYGBUILD_COLOR_RED1"
+    warn="$CYGBUILD_COLOR_RED"
+    info="$CYGBUILD_COLOR_PURPLE"
+    msg="$CYGBUILD_COLOR_BLUE"
+    end="$CYGBUILD_COLOR_RESET"
 
-        topic="$CYGBUILD_COLOR_BLACK1"
-        error="$CYGBUILD_COLOR_RED1"
-        warn="$CYGBUILD_COLOR_RED"
-        info="$CYGBUILD_COLOR_PURPLE"
-        msg="$CYGBUILD_COLOR_BLUE"
-        end="$CYGBUILD_COLOR_RESET"
+    export topic error error warn info msg end
 
-        export topic error error warn info msg end
+    echo -e $(
+        ${PERL:-perl} -ane '
+            $e = $ENV{end};
+            s,([*][*].*),$ENV{topic}$1$e,  ;
+            s,(.*ERROR.*),$ENV{error}$1$e,   ;
+            s,(.*WARN.*),$ENV{warn}$1$e,  ;
+            s,(.*(INFO|NOTE).*),$ENV{info}$1$e,  ;
+            s,^(-- [^[].*),$ENV{msg}$1$e, ;
+            print;
+    ')
 
-        echo -e $(
-            ${PERL:-perl} -ane '
-                $e = $ENV{end};
-                s,([*][*].*),$ENV{topic}$1$e,  ;
-                s,(.*ERROR.*),$ENV{error}$1$e,   ;
-                s,(.*WARN.*),$ENV{warn}$1$e,  ;
-                s,(.*(INFO|NOTE).*),$ENV{info}$1$e,  ;
-                s,^(-- [^[].*),$ENV{msg}$1$e, ;
-                print;
-        ')
-
-        #  Not strictly necessary because this function is run
-        #  inside pipe (subshell)
-        unset topic error error warn info msg end
-
-    else
-        cat
-    fi
+    #  Not strictly necessary because this function is run
+    #  inside pipe (subshell)
+    unset topic error error warn info msg end
 }
 
 function CygbuildEcho()
@@ -691,8 +685,6 @@ function CygbuildBootVariablesGlobalMain()
     #       Private: install options and other variables
     #
     #######################################################################
-
-    CygbuildBootVariablesGlobalColors
 
     #  This variable holds bash match expressions for files to exclude
     #  from original sources while copying the user documentation to
@@ -10295,10 +10287,18 @@ function CygbuildFileReleaseGuess()
 function CygbuildProgramVersion()
 {
     local code="$1"
+    local str="$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
 
-    echo "$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
-
-    [ "$code" ] && exit $code
+    if [ "$code" ] ; then
+        echo $str
+        exit $code
+    else
+        if [[ "$*" == *@( -C|--color)* ]]; then
+            echo -e "$CYGBUILD_COLOR_BLACK1-- $str$CYGBUILD_COLOR_RESET"
+        else
+            echo "-- $str"
+        fi
+    fi
 }
 
 function CygbuildCommandMainCheckHelp()
@@ -10325,7 +10325,7 @@ function CygbuildCommandMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildProgramVersion
+    CygbuildProgramVersion '' "$*"
     CygbuildBootVariablesId
     CygbuildDefineGlobalScript
     CygbuildBootVariablesCache
@@ -10984,6 +10984,7 @@ function CygbuildMain()
     #  Run a quick option check before we call all initialization
     #  function that are slow. Also export library functions.
 
+    CygbuildBootVariablesGlobalColors
     CygbuildCommandMainCheckHelp "$@"
     CygbuildBootFunctionExport
 
