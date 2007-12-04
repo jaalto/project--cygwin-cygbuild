@@ -1,5 +1,3 @@
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
-#
 # This file contains extra options passed to diff(1) when [makepatch] command
 # is run. The options are given one option per line.
 #
