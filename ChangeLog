@@ -1,4 +1,19 @@
+2007-12-03  Jari Aalto  <Administrator@W2KPICASSO>
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
+	`cygbuild_opt_exclude_version_control' add .mtn.
+	`cygbuild_opt_exclude_version_control' add INSTALL.
+	(CygbuildPatchCheck): Display relative path to patch file.
+	(CygbuildBootVariablesGlobalMain):
+	`CYGBUILD_INSTALL_IGNORE' added ABOUT_NLS.
+	(CygbuildInstallPackageDocs): Fix missing quotes from
+	`CYGBUILD_INSTALL_IGNORE'.
+	(CygbuildCmdStripMain): Add '**' start message.
+
 2007-12-03  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl (BinPkgListing): Add support for *.gz
+	tar file.
 
 	* bin/cygbuild.sh (CygbuildRunShell): Less output.
 	Collect python output to file and dispay them only

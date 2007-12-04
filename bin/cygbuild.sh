@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1203.1300"
+CYGBUILD_VERSION="2007.1204.0748"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -572,22 +572,30 @@ function CygbuildBootVariablesGlobalMain()
     #
     #  E.g. BCC_MAKEFILE, WCC_MAKEFILE, Makefile.am ... => drop
     #
-    #  Note: This variable lists bash '==' tests to exlude files that contain
-    #  BIG letters. See separate tar exclude variable for all other files.
+    #  Note: This variable lists bash '==' pattern tests to exlude
+    #  files that contain BIG letters. See separate tar exclude
+    #  variable for all other files.
 
     CYGBUILD_INSTALL_IGNORE="
-    *Makefile* *makefile* *MAKEFILE* *CVS *RCS *MT
-    *.bak *.BAK *.in
-    *MANIFEST
-    *VMS*
-    *CHANGES-*
-    *README.vms
-    *README.hp*
-    *README.*bsd*
-    *INSTALL.unx
-    *INSTALL.unix
-    *RISC-*
+    *Makefile* *makefile* *MAKEFILE*
+    *CVS
+    *RCS
+    *MT
+    *.bak
+    *.BAK
+    *.in
     *.TST
+    *ABOUT-NLS
+    *CHANGES-*
+    *INSTALL
+    *INSTALL.unix
+    *INSTALL.unx
+    *MANIFEST
+    *README.*bsd*
+    *README.hp*
+    *README.vms
+    *RISC-*
+    *VMS*
     "
 
     #  This variable holds bash match expressions for files to exclude
@@ -633,25 +641,27 @@ function CygbuildBootVariablesGlobalMain()
     #   .svn = See http://subversion.tigris.org/
     #   .bzr = bazaar-ng http://bazaar-ng.org/
     #   .hg  = Mercurical http://www.serpentine.com/mercurial
-    #   MT   = See http://www.venge.net/monotone/
+    #   MT   = and .mtn; See http://www.venge.net/monotone/
     #
     #   The lowercase variables are used only in this section.
     #   The uppercase variables are globals used in functions.
 
     cygbuild_opt_exclude_version_control="\
+     --exclude=*,v \
+     --exclude=.bzr \
+     --exclude=.darcs \
+     --exclude=.git \
+     --exclude=.hg \
+     --exclude=.mtn \
+     --exclude=.svn \
      --exclude=CVS \
      --exclude=MT \
      --exclude=RCS \
      --exclude=SCCS \
-     --exclude=*,v \
-     --exclude=.git \
-     --exclude=.bzr \
-     --exclude=.hg \
-     --exclude=.svn \
-     --exclude=.cvsignore \
-     --exclude=.svnignore \
-     --exclude=.hgignore \
      --exclude=.bzrignore \
+     --exclude=.cvsignore \
+     --exclude=.hgignore \
+     --exclude=.svnignore \
     "
 
     #  This is template file, do not include in patch.
@@ -6622,7 +6632,8 @@ function CygbuildPatchCheck()
         [ -s $retval ] && notes=$(< $retval)
 
         if [ "$notes" ]; then
-            CygbuildWarn "-- [WARN] Patch check. Please verify $file"
+            CygbuildWarn "-- [WARN] Patch check." \
+                         "Please verify ${file/$srcdir\/}"
             echo "-- [NOTE] I'm just cautious. Perhaps files below"
             echo "-- [NOTE] are auto-generated or modified by you."
             CygbuildWarn "$notes"
@@ -7523,7 +7534,7 @@ function CygbuildCmdConfMain()
 
         else
 
-            echo "-- No standard configre script found."
+            echo "-- [NOTE] No standard configre script found."
 
         fi
 
@@ -7961,11 +7972,8 @@ function CygbuildInstallPackageDocs()
         name=${file##*/}
         match=""
 
-        #   In for loop, the patterns in $CYGBUILD_INSTALL_IGNORE
-        #   would expand to file names without 'noglob'.
-
         CygbuildMatchBashPatternList \
-            "$file" $CYGBUILD_INSTALL_IGNORE && continue
+            "$file" "$CYGBUILD_INSTALL_IGNORE" && continue
 
         if [[ "$matchExclude"  &&  "$name" == $matchExclude ]]; then
             continue
@@ -9699,19 +9707,16 @@ function CygbuildCmdStripMain()
 
     CygbuildExitNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
 
+    echo "** Strip command"
+
     CygbuildFilesExecutable "$dir" "-o -type f ( -name "*.dll" )" \
     > $retval
 
     local files="$(< $retval)"
-    local file done type list
+    local file type list
 
     for file in $files
     do
-        if [ ! "$done" ]; then
-            echo "-- Stripping executables and *.dll"
-            done=1
-        fi
-
         type=""
 
         $FILE $file > $retval
