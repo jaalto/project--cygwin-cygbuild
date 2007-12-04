@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.0953"
+CYGBUILD_VERSION="2007.1204.0954"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -308,6 +308,24 @@ function CygbuildMatchBashPatternList()
 
 #######################################################################
 #
+#       Primitives 2
+#
+#######################################################################
+
+function CygbuildIsSourceProgram ()
+{
+    # Check "the packaging script" foo-N.N.sh
+
+    [[ $0 == *[0-9]* ]]
+}
+
+function CygbuildIsGbsCompat()
+{
+    [ "$OPTION_GBS_COMPAT" ] || CygbuildIsSourceProgram
+}
+
+#######################################################################
+#
 #       Error functions
 #
 #######################################################################
@@ -366,24 +384,6 @@ function CygbuildExitNoFile()
     if [[ ! -f "$file" ]]; then
         CygbuildDie "$@"
     fi
-}
-
-#######################################################################
-#
-#       Primitives 2
-#
-#######################################################################
-
-function CygbuildIsSourceProgram ()
-{
-    # Check "the packaging script" foo-N.N.sh
-
-    [[ $0 == *[0-9]* ]]
-}
-
-function CygbuildIsGbsCompat()
-{
-    [ "$OPTION_GBS_COMPAT" ] || CygbuildIsSourceProgram
 }
 
 #######################################################################
