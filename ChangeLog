@@ -12,7 +12,7 @@
 	`cygbuild_opt_exclude_version_control' add INSTALL.
 	(CygbuildPatchCheck): Display relative path to patch file.
 	(CygbuildBootVariablesGlobalMain):
-	`CYGBUILD_INSTALL_IGNORE' added ABOUT_NLS.
+	`CYGBUILD_INSTALL_IGNORE' added ABOUT_NLS, README.mingw32
 	(CygbuildInstallPackageDocs): Fix missing quotes from
 	`CYGBUILD_INSTALL_IGNORE'.
 	(CygbuildCmdStripMain): Add '**' start message.
@@ -31,6 +31,9 @@
 	(CygbuildProgramVersion): Add color support
 	(CygbuildHelpShort): Remove non-essential option -x, -m and
 	add new option -C.
+	(CygbuildMsgFilter): Treat FATAL texts.
+	(CygbuildInstallPackageDocs): Fix --test more behavior. Do not
+	run the tar command.
 
 2007-12-02  Jari Aalto  <jari.aalto@cante.net>
 

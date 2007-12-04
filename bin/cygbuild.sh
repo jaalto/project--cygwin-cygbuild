@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.1145"
+CYGBUILD_VERSION="2007.1204.1435"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -345,7 +345,7 @@ function CygbuildMsgFilter()
         ${PERL:-perl} -ane '
             $e = $ENV{end};
             s,([*][*].*),$ENV{topic}$1$e,  ;
-            s,(.*ERROR.*),$ENV{error}$1$e,   ;
+            s,(.*(ERROR|FATAL).*),$ENV{error}$1$e,   ;
             s,(.*WARN.*),$ENV{warn}$1$e,  ;
             s,(.*(INFO|NOTE).*),$ENV{info}$1$e,  ;
             s,^(-- [^[].*),$ENV{msg}$1$e, ;
@@ -713,6 +713,7 @@ function CygbuildBootVariablesGlobalMain()
     *MANIFEST
     *README.*bsd*
     *README.hp*
+    *README.mingw32
     *README.vms
     *RISC-*
     *VMS*
@@ -5141,7 +5142,7 @@ function CygbuildCmdMkpatchMain()
             cursrcdir=$copydir
             cleandir=$copydir
 
-            echo -n "-- Wait, taking a snapshot (may take a while).. "
+            CygbuildEcho "-- Wait, taking a snapshot (may take a while)..."
 
             if [ -d "$cursrcdir" ]; then
                 $RM -rf "$cursrcdir" || exit 1
@@ -5156,8 +5157,8 @@ function CygbuildCmdMkpatchMain()
                 | ( cd "$cursrcdir" && $TAR --extract --file=- ) \
                 || exit 1
 
-            echo " Done."
-            CygbuildEcho "-- Wait, undoing local patches (if any; in snapshot dir)"
+            CygbuildEcho "-- Wait, undoing local patches" \
+                         "(if any; in snapshot dir)"
 
             (
                 #   We must not touch the patch status file, because
@@ -8103,11 +8104,12 @@ function CygbuildInstallPackageDocs()
 
                 status=""
 
-                $TAR $optExclude $optExtra $verbose \
-                     --create --dereference --file=- * \
-                   | ( $TAR -C "$dest" $taropt --file=- )
-
-                status=$?
+                if [ ! "$test" ] ; then
+                    $TAR $optExclude $optExtra $verbose \
+                        --create --dereference --file=- * \
+                    | ( $TAR -C "$dest" $taropt --file=- )
+                    status=$?
+                fi
 
             CygbuildPopd
 
