@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1204.1826';
+$VERSION = '2007.1205.0809';
 
 # ..................................................................
 
@@ -519,6 +519,11 @@ option B<-t> so that no harm is done even if Makefile would try to place
 files to weird places.
 
     cygbuild --release 1 --test install
+
+=item B<import>
+
+Start porting the project. Effectively runs steps B<[makedirs]>,
+B<[files]>, B<[configure]>, B<[make]>.
 
 =item B<check>
 

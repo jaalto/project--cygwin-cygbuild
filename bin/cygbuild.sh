@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1205.0741"
+CYGBUILD_VERSION="2007.1205.0810"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -10833,11 +10833,11 @@ function CygbuildCommandMain()
                                 status=$?
                                 ;;
 
-          list)
-                                CygbuildPushd
-                                    cd $srcdir &&
-                                    find $instdir_relative -print
-                                CygbuildPopd
+          import)               CygbuildCmdMkdirs       &&
+                                CygbuildCmdFilesMain    &&
+                                CygbuildCmdConfMain     &&
+                                CygbuildCmdBuildMain
+                                status=$?
                                 ;;
 
           make|build)           CygbuildCmdBuildMain
