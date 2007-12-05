@@ -3,7 +3,7 @@
 	* bin/cygbuild.sh
 	(CygbuildInstallPackageDocs): Fix --test more behavior. Do not
 	run the tar command.
-	(CygbuildInstallExtraBinFiles): New. Handle CYGWIN-PATCHES/bin
+	(CygbuildInstallExtraBinFiles): New. Treat CYGWIN-PATCHES/bin
 	(CygbuildCmdInstallCheckMakefiles): New. Try to detect use of
 	static libraries.
 	(CygbuildConfCC): Warn about static library linking during

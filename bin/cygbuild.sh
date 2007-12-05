@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1204.2339"
+CYGBUILD_VERSION="2007.1205.0531"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7424,7 +7424,7 @@ function CygbuildConfCC()
             echo
         fi
 
-        CygbuildRunShell $conf $opt | tee $retval.log
+        CygbuildRunShell $conf $opt 2>&1 | tee $retval.log
         status=$?
 
         #   checking how to link with libfoo... /usr/lib/libfoo.a
@@ -7432,7 +7432,7 @@ function CygbuildConfCC()
         if $EGREP "checking how to link.*\<lib[a-z0-9]+\.a\>" \
            $retval.log > $retval.log.1
         then
-            CygbuildWarn "-- [WARN] static library linking"
+            CygbuildWarn "-- [WARN] configure uses static libraries"
             cat $retval.log.1
         fi
 
@@ -7936,7 +7936,8 @@ function CygbuildInstallPackageInfo()
         if [ ! "$done" ]; then                # Do only once
             $MKDIR -p "$DIR_INFO" || return 1
             done=1
-            CygbuildEcho "-- Installing [info] files to $dest"
+            CygbuildEcho "-- Installing [info] files to" \
+                         "${dest/$srcdir\//}"
         fi
 
         if [ -f "$file" ]; then
@@ -8301,7 +8302,7 @@ function CygbuildInstallExtraBinFiles
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
-    local extrabindir="$DIR_CYGPATCH_RELATIVE/bin"
+    local extrabindir="$srcdir/$DIR_CYGPATCH_RELATIVE/bin"
 
     [ -d "$extrabindir" ] || return 0
 
