@@ -8,6 +8,7 @@
 	static libraries.
 	(CygbuildConfCC): Warn about static library linking during
 	./configure
+	(CygbuildReadmeReleaseMatchCheck): Use relative path in message
 
 2007-12-03  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1205.0531"
+CYGBUILD_VERSION="2007.1205.0741"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4341,7 +4341,8 @@ function CygbuildReadmeReleaseMatchCheck()
     local rel=${arr[1]}
 
     if [ "$rel" != "$REL" ]; then
-        CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel in $file"
+        CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel" \
+                     " in ${file/$srcdir\//}"
     fi
 }
 
