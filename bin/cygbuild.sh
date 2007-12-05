@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1205.1830"
+CYGBUILD_VERSION="2007.1205.1834"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -359,7 +359,9 @@ function CygbuildMsgFilter()
             print;
     ')
 
-    [ "$str" ] && echo -e "$str"
+    if [ "$str" ]; then
+        echo -e "$str"
+    fi
 }
 
 function CygbuildEcho()
