@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1205.1834"
+CYGBUILD_VERSION="2007.1205.1836"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8982,7 +8982,7 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     do
         if $EGREP --quiet --files-with-matches "$lib" "$database"
         then
-            CygbuildEcho "-- [OK] requires: $lib"
+            CygbuildEcho "-- OK requires: $lib"
         else
             CygbuildWarn "-- [ERROR] requires: $lib package not installed"
         fi

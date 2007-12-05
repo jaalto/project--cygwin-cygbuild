@@ -14,7 +14,8 @@
 	display colored errors.
 	(CygbuildCmdInstallCheckSetupHintCategory): New. Improve
 	Perl and Python checks.
-	(CygbuildCmdInstallCheckSetupHintDependExists): New (split)
+	(CygbuildCmdInstallCheckSetupHintDependExists): New (split).
+	Chnage [OK] to plain OK.
 	(CygbuildCmdInstallCheckSetupHintLdesc): New (split)
 	(CygbuildCmdInstallCheckSetupHintSdesc): New (split)
 	(CygbuildCmdInstallCheckSetupHintFields): Completely new.
