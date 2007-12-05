@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1205.0810"
+CYGBUILD_VERSION="2007.1205.1830"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -333,17 +333,23 @@ function CygbuildIsGbsCompat()
 
 function CygbuildMsgFilter()
 {
-    topic="$CYGBUILD_COLOR_BLACK1"
-    error="$CYGBUILD_COLOR_RED1"
-    warn="$CYGBUILD_COLOR_RED"
-    info="$CYGBUILD_COLOR_PURPLE"
-    msg="$CYGBUILD_COLOR_BLUE"
-    end="$CYGBUILD_COLOR_RESET"
+    if [ ! "$OPTION_COLOR" ]; then
+        cat
+        return 0
+    fi
+
+    local topic="$CYGBUILD_COLOR_BLACK1"
+    local error="$CYGBUILD_COLOR_RED1"
+    local warn="$CYGBUILD_COLOR_RED"
+    local info="$CYGBUILD_COLOR_PURPLE"
+    local msg="$CYGBUILD_COLOR_BLUE"
+    local end="$CYGBUILD_COLOR_RESET"
 
     export topic error error warn info msg end
 
-    echo -e $(
+    local str=$(
         ${PERL:-perl} -ane '
+            exit 0 unless /\S/;
             $e = $ENV{end};
             s,([*][*].*),$ENV{topic}$1$e,  ;
             s,(.*(ERROR|FATAL).*),$ENV{error}$1$e,   ;
@@ -353,9 +359,7 @@ function CygbuildMsgFilter()
             print;
     ')
 
-    #  Not strictly necessary because this function is run
-    #  inside pipe (subshell)
-    unset topic error error warn info msg end
+    [ "$str" ] && echo -e "$str"
 }
 
 function CygbuildEcho()
@@ -8876,42 +8880,54 @@ function CygbuildCmdInstallCheckReadme()
     return $status
 }
 
-function CygbuildCmdInstallCheckSetupHint()
+function CygbuildCmdInstallCheckSetupHintFields()
 {
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir=$DIR_CYGPATCH
-    local file="setup.hint"
-    local status=0
-    local dummy=$(pwd)                    # For debug
+    local path=${1:-/dev/null}
 
-    if [ ! -d "$dir" ]; then
-        CygbuildEcho "-- [WARN] Cannot check setup.hint, no $dir"
-        return
+    #   Check required fields
+
+    $AWK '
+        BEGIN {
+            hash["sdesc"]    = 0;
+            hash["ldesc"]    = 0;
+            hash["category"] = 0;
+            hash["requires"] = 0;
+        }
+
+        /^sdesc:/    { hash["sdesc"] = 1 }
+        /^ldesc:/    { hash["ldesc"] = 1 }
+        /^category:/ { hash["category"] = 1 }
+        /^requires:/ { hash["requires"] = 1 }
+
+        END {
+            for (var in hash)
+            {
+                if ( ! hash[var] )
+                {
+                    printf("-- [ERROR] missing field %s:\n", var)
+                }
+            }
+        }
+    ' "$path" | CygbuildMsgFilter >&2
+}
+
+function CygbuildCmdInstallCheckSetupHintSdesc()
+{
+    local path=${1:-/dev/null}
+
+    if $EGREP "^sdesc:.+\.[[:space:]]*\"" $path /dev/null
+    then
+        CygbuildWarn "-- [ERROR] sdesc: contains extra period(.)"
     fi
+}
 
-    #   -L = Follow symbolic links
-
-    if ! $FIND -L $dir -name "$file"  > $retval ; then
-        CygbuildEcho "-- [WARN] Hm, Can't find $file"
-        return
-    fi
-
-    if [ ! -s $retval ]; then
-        CygbuildWarn "-- [ERROR] Result file is empty or missing: $file"
-        return 1
-    fi
-
-    local path=$(< $retval)
-
-    if $EGREP "^sdesc:.+\.[[:space:]]*\"" $path /dev/null ; then
-        CygbuildWarn "-- [ERROR] 'sdesc:' contains period(.)"
-    fi
+function CygbuildCmdInstallCheckSetupHintLdesc()
+{
+    local path=${1:-/dev/null}
+    local re="$PKG"
 
     #   Make case insensitive search for package name in ldesc / first line.
     #   Make sure libraries start with cyg* and not the old lib*
-
-    local re="$PKG"
 
     CygbuildStrToRegexpSafe "$PKG" > $retval
     [ -s $retval ] && re=$(< $retval)
@@ -8926,14 +8942,14 @@ function CygbuildCmdInstallCheckSetupHint()
             }
 
             print;
-            print "-- [ERROR] ldesc: mentions package name at first line" ;
+            print "-- [WARN] ldesc: mentions package name at first line" ;
             exit 0;
         }
 
-    ' name="$re" $path  >&2
+    ' name="$re" $path | CygbuildMsgFilter >&2
 
     #  The ldesc: itself is already in double quotes, so there must be
-    #  no extra quotes inside.
+    #  no extra quotes inside. This is fatal error.
 
     $AWK '/^ldesc:/,/^category:/ {
 
@@ -8947,9 +8963,12 @@ function CygbuildCmdInstallCheckSetupHint()
             }
         }
 
-    ' $path  >&2
+    ' "$path" | CygbuildMsgFilter >&2
+}
 
-    status=$?
+function CygbuildCmdInstallCheckSetupHintDependExists()
+{
+    local path=${1:-/dev/null}
 
     #  Installed files are here. We assume that developer always has
     #  every package and library installed
@@ -8959,22 +8978,32 @@ function CygbuildCmdInstallCheckSetupHint()
 
     for lib in $( $AWK  '/^requires:/ { sub("requires:", ""); print}' $path)
     do
-        if $EGREP --quiet --files-with-matches "$lib" $database
+        if $EGREP --quiet --files-with-matches "$lib" "$database"
         then
-            CygbuildEcho "-- [OK] setup.hint $lib"
+            CygbuildEcho "-- [OK] requires: $lib"
         else
-            CygbuildWarn "-- [ERROR] setup.hint $lib package not installed"
+            CygbuildWarn "-- [ERROR] requires: $lib package not installed"
         fi
     done
+}
 
+function CygbuildCmdInstallCheckSetupHintCategory()
+{
     #  Check category line
+    local path=${1:-/dev/null}
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
-    local package=
+    head -1 $instdir/usr/bin/* > "$retval" 2> /dev/null
 
-    if [ -d $instdir/usr/lib/python*/ ]; then
+    local package
+
+    if [ -d $instdir/usr/lib/python*/ ] ||
+       $EGREP --quiet '^#!.*python' "$retval"
+    then
         package="Python"
-    elif [ -d $instdir/usr/lib/perl5/ ]; then
-        # FIXME: check if this is correct
+    elif [ -d $instdir/usr/lib/perl5/ ] ||
+       $EGREP --quiet '^#!.*perl' "$retval"
+    then
         package="Perl"
     fi
 
@@ -8987,12 +9016,47 @@ function CygbuildCmdInstallCheckSetupHint()
                 }
 
                 print;
-                print "-- [WARN] setup.hint category should include: " name
+                print "-- [WARN] category: should include " name
                 exit 0;
             }
 
-        ' name="$package" $path  >&2
+        ' name="$package" "$path" | CygbuildMsgFilter >&2
     fi
+}
+
+function CygbuildCmdInstallCheckSetupHintMain()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local dir=$DIR_CYGPATCH
+    local file="setup.hint"
+    local status=0
+
+    CygbuildEcho "-- setup.hint checks"
+
+    if [ ! -d "$dir" ]; then
+        CygbuildEcho "-- [WARN] Cannot check $file. No $dir"
+        return 1
+    fi
+
+    #   -L = Follow symbolic links
+    $FIND -L $dir -name "$file"  > $retval 2> /dev/null
+
+    if [ ! -s $retval ]; then
+        CygbuildWarn "-- [ERROR] missing: $file"
+        return 1
+    fi
+
+    local path=$(< $retval)
+
+    CygbuildCmdInstallCheckSetupHintFields "$path"
+    CygbuildCmdInstallCheckSetupHintSdesc "$path"
+
+    CygbuildCmdInstallCheckSetupHintLdesc "$path"
+    status=$?
+
+    CygbuildCmdInstallCheckSetupHintDependExists "$path"
+    CygbuildCmdInstallCheckSetupHintCategory "$path"
 
     return $status
 }
@@ -9007,7 +9071,7 @@ function CygbuildCmdInstallCheckDirEmpty()
     do
         [ "$dir" = "$instdir" ] && continue
 
-        if ! $LS -A $dir | $EGREP --quiet '[a-zA-Z]' ; then
+        if ! $LS -A $dir | $EGREP --quiet '[a-zA-Z0-9]' ; then
             CygbuildWarn "-- [WARN] empty directory $dir"
         fi
 
@@ -9646,20 +9710,20 @@ function CygbuildCmdInstallCheckMain()
 
     [ "$verb" ] && CygbuildCmdInstallCheckMakefiles || stat=$?
 
-    CygbuildCmdInstallCheckTempFiles    || stat=$?
-    CygbuildCmdInstallCheckInfoFiles    || stat=$?
-    CygbuildCmdInstallCheckShellFiles   || stat=$?
-    CygbuildCmdInstallCheckReadme       || stat=$?
-    CygbuildCmdInstallCheckSetupHint    || stat=$?
-    CygbuildCmdInstallCheckManualPages  || stat=$?
-    CygbuildCmdInstallCheckDocPages     || stat=$?
-    CygbuildCmdInstallCheckBinFiles     || stat=$?
-    CygbuildCmdInstallCheckSymlinks     || stat=$?
-    CygbuildCmdInstallCheckLibFiles     || stat=$?
-    CygbuildCmdInstallCheckDirStructure || stat=$?
-    CygbuildCmdInstallCheckDirEmpty     || stat=$?
-    CygbuildCmdInstallCheckEtc          || stat=$?
-    CygbuildCmdInstallCheckSymlinkExe   || stat=$?
+    CygbuildCmdInstallCheckTempFiles         || stat=$?
+    CygbuildCmdInstallCheckInfoFiles         || stat=$?
+    CygbuildCmdInstallCheckShellFiles        || stat=$?
+    CygbuildCmdInstallCheckReadme            || stat=$?
+    CygbuildCmdInstallCheckSetupHintMain     || stat=$?
+    CygbuildCmdInstallCheckManualPages       || stat=$?
+    CygbuildCmdInstallCheckDocPages          || stat=$?
+    CygbuildCmdInstallCheckBinFiles          || stat=$?
+    CygbuildCmdInstallCheckSymlinks          || stat=$?
+    CygbuildCmdInstallCheckLibFiles          || stat=$?
+    CygbuildCmdInstallCheckDirStructure      || stat=$?
+    CygbuildCmdInstallCheckDirEmpty          || stat=$?
+    CygbuildCmdInstallCheckEtc               || stat=$?
+    CygbuildCmdInstallCheckSymlinkExe        || stat=$?
     CygbuildCmdInstallCheckCygpatchDirectory || stat=$?
 
     CygbuildEcho "-- Check done. Please verify messages above."

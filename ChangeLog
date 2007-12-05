@@ -9,6 +9,19 @@
 	(CygbuildConfCC): Warn about static library linking during
 	./configure
 	(CygbuildReadmeReleaseMatchCheck): Use relative path in message
+	(CygbuildCmdInstallCheckSetupHintMain): Broke long function
+	into pieces. Now also uses `CygbuildMsgFilter' everywhere to
+	display colored errors.
+	(CygbuildCmdInstallCheckSetupHintCategory): New. Improve
+	Perl and Python checks.
+	(CygbuildCmdInstallCheckSetupHintDependExists): New (split)
+	(CygbuildCmdInstallCheckSetupHintLdesc): New (split)
+	(CygbuildCmdInstallCheckSetupHintSdesc): New (split)
+	(CygbuildCmdInstallCheckSetupHintFields): Completely new.
+	(CygbuildMsgFilter): Do not print() if there is no output.
+	Remove `unset' and add `local' declarations.
+	(CygbuildCmdInstallCheckDirEmpty): Add [0-9] to detect all
+	numeric content.
 
 2007-12-03  Jari Aalto  <jari.aalto@cante.net>
 
