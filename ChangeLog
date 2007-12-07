@@ -14,6 +14,8 @@
 	Add color support. Add bin package support
 	(CygbuildCmdPackageBinMain): New
 	(CygbuildCmdPackageDevMain): New
+	(WasLibraryInstall): New
+	(CygbuildCommandMain): Change indentation level in for-command loop.
 
 2007-12-05  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.1955"
+CYGBUILD_VERSION="2007.1207.2016"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1099,6 +1099,23 @@ function CygbuildLibInstallEnvironment()
 #       Utility functions
 #
 #######################################################################
+
+function WasLibraryInstall ()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    if [ -d .inst ]; then
+        $FIND .inst -type f     \
+            -name "*.a"         \
+            -o -name "*.la"     \
+            -o -name "*.dll*"   \
+            > $retval 2> /dev/null
+
+        [ -s "$retval" ]
+    else
+        return 1
+    fi
+}
 
 function CygbuildFileDeleteLine ()
 {
@@ -6368,7 +6385,8 @@ function CygbuildMakefileRunInstall()
 
     #   install under .inst/
 
-    CygbuildEcho "-- Running 'make install' (or equiv.) in" ${builddir/$srcdir\/}
+    CygbuildEcho "-- Running 'make install' (or equiv.) in" \
+                 ${builddir/$srcdir\/}
 
     if [ -f "$makeScript" ]; then
 
@@ -10191,14 +10209,19 @@ function CygbuildCmdAllMain()
     CygbuildCmdBuildMain            &&
     CygbuildCmdInstallMain          &&
     CygbuildCmdStripMain            &&
-    CygbuildCmdPkgBinaryMain        &&
-    {
-        if CygbuildHelpSourcePackage ; then
-            CygbuildCmdPkgSourceMain
-        elif [ "$OPTION_GBS_COMPAT" ] ; then
-            CygbuildEcho "-- Not attempting to build a source package"
-        fi ;
-    }
+    if WasLibraryInstall ; then
+        CygbuildCmdPackageDevMain
+
+    else
+        CygbuildCmdPkgBinaryMain &&
+        {
+            if CygbuildHelpSourcePackage ; then
+                CygbuildCmdPkgSourceMain
+            elif [ "$OPTION_GBS_COMPAT" ] ; then
+                CygbuildEcho "-- Not attempting to build a source package"
+            fi ;
+        }
+    fi
 
     local status=$?
 
@@ -10543,7 +10566,7 @@ function CygbuildCommandMain()
     CygbuildBootVariablesCache
     CygbuildBootVariablesGlobalMain
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  If the first argument is filename, remove it
     #  ./links-1.99.20-1.sh --verbose all
@@ -10762,7 +10785,8 @@ function CygbuildCommandMain()
                 ;;
 
             -t|--test)
-                CygbuildEcho "-- [NOTE] RUNNING IN TEST MODE - Changes are minimized"
+                CygbuildEcho "-- [NOTE] RUNNING IN TEST MODE." \
+                             "Changes are minimized"
                 test="test"                     # global-def
                 shift
                 ;;
@@ -10925,237 +10949,275 @@ function CygbuildCommandMain()
     do
         case $opt in
 
-          all)                  CygbuildCmdAllMain finish
-                                status=$?
-                                ;;
+          all)
+                CygbuildCmdAllMain finish
+                status=$?
+                ;;
 
-          almostall)            CygbuildCmdAllMain
-                                status=$?
-                                ;;
+          almostall)
+                CygbuildCmdAllMain
+                status=$?
+                ;;
 
-          auto*)                CygbuildCmdAutotool
-                                ;;
+          auto*)
+                CygbuildCmdAutotool
+                status=$?
+                ;;
 
-          *clean)               CygbuildCmdCleanByType $opt
-                                status=$?
-                                ;;
+          *clean)
+                CygbuildCmdCleanByType $opt
+                status=$?
+                ;;
 
-          check)                CygbuildCmdInstallCheckMain
-                                status=$?
-                                ;;
+          check)
+                CygbuildCmdInstallCheckMain
+                status=$?
+                ;;
 
-          checksig)             CygbuildCmdGPGVerifyMain
-                                status=$?
-                                ;;
+          checksig)
+                CygbuildCmdGPGVerifyMain
+                status=$?
+                ;;
 
-          check-deps)           # CygbuildCmdDependCheckMain
-                                CygbuildCmdInstallCheckBinFiles
-                                status=$?
-                                ;;
+          check-deps)
+                # CygbuildCmdDependCheckMain
+                CygbuildCmdInstallCheckBinFiles
+                status=$?
+                ;;
 
-          conf*)                CygbuildCmdConfMain
-                                status=$?
-                                ;;
+          conf*)
+                CygbuildCmdConfMain
+                status=$?
+                ;;
 
-          depend*)              CygbuildCmdDependMain
-                                status=$?
-                                ;;
+          depend*)
+                CygbuildCmdDependMain
+                status=$?
+                ;;
 
-          finish)               CygbuildCmdFinishMain
-                                status=$?
-                                ;;
+          finish)
+                CygbuildCmdFinishMain
+                status=$?
+                ;;
 
-          files)                CygbuildCmdFilesMain
-                                status=$?
-                                ;;
+          files)
+                CygbuildCmdFilesMain
+                status=$?
+                ;;
 
-          install)              CygbuildCmdInstallMain
-                                status=$?
-                                ;;
+          install)
+                CygbuildCmdInstallMain
+                status=$?
+                ;;
 
-          install-extra)        #  Generate POD manuals and
-                                #  compress manual pages etc.
-                                CygbuildInstallExtraMain
-                                status=$?
-                                ;;
+          install-extra)
+                #  Generate POD manuals and
+                #  compress manual pages etc.
+                CygbuildInstallExtraMain
+                status=$?
+                ;;
 
-          import)               CygbuildCmdMkdirs       &&
-                                CygbuildCmdFilesMain    &&
-                                CygbuildCmdConfMain     &&
-                                CygbuildCmdBuildMain
-                                status=$?
-                                ;;
+          import)
+                CygbuildCmdMkdirs       &&
+                CygbuildCmdFilesMain    &&
+                CygbuildCmdConfMain     &&
+                CygbuildCmdBuildMain
+                status=$?
+                ;;
 
-          make|build)           CygbuildCmdBuildMain
-                                status=$?
-                                ;;
+          make|build)
+                CygbuildCmdBuildMain
+                status=$?
+                ;;
 
-          makedirs|mkdirs)      CygbuildCmdMkdirs $verbose
-                                status=$?
-                                ;;
+          makedirs|mkdirs)
+                CygbuildCmdMkdirs $verbose
+                status=$?
+                ;;
 
           makepatch|mkpatch)
-                                CygbuildCmdMkpatchMain   \
-                                    "$OPTION_SIGN"       \
-                                    "$OPTION_PASSPHRASE" &&
-                                CygbuildPatchCheck
-                                status=$?
-                                ;;
+                CygbuildCmdMkpatchMain   \
+                    "$OPTION_SIGN"       \
+                    "$OPTION_PASSPHRASE" &&
+                CygbuildPatchCheck
+                status=$?
+                ;;
 
           package|bin-package|package-bin|pkg)
-                                CygbuildCmdPackageBinMain "$stripflag"
-                                status=$?
-                                ;;
+                CygbuildCmdPackageBinMain "$stripflag"
+                status=$?
+                ;;
 
           package-devel|pkgdev)
-                                CygbuildCmdPackageDevMain "$stripflag"
-                                status=$?
-                                ;;
+                CygbuildCmdPackageDevMain "$stripflag"
+                status=$?
+                ;;
 
-          package-sign|pkg-sign|sign|sign-package*)
+          package-sign|pkg-sign|sign|sign-package*
+                if WasLibraryInstall ; then
+                    CygbuildEcho "-- [WARN] Libs found." \
+                                 "Did you mean [package-devel]?"
+                fi
 
-                                if [ ! "$OPTION_SIGN" ]; then
-                                    CygbuildWarn "[ERROR] -s option missing"
-                                    status=1
-                                else
-                                    CygbuildGPGsignMain      \
-                                        "$OPTION_SIGN"       \
-                                        "$OPTION_PASSPHRASE"
-                                    status=$?
-                                fi
-                                ;;
+
+                if [ ! "$OPTION_SIGN" ]; then
+                    CygbuildWarn "[ERROR] -s option missing"
+                    status=1
+                else
+                    CygbuildGPGsignMain      \
+                        "$OPTION_SIGN"       \
+                        "$OPTION_PASSPHRASE"
+                    status=$?
+                fi
+                ;;
 
           repackage-all|repackage|repkg)
 
-                                #   - Both bin and source packages are made:
-                                #     install, pkg, fix, install pkg ...
-                                #   - This is needed twice due to way
-                                #     readmefix works.
+                #   - Both bin and source packages are made:
+                #     install, pkg, fix, install pkg ...
+                #   - This is needed twice due to way
+                #     readmefix works.
 
-                                CygbuildNoticeGPG
+                CygbuildNoticeGPG
 
-                                CygbuildCmdConfMain         &&
-                                CygbuildCmdBuildMain        &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdInstallCheckMain &&
-                                CygbuildStripCheck          &&
-                                CygbuildCmdPkgBinaryMain    &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgBinaryMain    &&
-                                {
-                                    CygbuildHelpSourcePackage   &&
-                                    CygbuildCmdPkgSourceMain ;
-                                }   || :                        &&
-                                CygbuildCmdPublishMain
-                                status=$?
-                                ;;
+                CygbuildCmdConfMain         &&
+                CygbuildCmdBuildMain        &&
+                CygbuildCmdInstallMain      &&
+                CygbuildCmdInstallCheckMain &&
+                CygbuildStripCheck          &&
+                CygbuildCmdPkgBinaryMain    &&
+                CygbuildCmdInstallMain      &&
+                CygbuildCmdPkgBinaryMain    &&
+                {
+                    CygbuildHelpSourcePackage   &&
+                    CygbuildCmdPkgSourceMain ;
+                }   || :                        &&
+                CygbuildCmdPublishMain
+                status=$?
+                ;;
 
           repackage-bin|repkgbin)
-                                CygbuildNoticeGPG
+                CygbuildNoticeGPG
 
-                                CygbuildCmdConfMain         &&
-                                CygbuildCmdBuildMain        &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgBinaryMain
-                                status=$?
-                                ;;
+                CygbuildCmdConfMain         &&
+                CygbuildCmdBuildMain        &&
+                CygbuildCmdInstallMain      &&
+                CygbuildCmdPkgBinaryMain
+                status=$?
+                ;;
 
           repackage-devel|repkgdev)
-                                CygbuildNoticeGPG
+                CygbuildNoticeGPG
 
-                                CygbuildCmdConfMain         &&
-                                CygbuildCmdBuildMain        &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgDevelMain
-                                status=$?
-                                ;;
+                CygbuildCmdConfMain         &&
+                CygbuildCmdBuildMain        &&
+                CygbuildCmdInstallMain      &&
+                CygbuildCmdPkgDevelMain
+                status=$?
+                ;;
 
-          patch)                CygbuildPatchApplyMaybe
-                                status=$?
-                                ;;
+          patch)
+                CygbuildPatchApplyMaybe
+                status=$?
+                ;;
 
-          patch-check|pchk)     verbose="verbose" CygbuildPatchCheck
-                                CygbuildPatchListDisplay
-                                status=$?
-                                ;;
+          patch-check|pchk)
+                verbose="verbose" CygbuildPatchCheck
+                CygbuildPatchListDisplay
+                status=$?
+                ;;
 
-          prep*|unpack)         CygbuildCmdPrepMain
-                                status=$?
-                                ;;
+          prep*|unpack)
+                CygbuildCmdPrepMain
+                status=$?
+                ;;
 
-          preremove)            CygbuildCmdPreremoveInstallMain
-                                status=$?
-                                ;;
-          postinstall)          CygbuildCmdPostInstallMain
-                                status=$?
-                                ;;
+          preremove)
+                CygbuildCmdPreremoveInstallMain
+                status=$?
+                ;;
 
-          publish)              CygbuildCmdPublishMain
-                                status=$?
-                                ;;
+          postinstall)
+                CygbuildCmdPostInstallMain
+                status=$?
+                ;;
+
+          publish)
+                CygbuildCmdPublishMain
+                status=$?
+                ;;
 
           source-package|package-source|spkg)
+                CygbuildHelpSourcePackage
+                status=$?
 
-                                CygbuildHelpSourcePackage
-                                status=$?
+                if [ "$status" = "0" ]; then
+                    CygbuildNoticeGPG
+                    CygbuildNoticeMaybe
+                    CygbuildCmdPkgSourceMain
+                    status=$?
+                fi
+                ;;
 
-                                if [ "$status" = "0" ]; then
-                                    CygbuildNoticeGPG
-                                    CygbuildNoticeMaybe
-                                    CygbuildCmdPkgSourceMain
-                                    status=$?
-                                fi
-                                ;;
+          readme)
+                CygbuildDocFileReadme
+                status=$?
+                ;;
 
-          readme)               CygbuildDocFileReadme
-                                status=$?
-                                ;;
+          readmefix)
+                CygbuildCmdReadmeFix
+                status=$?
+                ;;
 
-          readmefix)            CygbuildCmdReadmeFix
-                                status=$?
-                                ;;
+          reshadow)
+                CygbuildCmdShadowDelete  &&
+                CygbuildCmdShadowMain
+                status=$?
+                ;;
 
-          reshadow)             CygbuildCmdShadowDelete  &&
-                                CygbuildCmdShadowMain
-                                status=$?
-                                ;;
+          rmshadow)
+                CygbuildCmdShadowDelete
+                status=$?
+                ;;
 
-          rmshadow)             CygbuildCmdShadowDelete
-                                status=$?
-                                ;;
+          shadow)
+                CygbuildCmdShadowMain
+                status=$?
+                ;;
 
-          shadow)               CygbuildCmdShadowMain
-                                status=$?
-                                ;;
+          strip)
+                if [ "$stripflag" ]; then
+                    CygbuildCmdStripMain
+                    status=$?
+                else
+                    status=0
+                fi
+                ;;
 
-          strip)                if [ "$stripflag" ]; then
-                                    CygbuildCmdStripMain
-                                    status=$?
-                                else
-                                    status=0
-                                fi
-                                ;;
+          test)
+                CygbuildCmdTestMain
+                status=$?
+                ;;
 
-          test)                 CygbuildCmdTestMain
-                                status=$?
-                                ;;
-
-          unpatch)              CygbuildPatchApplyMaybe unpatch
-                                status=$?
-                                ;;
+          unpatch)
+                CygbuildPatchApplyMaybe unpatch
+                status=$?
+                ;;
 
           download|dl)
-                                CygbuildCmdDownloadUpstream
-                                status=$?
-                                ;;
+                CygbuildCmdDownloadUpstream
+                status=$?
+                ;;
 
-          vars) set -x
+          vars)
+                set -x
                 CygbuildDefineGlobalMain "$TOPDIR" "$srcdir" \
                     "$release" "$package"
                 return
                 ;;
 
-        verify) CygbuildCmdGPGVerifyMain
+        verify)
+                CygbuildCmdGPGVerifyMain
                 status=$?
                 ;;
 
