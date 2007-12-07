@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.1501"
+CYGBUILD_VERSION="2007.1207.1834"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4664,8 +4664,8 @@ function CygbuildCmdPkgDevelStandard()
         $FIND usr \
              '(' \
                 -path "*/bin/*" \
-                -path "*/var/*" \
-                -o x-path "*/etc/*" \
+                -o -path "*/var/*" \
+                -o -path "*/etc/*" \
                 -o -path "*/sbin/*" \
             ')' \
             -a ! -name "*.dll" -a ! -name "*-config" \
@@ -4762,7 +4762,7 @@ function CygbuildCmdPkgDevelStandard()
         fi
 
 
-        $FIND usr/share/doc  > $retval.doc
+        $FIND usr/share/doc > $retval.doc
 
         if [ ! -s $retval.doc ]; then
             CygbuildWarn "-- [devel-doc] [WARN] No doc files for $pkgdoc"
@@ -7528,16 +7528,17 @@ function CygbuildConfPerlMain()
 
 function CygbuildCmdConfAutomake()
 {
-     if [[ ! -f configure  &&  -f makefile.am ]]; then
+     if [ ! -f configure ] && [ -f makefile.am ]; then
         if [ -f "bootstrap" ]; then
-            CygbuildEcho "-- Hm, automake package. Let's see..."
+            CygbuildEcho "-- No ./configure but looks like automake." \
+                         "Running ./bootstrap"
+
             ./bootstrap
 
             if [ -f configure ]; then
-                CygbuildDie "-- ./configure appeared." \
-                      "-- Now run again commands [reshadow] and [configure]"
+                CygbuildVerb "-- ./configure appeared."
             else
-                CygbuildEcho "-- Don't know what to do."
+                CygbuildEcho "-- {ERROR] No ./configure appeared."
                 return 1
             fi
         fi
@@ -7560,11 +7561,11 @@ function CygbuildCmdConfMain()
         CygbuildCmdShadowMain || return $?
     fi
 
-    CygbuildCmdConfAutomake || return 1
-
     CygbuildPushd
 
         cd $builddir || exit 1
+
+        CygbuildCmdConfAutomake || return 1
 
         CygbuildVerb "-- Configuring in $(pwd)"
 
@@ -10600,6 +10601,7 @@ function CygbuildCommandMain()
 
             -D|--Debug)
                 OPTION_DEBUG_VERIFY="yes"       # global-def
+                trap 1 2 3 15
                 shift
                 ;;
 
@@ -11176,6 +11178,7 @@ function Test ()
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
 #Test findbugs-1.3.0-rc1.tar.gz
 
+trap 'CygbuildFileCleanTemp; exit' 1 2 3 15
 CygbuildMain "$@"
 
 # End of file

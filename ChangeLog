@@ -1,11 +1,15 @@
 2007-12-07  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
+	-- Add `trap' to clean temporary files.
 	(CygbuildCmdInstallCheckMain): Fix status code assignment.
 	(CygbuildCygcheckLibraryDepGrepPgkNames): Check
 	missing cache file better.
 	(CygbuildCmdGetSource): Now handles multiple patches
 	in Cygwin Net release source packages. Detect *.cygport
+	(CygbuildCmdConfAutomake): Simplify.
+	(CygbuildCmdConfMain): Run `CygbuildCmdConfAutomake' inside
+	.build, not $srcdir.
 
 2007-12-05  Jari Aalto  <jari.aalto@cante.net>
 
