@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1205.1836"
+CYGBUILD_VERSION="2007.1207.1034"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1270,7 +1270,8 @@ function CygbuildCygcheckLibraryDepAdjust()
           CygbuildFileDeleteLine "$lib" "$file" || return 1
 
           if $EGREP --quiet "^ *requires:.*\b$lib" $setup ; then
-              CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
+              CygbuildWarn "-- [NOTE] setup.hint maybe" \
+                           "unnecessary depends $lib"
           fi
       fi
     done
@@ -9710,7 +9711,9 @@ function CygbuildCmdInstallCheckMain()
 
     CygbuildEcho "** Checking content of installation in" ${instdir/$srcdir\/}
 
-    [ "$verb" ] && CygbuildCmdInstallCheckMakefiles || stat=$?
+    if [ "$verb" ]; then
+        CygbuildCmdInstallCheckMakefiles || stat=$?
+    fi
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
