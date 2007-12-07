@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.2016"
+CYGBUILD_VERSION="2007.1207.2143"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -731,7 +731,7 @@ function CygbuildBootVariablesGlobalMain()
     #  componen match of the file. Files are find(1) collected under
     #  install directory.
 
-    CYGBUILD_IGNORE_ZERO_LENGTH="*+(__init__.py)"
+    CYGBUILD_IGNORE_ZERO_LENGTH="*@(__init__.py)"
 
     #   This is egrep(1) match for files found in toplevel. Case sensitive.
 
@@ -1033,7 +1033,7 @@ function CygbuildBootVariablesGlobalMain()
     #   A bash [[ ]] match pattern to check which files are executables
     #   and would need chmod 755
 
-    CYGBUILD_MATCH_FILE_EXE="*.+(pl|py|sh|bash|ksh|zsh)"
+    CYGBUILD_MATCH_FILE_EXE="*.@(pl|py|sh|bash|ksh|zsh)"
 }
 
 function CygbuildBootFunctionExport()
@@ -1521,7 +1521,7 @@ function CygbuildCheckRunDir()
 
     #  Do just a quick sweep, nothing extensive
 
-    if [[ "$(pwd)" == *+(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
+    if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
         CygbuildWarn "-- [WARN] Current directory is not source ROOT"
     fi
@@ -2325,7 +2325,7 @@ function CygbuildFileTypeByFile()
         $EGREP '^#!' $file > $retval
         [ -s $retval ] && notes=$(< $retval)
 
-        if [[ "$notes" == *+(bash|/sh|/ksh|/csh|/tcsh) ]]; then
+        if [[ "$notes" == *@(bash|/sh|/ksh|/csh|/tcsh) ]]; then
             ret="shell"
         elif [[ "$notes" == *perl* ]]; then
             ret="perl"
@@ -7477,7 +7477,7 @@ function CygbuildConfCC()
 
             for opt in $opt
             do
-                if [[ $opt != +(--libdir*|--datadir*) ]]; then
+                if [[ $opt != @(--libdir*|--datadir*) ]]; then
                     cleaned="$cleaned $opt"
                 fi
             done
@@ -10571,7 +10571,7 @@ function CygbuildCommandMain()
     #  If the first argument is filename, remove it
     #  ./links-1.99.20-1.sh --verbose all
 
-    if [[ "$1" == *+(cygbuild|.sh) ]]; then
+    if [[ "$1" == *@(cygbuild|.sh) ]]; then
         shift
     fi
 
@@ -11053,7 +11053,7 @@ function CygbuildCommandMain()
                 status=$?
                 ;;
 
-          package-sign|pkg-sign|sign|sign-package*
+          package-sign|pkg-sign|sign|sign-package)
                 if WasLibraryInstall ; then
                     CygbuildEcho "-- [WARN] Libs found." \
                                  "Did you mean [package-devel]?"
