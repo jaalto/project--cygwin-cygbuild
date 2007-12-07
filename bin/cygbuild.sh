@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.1353"
+CYGBUILD_VERSION="2007.1207.1501"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -176,7 +176,7 @@ function CygbuildWhich()
 
 function CygbuildWhichCheck()
 {
-    CygbuildWhich "$1" > /dev/null
+    [ "$1" ] && CygbuildWhich "$1" > /dev/null
 }
 
 function CygbuildRun()
@@ -7040,48 +7040,54 @@ CygbuildCmdGetSource ()
 
     CygbuildEcho "-- Wait, extracting source and preparing *.patch file"
 
-    if [ -f "$archive" ] && [ ! -f $name*.sh ] ; then
-
+    if [ -f "$archive" ] && { [ -f $name*.sh ] || [ -f $name*.cygport ]; }
+    then
+        CygbuildEcho "-- Good, archive already extracted: $archive"
+    else
         local z
         CygbuildTarOptionCompress "$archive" > $retval
         [ -s $retval ] && z=$(< $retval)
 
         $TAR -${z}xf $verbose "$archive"
-    else
-        CygbuildEcho "-- Good, archive already extracted: $archive"
     fi
 
-    #  explode the patch to manageable pieces
-
-    local patch=$(ls *.patch 2> /dev/null |
-                  $EGREP --invert-match --regexp='-rest' )
-
-    local fdiff
-    CygbuildWhich filterdiff > $retval &&
-    fdiff=$(< $retval)
-
-    if [ ! "$fdiff" ]; then
+    if ! CygbuildWhichCheck filterdiff ; then
         CygbuildWarn "-- [WARN] Skipped patch explode. filterdiff not in PATH"
-
-    elif [ "$patch" ]; then
-        local cygdir="${DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
-
-        [ ! -d "$cygdir" ] &&
-        $fdiff -i "*CYGWIN*" $patch | patch -p1 --forward
-
-        local file=${patch%.patch}-rest.patch
-
-        [ ! -f "$file" ] &&
-        $fdiff -x "*CYGWIN*" $patch > $file
-
-        CygbuildEcho "-- Content of $file"
-        $EGREP '^--- ' $file | $SED 's/^--- /   /'
-
-        CygbuildEcho "-- Done. Examine *.sh and $cygdir/ and $file"
-
-    else
-        CygbuildWarn "-- [WARN] Didn't see a *.patch file"
+        return 0
     fi
+
+    local cygdir="${DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
+
+    for patch in $(ls *.patch 2> /dev/null |
+                  $EGREP --invert-match --regexp='-rest.patch' )
+    do
+        if [ ! -d "$cygdir" ]; then
+            if lsdiff $patch | $EGREP "$cygdir" > /dev/null ; then
+                filterdiff -i "*CYGWIN*" $patch | patch -p1 --forward
+            fi
+        fi
+
+        if lsdiff $patch |
+           $EGREP --invert-match "$cygdir" > /dev/null
+        then
+
+            local file=${patch%.patch}-rest.patch
+
+            [ ! -f "$file" ] &&
+            filterdiff -x "*CYGWIN*" $patch > "$file"
+
+            if cmp "$patch" "$file" ; then
+                $RM "$file"                             # No changes
+            elif [ -f "$file" ] && [ -s "$file" ]; then
+                CygbuildEcho "-- Content of $file"
+                lsdiff "$file"
+            else
+                $RM -f "$file"
+            fi
+        fi
+    done
+
+    CygbuildEcho "-- Done. Examine *.sh and $cygdir/ and *.patch"
 }
 
 function CygbuildCmdPrepIsUnpacked()

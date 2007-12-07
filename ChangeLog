@@ -4,6 +4,8 @@
 	(CygbuildCmdInstallCheckMain): Fix status code assignment.
 	(CygbuildCygcheckLibraryDepGrepPgkNames): Check
 	missing cache file better.
+	(CygbuildCmdGetSource): Now handles multiple patches
+	in Cygwin Net release source packages. Detect *.cygport
 
 2007-12-05  Jari Aalto  <jari.aalto@cante.net>
 
