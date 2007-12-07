@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh:
 	(CygbuildCmdInstallCheckMain): Fix status code assignment.
+	(CygbuildCygcheckLibraryDepGrepPgkNames): Check
+	missing cache file better.
 
 2007-12-05  Jari Aalto  <jari.aalto@cante.net>
 

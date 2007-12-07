@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.1034"
+CYGBUILD_VERSION="2007.1207.1353"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1323,8 +1323,12 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
     local cache=/var/cache/cygbug/package/list/file.lst
 
     if [ ! -f $cache ]; then
-        CygbuildWarn "-- [NOTE] Cache not found $cache"
-        return 1
+        if [ -d /var/cache/cygbug ]; then
+            CygbuildWarn "-- [NOTE] Cache not found $cache"
+            return 1
+        fi
+
+        return 0
     fi
 
     if [ ! "$file" ] || [ ! -e $file ]; then
@@ -9442,7 +9446,8 @@ function CygbuildCmdInstallCheckBinFiles()
             [ -s $retval ] && str=$(< $retval)
 
             if [ "$str" ]; then
-                CygbuildEcho "-- [NOTE] Binary name clash? Already exists $str"
+                CygbuildEcho "-- [NOTE] Binary name clash?" \
+                             "Already exists ${str/$srcdir\//}"
                 # status=1
             fi
         fi
