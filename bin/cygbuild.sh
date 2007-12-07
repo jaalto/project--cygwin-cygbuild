@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.1834"
+CYGBUILD_VERSION="2007.1207.1955"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4649,17 +4649,14 @@ function CygbuildCmdPkgDevelStandard()
 
         DIR_DOC_GENERAL=$CYGBUILD_DOCDIR_FULL
 
-        CygbuildEcho "** Making packages [devel] from $instdir"
+        CygbuildEcho "** Making packages [devel] from" \
+                     "${instdir/$srcdir\//}"
 
         cd $instdir || exit 1
 
         local files
 
-        $FIND usr -name "*.dll" -o -name "*.la" \
-            > $retval.lib
-
-
-        #  Exclude library config like xxx-config
+        #  Find all executables. Exclude library config like xxx-config
 
         $FIND usr \
              '(' \
@@ -4668,47 +4665,82 @@ function CygbuildCmdPkgDevelStandard()
                 -o -path "*/etc/*" \
                 -o -path "*/sbin/*" \
             ')' \
-            -a ! -name "*.dll" -a ! -name "*-config" \
+            -a ! -name "*.dll*" \
+            -a ! -name "*.la" \
+            -a ! -name "*.a" \
+            -a ! -name "*-config" \
             > $retval.bin
 
         local manregexp
         touch $retval.man.bin $retval.man.others
 
-        $FIND usr/share/man > $retval.man.all 2> /dev/null
+        $FIND usr/share/man -type f > $retval.man.all 2> /dev/null
 
         if [ -s $retval.bin ]; then
 
-            # Include manual pages too
+            # Include manual pages fro executables
 
-            manregexp=$( $AWK '
-            {
-                gsub(".*/", "");
-                sub("[.](pl|py|exe|sh)$", "");
-                re = re "|" $0;
-            }
-            END {
-                print substr(re, 2);
-            }
-            ' $retval.bin)
+            manregexp=$(
+                $AWK '
+                {
+                    gsub(".*/", "");
+                    sub("[.](pl|py|exe|sh)$", "");
+                    re = re "|" $0;
+                }
+                END {
+                    print substr(re, 2);
+                }
+                ' $retval.bin
+            )
 
-            [ "$manregexp" ] &&
-            $FIND usr/share/man             \
-                -regextype posix-egrep      \
-                -regex ".*($manregexp).*"   \
-                >> $retval.man.bin
+            if [ "$manregexp" ]; then
+                $FIND usr/share/man                     \
+                    -regextype posix-egrep              \
+                    -regex ".*($manregexp)[.][0-9].*"   \
+                    -type f                             \
+                    >> $retval.man.bin
+            fi
 
             if [ -s $retval.man.bin ]; then
                 $EGREP --invert-match --file=$retval.man.bin \
                     $retval.man.all > $retval.man.others
             else
+                CygbuildWarn "-- [WARN] No manual pages executables"
+                $CAT $retval.bin
                 $CP $retval.man.all $retval.man.others
             fi
         fi
 
+        local pkgbin="$FILE_BIN_PKG"
+
+        if [ -s $retval.bin ]; then
+            CygbuildEcho "-- [devel bin]"
+
+            local tar="$pkgbin"
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+
+            echo "${tar/$srcdir\//}"
+
+            $TAR $taropt $tar \
+            $(< $retval.bin) $(< $retval.man.bin) ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status ;
+            }
+
+        fi
+
+        $FIND usr               \
+            -name "*.dll"       \
+            -o -name "*.la"     \
+            -o -name "*-config" \
+            > $retval.lib
+
         if [ ! -s $retval.lib ]; then
             CygbuildWarn "-- [devel-lib] [WARN] No *.dll files"
         else
-            echo -n "-- [devel-lib] "
+            CygbuildEcho "-- [devel-lib]"
 
             # Find out version number
             # usr/bin/cygfontconfig-1.dll => 1
@@ -4726,10 +4758,10 @@ function CygbuildCmdPkgDevelStandard()
             PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DEV
 
-            echo "$tar"
+            echo "${tar/$srcdir\//}"
 
             $TAR $taropt $tar \
-            $(< $retval.lib) $(< $retval.bin) $(< $retval.man.bin) ||
+            $(< $retval.lib) $(< $retval.man.others) ||
             {
                 status=$?
                 CygbuildPopd
@@ -4737,21 +4769,25 @@ function CygbuildCmdPkgDevelStandard()
             }
         fi
 
-        $FIND usr/include usr/lib \( -name "*.h" -o -name "*.a" \) \
-            > $retval.dev
+        $FIND usr/include usr/lib usr/share  \
+            '(' -name "*.h"         \
+                -o -name "*.a"      \
+                -o -name "*.m4"     \
+            ')'                     \
+            > $retval.dev 2> /dev/null
 
         if [ ! -s $retval.dev ]; then
             CygbuildWarn "-- [devel-dev] [WARN] No *.h or*.a files" \
                 "for $pkglib"
         else
-            echo -n "-- [devel-dev] "
+            CygbuildEcho "-- [devel-dev]"
 
             local pkg="$LIBPKG-devel.tar.bz2"
             NAME_LIB_PKG_MAIN=$pkg                              # global-def
             PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
             local tar=$PATH_PKG_LIB_LIBRARY
 
-            echo "$tar"
+            echo "${tar/$srcdir\//}"
 
             $TAR $taropt $tar $(< $retval.dev) ||
             {
@@ -4761,21 +4797,20 @@ function CygbuildCmdPkgDevelStandard()
             }
         fi
 
-
-        $FIND usr/share/doc > $retval.doc
+        $FIND usr/share/doc -type f > $retval.doc
 
         if [ ! -s $retval.doc ]; then
             CygbuildWarn "-- [devel-doc] [WARN] No doc files for $pkgdoc"
         else
 
-            echo -n "-- [devel-doc] "
+            CygbuildEcho "-- [devel-doc]"
 
             local pkg="$LIBPKG-doc.tar.bz2"
             NAME_PKG_LIB_DOC=$pkg                               # global-def
             PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DOC
 
-            echo "$tar"
+            echo "${tar/$srcdir\//}"
 
             $TAR $taropt $tar $(< $retval.doc) ||
             {
@@ -7538,7 +7573,7 @@ function CygbuildCmdConfAutomake()
             if [ -f configure ]; then
                 CygbuildVerb "-- ./configure appeared."
             else
-                CygbuildEcho "-- {ERROR] No ./configure appeared."
+                CygbuildEcho "-- [ERROR] No ./configure appeared."
                 return 1
             fi
         fi
@@ -10102,6 +10137,35 @@ function CygbuildCmdFilesMain()
     CygbuildCmdFilesWrite $destdir $userdir $templatedir
 }
 
+function CygbuildCmdPackageBinMain()
+{
+    local strip="$1"
+
+    CygbuildNoticeMaybe
+    CygbuildNoticeGPG
+
+    if [ "$strip" ]; then
+        CygbuildStripCheck      &&
+        CygbuildCmdPkgBinaryMain
+    else
+        CygbuildCmdPkgBinaryMain
+        status=$?
+    fi
+}
+
+function CygbuildCmdPackageDevMain()
+{
+    local strip="$1"
+
+    CygbuildNoticeMaybe
+    if [ "$strip" ]; then
+        CygbuildStripCheck      &&
+        CygbuildCmdPkgDevelMain
+    else
+        CygbuildCmdPkgDevelMain
+    fi
+}
+
 function CygbuildCmdAllMain()
 {
     local id="$0.$FUNCNAME"
@@ -10939,29 +11003,13 @@ function CygbuildCommandMain()
                                 ;;
 
           package|bin-package|package-bin|pkg)
-                                CygbuildNoticeMaybe
-                                CygbuildNoticeGPG
-
-                                if [ "$stripflag" ]; then
-                                    CygbuildStripCheck      &&
-                                    CygbuildCmdPkgBinaryMain
-                                    status=$?
-                                else
-                                    CygbuildCmdPkgBinaryMain
-                                    status=$?
-                                fi
+                                CygbuildCmdPackageBinMain "$stripflag"
+                                status=$?
                                 ;;
 
           package-devel|pkgdev)
-                                CygbuildNoticeMaybe
-                                if [ "$stripflag" ]; then
-                                    CygbuildStripCheck      &&
-                                    CygbuildCmdPkgDevelMain
-                                    status=$?
-                                else
-                                    CygbuildCmdPkgDevelMain
-                                    status=$?
-                                fi
+                                CygbuildCmdPackageDevMain "$stripflag"
+                                status=$?
                                 ;;
 
           package-sign|pkg-sign|sign|sign-package*)
@@ -11178,7 +11226,7 @@ function Test ()
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
 #Test findbugs-1.3.0-rc1.tar.gz
 
-trap 'CygbuildFileCleanTemp; exit' 1 2 3 15
+trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
 
 # End of file

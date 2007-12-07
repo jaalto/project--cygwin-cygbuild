@@ -10,6 +10,10 @@
 	(CygbuildCmdConfAutomake): Simplify.
 	(CygbuildCmdConfMain): Run `CygbuildCmdConfAutomake' inside
 	.build, not $srcdir.
+	(CygbuildCmdPkgDevelStandard): Improve manual page search.
+	Add color support. Add bin package support
+	(CygbuildCmdPackageBinMain): New
+	(CygbuildCmdPackageDevMain): New
 
 2007-12-05  Jari Aalto  <jari.aalto@cante.net>
 
