@@ -5,7 +5,11 @@
 	   use $CYGBUILD_STATIC_PERL_MODULE
 	(CygbuildCommandMain): Add option -F|--force.
 	(CygbuildCmdPkgDevelStandard): Move manual pages from
-	devel-lib to devel-dev
+	devel-lib to devel-dev. Rewrote devel-dev. Split function.
+	(CygbuildCmdPkgDevelStandardDev): New.
+	(CygbuildCmdPkgDevelStandardLib): New. Fix version number.
+	(CygbuildCmdPkgDevelStandardBin): New.
+	(CygbuildCmdPkgDevelStandardDoc): New.
 
 2007-12-07  Jari Aalto  <jari.aalto@cante.net>
 

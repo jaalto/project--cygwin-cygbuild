@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1208.1211"
+CYGBUILD_VERSION="2007.1208.1334"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4664,26 +4664,175 @@ function CygbuildCmdPkgExternal()
     return $status
 }
 
-function CygbuildCmdPkgDevelStandard()
+function CygbuildCmdPkgDevelStandardDoc()
+{
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+        cd $instdir || exit 1
+
+        $FIND usr/share/doc -type f > $retval.doc
+
+        if [ ! -s $retval.doc ]; then
+            CygbuildWarn "-- devel-doc [WARN] No doc files for $pkgdoc"
+        else
+
+            local pkg="$LIBPKG-doc.tar.bz2"
+            NAME_PKG_LIB_DOC=$pkg                               # global-def
+            PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
+            local tar=$PATH_PKG_LIB_DOC
+
+            CygbuildEcho "-- devel-doc" ${tar/$srcdir\//}
+
+            $TAR $taropt $tar $(< $retval.doc) ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status
+            }
+
+            RETVAL="$tar"
+        fi
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardBin()
+{
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+        cd $instdir || exit 1
+
+        if [ -s $retval.bin ]; then
+
+            local tar="$FILE_BIN_PKG"
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+
+            CygbuildEcho "-- devel-bin" ${tar/$srcdir\//}
+
+            $TAR $taropt $tar \
+            $(< $retval.bin) $(< $retval.man.bin) ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status ;
+            }
+
+            RETVAL="$tar"
+        fi
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardLib()
+{
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+        cd $instdir || exit 1
+
+        $FIND usr               \
+            -name "*.dll"       \
+            > $retval.lib
+
+        if [ ! -s $retval.lib ]; then
+            CygbuildWarn "-- [devel-lib] [WARN] No *.dll files"
+        else
+
+            # Find out version number
+            # usr/bin/cygfontconfig-1.dll => 1
+
+            local pkg=$(echo $PKG |$SED 's/lib//')
+
+            $EGREP "$pkg.*dll" $retval.lib |
+                $EGREP --only-matching --regexp="-[0-9]+" |
+                cut -d"-" -f2 \
+                > $retval.ver
+
+            local ver
+            [ -s $retval.ver ] && ver=$(< $retval.ver)
+
+            local pkg="$LIBPKG$ver.tar.bz2"
+            NAME_LIB_PKG_MAIN=$pkg                              # global-def
+            PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
+            local tar=$PATH_PKG_LIB_DEV
+
+            CygbuildEcho "-- devel-lib" ${tar/$srcdir\//}
+
+            $TAR $taropt $tar \
+            $(< $retval.lib) ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status ;
+            }
+        fi
+
+        RETVAL="$tar"
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardDev()
+{
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+        cd $instdir || exit 1
+
+        cat $retval.bin $retval.man.bin $retval.lib $retval.doc \
+            > $retval.already.packaged
+
+        $EGREP --invert-match --file=$retval.already.packaged \
+               <($FIND . -type f) > $retval.dev
+
+        if [ ! -s $retval.dev ]; then
+            CygbuildWarn "-- [devel-dev] [WARN] No *.h or*.a files" \
+                "for $pkglib"
+        else
+
+            local pkg="$LIBPKG-devel.tar.bz2"
+            NAME_LIB_PKG_MAIN=$pkg                              # global-def
+            PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
+            local tar=$PATH_PKG_LIB_LIBRARY
+
+            CygbuildEcho "-- devel-dev" ${tar/$srcdir\//}
+
+            $TAR $taropt $tar \
+            $(< $retval.dev) ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status
+            }
+        fi
+
+        RETVAL="$tar"
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardMain()
 {
     local id="$0.$FUNCNAME"
     local status=0
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+    local pkgdev pkglib pkgbin pkgdoc
 
     CygbuildPushd
-
-        DIR_DOC_GENERAL=$CYGBUILD_DOCDIR_FULL
 
         CygbuildEcho "** Making packages [devel] from" \
                      "${instdir/$srcdir\//}"
 
         cd $instdir || exit 1
 
-        local files
+        #   Prepare all return files
+        touch $retval.man.bin $retval.man.others \
+              $retval.doc $retval.bin $retval.lib
 
         #  Find all executables. Exclude library config like xxx-config
-
         $FIND usr \
              '(' \
                 -path "*/bin/*" \
@@ -4697,8 +4846,7 @@ function CygbuildCmdPkgDevelStandard()
             -a ! -name "*-config" \
             > $retval.bin
 
-        local manregexp
-        touch $retval.man.bin $retval.man.others
+        # .................................................. manuals ...
 
         $FIND usr/share/man -type f > $retval.man.all 2> /dev/null
 
@@ -4706,7 +4854,7 @@ function CygbuildCmdPkgDevelStandard()
 
             # Include manual pages fro executables
 
-            manregexp=$(
+            local manregexp=$(
                 $AWK '
                 {
                     gsub(".*/", "");
@@ -4737,115 +4885,31 @@ function CygbuildCmdPkgDevelStandard()
             fi
         fi
 
-        local pkgbin="$FILE_BIN_PKG"
+        # FIXME Not used: Cygwin does not make separa doc packages
+        # CygbuildCmdPkgDevelStandardDoc "$retval"
+        # pkgdoc=$RETVAL
 
-        if [ -s $retval.bin ]; then
-            CygbuildEcho "-- [devel-bin]"
+        $FIND etc/ usr/share/{doc,locale,emacs,info} \
+            -type f \
+            >> $retval.bin \
+            2> /dev/null
 
-            local tar="$pkgbin"
-            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+        if [ -s $retval.doc ]; then
+            #   If there is doc package, then exclude those files
+            $MV $retval.bin $retval.bin.tmp
 
-            echo "${tar/$srcdir\//}"
-
-            $TAR $taropt $tar \
-            $(< $retval.bin) $(< $retval.man.bin) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status ;
-            }
-
+            $EGREP --invert-match --file=$retval.doc \
+                $retval.bin.tmp > $retval.bin
         fi
 
-        $FIND usr               \
-            -name "*.dll"       \
-            -o -name "*.la"     \
-            -o -name "*-config" \
-            > $retval.lib
+        CygbuildCmdPkgDevelStandardLib "$retval"
+        pkglib=$RETVAL
 
-        if [ ! -s $retval.lib ]; then
-            CygbuildWarn "-- [devel-lib] [WARN] No *.dll files"
-        else
-            CygbuildEcho "-- [devel-lib]"
+        CygbuildCmdPkgDevelStandardBin "$retval"
+        pkgbin=$RETVAL
 
-            # Find out version number
-            # usr/bin/cygfontconfig-1.dll => 1
-
-            $EGREP "$PKG.*dll" $retval.lib |
-                $EGREP --only-matching --regexp="-[0-9]" |
-                cut -d"-" -f2 \
-                > $retval.ver
-
-            local ver
-            [ -s $retval.ver ] && ver=$(< $retval.ver)
-
-            local pkg="$LIBPKG$ver.tar.bz2"
-            NAME_LIB_PKG_MAIN=$pkg                              # global-def
-            PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
-            local tar=$PATH_PKG_LIB_DEV
-
-            echo "${tar/$srcdir\//}"
-
-            $TAR $taropt $tar \
-            $(< $retval.lib) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status ;
-            }
-        fi
-
-        $FIND usr/include usr/lib usr/share  \
-            '(' -name "*.h"         \
-                -o -name "*.a"      \
-                -o -name "*.m4"     \
-            ')'                     \
-            > $retval.dev 2> /dev/null
-
-        if [ ! -s $retval.dev ]; then
-            CygbuildWarn "-- [devel-dev] [WARN] No *.h or*.a files" \
-                "for $pkglib"
-        else
-            CygbuildEcho "-- [devel-dev]"
-
-            local pkg="$LIBPKG-devel.tar.bz2"
-            NAME_LIB_PKG_MAIN=$pkg                              # global-def
-            PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
-            local tar=$PATH_PKG_LIB_LIBRARY
-
-            echo "${tar/$srcdir\//}"
-
-            $TAR $taropt $tar \
-            $(< $retval.dev) $(< $retval.man.others) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
-
-        $FIND usr/share/doc -type f > $retval.doc
-
-        if [ ! -s $retval.doc ]; then
-            CygbuildWarn "-- [devel-doc] [WARN] No doc files for $pkgdoc"
-        else
-
-            CygbuildEcho "-- [devel-doc]"
-
-            local pkg="$LIBPKG-doc.tar.bz2"
-            NAME_PKG_LIB_DOC=$pkg                               # global-def
-            PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
-            local tar=$PATH_PKG_LIB_DOC
-
-            echo "${tar/$srcdir\//}"
-
-            $TAR $taropt $tar $(< $retval.doc) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
+        CygbuildCmdPkgDevelStandardDev "$retval"
+        pkgdev=$RETVAL
 
     CygbuildPopd
 
@@ -4868,7 +4932,7 @@ function CygbuildCmdPkgDevelMain()
     if [ -f "$SCRIPT_BIN_PACKAGE" ]; then
         CygbuildCmdPkgExternal
     else
-        CygbuildCmdPkgDevelStandard
+        CygbuildCmdPkgDevelStandardMain
     fi
 }
 
@@ -11312,7 +11376,7 @@ function Test ()
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
 #Test findbugs-1.3.0-rc1.tar.gz
 
-trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
+#trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
 
 # End of file
