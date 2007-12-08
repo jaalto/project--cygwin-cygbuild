@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1207.2143"
+CYGBUILD_VERSION="2007.1208.1206"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -484,7 +484,7 @@ function CygbuildBootVariablesId()
 
     CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
 
-    DIR_CYGPATCH_RELATIVE=CYGWIN-PATCHES                        # global-def
+    CYGBUILD_DIR_CYGPATCH_RELATIVE=CYGWIN-PATCHES  # global-def
 
     #  Function return values are stored to files, because bash cannot call
     #  function with parameters in running shell environment. The only way to
@@ -2493,6 +2493,8 @@ function CygbuildIsDestdirSupported()
               "not defined [$srcdir]."
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local lib="$CYGBUILD_STATIC_PERL_MODULE"
+
     CygbuildPerlModuleLocation  > $retval
     local module=$(< $retval)
 
@@ -3352,9 +3354,9 @@ function CygbuildDefineGlobalMain()
 
     local tmpdocdir=$CYGBUILD_DOCDIR_RELATIVE   # _docdir is temp variable
 
-    DIR_CYGPATCH=$srcdir/$DIR_CYGPATCH_RELATIVE                 # global-def
+    DIR_CYGPATCH=$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE                 # global-def
 
-    CYGPATCH_DONE_PATCHES_FILE=$DIR_CYGPATCH_RELATIVE/done-patch.tmp # global-def
+    CYGPATCH_DONE_PATCHES_FILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/done-patch.tmp # global-def
 
     #   user executables
 
@@ -3553,7 +3555,7 @@ function CygbuildSrcDirLocation()
          [ -f "$dir/configure"  ] ||
          [ -f "$dir/buildconf"  ] ||
          [ -f "$dir/setup.py"   ] ||
-         [ -d "$dir/$DIR_CYGPATCH_RELATIVE" ]
+         [ -d "$dir/$CYGBUILD_DIR_CYGPATCH_RELATIVE" ]
     then
         top=$(cd $dir/..; pwd)
 
@@ -3563,7 +3565,7 @@ function CygbuildSrcDirLocation()
         #   Looks like we are inside package-NN.NN/
         top=$(cd $dir/..; pwd)
 
-    elif [[     $dir == */$DIR_CYGPATCH_RELATIVE
+    elif [[     $dir == */$CYGBUILD_DIR_CYGPATCH_RELATIVE
              || $dir == */debian
          ]] ; then
         src=$(cd $dir/..; pwd)
@@ -3857,8 +3859,7 @@ function CygbuildDetermineReadmeFile()
     local ret file
 
     for file in  $DIR_CYGPATCH/$PKG.README  \
-                 $DIR_CYGPATCH/README       \
-                 $DIR_CYGPATCH/*.README
+                 $DIR_CYGPATCH/README
     do
         #   install first found file
         if [ -f "$file" ]; then
@@ -4347,7 +4348,7 @@ function CygbuildReadmeReleaseMatchCheck()
     if CygbuildDetermineReadmeFile > $retval ; then
         file=$(< $retval)
     else
-        CygbuildWarn "$id: [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
+#        CygbuildWarn "-- [NOTE] Not found $DIR_CYGPATCH/$PKG.README"
         return 1
     fi
 
@@ -4374,42 +4375,24 @@ function CygbuildReadmeReleaseMatchCheck()
     fi
 }
 
-function CygbuildCmdReadmeFix()
+CygbuildCmdReadmeFixFile ()
 {
-    local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local readme="$1"
+    local tar="$2"
 
-    local readme
-    CygbuildDetermineReadmeFile > $retval
-    [ -s $retval ] && readme=$(< $retval)
+    CygbuildExitNoFile "$tar" "$id: [ERROR] Cannot read files from $tar"
+    CygbuildExitNoDir "$srcdir" "$id: [FATAL] Not exists $srcdir"
 
-    CygbuildEcho "-- Fixing $readme"
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ ! "$readme" ]; then
-        CygbuildWarn "$id: [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
-        return 1
-    fi
-
-    if [ ! -r $readme ]; then
-        CygbuildWarn "$id: [ERROR] not readable $readme"
-        return 1
-    fi
-
-    CygbuildExitNoFile "$FILE_BIN_PKG" "$id: [ERROR] Cannot read files from" \
-               " $FILE_BIN_PKG. Run 'package' first."
-
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] variable '$srcdir' not" \
-              "defined [$srcdir]."
-
-    CygbuildPerlModuleLocation  > $retval || exit 1
-    local module=$(< $retval)
+#     CygbuildPerlModuleLocation  > $retval || exit 1
+#     local module=$(< $retval)
 
     if [ ! "$module" ]; then
         echo "$id: [FATAL] Perl module was not found"
         return 1                # Error is already displayed
     fi
-
-    # CygbuildDefineGlobalSrcOrig || return 1
 
     #   1. Load library MODULE
     #   2. Call function Readmefix() with parameters. It will handle the
@@ -4443,6 +4426,32 @@ function CygbuildCmdReadmeFix()
     $RM -f "$readme.bak"
 }
 
+function CygbuildCmdReadmeFixMain()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+
+    local readme
+    CygbuildDetermineReadmeFile > $retval
+    [ -s $retval ] && readme=$(< $retval)
+
+    CygbuildEcho "-- Fixing $readme"
+
+    if [ ! "$readme" ]; then
+        CygbuildWarn "$id: [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
+        return 1
+    fi
+
+    if [ ! -r $readme ]; then
+        CygbuildWarn "$id: [ERROR] not readable $readme"
+        return 1
+    fi
+
+    # CygbuildDefineGlobalSrcOrig || return 1
+
+    CygbuildCmdReadmeFixFile "$readme" "$FILE_BIN_PKG"
+}
+
 function CygbuildCmdPublishSetupFix()
 {
     local id="$0.$FUNCNAME"
@@ -4473,7 +4482,7 @@ function CygbuildCmdPublishSetupFix()
             if [ ! -f "$to" ]; then
                 CygbuildWarn "-- [WARN] Cannot rename $file => $to"
                 CygbuildWarn "-- [WARN] Did you write" \
-                    "$DIR_CYGPATCH_RELATIVE/$base ?"
+                    "$CYGBUILD_DIR_CYGPATCH_RELATIVE/$base ?"
             fi
         fi
     done
@@ -4731,7 +4740,7 @@ function CygbuildCmdPkgDevelStandard()
         local pkgbin="$FILE_BIN_PKG"
 
         if [ -s $retval.bin ]; then
-            CygbuildEcho "-- [devel bin]"
+            CygbuildEcho "-- [devel-bin]"
 
             local tar="$pkgbin"
             local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
@@ -5595,8 +5604,10 @@ function CygbuildCmdPkgSourceCvsMain()
     #  We need the help of Perl library
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval || exit 1
-    local module=$(< $retval)
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
+
+#    CygbuildPerlModuleLocation  > $retval || exit 1
+#    local module=$(< $retval)
 
     [ ! "$module" ] && return 1
 
@@ -5742,7 +5753,7 @@ function CygbuildPostinstallWrite()
     local file=$SCRIPT_POSTINSTALL_CYGFILE
 
     if ! CygbuildIsTemplateFilesInstalled ; then
-        CygbuildWarn "$id: [ERROR] No $DIR_CYGPATCH_RELATIVE/ " \
+        CygbuildWarn "$id: [ERROR] No $CYGBUILD_DIR_CYGPATCH_RELATIVE/ " \
              "Please run command [files] first"
         return 1
     fi
@@ -5767,7 +5778,7 @@ function CygbuildPreRemoveWrite()
     local file="$SCRIPT_PREREMOVE_CYGFILE"
 
     if ! CygbuildIsTemplateFilesInstalled ; then
-        CygbuildWarn "$id: ERROR No $DIR_CYGPATCH_RELATIVE/ " \
+        CygbuildWarn "$id: ERROR No $CYGBUILD_DIR_CYGPATCH_RELATIVE/ " \
              "Please run command [files] first"
         return 1
     fi
@@ -5823,14 +5834,16 @@ function CygbuildDebianRules2Makefile()
     fi
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
+
+#    CygbuildPerlModuleLocation  > $retval
+#    local module=$(< $retval)
 
     if [ ! "$module" ]; then
         return 1
     fi
 
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] 'srcdir' [$srcdir] does not exist."
+    CygbuildExitNoDir "$srcdir" "$id: [FATAL] 'srcdir' [$srcdir] not exists."
 
     local out=$srcdir/Makefile
 
@@ -6015,9 +6028,11 @@ function CygbuildMakeRunInstallFixPerlMain()
 {
     local id="$0.$FUNCNAME"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local retval=$CYGBUILD_RETVAL.$FUNCNAM
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
+
+#    CygbuildPerlModuleLocation  > $retval
+#    local module=$(< $retval)
 
     if [ "$module" ]; then
         CygbuildMakeRunInstallFixPerlPostinstall "$module"
@@ -6697,7 +6712,7 @@ function CygbuildPatchListDisplay()
 
     if [ -f "$file" ]; then
         CygbuildEcho "-- [INFO] Applied local patches"
-        cat $file | sed "s,^,$DIR_CYGPATCH_RELATIVE/,"
+        cat $file | sed "s,^,$CYGBUILD_DIR_CYGPATCH_RELATIVE/,"
     fi
 }
 function CygbuildPatchDiffstat()
@@ -6719,7 +6734,7 @@ function CygbuildPatchDiffstat()
 
     if CygbuildWhichCheck filterdiff ; then
         $EGREP -v "^diff " $file |
-        filterdiff -x "*$DIR_CYGPATCH_RELATIVE*" > $retval.diff
+        filterdiff -x "*$CYGBUILD_DIR_CYGPATCH_RELATIVE*" > $retval.diff
 
         check="$retval.diff"
     fi
@@ -7109,7 +7124,7 @@ CygbuildCmdGetSource ()
         return 0
     fi
 
-    local cygdir="${DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
+    local cygdir="${CYGBUILD_DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
 
     for patch in $(ls *.patch 2> /dev/null |
                   $EGREP --invert-match --regexp='-rest.patch' )
@@ -7377,7 +7392,7 @@ function CygbuildConfOptionAdjustment()
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
     local conf="$srcdir/configure"
-    local cygconf="$DIR_CYGPATCH_RELATIVE/configure.sh"
+    local cygconf="$CYGBUILD_DIR_CYGPATCH_RELATIVE/configure.sh"
     local options="$CYGBUILD_CONFIGURE_OPTIONS"
 
     if [ ! -f "$conf" ]; then
@@ -7849,8 +7864,10 @@ function CygbuildCmdDependCheckMain()
     CygbuildEcho "-- Checking dependencies in README and setup.hint"
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
+
+#    CygbuildPerlModuleLocation  > $retval
+#    local module=$(< $retval)
 
     if [ ! "$module" ]; then
         return 1
@@ -8374,7 +8391,7 @@ function CygbuildInstallExtraBinFiles
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
 
-    local extrabindir="$srcdir/$DIR_CYGPATCH_RELATIVE/bin"
+    local extrabindir="$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE/bin"
 
     [ -d "$extrabindir" ] || return 0
 
@@ -9721,7 +9738,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir="$DIR_CYGPATCH_RELATIVE"
+    local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
 
     [ -d "$dir" ] || return 0
 
@@ -10594,6 +10611,7 @@ function CygbuildCommandMain()
     unset OPTION_DEBUG              # global-def
     unset OPTION_DEBUG_VERIFY       # global-def
     unset OPTION_FILE               # global-def
+    unset OPTION_FORCE              # global-def
     unset OPTION_GBS_COMPAT         # global-def
     unset OPTION_PASSPHRASE         # global-def
     unset OPTION_PREFIX             # global-def
@@ -10619,7 +10637,7 @@ function CygbuildCommandMain()
 
     getopt \
         -n $id \
-        --long bip2,checkout,color,debug:,Debug:,email:,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,file:,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
+        --long bip2,checkout,color,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
         --option cCDd:e:f:gmp:Pr:s:tvVx -- "$@" \
         > $retval
 
@@ -10708,6 +10726,11 @@ function CygbuildCommandMain()
                 CygbuildStrRemoveExt "$package" > $retval
                 package=$(< $retval)
                 shift 2
+                ;;
+
+            -F|--force)
+                OPTION_FORCE="force"             # global-def
+                shift 1
                 ;;
 
             --init-pkgdb)
@@ -11165,7 +11188,7 @@ function CygbuildCommandMain()
                 ;;
 
           readmefix)
-                CygbuildCmdReadmeFix
+                CygbuildCmdReadmeFixMain
                 status=$?
                 ;;
 

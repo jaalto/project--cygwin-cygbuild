@@ -1,3 +1,10 @@
+2007-12-08  Jari Aalto  <Administrator@W2KPICASSO>
+
+	* bin/cygbuild.sh:
+	-- Comment out all `CygbuildPerlModuleLocation' calls and
+	   use $CYGBUILD_STATIC_PERL_MODULE
+	(CygbuildCommandMain): Add option -F|--force.
+
 2007-12-07  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
@@ -16,6 +23,8 @@
 	(CygbuildCmdPackageDevMain): New
 	(WasLibraryInstall): New
 	(CygbuildCommandMain): Change indentation level in for-command loop.
+	(CygbuildReadmeReleaseMatchCheck): Do not display error
+	if CYGWIN/<pkg>.README is not found.
 
 2007-12-05  Jari Aalto  <jari.aalto@cante.net>
 
