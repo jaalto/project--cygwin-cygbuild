@@ -4,6 +4,8 @@
 	-- Comment out all `CygbuildPerlModuleLocation' calls and
 	   use $CYGBUILD_STATIC_PERL_MODULE
 	(CygbuildCommandMain): Add option -F|--force.
+	(CygbuildCmdPkgDevelStandard): Move manual pages from
+	devel-lib to devel-dev
 
 2007-12-07  Jari Aalto  <jari.aalto@cante.net>
 

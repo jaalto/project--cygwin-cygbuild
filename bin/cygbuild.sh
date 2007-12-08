@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1208.1206"
+CYGBUILD_VERSION="2007.1208.1211"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2493,10 +2493,10 @@ function CygbuildIsDestdirSupported()
               "not defined [$srcdir]."
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local lib="$CYGBUILD_STATIC_PERL_MODULE"
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+#    CygbuildPerlModuleLocation  > $retval
+#    local module=$(< $retval)
 
     if [ ! "$module" ]; then
         echo "$id: Perl module was not found"
@@ -4787,7 +4787,7 @@ function CygbuildCmdPkgDevelStandard()
             echo "${tar/$srcdir\//}"
 
             $TAR $taropt $tar \
-            $(< $retval.lib) $(< $retval.man.others) ||
+            $(< $retval.lib) ||
             {
                 status=$?
                 CygbuildPopd
@@ -4815,7 +4815,8 @@ function CygbuildCmdPkgDevelStandard()
 
             echo "${tar/$srcdir\//}"
 
-            $TAR $taropt $tar $(< $retval.dev) ||
+            $TAR $taropt $tar \
+            $(< $retval.dev) $(< $retval.man.others) ||
             {
                 status=$?
                 CygbuildPopd
