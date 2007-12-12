@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh: (CygbuildConfPerlMain): Remove SITEPREFIX
 	(CygbuildMakeRunInstallFixPerlManpage): improve POD to manpage
 	conversion.
+	(WasLibraryInstallMakefile): New.
+	(WasLibraryInstall): Use `WasLibraryInstallMakefile'.
 
 2007-12-08  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1212.1902"
+CYGBUILD_VERSION="2007.1212.2138"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1100,9 +1100,28 @@ function CygbuildLibInstallEnvironment()
 #
 #######################################################################
 
+function WasLibraryInstallMakefile ()
+{
+    local file
+
+    for file in Makefile makefile */{Makefile,makefile}
+    do
+        [ -f "$file" ] || continue
+
+        if $EGREP --quiet "^[^#]+(cp|chmod|install).*\<lib[a-z0-9]+\." $file
+        then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 function WasLibraryInstall ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    WasLibraryInstallMakefile && return 0
 
     if [ -d .inst ]; then
         $FIND .inst -type f     \
@@ -6554,7 +6573,7 @@ function CygbuildMakefileRunInstall()
             #  possibility to guide the installation process is to set
             #  prefix for Makefile
 
-            pfx=$instdir/$CYGBUILD_PREFIX
+            pfx="$instdir/$CYGBUILD_PREFIX"
         fi
 
         CygbuildConfigureOptionsExtra > $retval
@@ -6563,6 +6582,7 @@ function CygbuildMakefileRunInstall()
         #  GNU autoconf uses 'prefix'
 
         local docprefix=/$CYGBUILD_DOCDIR_PREFIX_RELATIVE
+        pfx=${pfx%/}                        # remove trailing slash
 
         CygbuildPushd
             cd $builddir || exit 1
