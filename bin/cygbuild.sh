@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1208.1334"
+CYGBUILD_VERSION="2007.1212.1902"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4672,7 +4672,12 @@ function CygbuildCmdPkgDevelStandardDoc()
     CygbuildPushd
         cd $instdir || exit 1
 
-        $FIND usr/share/doc -type f > $retval.doc
+        #  Exclude README, FAQ, ChangeLog, Licence etc.
+
+        $FIND usr/share/doc -type f ! -path "*Cygwin*" |
+            $EGREP -v '[A-Z][A-Z]'  |
+            $EGREP -vi 'change|license' \
+            > $retval.doc
 
         if [ ! -s $retval.doc ]; then
             CygbuildWarn "-- devel-doc [WARN] No doc files for $pkgdoc"
@@ -4885,9 +4890,8 @@ function CygbuildCmdPkgDevelStandardMain()
             fi
         fi
 
-        # FIXME Not used: Cygwin does not make separa doc packages
-        # CygbuildCmdPkgDevelStandardDoc "$retval"
-        # pkgdoc=$RETVAL
+        CygbuildCmdPkgDevelStandardDoc "$retval"
+        pkgdoc=$RETVAL
 
         $FIND etc/ usr/share/{doc,locale,emacs,info} \
             -type f \
@@ -6072,20 +6076,27 @@ function CygbuildMakeRunInstallFixPerlManpage()
 
     [ -d $bindir ] || return 0
 
-    if [ -d $mandir ] ; then
-        if $LS $mandir | $EGREP --quiet '\.[0-9]' ; then
-            return 0        #  Manual pages already exists
-        fi
-    fi
-
     #  See of we can use POD section to generate manuals
 
-    local file
+    local mandir="$instdir/usr/share/man"
+    local destdir="$mandir/man1"
+    local file name manpage _file
 
     for file in $bindir/*
     do
-        CygbuildEcho "-- [NOTE] Making POD manpage from ${file/$srcdir\/}"
-        CygbuildPod2man "$file"
+        _file=${file/$srcdir\/}
+        name=${file##*/}
+        name=${name%.pl}
+        manpage="$destdir/$name.1"
+
+        if [ ! -f $manpage ]; then
+            if $EGREP --quiet "^=cut" $file ; then
+                CygbuildEcho "-- [NOTE] Making POD manpage from $_file"
+                CygbuildPod2man "$file"
+            else
+                CygbuildVerb "-- [NOTE] possibly no manpage for $_file"
+            fi
+        fi
     done
 }
 
@@ -6379,7 +6390,8 @@ function CygbuildMakefileRunInstallCygwinOptions()
     local test=${test:+"-n"}
 
     if [ $test ]; then
-        CygbuildEcho "-- [INFO] make(1) called with -n (test mode, no real install)"
+        CygbuildEcho "-- [INFO] make(1) called with -n" \
+                     "(test mode, no real install)"
     fi
 
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
@@ -7637,18 +7649,17 @@ function CygbuildConfPerlMain()
         local _prefix="/usr"
 
         CygbuildEcho "-- Running: perl Makefile.PL" \
-             "INSTALLDIRS=vendor PREFIX=$_prefix" \
-             "SITEPREFIX=$_prefix $userOptExtra"
+             "INSTALLDIRS=vendor $userOptExtra"
 
         CygbuildPushd
             cd $builddir || exit 1
 
             #   See http://www.makemaker.org/drafts/prefixification.txt
+            #   Do not set: SITEPREFIX  (SITEPREFIX=PREFIX/local)
+            #   or PREFIX="$_prefix" because they are set during install
 
             $PERL Makefile.PL           \
                   INSTALLDIRS=vendor    \
-                  PREFIX="$_prefix"     \
-                  SITEPREFIX="$_prefix" \
                   $userOptExtra
 
             status=$?
@@ -8403,7 +8414,8 @@ function CygbuildInstallExtraManualCompress()
     CygbuildVerb "-- Compressing manual pages"
 
     if [ ! -d "$instdocdir" ]; then
-        CygbuildEcho "-- [WARN] Directory not found: $instdocdir"
+        CygbuildEcho "-- [WARN] Directory not found: " \
+                     ${instdocdir/$srcdir\//}
     else
 
         $FIND $instdocdir -type f \
@@ -8573,7 +8585,7 @@ CygbuildInstallFixInterpreterMain ()
         if $EGREP --quiet "perl" $retval &&
            ! $EGREP --quiet "/usr/bin/perl([ \t]|$)" $retval
         then
-            CygbuildEcho "-- [NOTE] Fixing wrong Perl call" \
+            CygbuildEcho "-- [NOTE] Fixing suspicious Perl call" \
                  "in $_file: $(cat $retval)"
 
             CygbuildInstallFixInterpreterPerl "$file"
@@ -10163,7 +10175,7 @@ function CygbuildCmdFilesWrite()
         return 1
     fi
 
-    CygbuildEcho "-- Writing default files to $to"
+    CygbuildEcho "-- Writing default files to" ${to/$srcdir\//}
 
     local file
 

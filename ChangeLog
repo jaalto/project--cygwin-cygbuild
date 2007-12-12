@@ -1,4 +1,10 @@
-2007-12-08  Jari Aalto  <Administrator@W2KPICASSO>
+2007-12-12  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildConfPerlMain): Remove SITEPREFIX
+	(CygbuildMakeRunInstallFixPerlManpage): improve POD to manpage
+	conversion.
+
+2007-12-08  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
 	-- Comment out all `CygbuildPerlModuleLocation' calls and
