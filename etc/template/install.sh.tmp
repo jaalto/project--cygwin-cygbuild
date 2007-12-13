@@ -6,7 +6,7 @@
 # The script will receive one argument: relative path to
 # installation root directory. Script is called like:
 #
-#    $ ./install.sh .inst/
+#    $ ./CYGWIN-PATCHES/install.sh .inst/ <path of calling cygbuild>
 #
 #
 # -- THIS AN EXAMPLE: MODIFY AS NEEDED     --
@@ -14,15 +14,22 @@
 
 DefineVariables()
 {
-    #  Load library function pefixed with "Cygbuild"
-
-    if [ ! "$CYGBUILD_ID" ]; then
+    if [ ! "$INSTALL_BIN" ]; then
         #   Not yet loaded, so load now
         export CYGBUILD_LIB="activate as library"
-        source $(/usr/bin/which cygbuild) || return 1
+
+        if [ ! "$callpath" ]; then
+            callpath=$(/usr/bin/which cygbuild)
+        fi
+
+        if [ "$callpath" ]; then
+            source $callpath || return 1
+        else
+            return 1
+        fi
     fi
 
-    #   This defines many varibales that can be used
+    #   This defines many variables that can be used
 
     CygbuildLibInstallEnvironment "$@"
 }
@@ -143,6 +150,9 @@ InstallUsingMake()
     # DefineVariables "$@" &&
     # InstallMake
 }
+
+unset callpath
+callpath="$2"
 
 # -- Uncomment to active only one these function calls --
 # Install "$@"
