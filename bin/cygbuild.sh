@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1213.0014"
+CYGBUILD_VERSION="2007.1213.0020"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6349,7 +6349,9 @@ function CygbuildRunPythonSetupCmd()
     CygbuildRunShell $PYTHON setup.py "$@" > $retval 2>&1
     local status=$?
 
-    [ "$verbose" ] && cat $retval
+    if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
+        cat $retval
+    fi
 
     return $status
 }
@@ -7308,14 +7310,16 @@ function CygbuildCmdShadowMain()
     CygbuildEcho "** Shadow command"
 
     if CygbuildIsBuilddirOk ; then
-        CygbuildEcho "-- Already shadowed. Perhaps you had in mind 'rmshadow'" \
+        CygbuildEcho "-- Already shadowed. Perhaps you had" \
+                     "in mind 'rmshadow'" \
              "or 'reshadow'"
     else
         #    When shadowing, use clean base
 
         CygbuildPushd
             cd "$srcdir" || exit $?
-            CygbuildEcho "-- Running: make clean distclean (ignore errors; if any)"
+            CygbuildEcho "-- Running: make clean distclean" \
+                         "(ignore errors; if any)"
 
             if CygbuildIsPythonPackage ; then
                 CygbuildRunPythonSetupCmd clean
