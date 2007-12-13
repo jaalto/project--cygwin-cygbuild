@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1212.2138"
+CYGBUILD_VERSION="2007.1213.0014"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7835,9 +7835,9 @@ function CygbuildCmdBuildPython()
 
     CygbuildPushd
         CygbuildSetLDPATHpython
-        cd $builddir                                &&
+        cd $builddir                                        &&
         CygbuildEcho "-- Building: python setup.py build"   &&
-        CygbuildRunShell $PYTHON setup.py build
+        CygbuildRunPythonSetupCmd build
         status=$?
     CygbuildPopd
 
@@ -8667,7 +8667,7 @@ function CygbuildInstallCygwinPartPostinstall()
 
         local tofile="$dest/$PKG.sh"
 
-        CygbuildEcho "-- Installing [Cygwin] postinstall script to" \
+        CygbuildEcho "-- Installing postinstall script to" \
                      " directory ${tofile/$srcdir\//}"
 
         $scriptInstallDir $dest

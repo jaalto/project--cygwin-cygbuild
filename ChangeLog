@@ -1,3 +1,8 @@
+2007-12-13  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdBuildPython): Change to
+	use `CygbuildRunPythonSetupCmd' will will print less output.
+
 2007-12-12  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildConfPerlMain): Remove SITEPREFIX
