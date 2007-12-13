@@ -49,8 +49,14 @@ Environment()
     #   1) list of files to be copied to /etc
     #   2) Source locations
 
-    conffiles_to="$etcdir/preremove/$package-manifest.lst"
-    conffiles_from="$etcdir/preremove/$package-manifest-from.lst"
+    manifestdir=$etcdir/preremove
+
+    if [ -f $etcdir/postinstall/$package-manifest.lst ]; then
+        manifestdir=$etcdir/postinstall
+    fi
+
+    conffiles_to="$manifestdir/$package-manifest.lst"
+    conffiles_from="$manifestdir/$package-manifest-from.lst"
 }
 
 Warn ()
@@ -96,9 +102,28 @@ InstallConffiles ()
         do
             from=$(echo $dest$from | sed "s,\$PKGDOCDIR,$pkgdocdir$latest," )
             to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
+            dir=$(dirname $to)
 
-            #  Install only if not already there
-            [ ! -f "$to" ] && Run install -m 0644 $from $to
+            [ ! -d $dir ] && Run install -m 0755 -d $dir
+
+            #  Install only if a) not already there b) not changed
+
+            if [ ! -f "$to" ]; then
+                Run install -m 0644 $from $to
+
+            elif [ -f $to ] && [ -f $from ] ; then
+                cmp --quiet $from $to
+
+                if [ "$?" = "0" ]; then
+                    #  No changes
+                    # Run rm -f "$to"
+                    Run install -m 0644 $from $to
+                else
+                    Warn "$0: [$package:WARN] $to has changed." \
+                         "Not installing new $from"
+                fi
+            fi
+
         done
     }
 

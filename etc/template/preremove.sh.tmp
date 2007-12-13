@@ -125,7 +125,7 @@ RemoveConffiles ()
                          "Not installing new $from"
                 fi
             fi
-        done
+        done ;
     }
 
     rm -f $tmpprefix.*
