@@ -4,6 +4,13 @@
 	(CygbuildDefineGlobalMain): Rename CYGBUILD_FILE_MANIFEST_TO and
 	CYGBUILD_FILE_MANIFEST_FROM
 	(CygbuildInstallCygwinPartMain): Treat new postinstall-manifest.lst
+	(CygbuildCmdInstallCheckPkgDocdir): Renamed. Was
+	`CygbuildCmdInstallCheckDocPages'.
+	(CygbuildCmdInstallCheckDocdir): New.
+	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckDocdir'.
+	(CygbuildFileSize): New.
+	(CygbuildCmdInstallCheckSetupHintSdesc): Check that starting
+	sentence is capitalized.
 
 2007-12-13  Jari Aalto  <jari.aalto@cante.net>
 

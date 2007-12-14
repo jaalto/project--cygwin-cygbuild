@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1214.0617"
+CYGBUILD_VERSION="2007.1214.1748"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1100,6 +1100,54 @@ function CygbuildLibInstallEnvironment()
 #       Utility functions
 #
 #######################################################################
+
+CygbuildFileSize ()
+{
+    file="$1"
+
+    if [ ! "$file" ] || [ ! -f $file ]; then
+        return 1
+    fi
+
+    #  This could be a symbolic link, check it
+    #  lrwxrwxrwx 1 root root  27 2004-05-04 10:45  vmlinuz -> boot/vmlinuz-...
+
+    local ls=$(ls -la $file)
+
+    if [[ ! "$ls" == *-\>* ]]; then
+        set -- $ls
+        echo ${@:(-5):1}
+        return 0
+    fi
+
+    #  it is a symbolic link. Find out real path.
+    #  FIXME: this does not handle multiple indirections, only one
+
+    local dir
+
+    if [[ "$file" == */* ]]; then
+         dir=${file%/*}
+    fi
+
+    set -- $ls
+
+    local file=${@:(-1):1}
+    local symdir
+
+    if [[ "$file" == */* ]]; then
+         symdir=${file%/*}
+    fi
+
+    local file=${file%%*/}
+
+    (
+        [ "$dir" ]    && { cd $dir    || return 1; }
+        [ "$symdir" ] && { cd $symdir || return 1; }
+
+        set -- $(ls -la $file)
+        echo ${@:(-5):1}
+    )
+}
 
 function WasLibraryInstallMakefile ()
 {
@@ -9116,10 +9164,22 @@ function CygbuildCmdInstallCheckSetupHintFields()
 function CygbuildCmdInstallCheckSetupHintSdesc()
 {
     local path=${1:-/dev/null}
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    if $EGREP "^sdesc:.+\.[[:space:]]*\"" $path /dev/null
+    if $EGREP --quiet "^sdesc:.+\.[[:space:]]*\"" $path
     then
         CygbuildWarn "-- [ERROR] sdesc: contains extra period(.)"
+    fi
+
+    if $EGREP "^sdesc:[[:space:]]*\"[[:space:]]*[a-z]" $path > $retval
+    then
+        CygbuildWarn "-- [ERROR] sdesc: Starting sentence not capitalized"
+        cat $retval
+    fi
+
+    if ! $EGREP --quiet "^sdesc:.*\"" $path
+    then
+        CygbuildWarn "-- [ERROR] sdesc: No starting double quote"
     fi
 }
 
@@ -9497,29 +9557,68 @@ function CygbuildCmdInstallCheckManualPages()
     return $status
 }
 
-function CygbuildCmdInstallCheckDocPages()
+function CygbuildCmdInstallCheckPkgDocdir()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local pfx=$CYGBUILD_PREFIX
-    local dir=$instdir
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local pfx="$CYGBUILD_PREFIX"
+    local dir="$instdir"
 
-    if ! $FIND -L $dir                   \
+    $FIND -L $dir                        \
         -type f                          \
         '(' -path   "*/$pfx/doc/*"   ')' \
         > $retval
-    then
-        return
-    fi
 
-    local file path manlist manPathList
+    [ -s "$retval" ] || return 0
+
     local status=0
+    local file
 
     for file in $(< $retval)
     do
         status=1
 
         CygbuildWarn "-- [ERROR] Wrong location $file"
+    done
+
+    return $status
+}
+
+function CygbuildCmdInstallCheckDocdir()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$DIR_DOC_GENERAL"
+
+    $FIND -L $dir                       \
+        -type f                         \
+        '(' -path   "*$PKG*"   ')'      \
+        > $retval
+
+    if [ ! -s "$retval" ] ; then
+        CygbuildWarn "-- [WARN] Empty directory" ${dir/$srcdir\//}
+        return 1
+    fi
+
+    local status=0
+    local minsize=100
+    local file size _file
+
+    for file in $(< $retval)
+    do
+        size=
+        _file=${file/$srcdir\//}
+
+        CygbuildFileSize $file > $retval
+        [ -s $retval ] && size=$(< $retval)
+
+        if [ "$size" = "0" ] ; then
+            CygbuildWarn "-- [WARN] empty file $_file"
+
+        elif (( $size < $minsize )) ; then
+            CygbuildWarn "-- [WARN] Very small file ($size) $_file"
+            cat $file
+        fi
     done
 
     return $status
@@ -9921,7 +10020,8 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckReadme            || stat=$?
     CygbuildCmdInstallCheckSetupHintMain     || stat=$?
     CygbuildCmdInstallCheckManualPages       || stat=$?
-    CygbuildCmdInstallCheckDocPages          || stat=$?
+    CygbuildCmdInstallCheckPkgDocdir         || stat=$?
+    CygbuildCmdInstallCheckDocdir            || stat=$?
     CygbuildCmdInstallCheckBinFiles          || stat=$?
     CygbuildCmdInstallCheckSymlinks          || stat=$?
     CygbuildCmdInstallCheckLibFiles          || stat=$?
