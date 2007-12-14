@@ -50,12 +50,6 @@ Environment()
 
     manifestdir=$etcdir/postinstall
     conffile="$manifestdir/$package-manifest.lst"
-
-    if [ "$dest" = ".inst" ]; then
-        #  Only during manual testing
-        manifestdir=CYGWIN-PATCHES
-        conffile="$manifestdir/postinstall-manifest.lst"
-    fi
 }
 
 Warn ()
