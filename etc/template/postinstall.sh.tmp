@@ -9,8 +9,9 @@
 #
 
 PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/X11R6/bin:$PATH"
-
 set -e
+
+package="packagename"        #!! CHANGE THIS
 
 Environment()
 {
@@ -22,8 +23,6 @@ Environment()
         #  Delete trailing slash
         dest=$(echo $dest | sed -e 's,/$,,' )
     fi
-
-    package="packagename"        #!! CHANGE THIS
 
     #   This file will be installed as
     #   /etc/postinstall/<package>.sh so derive <package>
@@ -49,14 +48,14 @@ Environment()
     #   1) list of files to be copied to /etc
     #   2) Source locations
 
-    manifestdir=$etcdir/preremove
+    manifestdir=$etcdir/postinstall
+    conffile="$manifestdir/$package-manifest.lst"
 
-    if [ -f $etcdir/postinstall/$package-manifest.lst ]; then
-        manifestdir=$etcdir/postinstall
+    if [ "$dest" = ".inst" ]; then
+        #  Only during manual testing
+        manifestdir=CYGWIN-PATCHES
+        conffile="$manifestdir/postinstall-manifest.lst"
     fi
-
-    conffiles_to="$manifestdir/$package-manifest.lst"
-    conffiles_from="$manifestdir/$package-manifest-from.lst"
 }
 
 Warn ()
@@ -66,12 +65,13 @@ Warn ()
 
 Run ()
 {
-    ${test+echo} "$@"
+    echo "$@"
+    [ "$test" ] || "$@"
 }
 
 InstallConffiles ()
 {
-    [ ! -f "$conffiles_to" ] && return
+    [ ! -f "$conffile" ] && return
 
     #  Install default configuration files for system wide
 
@@ -84,48 +84,53 @@ InstallConffiles ()
         exit 1
     fi
 
-    [ ! -f "$conffiles_from" ] && return
-    [ ! -f "$conffiles_to"   ] && return
-
     tmpprefix="${TEMPDIR:-/tmp}/tmp$$"
-    from="$tmpprefix.from"
-    to="$tmpprefix.to"
+    clean="$tmpprefix.to"
 
     #  Filter out all comments. Grep only lines with filenames
 
-    grep -E '^[^#]*/|^[[:space]]*$' $conffiles_from > $from
-    grep -E '^[^#]*/|^[[:space]]*$' $conffiles_to   > $to
+    grep -E '^[^#]*/|^[[:space]]*$' $conffile > $clean
 
-    paste $from $to  |
-    {
-        while read from to
-        do
-            from=$(echo $dest$from | sed "s,\$PKGDOCDIR,$pkgdocdir$latest," )
-            to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
+    while read from to
+    do
+        from=$(echo $dest$from | sed "s,\$PKGDOCDIR,$pkgdocdir$latest," )
+        to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
+
+        [ ! "$from" ] && continue                       # empty line
+
+        if [ ! "$to" ] ; then
+            Warn "$conffile: [ERROR] in line: $from"
+            continue
+        fi
+
+        if [ -d "$to" ] || echo $to | grep "/$" > /dev/null; then
+            dir=$(echo $to | sed 's,/$,,')
+            to=$dir/$(basename $from)
+        else
             dir=$(dirname $to)
+        fi
 
-            [ ! -d $dir ] && Run install -m 0755 -d $dir
+        [ ! -d "$dir" ] && Run install -m 0755 -d $dir
 
-            #  Install only if a) not already there b) not changed
+        #  Install only if a) not already there b) not changed
 
-            if [ ! -f "$to" ]; then
+        if [ ! -f "$to" ]; then
+            Run install -m 0644 $from $to
+
+        elif [ -f "$to" ] && [ -f "$from" ] ; then
+            cmp --quiet $from $to
+
+            if [ "$?" = "0" ]; then
+                #  No changes
+                # Run rm -f "$to"
                 Run install -m 0644 $from $to
-
-            elif [ -f $to ] && [ -f $from ] ; then
-                cmp --quiet $from $to
-
-                if [ "$?" = "0" ]; then
-                    #  No changes
-                    # Run rm -f "$to"
-                    Run install -m 0644 $from $to
-                else
-                    Warn "$0: [$package:WARN] $to has changed." \
-                         "Not installing new $from"
-                fi
+            else
+                Warn "$0: [$package:WARN] $to has changed." \
+                     "Not installing new $from"
             fi
+        fi
 
-        done
-    }
+    done < $clean
 
     rm -f $tmpprefix.*
 }
