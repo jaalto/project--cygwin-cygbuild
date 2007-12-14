@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1213.0020"
+CYGBUILD_VERSION="2007.1214.0617"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1051,6 +1051,7 @@ function CygbuildBootFunctionExport()
     export -f CygbuildLibInstallEnvironment
     export -f CygbuildCmdPublishToDir
     export -f CygbuildPatchFindGeneratedFiles
+    export -f CygbuildPod2man
 }
 
 #######################################################################
@@ -3350,7 +3351,8 @@ function CygbuildDefineGlobalMain()
     FILE_SRC_PKG=$tmpinst/$NAME_SRC_PKG                         # global-def
 
     if CygbuildIsGbsCompat ; then
-        CygbuildEcho "-- [NOTE] Using GBS compat mode for source and binary packages"
+        CygbuildEcho "-- [NOTE] Using GBS compat mode for" \
+                     "source and binary packages"
         FILE_SRC_PKG=$TOPDIR/$NAME_SRC_PKG
     fi
 
@@ -3366,14 +3368,14 @@ function CygbuildDefineGlobalMain()
     PATH_PKG_LIB_LIBRARY=$tmpinst/$NAME_LIB_PKG_MAIN            # global-def
     PATH_PKG_LIB_DEV=                                           # global-def
     PATH_PKG_LIB_DOC=                                           # global-def
-#    PATH_PKG_LIB_BIN=$tmpinst/$NAME_PKG_LIB_BIN                 # global-def
+#    PATH_PKG_LIB_BIN=$tmpinst/$NAME_PKG_LIB_BIN                # global-def
 
 
     #   Documentation and setup directories
 
     local tmpdocdir=$CYGBUILD_DOCDIR_RELATIVE   # _docdir is temp variable
 
-    DIR_CYGPATCH=$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE                 # global-def
+    DIR_CYGPATCH=$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE        # global-def
 
     CYGPATCH_DONE_PATCHES_FILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/done-patch.tmp # global-def
 
@@ -3389,17 +3391,22 @@ function CygbuildDefineGlobalMain()
 
     #   More global-def
 
-    PREREMOVE_MANIFEST_NAME=manifest.lst
-    PREREMOVE_MANIFEST_FROM_NAME=manifest-from.lst
+    CYGBUILD_FILE_MANIFEST_DATA=manifest.lst
+    CYGBUILD_FILE_MANIFEST_TO=manifest.lst
+    CYGBUILD_FILE_MANIFEST_FROM=manifest-from.lst
 
-    PREREMOVE_MANIFEST_CYGFILE=\
-$DIR_CYGPATCH/preremove-$PREREMOVE_MANIFEST_NAME
+    FILE_PREREMOVE_MANIFEST_FROM=\
+$DIR_CYGPATCH/preremove-$CYGBUILD_FILE_MANIFEST_FROM
 
-    PREREMOVE_MANIFEST_FROM_CYGFILE=\
-$DIR_CYGPATCH/preremove-$PREREMOVE_MANIFEST_FROM_NAME
+    FILE_PREREMOVE_MANIFEST_TO=\
+$DIR_CYGPATCH/preremove-$CYGBUILD_FILE_MANIFEST_TO
+
+    FILE_POSTINSTALL_MANIFEST_DATA=\
+$DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_PREREMOVE_CYGFILE=$DIR_CYGPATCH/preremove.sh
     DIR_PREREMOVE_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/preremove
+    DIR_POSTINSTALL_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/postinstall
 
     DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin
     DIR_DOC_GENERAL=$instdir$prefix/share/doc/$PKG-$VER         # global-def
@@ -3415,11 +3422,11 @@ $DIR_CYGPATCH/preremove-$PREREMOVE_MANIFEST_FROM_NAME
     EXTRA_TAR_OPTIONS_INSTALL=$DIR_CYGPATCH/install.tar.options # global-def
     EXTRA_ENV_OPTIONS_INSTALL=$DIR_CYGPATCH/install.env.options # global-def
 
-    SCRIPT_DIFF_BEFORE_CYGFILE=$DIR_CYGPATCH/diff-before.sh    # global-def
-    SCRIPT_DIFF_CYGFILE=$DIR_CYGPATCH/diff.sh                  # global-def
+    SCRIPT_DIFF_BEFORE_CYGFILE=$DIR_CYGPATCH/diff-before.sh     # global-def
+    SCRIPT_DIFF_CYGFILE=$DIR_CYGPATCH/diff.sh                   # global-def
 
-    SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh        # global-def
-    SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                # global-def
+    SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
+    SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
 
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
@@ -6068,6 +6075,12 @@ function CygbuildPod2man()
     local file="$1"
     local mansect=${2:-1}
 
+    local dir="."                                       # Not used now
+
+    if [[ "$file" == */* ]]; then
+        dir=${file%/*}
+    fi
+
     local package=${file##*/}
     local package=${package%.*}
 
@@ -7114,13 +7127,15 @@ CygbuildCmdGetSource ()
     local pkg="$1"
 
     if [ ! "$pkg" ]; then
-        CygbuildDie "[FATAL] command needs PACKAGE name"
+        CygbuildDie "$id: [FATAL] command needs PACKAGE name"
     elif [[ "$pkg" == -* ]]; then
-        CygbuildDie "[FATAL] suspicious package name: $pkg"
+        CygbuildDie "$id: [FATAL] suspicious package name: $pkg"
     fi
 
     local url=${CYGBUILD_SRCPKG_URL:-\
 "http://mirror.switch.ch/ftp/mirror/cygwin"}
+
+    CygbuildEcho "-- ** Source download from \$CYGBUILD_SRCPKG_URL"
 
     url=${url%/}        # Remove trailing slash
 
@@ -7133,7 +7148,7 @@ CygbuildCmdGetSource ()
     if [ "$pkg" ]; then
         CygbuildEcho "-- Using cache $cache (remove to get updated one)"
     else
-        echo "[ERROR] Missing source PACKAGE name" >&2
+        CygbuildEcho "-- [ERROR] Missing source PACKAGE name" >&2
         return 1
     fi
 
@@ -7154,9 +7169,8 @@ CygbuildCmdGetSource ()
     fi
 
     if [ ! -f "$cache" ]; then
-        echo -n "-- Wait, downloading Cygwin package information..."
+        CygbuildEcho "-- Wait, downloading Cygwin package information."
         $WGET -q -O $cache "$url/$file" || return $?
-        echo "done."
     fi
 
     # @ xfig
@@ -8696,13 +8710,16 @@ function CygbuildInstallCygwinPartMain()
 
     #   NOTE: the *.README file does not include RELEASE, just VERSION.
 
-    for elt in \
+    local item
+
+    for item in \
       "required $file  $DIR_DOC_CYGWIN $PKG-$VER.README" \
       "optional $SCRIPT_PREREMOVE_CYGFILE   $DIR_PREREMOVE_CYGWIN $PKG.sh" \
-      "optional $PREREMOVE_MANIFEST_CYGFILE $DIR_PREREMOVE_CYGWIN $PKG-$PREREMOVE_MANIFEST_NAME" \
-      "optional $PREREMOVE_MANIFEST_FROM_CYGFILE $DIR_PREREMOVE_CYGWIN $PKG-$PREREMOVE_MANIFEST_FROM_NAME"
+      "optional $FILE_PREREMOVE_MANIFEST_TO $DIR_PREREMOVE_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_TO" \
+      "optional $FILE_PREREMOVE_MANIFEST_FROM $DIR_PREREMOVE_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_FROM" \
+      "optional $FILE_POSTINSTALL_MANIFEST_DATA $DIR_POSTINSTALL_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_DATA"
     do
-        set -- $elt
+        set -- $item
 
         local mode=$1
         local fromfile=$2
@@ -8714,10 +8731,10 @@ function CygbuildInstallCygwinPartMain()
             return 1
         fi
 
-        [ ! -f "$fromfile" ] && continue
+        [ -f "$fromfile" ] || continue
 
-        $scriptInstallDir   $todir              || return $?
-        $scriptInstallFile  $fromfile $tofile   || return $?
+        CygbuildRun $scriptInstallDir   $todir              || return $?
+        CygbuildRun $scriptInstallFile  $fromfile $tofile   || return $?
     done
 }
 
@@ -9979,8 +9996,11 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptInstall" ]; then
 
+            local path="$0"
+
             $MKDIR -p $verbose "$instdir"
-            CygbuildEcho "-- [NOTE] installing with external: $scriptInstall $dir"
+            CygbuildEcho "-- [NOTE] installing with external:" \
+                         "$scriptInstall $dir $path"
 
             CygbuildChmodExec $scriptInstall
             $scriptInstall "$dir"
@@ -11376,7 +11396,7 @@ function CygbuildMain()
     #       #!/bin/bash
     #       ... load library
     #       export CYGBUILD_LIB=1
-    #       source $(/usr/bin/which cygbuild.sh)
+    #       source $(/usr/bin/which cygbuild)
     #       ... call functions
 
     if [ ! "$CYGBUILD_LIB" ]; then
