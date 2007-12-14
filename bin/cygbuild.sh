@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1214.1843"
+CYGBUILD_VERSION="2007.1214.1907"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7467,6 +7467,9 @@ function CygbuildCmdPrepMain()
 function CygbuildShellEnvironenment()
 {
     local list
+
+    #   Reset this to be sure to compile in clean environment
+    list="$list INCLUDE_PATH="
 
     [ "$CYGBUILD_CC" ] &&
     list="$list CC='${CYGBUILD_CC}'"

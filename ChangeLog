@@ -17,6 +17,8 @@
 	(CygbuildCmdInstallMain): Display relative paths.
 	(CygbuildDefineGlobalMain): Use absolute path for
 	CYGPATCH_DONE_PATCHES_FILE
+	(CygbuildShellEnvironenment): Empty INCLUDE_PATH during compile
+	to make sure the environment is clean.
 
 2007-12-13  Jari Aalto  <jari.aalto@cante.net>
 
