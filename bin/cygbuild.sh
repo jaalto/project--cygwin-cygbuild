@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1214.1748"
+CYGBUILD_VERSION="2007.1214.1833"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5107,6 +5107,12 @@ function CygbuildPatchApplyMaybe()
     local statCheck="statCheck"
     local force
 
+    if CygbuildIsGbsCompat ; then
+        #   During source package 'all' command turn this on, so that
+        #   the patches applied can be seen at glance
+        verb="gbs verbose"
+    fi
+
     if [[ "$cmd" == *-force ]]; then
         force="force"
         cmd=${cmd%-force}
@@ -5126,6 +5132,12 @@ function CygbuildPatchApplyMaybe()
     local list
 
     if [ "$cmd" = "unpatch" ]; then
+
+        if [ ! -f "$statfile" ]; then
+            CygbuildEcho "-- [INFO] Nothing to unpatch. No $statfile"
+            return 0
+        fi
+
         #  reverse order
         for file in $dir/*.patch
         do
@@ -5150,17 +5162,13 @@ function CygbuildPatchApplyMaybe()
 
                 if [ "$cmd" = patch ] ; then
                     if [ "$done" ]; then
+
                         [ "$verb" ] &&
                         CygbuildEcho "-- [INFO] Patch already applied: $name"
 
                         continue="continue"
                     fi
                 fi
-            elif [ "$cmd" = unpatch ]; then
-                    [ "$verb" ] &&
-                    CygbuildEcho "-- [INFO] No patch applied, no $statfile"
-
-                    continue="continue"
             fi
 
             if [ "$force" ]; then

@@ -11,6 +11,9 @@
 	(CygbuildFileSize): New.
 	(CygbuildCmdInstallCheckSetupHintSdesc): Check that starting
 	sentence is capitalized.
+	(CygbuildPatchApplyMaybe): Fine tune message display. Unpatch: exit
+	immediately is there is no CYGWIN-PATCHES/done-patch.tmp. Adjust
+	verbose during 'GBS compat' mode.
 
 2007-12-13  Jari Aalto  <jari.aalto@cante.net>
 
