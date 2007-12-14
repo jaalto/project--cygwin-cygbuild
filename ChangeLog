@@ -14,6 +14,9 @@
 	(CygbuildPatchApplyMaybe): Fine tune message display. Unpatch: exit
 	immediately is there is no CYGWIN-PATCHES/done-patch.tmp. Adjust
 	verbose during 'GBS compat' mode.
+	(CygbuildCmdInstallMain): Display relative paths.
+	(CygbuildDefineGlobalMain): Use absolute path for
+	CYGPATCH_DONE_PATCHES_FILE
 
 2007-12-13  Jari Aalto  <jari.aalto@cante.net>
 

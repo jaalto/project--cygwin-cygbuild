@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1214.1833"
+CYGBUILD_VERSION="2007.1214.1843"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3425,7 +3425,7 @@ function CygbuildDefineGlobalMain()
 
     DIR_CYGPATCH=$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE        # global-def
 
-    CYGPATCH_DONE_PATCHES_FILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/done-patch.tmp # global-def
+    CYGPATCH_DONE_PATCHES_FILE=$DIR_CYGPATCH/done-patch.tmp # global-def
 
     #   user executables
 
@@ -5246,7 +5246,7 @@ function CygbuildCmdMkpatchMain()
     local debug
     [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
-    CygbuildEcho "** Making [patch]" ${out/$srcdir\/}
+    CygbuildEcho "** Making patch" ${out/$srcdir\/}
 
     CygbuildNoticeBuilddirMaybe || return 1
 
@@ -5643,7 +5643,7 @@ function CygbuildCmdPkgSourceCvsdiff()
         return 1
     fi
 
-    CygbuildEcho "** Making [cvs patch] getting sources"
+    CygbuildEcho "** Making cvs patch getting sources"
 
     #   If already there is a checkout, use it
     #   Otherwise download a fresh copy from pserver where we
@@ -5684,7 +5684,7 @@ function CygbuildCmdPkgSourceCvsdiff()
     #   Examine how the current directory is different from the
     #   original chekout (Perl function does this)
 
-    CygbuildEcho "-- Making [cvs patch] Examining files to exclude."
+    CygbuildEcho "-- Making cvs patch: Examining files to exclude."
 
     local debug=${OPTION_DEBUG:-0}
     local status exclude
@@ -5707,7 +5707,7 @@ function CygbuildCmdPkgSourceCvsdiff()
     #   => Every user added directory except CYGWIN-PATHCES are
     #   => filtered out.
 
-    CygbuildEcho "-- Making [cvs patch] $out"
+    CygbuildEcho "-- Making cvs patch $out"
 
     #   Make the patch relative to the current directory.
     #
@@ -10107,8 +10107,11 @@ function CygbuildCmdInstallMain()
             local path="$0"
 
             $MKDIR -p $verbose "$instdir"
+
             CygbuildEcho "-- [NOTE] installing with external:" \
-                         "$scriptInstall $dir $path"
+                         "${scriptInstall/$srcdir\//}" \
+                         "${dir/$srcdir\//}" \
+                         "$path"
 
             CygbuildChmodExec $scriptInstall
             $scriptInstall "$dir"
