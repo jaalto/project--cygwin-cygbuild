@@ -137,9 +137,9 @@ InstallConffiles ()
 
         Run install -D -m 0644 $from $default
 
-    done < $clean
+    done < "$clean"
 
-    rm -f $tmpprefix.*
+    rm -f "$clean"
 }
 
 InstalInfo()
