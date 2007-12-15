@@ -1,8 +1,9 @@
-2007-12-15  Jari Aalto  <Administrator@W2KPICASSO>
+2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallMain): Feed messages from
 	install-after.sh through `CygbuildMsgFilter'.
-	(CygbuildMsgFilter): Treat >> and --- messages.
+	(CygbuildMsgFilter): Treat >> and --- messages. Ner perl $ENV
+	implemantation.
 	(CygbuildBootVariablesGlobalColors): Add more color variations.
 
 2007-12-14  Jari Aalto  <jari.aalto@cante.net>

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1215.1117"
+CYGBUILD_VERSION="2007.1215.1205"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -334,7 +334,7 @@ function CygbuildIsGbsCompat()
 function CygbuildMsgFilter()
 {
     if [ ! "$OPTION_COLOR" ]; then
-        cat
+        cat                                             # Pass through
         return 0
     fi
 
@@ -353,15 +353,18 @@ function CygbuildMsgFilter()
     local str=$(
         ${PERL:-perl} -ane '
             exit 0 unless /\S/;
-            $e = $ENV{end};
-            s,([*][*].*),$ENV{topic}$1$e,  ;
-            s,(.*(ERROR).*),$ENV{error}$1$e,   ;
-            s,(.*(FATAL).*),$ENV{fatal}$1$e,   ;
-            s,(.*WARN.*),$ENV{warn}$1$e,  ;
-            s,(.*(INFO|NOTE).*),$ENV{info}$1$e,  ;
-            s,^(-- [^[].*),$ENV{msg}$1$e, ;
-            s,^--- ([^[].*?:),-- $ENV{note}$1$e, ;
-            s,^(>>.*),$ENV{external}$1$e, ;
+            eval "\$$_ = q($ENV{$_});" for
+              qw(topic error error fatal warn info
+                 msg note external end);
+            $e = $end;
+            s,^(==.*),$topic$1$e, ;
+            s,(.*ERROR.*),$error$1$e, ;
+            s,(.*FATAL.*),$fatal$1$e, ;
+            s,(.*WARN.*),$warn$1$e, ;
+            s,(.*(?:INFO|NOTE).*),$info$1$e, ;
+            s,^(-- [^[].*),$msg$1$e, ;
+            s,^--- ([^[].*?:)(.*),-- $note$1$msg$2$e, ;
+            s,^(>>.*),$external$1$e, ;
             print;
     ')
 
@@ -660,6 +663,7 @@ function CygbuildBootVariablesGlobalColors()
 {
     CYGBUILD_COLOR_BLACK="\033[00;30m"    # basic
     CYGBUILD_COLOR_BLACK1="\033[01;30m"   # bold
+    CYGBUILD_COLOR_BLACKR="\033[07;30m"   # reverse
     CYGBUILD_COLOR_RED="\033[00;31m"
     CYGBUILD_COLOR_RED1="\033[01;31m"
     CYGBUILD_COLOR_RED1U="\033[04;31m"    # underline
@@ -4335,7 +4339,7 @@ function CygbuildCmdGPGVerifyMain()
         return
     fi
 
-    CygbuildEcho "** Verifying signatures in $dir"
+    CygbuildEcho "== Verifying signatures in $dir"
 
     local status=0
 
@@ -4735,7 +4739,7 @@ function CygbuildCmdPkgExternal()
     CygbuildPushd
         cd $instdir
 
-        CygbuildEcho "** Making package [binary] with external:" \
+        CygbuildEcho "== Making package [binary] with external:" \
              ${prg/$srcdir\/} $PKG $VER $REL
 
         CygbuildChmodExec $prg
@@ -4915,7 +4919,7 @@ function CygbuildCmdPkgDevelStandardMain()
 
     CygbuildPushd
 
-        CygbuildEcho "** Making packages [devel] from" \
+        CygbuildEcho "== Making packages [devel] from" \
                      "${instdir/$srcdir\//}"
 
         cd $instdir || exit 1
@@ -5035,7 +5039,7 @@ function CygbuildCmdPkgBinaryStandard()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local pkg=$FILE_BIN_PKG
 
-    CygbuildEcho "** Making package [binary]" ${pkg/$srcdir\/}
+    CygbuildEcho "== Making package [binary]" ${pkg/$srcdir\/}
 
     CygbuildExitNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
               "Did you forget to run [mkdirs]?"
@@ -5259,7 +5263,7 @@ function CygbuildCmdMkpatchMain()
     local debug
     [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
-    CygbuildEcho "** Making patch" ${out/$srcdir\/}
+    CygbuildEcho "== Making patch" ${out/$srcdir\/}
 
     CygbuildNoticeBuilddirMaybe || return 1
 
@@ -5558,7 +5562,7 @@ function CygbuildCmdPkgSourceStandard()
     local name="$SCRIPT_SRC_PKG_BUILD"    # script-VERSION-RELEASE.sh
     local taropt="$verbose -jcf"
 
-    CygbuildEcho "** Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
+    CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
 
     local script="$srcinstdir/$name"
 
@@ -5622,7 +5626,7 @@ function CygbuildCmdPkgSourceExternal ()
     CygbuildPushd
         cd $instdir || exit 1
 
-        eCygbuildEcho "** [NOTE] Making package [source] with external:" \
+        eCygbuildEcho "== [NOTE] Making package [source] with external:" \
              ${prg/$srcdir\/} $PKG $VER $REL
 
         CygbuildChmodExec $prg
@@ -5656,7 +5660,7 @@ function CygbuildCmdPkgSourceCvsdiff()
         return 1
     fi
 
-    CygbuildEcho "** Making cvs patch getting sources"
+    CygbuildEcho "== Making cvs patch getting sources"
 
     #   If already there is a checkout, use it
     #   Otherwise download a fresh copy from pserver where we
@@ -5831,7 +5835,7 @@ function CygbuildCmdPkgSourceCvsMain()
     $MV "$SCRIPT_SOURCE_GET" "$srcinstdir/$script"  || return $?
     $CP "$BUILD_SCRIPT"      "$srcinstdir/$install" || return $?
 
-    CygbuildEcho "** Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
+    CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
 
     local status=0
 
@@ -7390,7 +7394,7 @@ function CygbuildCmdShadowMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildEcho "** Shadow command"
+    CygbuildEcho "== Shadow command"
 
     if CygbuildIsBuilddirOk ; then
         CygbuildEcho "-- Already shadowed. Perhaps you had" \
@@ -7807,7 +7811,7 @@ function CygbuildCmdConfMain()
     local status=0
     local script=$SCRIPT_CONFIGURE_CYGFILE
 
-    CygbuildEcho "** Configure command"
+    CygbuildEcho "== Configure command"
 
     if ! CygbuildIsBuilddirOk ; then
         CygbuildEcho "-- Hm, no shadow yet. Running it now."
@@ -8011,7 +8015,7 @@ function CygbuildCmdBuildMain()
     local status=0
     local script="$SCRIPT_BUILD_CYGFILE"
 
-    CygbuildEcho "** Build command"
+    CygbuildEcho "== Build command"
 
     CygbuildNoticeBuilddirMaybe || return $?
     CygbuildDefineGlobalCompile
@@ -10032,7 +10036,7 @@ function CygbuildCmdInstallCheckMain()
 
     CygbuildCmdInstallCheckLineEndings
 
-    CygbuildEcho "** Checking content of installation in" ${instdir/$srcdir\/}
+    CygbuildEcho "== Checking content of installation in" ${instdir/$srcdir\/}
 
     if [ "$verb" ]; then
         CygbuildCmdInstallCheckMakefiles || stat=$?
@@ -10066,7 +10070,7 @@ function CygbuildCmdInstallMain()
     local scriptInstall=$SCRIPT_INSTALL_MAIN_CYGFILE
     local scriptAfter=$SCRIPT_INSTALL_AFTER_CYGFILE
 
-    CygbuildEcho "** Install command"
+    CygbuildEcho "== Install command"
 
     CygbuildExitNoDir $builddir \
               "$id: [ERROR] No builddir $builddir. Did you run 'shadow' ?"
@@ -10235,7 +10239,7 @@ function CygbuildCmdStripMain()
 
     CygbuildExitNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
 
-    CygbuildEcho "** Strip command"
+    CygbuildEcho "== Strip command"
 
     CygbuildFilesExecutable "$dir" "-o -type f ( -name "*.dll" )" \
     > $retval
@@ -10512,10 +10516,11 @@ function CygbuildCmdFinishMain()
 
     if [[ $objdir == *$PKG-$VER*  ]];then
 
-        CygbuildEcho "** [finish] Removing $objdir"
+        CygbuildEcho "== [finish] Removing $objdir"
 
         if CygbuildIsGbsCompat ; then
-            CygbuildEcho "-- [NOTE] GBS compat mode: results are not in ./.sinst" \
+            CygbuildEcho "-- [NOTE] GBS compat mode: results" \
+                "are not in ./.sinst" \
                  "but in $TOPDIR. Please note that possible GPG signatures" \
                  "are now invalid"
 
@@ -10793,7 +10798,7 @@ function CygbuildProgramVersion()
         exit $code
     else
         if [[ "$*" == *@( -C|--color)* ]]; then
-            echo -e "$CYGBUILD_COLOR_BLACK1== $str$CYGBUILD_COLOR_RESET"
+            echo -e "$CYGBUILD_COLOR_BLACK1## $str$CYGBUILD_COLOR_RESET"
         else
             echo "-- $str"
         fi
