@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1215.0848"
+CYGBUILD_VERSION="2007.1215.1117"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -340,22 +340,28 @@ function CygbuildMsgFilter()
 
     local topic="$CYGBUILD_COLOR_BLACK1"
     local error="$CYGBUILD_COLOR_RED1"
+    local fatal="$CYGBUILD_COLOR_RED1R"
     local warn="$CYGBUILD_COLOR_RED"
     local info="$CYGBUILD_COLOR_PURPLE"
     local msg="$CYGBUILD_COLOR_BLUE"
+    local note="$CYGBUILD_COLOR_BLUEU"
+    local external="$CYGBUILD_COLOR_PINK"
     local end="$CYGBUILD_COLOR_RESET"
 
-    export topic error error warn info msg end
+    export topic error error fatal warn info msg note external end
 
     local str=$(
         ${PERL:-perl} -ane '
             exit 0 unless /\S/;
             $e = $ENV{end};
             s,([*][*].*),$ENV{topic}$1$e,  ;
-            s,(.*(ERROR|FATAL).*),$ENV{error}$1$e,   ;
+            s,(.*(ERROR).*),$ENV{error}$1$e,   ;
+            s,(.*(FATAL).*),$ENV{fatal}$1$e,   ;
             s,(.*WARN.*),$ENV{warn}$1$e,  ;
             s,(.*(INFO|NOTE).*),$ENV{info}$1$e,  ;
             s,^(-- [^[].*),$ENV{msg}$1$e, ;
+            s,^--- ([^[].*?:),-- $ENV{note}$1$e, ;
+            s,^(>>.*),$ENV{external}$1$e, ;
             print;
     ')
 
@@ -656,14 +662,21 @@ function CygbuildBootVariablesGlobalColors()
     CYGBUILD_COLOR_BLACK1="\033[01;30m"   # bold
     CYGBUILD_COLOR_RED="\033[00;31m"
     CYGBUILD_COLOR_RED1="\033[01;31m"
+    CYGBUILD_COLOR_RED1U="\033[04;31m"    # underline
+    CYGBUILD_COLOR_RED1R="\033[07;31m"    # reverse
     CYGBUILD_COLOR_GREEN="\033[00;32m"    # not readable in cygwin rxvt
     CYGBUILD_COLOR_GREEN1="\033[01;32m"   # not readable in cygwin rxvt
-    CYGBUILD_COLOR_BROWN="\033[00;33m"    # not readable in cygwin rxvt
+    CYGBUILD_COLOR_BROWN="\033[00;33m"    # barely readable in cygwin rxvt
     CYGBUILD_COLOR_YELLOW="\033[01;33m"   # not readable in cygwin rxvt
     CYGBUILD_COLOR_BLUE="\033[00;34m"
+    CYGBUILD_COLOR_BLUEU="\033[04;34m"    # underline
+    CYGBUILD_COLOR_BLUER="\033[07;34m"    # reverse
     CYGBUILD_COLOR_BLUE1="\033[01;34m"
     CYGBUILD_COLOR_PURPLE="\033[00;35m"
     CYGBUILD_COLOR_PINK="\033[01;35m"
+    CYGBUILD_COLOR_PINKU="\033[04;35m"    # underline
+    CYGBUILD_COLOR_PINK2="\033[05;35m"    #
+    CYGBUILD_COLOR_PINKR="\033[07;35m"    # reverse
     CYGBUILD_COLOR_CYAN="\033[00;36m"     # not readable in cygwin rxvt
     CYGBUILD_COLOR_CYAN1="\033[01;36m"    # not readable in cygwin rxvt
     CYGBUILD_COLOR_GRAY="\033[00;37m"     # not readable in cygwin rxvt
@@ -4672,7 +4685,7 @@ function CygbuildCmdPublishExternal()
     local signer="$2"
     local pass="$3"
 
-    CygbuildEcho "-- Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
+    CygbuildEcho "--- Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
 
     CygbuildChmodExec "$prg"
     $prg "$TOPDIR" "$VER" "$REL" "$signer" "$pass"
@@ -6497,7 +6510,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
 
     (
         if [ -f "$makeEnv" ]; then
-            CygbuildEcho "-- Reading external env: $makeEnv" \
+            CygbuildEcho "--- Reading external env: $makeEnv" \
                  " $makeEnv $instdir $CYGBUILD_PREFIX $exec_prefix"
             source $makeEnv || exit $?
         fi
@@ -6572,7 +6585,7 @@ function CygbuildMakefileRunInstall()
 
     if [ -f "$makeScript" ]; then
 
-        CygbuildEcho "-- Running external make:" ${makeScript/$srcdir\/} \
+        CygbuildEcho "--- Running external make:" ${makeScript/$srcdir\/} \
              ${instdir/$srcdir\/} \
              $CYGBUILD_PREFIX \
              ${exec_prefix/$srcdir\/}
@@ -6823,7 +6836,7 @@ function CygbuildExtractWithScript()
         return 1
     fi
 
-    CygbuildEcho "-- [NOTE] Getting external sources with $file"
+    CygbuildEcho "--- Getting external sources with: $file"
 
     #   Now run the script and if it succeeds, we are ready to proceed to
     #   patching
@@ -7456,7 +7469,7 @@ function CygbuildCmdPrepMain()
     CygbuildCmdMkdirs || return $?
 
     if [ -f "$script" ]; then
-        CygbuildEcho "-- [NOTE] External prepare script: $script $TOPDIR"
+        CygbuildEcho "--- External prepare script: $script $TOPDIR"
         CygbuildChmodExec $script
         ${debug:+$BASHX} $script "$TOPDIR" || return $?
     else
@@ -7632,7 +7645,7 @@ function CygbuildConfCC()
              "${test:+(TEST mode)}"
 
         if [ -f "$envfile" ]; then
-            CygbuildEcho "-- Reading external env: $envfile" \
+            CygbuildEcho "--- Reading external env: $envfile" \
                  "$envfile $instdir $CYGBUILD_PREFIX $exec_prefix"
             source $envfile || return $?
         fi
@@ -7932,7 +7945,7 @@ function CygbuildCmdBuildStdMakefile()
 
     # #todo: There are two competing files, use only one of them.
     # if [ -f "$envfile" ]; then
-    #     CygbuildEcho "-- Reading external env: $envfile"
+    #     CygbuildEcho "--- Reading external env: $envfile"
     #     source $envfile || return $?
     # fi
 
@@ -8005,7 +8018,7 @@ function CygbuildCmdBuildMain()
 
     if [ -f "$script" ]; then
 
-        CygbuildEcho "-- [NOTE] Building with external:" \
+        CygbuildEcho "--- Building with external:" \
              ${script/$srcdir\/} $PKG $VER $REL
 
         CygbuildPushd
@@ -8198,7 +8211,7 @@ function CygbuildInstallPackageInfo()
         if [ ! "$done" ]; then                # Do only once
             $MKDIR -p "$DIR_INFO" || return 1
             done=1
-            CygbuildEcho "-- Installing [info] files to" \
+            CygbuildEcho "-- Installing info files to" \
                          "${dest/$srcdir\//}"
         fi
 
@@ -8572,7 +8585,7 @@ function CygbuildInstallExtraBinFiles
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
     local item dest todir tmp _file
 
-    CygbuildEcho "-- [NOTE] Installing external programs from $extrabindir"
+    CygbuildEcho "-- Installing external programs from: $extrabindir"
 
     for item in $extrabindir/*
     do
@@ -10111,7 +10124,7 @@ function CygbuildCmdInstallMain()
 
             $MKDIR -p $verbose "$instdir"
 
-            CygbuildEcho "-- [NOTE] installing with external:" \
+            CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall/$srcdir\//}" \
                          "${dir/$srcdir\//}" \
                          "$path"
@@ -10140,14 +10153,14 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptAfter" ]; then
 
-            CygbuildEcho "-- [NOTE] Running external:" \
+            CygbuildEcho "--- Running external:" \
                  ${scriptAfter/$srcdir\/} \
                  ${dir/$srcdir\/}
 
             CygbuildChmodExec $scriptAfter
 
             CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-            $scriptAfter "$dir" ||
+            $scriptAfter "$dir" | CygbuildMsgFilter ||
             {
                 status=$?
                 CygbuildPopd
@@ -10780,7 +10793,7 @@ function CygbuildProgramVersion()
         exit $code
     else
         if [[ "$*" == *@( -C|--color)* ]]; then
-            echo -e "$CYGBUILD_COLOR_BLACK1-- $str$CYGBUILD_COLOR_RESET"
+            echo -e "$CYGBUILD_COLOR_BLACK1== $str$CYGBUILD_COLOR_RESET"
         else
             echo "-- $str"
         fi

@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallMain): Feed messages from
 	install-after.sh through `CygbuildMsgFilter'.
+	(CygbuildMsgFilter): Treat >> and --- messages.
+	(CygbuildBootVariablesGlobalColors): Add more color variations.
 
 2007-12-14  Jari Aalto  <jari.aalto@cante.net>
 
