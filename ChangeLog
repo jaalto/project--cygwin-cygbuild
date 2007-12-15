@@ -5,6 +5,7 @@
 	(CygbuildMsgFilter): Treat >> and --- messages. Ner perl $ENV
 	implemantation.
 	(CygbuildBootVariablesGlobalColors): Add more color variations.
+	(CygbuildCmdInstallCheckBinFiles): Fix 'Binary name clash' message.
 
 2007-12-14  Jari Aalto  <jari.aalto@cante.net>
 

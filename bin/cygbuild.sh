@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1215.1205"
+CYGBUILD_VERSION="2007.1215.1311"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9721,17 +9721,19 @@ function CygbuildCmdInstallCheckBinFiles()
     > $retval
 
     if [ -s $retval ]; then
-        CygbuildEcho "-- [WARN] Hm, Some executables may have missing permission +x"
+        CygbuildEcho "-- [WARN] Hm, Some executables may have" \
+                     "missing permission +x"
         $CAT $retval
         # status=1
     fi
 
     local installed
 
-    if ls $CYGBUILD_DOCDIRCYG_FULL/$PKG*.README  > /dev/null 2>&1; then
+    if ls "/$CYGBUILD_DOCDIRCYG_FULL/$PKG*.README" > /dev/null 2>&1
+    then
         #   This package has already been installed into the system,
         #   otherwise this is a new package port
-        installed="yes"
+        installed="installed"
     fi
 
     local file
