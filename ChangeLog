@@ -1,3 +1,8 @@
+2007-12-15  Jari Aalto  <Administrator@W2KPICASSO>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallMain): Feed messages from
+	install-after.sh through `CygbuildMsgFilter'.
+
 2007-12-14  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/postinstall.sh.tmp (InstallConffiles): Add cmp(1).

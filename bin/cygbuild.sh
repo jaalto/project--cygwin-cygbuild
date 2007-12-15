@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1214.1907"
+CYGBUILD_VERSION="2007.1215.0848"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -10117,8 +10117,7 @@ function CygbuildCmdInstallMain()
                          "$path"
 
             CygbuildChmodExec $scriptInstall
-            $scriptInstall "$dir"
-
+            $scriptInstall "$dir" | CygbuildMsgFilter
             status=$?
 
             if [ "$status" != "0"  ]; then

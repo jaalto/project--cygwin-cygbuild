@@ -8,7 +8,8 @@
 #
 #    $ install-after.sh .inst
 #
-# This script is run after [install] command.
+# This script is run after [install] command. NOTE: Echo all messages
+# with ">> " prefix".
 
 Cmd()
 {
@@ -26,10 +27,13 @@ Main()
         root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
 
         # example 1) Copy whole 'doc' directory to package dir
+        # echo ">> Relocating doc directory"
         # Cmd mv $root/doc $root/usr/share/doc
-        #
-        # example 2) copy missing t.sh to package dir
-        # Cmd install -m 755 $root/usr/share/bin/t.sh $root/usr/bin
+
+        # example 2) copy missing xxx.sh to package dir
+        # echo ">> Relocating xxx.sh directory"
+        # Cmd install -m 755 $root/usr/share/bin/xxx.sh $root/usr/bin
+        # Cmd rm $root/usr/share/bin/xxx.sh
 
     fi
 }
