@@ -12,6 +12,9 @@
 # -- THIS AN EXAMPLE: MODIFY AS NEEDED     --
 # -- DELETE FUNCTIONS THAT YOU DO NOT NEED --
 
+PATH="/sbin:/usr/sbin/:/bin:/usr/bin:/usr/X11R6/bin"
+LC_ALL="C"
+
 DefineVariables()
 {
     if [ ! "$INSTALL_BIN" ]; then

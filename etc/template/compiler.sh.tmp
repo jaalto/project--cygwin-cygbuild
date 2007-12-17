@@ -1,5 +1,4 @@
 #!/bin/sh
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
 #
 # Note: Libotool does not understand "--mode=compile ccache gcc", because it
 # expects one WORD. The workaround is to use separate command file.

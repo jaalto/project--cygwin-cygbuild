@@ -6,6 +6,9 @@
 #
 #       CYGWIN-PACKAGES/diff.sh <orig-src-path> <cur-src-path> <output-file>
 
+PATH="/sbin:/usr/sbin/:/bin:/usr/bin"
+LC_ALL="C"
+
 Main()
 {
     if [ $# -ne 3 ]; then

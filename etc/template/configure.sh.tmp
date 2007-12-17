@@ -7,6 +7,9 @@
 #   Call: CYGWIN-PATCHES/configure.sh <absolute-install-dir>
 #   -- THIS AN EXAMPLE: MODIFY AS NEEDED --
 
+PATH="/sbin:/usr/sbin/:/bin:/usr/bin"
+LC_ALL="C"
+
 Bootstrap()
 {
     #   In case the package does not include ./configure,
