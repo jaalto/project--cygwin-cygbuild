@@ -134,8 +134,15 @@ InstallMake()
 
 Install()
 {
-    :
     #   This is install option (1) - All done manually; every step
+
+    root=${1:-".inst"}
+
+    if [ ! "$root"  ] || [ ! -d "$root" ]; then
+        return 1
+    fi
+
+    root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
 
     # DefineVariables "$@"  &&
     # InstallBin	    &&

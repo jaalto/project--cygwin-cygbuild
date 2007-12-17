@@ -25,20 +25,20 @@ Main()
 {
     root=${1:-".inst"}
 
-    if [ "$root"  ] && [ -d $root ]; then
-
-        root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
-
-        # example 1) Copy whole 'doc' directory to package dir
-        # echo ">> Relocating doc directory"
-        # Cmd mv $root/doc $root/usr/share/doc
-
-        # example 2) copy missing xxx.sh to package dir
-        # echo ">> Relocating xxx.sh directory"
-        # Cmd install -m 755 $root/usr/share/bin/xxx.sh $root/usr/bin
-        # Cmd rm $root/usr/share/bin/xxx.sh
-
+    if [ ! "$root"  ] || [ ! -d "$root" ]; then
+        return 1
     fi
+
+    root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
+
+    # example 1) Copy whole 'doc' directory to package dir
+    # echo ">> Relocating doc directory"
+    # Cmd mv $root/doc $root/usr/share/doc
+
+    # example 2) copy missing xxx.sh to package dir
+    # echo ">> Relocating xxx.sh directory"
+    # Cmd install -m 755 $root/usr/share/bin/xxx.sh $root/usr/bin
+    # Cmd rm $root/usr/share/bin/xxx.sh
 }
 
 Main "$@"
