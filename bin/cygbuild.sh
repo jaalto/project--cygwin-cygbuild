@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.1703"
+CYGBUILD_VERSION="2007.1218.1729"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -529,6 +529,8 @@ function CygbuildBootVariablesId()
     else
 	CYGBUILD_PROG_PATH="$(pwd)"
     fi
+
+    CYGBUILD_PROG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
 }
 
 function CygbuildBootVariablesCache()
@@ -1617,7 +1619,7 @@ function CygbuildCygcheckLibraryDepMain()
     #   2) use fgrep to get all lines matchíng the dlls
     #   3) process the fgrep results to extract package name
 
-    CygbuildEcho "-- Trying to resolve depends for $file"
+    CygbuildEcho "-- Trying to resolve depends for" ${file/$srcdir\//}
 
     # old method
     # CygbuildCygcheckLibraryDepList "$data" > "$retval"
@@ -10214,11 +10216,9 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptInstall" ]; then
 
-            #  Convert ./<name> into absolute path
-            local path=$(cd $(dirname $0) && pwd)
-            path="$path/${0##*/}"
-
             $MKDIR -p $verbose "$instdir"
+
+            local path="$CYGBUILD_PROG_FULLPATH"
 
             CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall/$srcdir\//}" \

@@ -12,6 +12,9 @@
 	(CygbuildObjDumpLibraryDepList): New.
 	(CygbuildCygcheckMain: New implementation.
 	(CygbuildCygcheckLibraryDepGrepTraditonal): New.
+	(CygbuildCmdInstallMain): Send absolute path to external install
+	script.
+	(CygbuildBootVariablesId): Add CYGBUILD_PROG_FULLPATH
 
 2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 
