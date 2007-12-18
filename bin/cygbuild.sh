@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.1355"
+CYGBUILD_VERSION="2007.1218.1703"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1263,6 +1263,33 @@ function CygbuildChmodExec()
     CygbuildChmodDo ugo+x "$@"
 }
 
+CygbuildObjDumpLibraryDepList ()
+{
+    local id="$0.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ]; then
+        CygbuildWarn "$0: [ERROR] Missing argument FILE"
+        return 1
+    fi
+
+    objdump -p "$file" |
+        $AWK '
+            /KERNEL32|cygwin1.dll/ {
+                next;
+            }
+            /DLL Name:/ {
+                hash[$(NF)];
+            }
+            END{
+                for (name in hash)
+                {
+                    print name;
+                }
+            }' |
+         sort
+}
+
 CygbuildCygcheckLibraryDepList ()
 {
     local id="$0.$FUNCNAME"
@@ -1420,7 +1447,7 @@ CygbuildCygcheckLibraryDepSetup ()
     done
 }
 
-function CygbuildCygcheckLibraryDepGrepPgkNames()
+function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
 {
     #   NOTE: informational messages are written to stderr
     #   because this function returns list of depends.
@@ -1428,17 +1455,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"  # list of library names
-
-    local cache="/var/cache/cygbug/package/list/file.lst"
-
-    if [ ! -f $cache ]; then
-        if [ -d /var/cache/cygbug ]; then
-            CygbuildWarn "-- [NOTE] Cache not found $cache"
-            return 1
-        fi
-
-        return 0
-    fi
+    local cache="$2"
 
     if [ ! "$file" ] || [ ! -e "$file" ]; then
         CygbuildDie "[FATAL] $id: empty 'file' argument"
@@ -1545,12 +1562,53 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
     [ -s $retval.collect ] && $CAT $retval.collect
 }
 
+CygbuildCygcheckLibraryDepGrepTraditonal()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local bin="cygcheck"
+
+    CygbuildWhich $bin > $retval
+    [ -s $retval ] || return 0           # No such program
+
+    for file in "$@"
+    do
+
+      if [[ ! "$file" == /* ]]; then
+          CygbuildWhich "$file" > $retval
+
+          if [ -s $retval ]; then
+              file=$(< $retval)
+          fi
+      fi
+
+      if [ ! -f "$file" ]; then
+          CygbuildWarn "-- [WARN] No susch file: $file"
+          continue
+      fi
+
+      # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
+      $bin -f $file | $SED 's/-[0-9].*//'
+    done | $SORT --unique
+}
+
+CygbuildCygcheckLibraryDepGrepPgkNamesMain()
+{
+    local file="$1"
+    local cache="/var/cache/cygbug/package/list/file.lst"
+
+#    if [ -f $cache ]; then
+#        CygbuildCygcheckLibraryDepGrepPgkNamesCache "$file" "$cache"
+#    else
+        CygbuildCygcheckLibraryDepGrepTraditonal cygwin1.dll $(< $file)
+#    fi
+}
+
 function CygbuildCygcheckLibraryDepMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
-    local data="$2"
+    local data="$2"  # 2007-12-16 not used
 
     local setup="$DIR_CYGPATCH/setup.hint"
 
@@ -1561,27 +1619,31 @@ function CygbuildCygcheckLibraryDepMain()
 
     CygbuildEcho "-- Trying to resolve depends for $file"
 
-    CygbuildCygcheckLibraryDepList "$data" > "$retval"
+    # old method
+    # CygbuildCygcheckLibraryDepList "$data" > "$retval"
+
+    CygbuildObjDumpLibraryDepList "$file" > "$retval"
 
     if [ ! -s $retval ]; then
         CygbuildEcho "-- No dependencies other than cygwin"
         return 0
     fi
 
-    CygbuildCygcheckLibraryDepSource
-
-    if CygbuildCygcheckLibraryDepGrepPgkNames "$retval" > "$retval.pkglist"
+    if CygbuildCygcheckLibraryDepGrepPgkNamesMain \
+       "$retval" > "$retval.pkglist"
     then
+
         CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
+
         echo "   DEPENDS SUMMARY:"
-        $SED 's/^ \+//' "$retval.pkglist" | $SORT -u | $SED 's/^/   /'
+        $SED 's/^ \+//' "$retval.pkglist" | $SORT --unique | $SED 's/^/   /'
 
         CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
     fi
 }
 
-function CygbuildCygcheckMain()
+function CygbuildCygcheckMainOld() # 2007-12-16 not used
 {
     local id="$0.$FUNCNAME"
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
@@ -1598,10 +1660,28 @@ function CygbuildCygcheckMain()
         if $bin --windows "$file" > $retval
         then
             path=$(< $retval)
-            /usr/bin/cygcheck $path | tee $retval
+            /usr/bin/cygcheck "$path" | tee $retval
 
             CygbuildCygcheckLibraryDepMain "$path" "$retval"
         fi
+    done
+}
+
+function CygbuildCygcheckMain()
+{
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local file
+
+    CygbuildCygcheckLibraryDepSource
+
+    for file in "$@"
+    do
+      if [ "$verbose" ] ; then
+          CygbuildEcho "-- Wait, listing depends"
+          cygcheck $(cygpath --windows $(type -p $file)) 2> /dev/null
+      fi
+      CygbuildCygcheckLibraryDepMain "$file"
     done
 }
 
@@ -10134,7 +10214,9 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptInstall" ]; then
 
-            local path="$0"
+            #  Convert ./<name> into absolute path
+            local path=$(cd $(dirname $0) && pwd)
+            path="$path/${0##*/}"
 
             $MKDIR -p $verbose "$instdir"
 
@@ -10251,8 +10333,10 @@ function CygbuildCmdStripMain()
 
     CygbuildEcho "== Strip command"
 
-    CygbuildFilesExecutable "$dir" "-o -type f ( -name "*.dll" )" \
-    > $retval
+    CygbuildFilesExecutable \
+        "$dir" \
+        "-o -type f ( -name '*.dll' -o -name '*.so' )" \
+        > $retval
 
     local files="$(< $retval)"
     local file type list
@@ -10328,10 +10412,12 @@ function CygbuildStripCheck()
 
     if [[ "$*" == *no*symbols* ]]; then
         return 0
+
     elif [[ "$*"  == *Not*x86* ]]; then
         CygbuildEcho "-- [ERROR] $file is not valid executable"
         $FILE $file
         return 0
+
     else
         CygbuildVerbWarn "-- [WARN] Symbols found. I'm going to call" \
                          "[strip] first"
@@ -11573,7 +11659,7 @@ function Test ()
 #Test odt2txt-0.3+git20070827-1-src.tar.bz2
 #Test findbugs-1.3.0-rc1.tar.gz
 
-#trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
+trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
 
 # End of file

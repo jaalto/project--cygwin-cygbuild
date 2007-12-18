@@ -8,6 +8,10 @@
 	(CygbuildLibInstallEnvironment): Add quotes.
 	(CygbuildDefineEnvClear): Unset INCLUDE_PATH
 	(CygbuildShellEnvironenment): Remove INCLUDE_PATH
+	(CygbuildCmdStripMain): Strip also *.so.
+	(CygbuildObjDumpLibraryDepList): New.
+	(CygbuildCygcheckMain: New implementation.
+	(CygbuildCygcheckLibraryDepGrepTraditonal): New.
 
 2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 
