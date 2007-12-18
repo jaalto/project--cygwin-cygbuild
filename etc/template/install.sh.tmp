@@ -139,6 +139,7 @@ Install()
     root=${1:-".inst"}
 
     if [ ! "$root"  ] || [ ! -d "$root" ]; then
+        echo "$0: [ERROR] In $(pwd) no such directory: '$root'" >&2
         return 1
     fi
 
