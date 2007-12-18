@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.2142"
+CYGBUILD_VERSION="2007.1218.2157"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1398,7 +1398,7 @@ function CygbuildCygcheckLibraryDepAdjust()
     local setup="$DIR_CYGPATCH/setup.hint"
     local list lib
 
-    for lib in $(< $file)
+    while read lib
     do
 
       #  libintl already requires iconv
@@ -1412,7 +1412,7 @@ function CygbuildCygcheckLibraryDepAdjust()
                            "unnecessary depends $lib"
           fi
       fi
-    done
+    done < $file
 }
 
 function CygbuildCygcheckLibraryDepReadme()
@@ -1423,13 +1423,13 @@ function CygbuildCygcheckLibraryDepReadme()
     local readme="$DIR_CYGPATCH/$PKG.README"
     local lib
 
-    for lib in $(< $file)
+    while read lib
     do
         if ! $EGREP --quiet " \b$lib" $readme
         then
             CygbuildWarn "-- [ERROR] $PKG.README does not mention $lib"
         fi
-    done
+    done < $file
 }
 
 CygbuildCygcheckLibraryDepSetup ()
@@ -1440,13 +1440,13 @@ CygbuildCygcheckLibraryDepSetup ()
 
     #  Check that all are listed
 
-    for lib in $(< $file)
+    while read lib
     do
         if ! $EGREP --quiet "^ *requires:.*\b$lib\b" $setup
         then
             CygbuildWarn "-- [ERROR] setup.hint lacks $lib"
         fi
-    done
+    done < $file
 }
 
 function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
@@ -2926,14 +2926,14 @@ function CygbuildTreeSymlinkCopy()
 
         local file done
 
-        for file in $(< $retval)
+        while read file
         do
             if [ "$verbose" ] && [ ! "$done" ]; then
                 CygbuildEcho "-- Cleaning offending files before shadow"
                 done="yes"
             fi
             $RM -f $verbose "$file"
-        done
+        done < $retval
 
         local dest
         local current=$(pwd)
@@ -3029,7 +3029,8 @@ function CygbuildDefineGlobalPackageDatabase()
 {
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local fromdir="$1"
-    local todir=$CYGBUILD_CACHE_PAKAGES
+    local todir="$CYGBUILD_CACHE_PAKAGES"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ ! "$fromdir" ] || [ ! -d "$fromdir" ] ; then
         CygbuildDie "\
@@ -3059,7 +3060,9 @@ setup.exe and see value 'Local Package Directory'
 
     local path name dest
 
-    for path in $( $FIND $fromdir -type f -name "*.bz2" )
+    $FIND $fromdir -type f -name "*.bz2" > $retval
+
+    while read path
     do
         name=${path##*/}        # Delete directories.
         name=${name%.tar.bz2}   # foo-1.1-2.tar.bz2 => foo-1.1-2
@@ -3077,7 +3080,7 @@ setup.exe and see value 'Local Package Directory'
                > $todir/$name.lst || exit $?
         fi
 
-    done
+    done < $retval
 }
 
 function CygbuildDefineGlobalCommands()
@@ -4074,14 +4077,14 @@ function CygbuildDetermineDocDir()
     if $LS -F $dir/ |
        $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
     then
-        for try in $(< $retval)
+        while read try
         do
             try=$dir/$try           # Absolute path
             if [ -d "$try" ]; then
                 ret=${try%/}        # Delete trailing slash
                 break
             fi
-        done
+        done < $retval
     fi
 
     echo $ret
@@ -6194,7 +6197,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
     local file
     local ext=".postinstall_append"
 
-    for file in $(< $retval)
+    while read file
     do
         CygbuildPerlPodModule $file > $retval
         local modulename=$(< $retval)
@@ -6231,7 +6234,7 @@ fi
 
         CygbuildPostinstallWrite "$commands" || return $?
 
-    done
+    done < $retval
 }
 
 function CygbuildPod2man()
@@ -6645,7 +6648,7 @@ function CygbuildMakefileRunInstallFixInfo()
 
     local file
 
-    for file in $(< $retval)
+    while read file
     do
         local name=$DIR_CYGPATCH/postinstall.sh
 
@@ -6654,7 +6657,7 @@ function CygbuildMakefileRunInstallFixInfo()
         fi
 
         $RM $file
-    done
+    done < $retval
 }
 
 function CygbuildMakefileRunInstallFixMain()
@@ -7212,12 +7215,12 @@ function CygbuildPatchFindGeneratedFiles()
 
     $AWK '/Only in.*\.[ch]/ {print $4}' $retval > $retval2
 
-    for file in $(< $retval2)
+    while read file
     do
         CygbuildWarn "-- [NOTE] Excluding from patch a Makefile generated" \
              "file $file"
         ret="$ret --exclude=$file"
-    done
+    done < $retval2
 
     #   All file.ext files are generated if they have corresponding
     #   file.ext.in counterpart
@@ -7237,7 +7240,7 @@ function CygbuildPatchFindGeneratedFiles()
             }
         ' $retval > $retval2
 
-    for file in  $(< $retval2)
+    while read file
     do
 
         [ -d "$file" ]          && continue     # Skip made directories
@@ -7254,7 +7257,7 @@ function CygbuildPatchFindGeneratedFiles()
             ret="$ret --exclude=${name##*/} --exclude=${name##*/}.in"
         fi
 
-    done
+    done < $retval2
 
     #   All executables are excluded too. Some Linux packages
     #   include pure binary "file", so exclude also "file.exe"
@@ -7263,11 +7266,11 @@ function CygbuildPatchFindGeneratedFiles()
     local dummy="Forget executables"
 
     if $LS *.exe > $retval 2> /dev/null ; then
-        for file in $(< $retval)
+        while read file
         do
             name=${file%.exe}
             ret="$ret --exclude=$file --exclude=$name"
-        done
+        done < $retval
     fi
 
     #   Anyway, exclude the package binary name; just in case it
@@ -7403,8 +7406,11 @@ CygbuildCmdGetSource ()
 
     local cygdir="${CYGBUILD_DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
 
-    for patch in $(ls *.patch 2> /dev/null |
-                  $EGREP --invert-match --regexp='-rest.patch' )
+    ls *.patch 2> /dev/null |
+        $EGREP --invert-match --regexp='-rest.patch' \
+        > $retval
+
+    while read patch
     do
         if [ ! -d "$cygdir" ]; then
             if lsdiff $patch | $EGREP "$cygdir" > /dev/null ; then
@@ -7430,7 +7436,7 @@ CygbuildCmdGetSource ()
                 $RM -f "$file"
             fi
         fi
-    done
+    done < $retval
 
     CygbuildEcho "-- Done. Examine *.sh and $cygdir/ and *.patch"
 }
@@ -7629,7 +7635,7 @@ function CygbuildCmdDependMain()
 
     local found
 
-    for file in $(< $retval)
+    while read file
     do
         #  Do not check Windows files
         if [[ $file == *WIN*      ]] || \
@@ -7645,7 +7651,7 @@ function CygbuildCmdDependMain()
         found=1
         $cygcheck -f $file
 
-    done
+    done < $retval
 
     if [ ! "$found" ]; then
         CygbuildEcho "-- No other dependencies than 'cygwin'"
@@ -8225,17 +8231,16 @@ function CygbuildCmdCleanMain()
 
                 set -o noglob    # Don not expand variables, like  "*.exe"
 
-                    if $FIND . \
+                    $FIND . \
                         -type f '(' $CYGBUILD_FIND_OBJS ')' \
                         > $retval
-                    then
-                        for file in $(< $retval)
-                        do
-                            $RM $verbose "$file"
-                        done
-                    fi
 
                 set +o noglob
+
+                while read file
+                do
+                    $RM $verbose "$file"
+                done < $retval
 
             }
         CygbuildPopd
@@ -8296,9 +8301,10 @@ function CygbuildInstallPackageInfo()
         -a ! -name ".inst"                                      \
         -a ! -name ".build"                                     \
         -o -type f '(' -name "*.info" -o -name "*.info-*" ')'   \
-        | $SORT > $retval
+        | $SORT \
+        > $retval
 
-    for file in $(< $retval)
+    while read file
     do
         if [ ! "$done" ]; then                # Do only once
             $MKDIR -p "$DIR_INFO" || return 1
@@ -8311,7 +8317,7 @@ function CygbuildInstallPackageInfo()
             CygbuildVerb "-- Info file $file"
             $INSTALL_SCRIPT $INSTALL_FILE_MODES $file $dest
         fi
-    done
+    done < $retval
 
 
     # Package must not supply central 'dir' file
@@ -8504,7 +8510,7 @@ function CygbuildInstallPackageDocs()
 
             local mode644 mode755
 
-            for item in $(< $retval)
+            while read item
             do
                 if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
                 then
@@ -8512,7 +8518,7 @@ function CygbuildInstallPackageDocs()
                 else
                     mode644="$mode644 $item"
                 fi
-            done
+            done < $retval
 
             if [ "$mode644" ]; then
                 chmod 644 $mode644 || return $?
@@ -8635,7 +8641,7 @@ function CygbuildInstallExtraManualCompress()
 
         if [ -s $retval ]
         then
-            for file in $(< $retval)
+            while read file
             do
                 #   If same program is "alias", then we have to rearrange
                 #   things a bit
@@ -8660,7 +8666,8 @@ function CygbuildInstallExtraManualCompress()
                         $RM "$name"
                     fi
                 CygbuildPopd
-            done
+
+            done < $retval
         fi
     fi
 }
@@ -9119,9 +9126,11 @@ function CygbuildCmdInstallCheckTempFiles()
     local ignore="$CYGBUILD_IGNORE_ZERO_LENGTH"
     local done file ret
 
-    for file in $( $FIND -L $dir -type f            \
-                   '(' -size 0 -name "*[#~]*" ')'   \
-                 )
+    $FIND -L $dir -type f            \
+        '(' -size 0 -name "*[#~]*" ')' \
+        > $retval
+
+    while read file
     do
         [[ "$file" == $ignore ]] && continue
 
@@ -9130,8 +9139,9 @@ function CygbuildCmdInstallCheckTempFiles()
 
         done="done"
         ret=1
+
         CygbuildWarn "$(ls -l $file)"
-    done
+    done < $retval
 
     return $ret
 }
@@ -9367,6 +9377,7 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
 
 function CygbuildCmdInstallCheckSetupHintDependExists()
 {
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local path=${1:-/dev/null}
 
     #  Installed files are here. We assume that developer always has
@@ -9375,7 +9386,9 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     local database="/etc/setup/installed.db"
     local lib
 
-    for lib in $( $AWK  '/^requires:/ { sub("requires:", ""); print}' $path)
+    $AWK  '/^requires:/ { sub("requires:", ""); print}' $path > $retval
+
+    while read lib
     do
         if $EGREP --quiet --files-with-matches "$lib" "$database"
         then
@@ -9383,14 +9396,14 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
         else
             CygbuildWarn "-- [ERROR] requires: $lib package not installed"
         fi
-    done
+    done < $retval
 }
 
 function CygbuildCmdInstallCheckSetupHintCategory()
 {
     #  Check category line
     local path=${1:-/dev/null}
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     head -1 $instdir/usr/bin/* > "$retval" 2> /dev/null
 
@@ -9482,7 +9495,7 @@ function CygbuildCmdInstallCheckDirEmpty()
 function CygbuildCmdInstallCheckDirStructure()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx="$instdir$CYGBUILD_PREFIX"
 
     local error try
@@ -9516,12 +9529,16 @@ function CygbuildCmdInstallCheckDirStructure()
 
     if [ -d $instdir/etc ]; then
 
+        $FIND "$instdir/etc" \
+            ! -path "*/postinstall*" \
+            -a ! -path "*/preremove*" \
+            -a ! -path "*/default*" \
+            -type f \
+            > $retval
+
         local file
-        for file in $(  $FIND $instdir/etc \
-                        ! -path "*/postinstall*" \
-                        -a ! -path "*/preremove*" \
-                        -a ! -path "*/default*" \
-                        -type f )
+
+        while read file
         do
             if [ -f $file ]; then
 
@@ -9530,7 +9547,7 @@ function CygbuildCmdInstallCheckDirStructure()
                 error=1
                 break
             fi
-        done
+        done < $retval
     fi
 
     if [ -d $instdir/user-share ]; then
@@ -9599,34 +9616,34 @@ function CygbuildCmdInstallCheckManualPages()
     local file path manlist manPathList
     local status=0
 
-    if $FIND -L $dir                \
+    $FIND -L $dir                   \
         -type f                     \
         '('                         \
             -path    "*/man/*"      \
             -o -path "*/man[0-9]/*" \
         ')'                         \
         > $retval
-    then
-        for file in $(< $retval)
-        do
-            $EGREP -n 'Debian' $file > $retval
 
-            if [ -s $retval ]; then
-                CygbuildEcho "-- [INFO] If page was from Debian, it may need editing"
-                $CAT $retval
-            fi
+    while read file
+    do
+        $EGREP -n 'Debian' $file > $retval
 
-            path=${file%/*}
-            manPathList="$manPathList $path"
+        if [ -s $retval ]; then
+            CygbuildEcho "-- [INFO] If page was from Debian," \
+                         "it may need editing"
+            $CAT $retval
+        fi
 
-            name=${file##*/}        # Delete path
-            name=${name%.gz}        # package.1.gz => package.1
-            name=${name%.bz2}       # package.1.gz => package.1
-            name=${name%$addsect}   # package.1x    => package.1
-            name=${name%.[0-9]}     # package.1    => package
-            manlist="$manlist $name "
-        done
-    fi
+        path=${file%/*}
+        manPathList="$manPathList $path"
+
+        name=${file##*/}        # Delete path
+        name=${name%.gz}        # package.1.gz => package.1
+        name=${name%.bz2}       # package.1.gz => package.1
+        name=${name%$addsect}   # package.1x    => package.1
+        name=${name%.[0-9]}     # package.1    => package
+        manlist="$manlist $name "
+    done < $retval
 
     #  Check incorrect locations
     #       .inst/usr/share/man1/
@@ -9713,12 +9730,12 @@ function CygbuildCmdInstallCheckPkgDocdir()
     local status=0
     local file
 
-    for file in $(< $retval)
+    while read file
     do
         status=1
 
         CygbuildWarn "-- [ERROR] Wrong location $file"
-    done
+    done < $retval
 
     return $status
 }
@@ -9743,7 +9760,7 @@ function CygbuildCmdInstallCheckDocdir()
     local minsize=100
     local file size _file
 
-    for file in $(< $retval)
+    while read file
     do
         size=
         _file=${file/$srcdir\//}
@@ -9758,7 +9775,7 @@ function CygbuildCmdInstallCheckDocdir()
             CygbuildWarn "-- [WARN] Very small file ($size) $_file"
             cat $file
         fi
-    done
+    done < $retval
 
     return $status
 }
