@@ -15,6 +15,9 @@
 	(CygbuildCmdInstallMain): Send absolute path to external install
 	script.
 	(CygbuildBootVariablesId): Add CYGBUILD_PROG_FULLPATH
+	(CygbuildBootVariablesGlobalMain): Add *.dll to
+	CYGBUILD_MATCH_FILE_EXE
+	(CygbuildInstallFixPermissions): New implementation.
 
 2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 

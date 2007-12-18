@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.1729"
+CYGBUILD_VERSION="2007.1218.2142"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8711,7 +8711,7 @@ function CygbuildInstallFixMandir()
 
     CygbuildVerb "-- Fixing manual page locations"
 
-    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
+$retval    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
     local manroot="$instdir$todir"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
@@ -8729,8 +8729,29 @@ function CygbuildInstallFixMandir()
 
 function CygbuildInstallFixPermissions()
 {
-    CygbuildChmodExec   $( $FIND $instdir -name "*.exe" 2> /dev/null)
-    CygbuildChmodDo 644 $( $FIND $instdir/usr/share/man -type f 2> /dev/null)
+    local id="$0.$FUNCNAME"
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local file exeList readList
+
+    $FIND $instdir -type f > $retval
+
+    [ -s $retval ] || return 0
+
+    while read file
+    do
+      if [[ "$file" == $CYGBUILD_MATCH_FILE_EXE ]] ||
+         [[ "$file" == */bin/*  ]] ||
+         [[ "$file" == */sbin/* ]]
+      then
+          exeList="$exeList $file"
+
+      elif [[ "$file" == */man/* ]]; then
+          readList="$readList $file"
+      fi
+    done < $retval
+
+    [ "$exeList"  ] && chmod 755 $exeList
+    [ "$readList" ] && chmod 644 $exeList
 }
 
 function CygbuildInstallFixInterpreterPerl ()
@@ -10161,6 +10182,7 @@ function CygbuildCmdInstallMain()
     local id="$0.$FUNCNAME"
     local scriptInstall=$SCRIPT_INSTALL_MAIN_CYGFILE
     local scriptAfter=$SCRIPT_INSTALL_AFTER_CYGFILE
+    local thispath="$CYGBUILD_PROG_FULLPATH"
 
     CygbuildEcho "== Install command"
 
@@ -10218,15 +10240,13 @@ function CygbuildCmdInstallMain()
 
             $MKDIR -p $verbose "$instdir"
 
-            local path="$CYGBUILD_PROG_FULLPATH"
-
             CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall/$srcdir\//}" \
                          "$dir" \
-                         "$path"
+                         "$thispath"
 
             CygbuildChmodExec $scriptInstall
-            $scriptInstall "$dir" "$path" | CygbuildMsgFilter
+            $scriptInstall "$dir" "$thispath" | CygbuildMsgFilter
             status=$?
 
             if [ "$status" != "0"  ]; then
@@ -10251,12 +10271,15 @@ function CygbuildCmdInstallMain()
 
             CygbuildEcho "--- Running external:" \
                  ${scriptAfter/$srcdir\/} \
-                 ${dir/$srcdir\/}
+                 "$dir" \
+                 "$thispath"
+
+            local path="$CYGBUILD_PROG_FULLPATH"
 
             CygbuildChmodExec $scriptAfter
 
             CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-            $scriptAfter "$dir" | CygbuildMsgFilter ||
+            $scriptAfter "$dir" "$thispath" | CygbuildMsgFilter ||
             {
                 status=$?
                 CygbuildPopd
