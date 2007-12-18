@@ -1,3 +1,10 @@
+2007-12-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildCmdPkgDevelStandardDev): Remove
+	process substitution.
+	(CygbuildCmdInstallCheckDirEmpty): Remove process substitution.
+
 2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallMain): Feed messages from

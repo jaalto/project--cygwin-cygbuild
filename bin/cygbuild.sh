@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1215.1311"
+CYGBUILD_VERSION="2007.1218.0923"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -117,8 +117,15 @@ CYGBUILD_NAME="cygbuild"
 #       sh ./program.sh
 #
 #   The following will succeed under bash, but will give error under sh
+#
+#   NOTE: In some places the sh is copy of bash (or symlink), but bash
+#   would still restrict it to certain features. The process substitution
+#   tested here will fail in bash running as "sh" mode. More robust, but
+#   slower test:
+#
+#       eval ": <(:)" > /dev/null
 
-    eval "[[ 1 ]]" 2> /dev/null
+    eval "[[ 1 ]]" > /dev/null
 
     #   Check result, do we need to exchange shell?
 
@@ -134,7 +141,7 @@ CYGBUILD_NAME="cygbuild"
 	fi
 
         echo $CYGBUILD_ID >&2
-        echo "$0 [FATAL] Called with wrong shell. This is a bash script" >&2
+        echo "$0 [FATAL] Called with wrong shell: needs bash" >&2
         exit 1
     fi
 
@@ -1313,8 +1320,8 @@ CygbuildCygcheckLibraryDepSource ()
     if $FIND "$builddir" -name "*.c" -o -name "*.cc" |
        $EGREP "^[^/]*exec[a-z]* *\("
     then
-        CygbuildWarn "-- [WARN] External shell call found. More dependencies"
-          "may be needed. (an example: binutils)"
+        CygbuildWarn "-- [WARN] External shell call detected." \
+          "More dependencies may be needed (for an example: binutils)"
     fi
 }
 
@@ -1419,10 +1426,10 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
     #   because this function returns list of depends.
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"  # list of library names
 
-    local cache=/var/cache/cygbug/package/list/file.lst
+    local cache="/var/cache/cygbug/package/list/file.lst"
 
     if [ ! -f $cache ]; then
         if [ -d /var/cache/cygbug ]; then
@@ -1433,7 +1440,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
         return 0
     fi
 
-    if [ ! "$file" ] || [ ! -e $file ]; then
+    if [ ! "$file" ] || [ ! -e "$file" ]; then
         CygbuildDie "[FATAL] $id: empty 'file' argument"
     fi
 
@@ -1541,7 +1548,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
 function CygbuildCygcheckLibraryDepMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
     local data="$2"
 
@@ -1554,7 +1561,8 @@ function CygbuildCygcheckLibraryDepMain()
 
     CygbuildEcho "-- Trying to resolve depends for $file"
 
-    CygbuildCygcheckLibraryDepList   "$data" > $retval
+set -x
+    CygbuildCygcheckLibraryDepList "$data" > "$retval"
 
     if [ ! -s $retval ]; then
         CygbuildEcho "-- No dependencies other than cygwin"
@@ -1563,15 +1571,19 @@ function CygbuildCygcheckLibraryDepMain()
 
     CygbuildCygcheckLibraryDepSource
 
-    if CygbuildCygcheckLibraryDepGrepPgkNames $retval > $retval.pkglist
+    if CygbuildCygcheckLibraryDepGrepPgkNames "$retval" > "$retval.pkglist"
     then
-        CygbuildCygcheckLibraryDepReadme $retval.pkglist
-        CygbuildCygcheckLibraryDepAdjust $retval.pkglist
 
+
+cat $retval.pkglist
+
+        CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
+        CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
+exit 444
         echo "   DEPENDS SUMMARY:"
-        $SED 's/^ \+//' $retval.pkglist | $SORT -u | $SED 's/^/   /'
+        $SED 's/^ \+//' "$retval.pkglist" | $SORT -u | $SED 's/^/   /'
 
-        CygbuildCygcheckLibraryDepSetup $retval.pkglist
+        CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
     fi
 }
 
@@ -4881,8 +4893,10 @@ function CygbuildCmdPkgDevelStandardDev()
         cat $retval.bin $retval.man.bin $retval.lib $retval.doc \
             > $retval.already.packaged
 
+        $FIND . -type f > $retval.find
+
         $EGREP --invert-match --file=$retval.already.packaged \
-               <($FIND . -type f) > $retval.dev
+               $retval.find > $retval.dev
 
         if [ ! -s $retval.dev ]; then
             CygbuildWarn "-- [devel-dev] [WARN] No *.h or*.a files" \
@@ -8833,7 +8847,7 @@ function CygbuildCmdInstallCheckInfoFiles()
 
         if [ ! -f "$file" ]; then
             CygbuildEcho "-- [ERROR] Info files found" \
-                 "but there is no $file"
+                 "but there is no ${file/$srcdir\//}"
             return 1
         fi
     fi
@@ -9357,6 +9371,8 @@ function CygbuildCmdInstallCheckDirEmpty()
     local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local dir
 
+    $FIND $instdir -type d > $retval
+
     while read dir
     do
         [ "$dir" = "$instdir" ] && continue
@@ -9365,7 +9381,7 @@ function CygbuildCmdInstallCheckDirEmpty()
             CygbuildWarn "-- [WARN] empty directory $dir"
         fi
 
-    done < <($FIND $instdir -type d)
+    done < $retval
 }
 
 function CygbuildCmdInstallCheckDirStructure()
@@ -9391,11 +9407,11 @@ function CygbuildCmdInstallCheckDirStructure()
     local dir="$pfx/lib/X11/app-defaults"
 
     if [ -d "$dir" ]; then
-        CygbuildWarn "-- [ERROR] No etc/X11/app-defaults, found $dir"
+        CygbuildWarn "-- [ERROR] No etc/X11/app-defaults, move $dir"
     fi
 
     if [ -d $instdir/doc ]; then
-        CygbuildWarn "-- [ERROR] /doc should be /usr/doc"
+        CygbuildWarn "-- [ERROR] Incorrect /doc should be /usr/doc"
     fi
 
     if [ -d $instdir/bin ]; then
