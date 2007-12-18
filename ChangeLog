@@ -4,6 +4,8 @@
 	(CygbuildCmdPkgDevelStandardDev): Remove
 	process substitution.
 	(CygbuildCmdInstallCheckDirEmpty): Remove process substitution.
+	(CygbuildCmdInstallMain): Send path to custom install script.
+	(CygbuildLibInstallEnvironment): Add quotes.
 
 2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 

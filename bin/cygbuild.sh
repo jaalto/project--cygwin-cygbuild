@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.0923"
+CYGBUILD_VERSION="2007.1218.1051"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1093,7 +1093,7 @@ function CygbuildLibInstallEnvironment()
     #
     #   Include it as a first call:
     #
-    #       CygbuildLibEnvironmentInstall $* && InstallUsingMake && ..
+    #       CygbuildLibEnvironmentInstall "$@" && InstallUsingMake && ..
 
     instdir=${1:-""}      # ROOT DIR passed to script
     instdir=${instdir%/}  # Delete trailing slash
@@ -1101,16 +1101,16 @@ function CygbuildLibInstallEnvironment()
     export instdir
     export exec_instdir=$instdir
 
-    export bindir=$instdir/usr/bin
-    export includedir=$instdir/usr/include
-    export libdir=$instdir/usr/lib
-    export infodir=$instdir/usr/share/info
-    export datadir=$instdir/usr/share
-    export mandir=$instdir/usr/share/man
-    export localstatedir=/var
-    export includedir=$instdir/include
+    export bindir="$instdir/usr/bin"
+    export includedir="$instdir/usr/include"
+    export libdir="$instdir/usr/lib"
+    export infodir="$instdir/usr/share/info"
+    export datadir="$instdir/usr/share"
+    export mandir="$instdir/usr/share/man"
+    export localstatedir="/var"
+    export includedir="$instdir/include"
 
-    export docdir=$instdir/$CYGBUILD_DOCDIR_FULL
+    export docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
 
     export infobin="/usr/bin/install-info"
 
@@ -1528,7 +1528,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNames()
 
                 if ( dep == "" )
                 {
-                    dep ="... cannot determine depends";
+                    dep ="[WARN] determine depends";
                 }
 
                 printf("%-25s %s\n", name, dep);
@@ -1561,7 +1561,6 @@ function CygbuildCygcheckLibraryDepMain()
 
     CygbuildEcho "-- Trying to resolve depends for $file"
 
-set -x
     CygbuildCygcheckLibraryDepList "$data" > "$retval"
 
     if [ ! -s $retval ]; then
@@ -1573,13 +1572,8 @@ set -x
 
     if CygbuildCygcheckLibraryDepGrepPgkNames "$retval" > "$retval.pkglist"
     then
-
-
-cat $retval.pkglist
-
         CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
-exit 444
         echo "   DEPENDS SUMMARY:"
         $SED 's/^ \+//' "$retval.pkglist" | $SORT -u | $SED 's/^/   /'
 
@@ -9378,7 +9372,7 @@ function CygbuildCmdInstallCheckDirEmpty()
         [ "$dir" = "$instdir" ] && continue
 
         if ! $LS -A $dir | $EGREP --quiet '[a-zA-Z0-9]' ; then
-            CygbuildWarn "-- [WARN] empty directory $dir"
+            CygbuildWarn "-- [WARN] empty directory" ${dir/$srcdir\//}
         fi
 
     done < $retval
@@ -10148,11 +10142,11 @@ function CygbuildCmdInstallMain()
 
             CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall/$srcdir\//}" \
-                         "${dir/$srcdir\//}" \
+                         "$dir" \
                          "$path"
 
             CygbuildChmodExec $scriptInstall
-            $scriptInstall "$dir" | CygbuildMsgFilter
+            $scriptInstall "$dir" "$path" | CygbuildMsgFilter
             status=$?
 
             if [ "$status" != "0"  ]; then
