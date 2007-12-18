@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2003-2007 Jari Aalto; Licenced under GPL v2 or later
+# Copyright (C) 2003-2008 Jari Aalto; Licenced under GPL v2 or later
 # Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
 #
 # /etc/postinstall/<package>.sh -- Custom installation steps

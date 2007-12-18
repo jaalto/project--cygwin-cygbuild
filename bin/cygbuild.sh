@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2007 Jari Aalto
+#       Copyright (C) 2003-2008 Jari Aalto
 #
 #   License
 #
@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.1056"
+CYGBUILD_VERSION="2007.1218.1355"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
