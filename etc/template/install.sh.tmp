@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
 #
 # install.sh -- Custom installation steps
@@ -26,7 +26,7 @@ DefineVariables()
         fi
 
         if [ "$callpath" ]; then
-            source $callpath || return 1
+            . $callpath || return 1
         else
             return 1
         fi
