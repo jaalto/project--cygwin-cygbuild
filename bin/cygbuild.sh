@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.1051"
+CYGBUILD_VERSION="2007.1218.1056"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3147,13 +3147,14 @@ function CygbuildDefineEnvClear()
       "-- [INFO] Clearing env: compilation variables like CFLAGS etc."
 
     #  Do not use environment settings. Only those in Makefiles
-    #  or if explicitly set through CYGBUILD_* variables in the build
+    #  or if explicitly set through CYGBUILD_* variables or in the build
     #  scripts.
 
     CXXFLAGS=
     CFLAGS=
     LDFLAGS=
-    unset CXXFLAGS CFLAGS LDFLAGS
+    INCLUDE_PATH=
+    unset CXXFLAGS CFLAGS LDFLAGS INCLUDE_PATH
 }
 
 function CygbuildDefineGlobalCompile()
@@ -7492,9 +7493,6 @@ function CygbuildCmdPrepMain()
 function CygbuildShellEnvironenment()
 {
     local list
-
-    #   Reset this to be sure to compile in clean environment
-    list="$list INCLUDE_PATH="
 
     [ "$CYGBUILD_CC" ] &&
     list="$list CC='${CYGBUILD_CC}'"

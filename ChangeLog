@@ -6,6 +6,8 @@
 	(CygbuildCmdInstallCheckDirEmpty): Remove process substitution.
 	(CygbuildCmdInstallMain): Send path to custom install script.
 	(CygbuildLibInstallEnvironment): Add quotes.
+	(CygbuildDefineEnvClear): Unset INCLUDE_PATH
+	(CygbuildShellEnvironenment): Remove INCLUDE_PATH
 
 2007-12-15  Jari Aalto  <jari.aalto@cante.net>
 
