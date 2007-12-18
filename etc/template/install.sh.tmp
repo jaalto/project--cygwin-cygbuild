@@ -21,6 +21,8 @@ DefineVariables()
         #   Not yet loaded, so load now
         export CYGBUILD_LIB="activate as library"
 
+        callpath="$2"
+
         if [ ! "$callpath" ]; then
             callpath=$(/usr/bin/which cygbuild)
         fi
@@ -134,16 +136,8 @@ InstallMake()
 
 Install()
 {
+    :
     #   This is install option (1) - All done manually; every step
-
-    root=${1:-".inst"}
-
-    if [ ! "$root"  ] || [ ! -d "$root" ]; then
-        echo "$0: [ERROR] In $(pwd) no such directory: '$root'" >&2
-        return 1
-    fi
-
-    root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
 
     # DefineVariables "$@"  &&
     # InstallBin	    &&
@@ -161,9 +155,6 @@ InstallUsingMake()
     # DefineVariables "$@" &&
     # InstallMake
 }
-
-unset callpath
-callpath="$2"
 
 # -- Uncomment to active only one these function calls --
 # Install "$@"
