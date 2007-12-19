@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1218.2157"
+CYGBUILD_VERSION="2007.1219.0856"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1148,6 +1148,7 @@ CygbuildFileSize ()
 
     #  it is a symbolic link. Find out real path.
     #  FIXME: this does not handle multiple indirections, only one
+    #  CygbuildPathResolveSymlink
 
     local dir
 
@@ -1357,7 +1358,7 @@ CygbuildCygcheckLibraryDepSource ()
 function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"     # modifes file directly
 
     local setup="$DIR_CYGPATCH/setup.hint"
@@ -1392,7 +1393,7 @@ function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
 function CygbuildCygcheckLibraryDepAdjust()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"  # modifes file directly
 
     local setup="$DIR_CYGPATCH/setup.hint"
@@ -1418,7 +1419,7 @@ function CygbuildCygcheckLibraryDepAdjust()
 function CygbuildCygcheckLibraryDepReadme()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
     local readme="$DIR_CYGPATCH/$PKG.README"
     local lib
@@ -1648,7 +1649,7 @@ function CygbuildCygcheckLibraryDepMain()
 function CygbuildCygcheckMainOld() # 2007-12-16 not used
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local bin="cygpath"
     local file path
 
@@ -1672,7 +1673,7 @@ function CygbuildCygcheckMainOld() # 2007-12-16 not used
 function CygbuildCygcheckMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file
 
     CygbuildCygcheckLibraryDepSource
@@ -1690,7 +1691,7 @@ function CygbuildCygcheckMain()
 function CygbuildCheckRunDir()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  Do just a quick sweep, nothing extensive
 
@@ -1829,7 +1830,7 @@ function CygbuildDefineVersionVariables()
         arr=( ${CYGBUILD_STATIC_VER_ARRAY[*]} )
     else
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
+        local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildVersionInfo "$str" > $retval
 
         arr=( $(< $retval) )
@@ -1990,7 +1991,7 @@ function CygbuildPathResolveSymlink()
     #   support programs were not available
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local bin="$1"
     local path="."
@@ -2089,7 +2090,7 @@ function CygbuildPathResolveSymlink()
 function CygbuildPathAbsoluteSearch()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local bin="$1"
 
@@ -2163,7 +2164,7 @@ function CygbuildCommandPath()
 {
     local id="$0.$FUNCNAME"
     local cmd="$1"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  Find out where is the absolute location of CMD
     #  a) type: cygbuild.sh is /cygdrive/...
@@ -2216,7 +2217,7 @@ function CygbuildScriptPathAbsolute()
         return 1
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local -a cache=( ${CYGBUILD_STATIC_ABSOLUTE_SCRIPT_PATH[*]} )
     local ret
 
@@ -2263,7 +2264,7 @@ function CygbuildBuildScriptPath()
     else
         name=${name##*/}
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
+        local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildScriptPathAbsolute $name > $retval
         local path=$(< $retval)
 
@@ -2283,7 +2284,7 @@ function CygbuildTarDirectory()
         return 1
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local z
     CygbuildTarOptionCompress $file > $retval
@@ -2401,7 +2402,7 @@ function CygbuildIsMakefileTarget()
         CygbuildDie
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
     local file=$(< $retval)
 
@@ -2414,7 +2415,7 @@ function CygbuildIsMakefileTarget()
 
 function CygbuildIsMakefileCplusplus ()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
     local file=$(< $retval)
 
@@ -2435,7 +2436,7 @@ function CygbuildMakefileRunTarget()
     [ ! "$dir"    ] && dir=$builddir
     [ ! "$target" ] && target="all"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $dir > $retval
     local makefile=$(< $retval)
 
@@ -2478,7 +2479,7 @@ function CygbuildFileTypeByFile()
 {
     local file="$1"
     local ret
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local notes
 
     $FILE $file > $retval
@@ -2522,7 +2523,7 @@ function CygbuildFileIgnore()
 function CygbuildFileTypeMain()
 {
     local file="$1"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  We must not check binary files etc.
 
@@ -2630,7 +2631,7 @@ function CygbuildIsX11Package()
     local id="$0.$FUNCNAME"
     local status=1              # Failure by defualt
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $(pwd) Makefile.in > $retval
     local file=$(< $retval)
 
@@ -2646,7 +2647,7 @@ function CygbuildIsX11appDefaults()
 {
     local status=1              # Failure by defualt
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $(pwd) Makefile.in > $retval
     local file=$(< $retval)
 
@@ -2665,7 +2666,7 @@ function CygbuildIsDestdirSupported()
     CygbuildExitNoDir "$srcdir" "$id: [FATAL] variable '$srcdir'" \
               "not defined [$srcdir]."
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
 #    CygbuildPerlModuleLocation  > $retval
@@ -2710,7 +2711,7 @@ function CygbuildIsTemplateFilesInstalled()
 function CygbuildSourceDownloadScript()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if $LS *$SCRIPT_SOURCE_GET_BASE > $retval 2> /dev/null ; then
         local -a arr=( $(< $retval))
@@ -2733,7 +2734,7 @@ function CygbuildGetOneDir()
     #   Return one Directory, if there is only one.
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local from=${1:-"."}
 
     #   AWK get all entries that include "/" and then deleted trailing "/"
@@ -2833,7 +2834,7 @@ function CygbuildFilesExecutable()
 function CygbuildFileConvertToUnix()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ $# -eq 0 ]; then
         echo "$id [ERROR] Argument list \$* is empty"
@@ -2864,7 +2865,7 @@ function CygbuildTreeSymlinkCopy()
     #   Make symbolic links from FROM => TO
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local from="$1"
     local to="$2"
 
@@ -2999,7 +3000,7 @@ function CygbuildFileReadOptionsMaybe()
     local file="$1"
     local msg="$2"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local str
 
     if [ -f "$file" ]; then
@@ -3027,7 +3028,7 @@ function CygbuildFileReadOptionsMaybe()
 
 function CygbuildDefineGlobalPackageDatabase()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local fromdir="$1"
     local todir="$CYGBUILD_CACHE_PAKAGES"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -3085,7 +3086,7 @@ setup.exe and see value 'Local Package Directory'
 
 function CygbuildDefineGlobalCommands()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file=$CYGBUILD_CONFIG_PROGRAMS
     local load
 
@@ -3187,7 +3188,7 @@ function CygbuildIsArchiveScript()
 function CygbuildDefineGlobalScript()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   If this file is named like foo-2.1-1.sh then this is part of
     #   the source archive. These variables get set during Main()
@@ -3247,7 +3248,7 @@ function CygbuildDefineGlobalCompile()
     #   Define global variables for compilation
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     CygbuildMakefileName "." Makefile.am Makefile.in > $retval
     local makefile=$(< $retval)
@@ -3343,7 +3344,7 @@ function CygbuildDefineGlobalMain()
     # local sourcefile="$OPTION_FILE"
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local argTop="$1"
     local argSrc="$2"
@@ -3869,7 +3870,7 @@ NOTES
 function CygbuildHelpLong()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local exit="$1"
     local bin
 
@@ -3889,7 +3890,7 @@ function CygbuildHelpLong()
 function CygbuildHelpSourcePackage()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local lib="$CYGBUILD_STATIC_PERL_MODULE"
 
     [ "$lib" ] && [ -f "$lib" ] && return 0
@@ -4011,7 +4012,7 @@ function CygbuildFileExists()
 function CygbuildCygDirCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     # Make sure there is a README at /usr/share/doc/Cygwin/
 
@@ -4061,7 +4062,7 @@ function CygbuildDetermineReadmeFile()
 function CygbuildDetermineDocDir()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="${1%/}"      # delete trailing slash
 
     CygbuildExitNoDir \
@@ -4115,7 +4116,7 @@ function CygbuildNoticeGPG()
 function CygbuildSignCleanAllMaybe()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
 
     #   If signing option is not on, clean old sign files.
@@ -4190,7 +4191,7 @@ function CygbuildGPGsignFiles()
 
     CygbuildGPGavailableCheck || return $?
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     date '+%Y-%m-%d %H:%M' > $retval
     local time=$(< $retval)
 
@@ -4407,7 +4408,7 @@ function CygbuildCmdGPGSignMain()
 function CygbuildCmdGPGVerifyMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local interactive="$1"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
 
@@ -4507,7 +4508,7 @@ function CygbuildPerlModuleLocation()
 function CygbuildCmdAutotool()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     # Run this to re-autotool AFTER editing configure.{ac,in}/Makefile.am
 
@@ -4524,7 +4525,7 @@ function CygbuildCmdAutotool()
 function CygbuildReadmeReleaseMatchCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local file
 
@@ -4560,7 +4561,7 @@ function CygbuildReadmeReleaseMatchCheck()
 
 CygbuildCmdReadmeFixFile ()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local readme="$1"
     local tar="$2"
 
@@ -4612,7 +4613,7 @@ CygbuildCmdReadmeFixFile ()
 function CygbuildCmdReadmeFixMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local readme
     CygbuildDetermineReadmeFile > $retval
@@ -5333,7 +5334,7 @@ function CygbuildPatchApplyMaybe()
 function CygbuildCmdMkpatchMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local signkey="$1"
     local passphrase="$2"
 
@@ -5612,7 +5613,7 @@ function CygbuildCmdMkpatchMain()
 function CygbuildCmdPkgSourceStandard()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy="srcinstdir $srcinstdir"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local signkey="$OPTION_SIGN"
@@ -5865,7 +5866,7 @@ function CygbuildCmdPkgSourceCvsMain()
 
     #  We need the help of Perl library
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
 #    CygbuildPerlModuleLocation  > $retval || exit 1
@@ -5945,7 +5946,7 @@ function CygbuildCmdPkgSourceCvsMain()
 function CygbuildCmdPkgSourceMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy="pwd $(pwd)"                # For debugger
 
     local type
@@ -6062,7 +6063,7 @@ function CygbuildMakefileCheck()
 {
     local id="$0.$FUNCNAME"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval || exit 1
     local file=$(< $retval)
 
@@ -6095,7 +6096,7 @@ function CygbuildDebianRules2Makefile()
         return 1
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
 #    CygbuildPerlModuleLocation  > $retval
@@ -6320,7 +6321,7 @@ function CygbuildMakefilePrefixCheck()
 {
     local id="$0.$FUNCNAME"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
     local makefile=$(< $retval)
 
@@ -6509,7 +6510,7 @@ function CygbuildMakefileRunInstallPythonFix()
 function CygbuildRunShell()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local env
     CygbuildShellEnvironenment > $retval
@@ -6522,7 +6523,7 @@ function CygbuildRunShell()
 
 function CygbuildRunPythonSetupCmd()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     CygbuildEcho "-- Running Python command: $1"
 
@@ -6595,7 +6596,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
                      "(test mode, no real install)"
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
     local makefile=$(< $retval)
 
@@ -6634,7 +6635,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
 function CygbuildMakefileRunInstallFixInfo()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   If there are info files, the 'dir' must be remoed, otherwise
     #   it would overwrite the central DIR when unpackad.
@@ -6669,7 +6670,7 @@ function CygbuildMakefileRunInstallFixMain()
 function CygbuildMakefileRunInstall()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local makeScript=$SCRIPT_INSTALL_MAKE_CYGFILE
     local status=0
 
@@ -6826,7 +6827,7 @@ function CygbuildExtractTar()
 {
     local id="$0.$FUNCNAME"
     local file=$SRC_ORIG_PKG
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   Check that CygbuildDefineGlobalSrcOrig
     #   defined variables correctly
@@ -6864,7 +6865,7 @@ function CygbuildExtractTar()
     #   WE need this in case original source does not have
     #   structure at all or has weird directory.
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildTarDirectory $file > $retval || return $?
     local dir=$(< $retval)
 
@@ -6927,7 +6928,7 @@ function CygbuildExtractWithScript()
 {
     local id="$0.$FUNCNAME"
     local prg="$1"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ ! "$srcdir" ]; then
         echo "$id: [FATAL] 'srcdir' not defined"
@@ -6967,7 +6968,7 @@ function CygbuildExtractWithScript()
 function CygbuildExtractMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if CygbuildSourceDownloadScript > $retval ; then
         local file=$(< $retval)
@@ -6986,7 +6987,7 @@ function CygbuildExtractMain()
 function CygbuildPatchListDisplay()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$CYGPATCH_DONE_PATCHES_FILE"
 
     if [ -f "$file" ]; then
@@ -6997,7 +6998,7 @@ function CygbuildPatchListDisplay()
 function CygbuildPatchDiffstat()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
 
     if [ ! "$file" ]; then
@@ -7024,7 +7025,7 @@ function CygbuildPatchDiffstat()
 function CygbuildPatchCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$FILE_SRC_PATCH"
 
     if [ -f "$file" ]; then
@@ -7082,7 +7083,7 @@ function CygbuildPatchPrefixStripCountFromContent()
 {
     local id="$0.$FUNCNAME"
     local file=$1
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   Read the first line in patch that is in format:
     #       +++ path/to/foo-0.11.7.3.1/subdir/code.c
@@ -7173,7 +7174,7 @@ function CygbuildPatchPrefixStripCountMain ()
 function CygbuildPatchFindGeneratedFiles()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local retval2=$retval.2
 
     local origdir="$1"
@@ -7290,7 +7291,7 @@ function CygbuildPatchFindGeneratedFiles()
 CygbuildCmdGetSource ()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pkg="$1"
 
     if [ ! "$pkg" ]; then
@@ -7606,7 +7607,7 @@ function CygbuildShellEnvironenment()
 function CygbuildCmdDependMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local retval2=$CYGBUILD_RETVAL.$FUNCNAME.tmp
     local cygcheck=/usr/bin/cygcheck
     local cygpath=/usr/bin/cygpath
@@ -7674,7 +7675,7 @@ function CygbuildConfDepend()
 function CygbuildConfOptionAdjustment()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local conf="$srcdir/configure"
     local cygconf="$CYGBUILD_DIR_CYGPATCH_RELATIVE/configure.sh"
@@ -7713,7 +7714,7 @@ function CygbuildConfOptionAdjustment()
 function CygbuildConfCC()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local conf=$builddir/configure
     local envfile=$EXTRA_CONF_ENV_OPTIONS
@@ -7844,7 +7845,7 @@ EOF
 function CygbuildConfPerlMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local conf="$srcdir/Makefile.PL"
     local userOptFile=$EXTRA_CONF_OPTIONS
@@ -8051,7 +8052,7 @@ function CygbuildCmdBuildStdMakefile()
 
         cd $builddir || exit 1
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
+        local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildMakefileName "." > $retval
         local makefile=$(< $retval)
 
@@ -8147,7 +8148,7 @@ function CygbuildCmdDependCheckMain()
 
     CygbuildEcho "-- Checking dependencies in README and setup.hint"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
 #    CygbuildPerlModuleLocation  > $retval
@@ -8202,7 +8203,7 @@ function CygbuildCmdCleanMain()
 
     CygbuildExitNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $dir > $retval
     local makefile=$(< $retval)
 
@@ -8290,7 +8291,7 @@ function CygbuildCmdCleanByType()
 function CygbuildInstallPackageInfo()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local dest=$DIR_INFO
     local file
@@ -8368,7 +8369,7 @@ function CygbuildInstallTaropt2match ()
 function CygbuildInstallPackageDocs()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
     local optExclude="$CYGBUILD_TAR_INSTALL_EXCLUDE"
@@ -8613,7 +8614,7 @@ function CygbuildInstallExtraManual()
 function CygbuildInstallExtraManualCompress()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  Compress all manual pages
 
@@ -8675,7 +8676,7 @@ function CygbuildInstallExtraManualCompress()
 function CygbuildInstallExtraBinFiles
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local extrabindir="$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE/bin"
 
@@ -8737,7 +8738,7 @@ $retval    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
 function CygbuildInstallFixPermissions()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file exeList readList
 
     $FIND $instdir -type f > $retval
@@ -8800,7 +8801,7 @@ function CygbuildInstallFixInterpreterPython ()
 CygbuildInstallFixInterpreterMain ()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local file
 
@@ -8835,7 +8836,7 @@ CygbuildInstallFixInterpreterMain ()
 CygbuildInstallFixPerlPacklist ()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local file
 
@@ -8888,7 +8889,7 @@ function CygbuildInstallCygwinPartPostinstall()
 function CygbuildInstallCygwinPartMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
 
@@ -8933,7 +8934,7 @@ function CygbuildInstallCygwinPartMain()
 function CygbuildCmdInstallCheckInfoFiles()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy=$(pwd)                    # For debug
     local dir=$instdir
 
@@ -8964,7 +8965,7 @@ function CygbuildCmdInstallCheckPythonFile ()
         return 1
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local name=${file##*/}
     local newfile=$retval.fix.$name
 
@@ -8989,7 +8990,7 @@ function CygbuildCmdInstallCheckPythonFile ()
 function CygbuildCmdInstallCheckPerlFile ()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
 
     if [ ! "$PYTHON" ]; then
@@ -9070,7 +9071,7 @@ function CygbuildCmdInstallCheckPerlFile ()
 function CygbuildCmdInstallCheckShellFiles ()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir$CYGBUILD_PREFIX"
 
     if [ ! -d "$dir/bin" ] || [ -d "$dir/sbin" ] ; then
@@ -9121,7 +9122,7 @@ function CygbuildCmdInstallCheckShellFiles ()
 function CygbuildCmdInstallCheckTempFiles()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
     local ignore="$CYGBUILD_IGNORE_ZERO_LENGTH"
     local done file ret
@@ -9149,7 +9150,7 @@ function CygbuildCmdInstallCheckTempFiles()
 function CygbuildCmdInstallCheckMakefiles()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local done file ret
 
     $FIND -L "$builddir" -type f    \
@@ -9439,7 +9440,7 @@ function CygbuildCmdInstallCheckSetupHintCategory()
 function CygbuildCmdInstallCheckSetupHintMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir=$DIR_CYGPATCH
     local file="setup.hint"
     local status=0
@@ -9476,7 +9477,7 @@ function CygbuildCmdInstallCheckSetupHintMain()
 function CygbuildCmdInstallCheckDirEmpty()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir
 
     $FIND $instdir -type d > $retval
@@ -9576,7 +9577,7 @@ function CygbuildCmdInstallCheckDirStructure()
 function CygbuildCmdInstallCheckEtc()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
     local file
     local status=0
@@ -9596,7 +9597,7 @@ function CygbuildCmdInstallCheckEtc()
 function CygbuildCmdInstallCheckManualPages()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local addsect=$CYGBUILD_MAN_SECTION_ADDITIONAL
     local dir="$instdir"
 
@@ -9782,7 +9783,7 @@ function CygbuildCmdInstallCheckDocdir()
 
 function CygbuildCmdInstallCheckSymlinks()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
     $FIND $dir -ls | $EGREP --regexp='-> +/' > $retval || return 0
@@ -9821,11 +9822,11 @@ function CygbuildCmdInstallCheckBinFiles()
     #   Makefile has serious errors
     #   #TODO: why is here a subshell wrapper?
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     ( CygbuildFilesExecutable "$dir" ) > $retval
     local files=$(< $retval)
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildDependsList > $retval
     local depends=$(< $retval)
 
@@ -9996,7 +9997,7 @@ function CygbuildCmdInstallCheckLibFiles()
     #   If we find binary files, but they are not in $instdir, then
     #   Makefile has serious errors
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     $FIND -L $dir -type f           \
         '(' -name "*.a"             \
@@ -10093,7 +10094,7 @@ function CygbuildCmdInstallCheckLineEndings()
 function CygbuildCmdInstallCheckSymlinkExe()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     # 2007-04-18
     # From: Eric Blake <ebb9-PGZyUNKar/Q@public.gmane.org>
@@ -10112,7 +10113,7 @@ function CygbuildCmdInstallCheckSymlinkExe()
 function CygbuildCmdInstallCheckCygpatchDirectory()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
 
     [ -d "$dir" ] || return 0
@@ -10366,7 +10367,7 @@ function CygbuildCmdPostInstallMain()
 function CygbuildCmdStripMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
     CygbuildExitNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
@@ -10411,7 +10412,7 @@ function CygbuildCmdStripMain()
 function CygbuildStripCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file
 
     $FIND $instdir \
@@ -10468,7 +10469,7 @@ function CygbuildStripCheck()
 function CygbuildCmdFilesWrite()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local to="$1"
     shift
     local trydirs="$*"
@@ -10535,7 +10536,7 @@ function CygbuildCmdFilesWrite()
 function CygbuildCmdFilesMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local templatedir="$CYGBUILD_TEMPLATE_DIR_MAIN"
 
@@ -10753,7 +10754,7 @@ function CygbuildFilePackageGuessMain()
     #       <unpack dir i.e. TOP dir>
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   If there is only one PACKAGE in current directory, make an educated
     #   guess and use that if user did not supply option -f
@@ -10842,7 +10843,7 @@ function CygbuildFilePackageGuessMain()
         #  No tar files around to guess, try if this directory holds
         #  package name and user is currently porting a package
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
+        local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildFilePackageGuessFromDirectory > $retval &&
         ret=$(< $retval)
 
@@ -10877,7 +10878,7 @@ function CygbuildFilePackageGuessMain()
 function CygbuildFileReleaseGuess()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local ret
 
     #   Debian source packages are in format
