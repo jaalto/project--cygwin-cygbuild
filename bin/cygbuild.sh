@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.1054"
+CYGBUILD_VERSION="2007.1220.1208"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6763,9 +6763,9 @@ function CygbuildMakefileRunInstall()
 
         if CygbuildIsAutotoolPackage ; then
             CygbuildVerb "-- ...Looks like standard autotool package"
-        else
-            CygbuildMakefilePrefixCheck
         fi
+
+        CygbuildMakefilePrefixCheck
 
         if [ "$OPTION_PREFIX" ]; then
 
@@ -6773,7 +6773,7 @@ function CygbuildMakefileRunInstall()
             #  possibility to guide the installation process is to set
             #  prefix for Makefile
 
-            pfx="$instdir/$CYGBUILD_PREFIX"
+            pfx="$instdir$CYGBUILD_PREFIX"
         fi
 
         CygbuildConfigureOptionsExtra > $retval
@@ -8243,7 +8243,8 @@ function CygbuildCmdCleanMain()
 
             $MAKE -f $makefile clean ||
             {
-                CygbuildEcho "-- [NOTE] Hm, running rm *.o *.exe *.dll instead"
+                CygbuildEcho "-- [NOTE] Hm, running recursive" \
+                             "rm *.o *.exe *.dll instead"
                 CygbuildEcho "-- [NOTE] Better, patch the Makefile to include"
                 CygbuildEcho "-- [NOTE] target 'clean:'"
 

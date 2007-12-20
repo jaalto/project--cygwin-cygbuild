@@ -5,6 +5,8 @@
 	(CygbuildInstallPackageInfo): chnage mkdir(1) to install(1).
 	(CygbuildCmdInstallCheckManualPages): Improve missing manual
 	page check.
+	(CygbuildMakefileRunInstall): Always run
+	`CygbuildMakefilePrefixCheck'
 
 2007-12-19  Jari Aalto  <jari.aalto@cante.net>
 
