@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.1215"
+CYGBUILD_VERSION="2007.1220.1416"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -614,8 +614,8 @@ function CygbuildBootVariablesGlobalLibSet()
     local dir="$1"
 
     CYGBUILD_PERL_MODULE_NAME="cygbuild.pl"			#global-def
-    local tmp="$dir/$CYGBUILD_PERL_MODULE_NAME" #global-def
-    [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE="$tmp"		 #global-def
+    local tmp="$dir/$CYGBUILD_PERL_MODULE_NAME"                 #global-def
+    [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE="$tmp"		#global-def
 }
 
 function CygbuildBootVariablesGlobalShareMain()
@@ -3875,18 +3875,22 @@ function CygbuildHelpLong()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local exit="$1"
-    local bin
 
-    CygbuildCommandPath cygbuild.pl > $retval &&
-    bin=$(< $retval)
+    CygbuildBootVariablesGlobalShareMain
+    local lib="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ "$bin" ]; then
-        $bin help
+    if [ ! "$lib" ]; then
+        CygbuildCommandPath cygbuild.pl > $retval &&
+        lib=$(< $retval)
+    fi
+
+    if [ "$lib" ]; then
+        ${PERL:-"perl"} $lib help
         [ "$exit" ] && exit $exit
     else
         CygbuildHelpShort $exit
         CygbuildWarn "[ERROR] Cannot find long help page." \
-             "You need to install $CYGBUILD_HOMEPAGE_URL"
+             "Need full install of $CYGBUILD_HOMEPAGE_URL"
     fi
 }
 

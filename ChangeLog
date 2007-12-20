@@ -8,6 +8,8 @@
 	(CygbuildMakefileRunInstall): Always run
 	`CygbuildMakefilePrefixCheck'
 	(CygbuildCommandMain): Use quotes.
+	(CygbuildHelpLong): Call `CygbuildBootVariablesGlobalShareMain'
+	and use $CYGBUILD_STATIC_PERL_MODULE
 
 2007-12-19  Jari Aalto  <jari.aalto@cante.net>
 
