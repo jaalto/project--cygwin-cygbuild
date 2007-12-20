@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1219.0856"
+CYGBUILD_VERSION="2007.1220.0847"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1146,9 +1146,9 @@ CygbuildFileSize ()
         return 0
     fi
 
-    #  it is a symbolic link. Find out real path.
+    #  It is a symbolic link. Find out real path.
     #  FIXME: this does not handle multiple indirections, only one
-    #  CygbuildPathResolveSymlink
+    #  FIXME: Look CygbuildPathResolveSymlink
 
     local dir
 
@@ -1290,7 +1290,7 @@ CygbuildObjDumpLibraryDepList ()
                     print name;
                 }
             }' |
-         sort
+         $SORT              # No need for --unique; awk uses hash
 }
 
 CygbuildCygcheckLibraryDepList ()
@@ -1698,6 +1698,7 @@ function CygbuildCheckRunDir()
     if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
         CygbuildWarn "-- [WARN] Current directory is not source ROOT"
+        return 1
     fi
 }
 
@@ -1986,6 +1987,8 @@ function CygbuildIsBuilddirOk()
 
 function CygbuildPathResolveSymlink()
 {
+    #   FIXME: Check the logic if it's correct
+
     #   Try to resolve symbolic link.
     #   THIS IS VERY SIMPLE, NOT RECURSIVE if additional
     #   support programs were not available
@@ -6460,7 +6463,6 @@ compileall.compile_dir(dir, force=1)
 function CygbuildMakefileRunInstallPythonFix()
 {
     local id="$0.CygbuildMakefileRunInstallPythonFix"
-
     local root="$instdir$CYGBUILD_PREFIX"
     local dir dest
 
@@ -6485,6 +6487,18 @@ function CygbuildMakefileRunInstallPythonFix()
             $MV $verbose "$dir/" "$dest/" ||
                CygbuildDie "$id: mv error"
         fi
+    done
+
+    #   For some reason the manual pages may be at .inst/man1
+
+    local mandir="$CYGBUILD_PREFIX/$prefix_man"
+
+    for dir in $instdir/{man1,man3,man5,man8}
+    do
+        [ -d $dir ] || continue
+        install -d -m 755 $instdir
+        $MV $verbose "$dir" "$dest"  ||
+            CygbuildDie "$id: mv error"
     done
 
     #   For some reason compiled python objects from
@@ -6525,7 +6539,7 @@ function CygbuildRunPythonSetupCmd()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    CygbuildEcho "-- Running Python command: $1"
+    CygbuildEcho "-- Running Python command: $*"
 
     CygbuildRunShell $PYTHON setup.py "$@" > $retval 2>&1
     local status=$?
@@ -6548,7 +6562,7 @@ function CygbuildMakefileRunInstallPythonMain()
     [ "$1" ] && shift
 
     #   See "2 Standard Build and Install" and section 3, 4
-    #   http://python.active-venture.com/inst/standard-install.html
+    #   http://docs.python.org/inst/standard-install.html
 
     #   IT is not possible to define "home" AND prefix variables.
     #   This does not work: --home=$instdir
@@ -8719,7 +8733,7 @@ function CygbuildInstallFixMandir()
 
     CygbuildVerb "-- Fixing manual page locations"
 
-$retval    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
+    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
     local manroot="$instdir$todir"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
@@ -8942,7 +8956,8 @@ function CygbuildCmdInstallCheckInfoFiles()
     #   script to handle it.
 
     local notes
-    $FIND -L $dir -name dir -o -name \*.info > $retval
+
+    $FIND -L $dir -name dir -o -name "*.info" > $retval
     [ -s $retval ] && notes=$(< $retval)
 
     if [ "$notes" ]; then
@@ -9389,15 +9404,15 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
 
     $AWK  '/^requires:/ { sub("requires:", ""); print}' $path > $retval
 
-    while read lib
+    for lib in $(< $retval)
     do
         if $EGREP --quiet --files-with-matches "$lib" "$database"
         then
             CygbuildEcho "-- OK requires: $lib"
         else
-            CygbuildWarn "-- [ERROR] requires: $lib package not installed"
+            CygbuildWarn "-- [ERROR] requires: '$lib' package not installed"
         fi
-    done < $retval
+    done
 }
 
 function CygbuildCmdInstallCheckSetupHintCategory()
@@ -9533,18 +9548,21 @@ function CygbuildCmdInstallCheckDirStructure()
         $FIND "$instdir/etc" \
             ! -path "*/postinstall*" \
             -a ! -path "*/preremove*" \
+            -a ! -path "*/app-defaults*" \
             -a ! -path "*/default*" \
             -type f \
             > $retval
 
-        local file
+        local file _file
 
         while read file
         do
             if [ -f $file ]; then
 
-                CygbuildWarn "-- [ERROR] $file found." \
-                             "Use /etc/defaults/etc and postinstall"
+                _file=${file/$srcdir\//}
+
+                CygbuildWarn "-- [ERROR] Do not overwrite /etc in $_file," \
+                             "use /etc/defaults/etc and postinstall"
                 error=1
                 break
             fi

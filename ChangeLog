@@ -1,3 +1,15 @@
+2007-12-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
+	Check manual page location and fix it if needed.
+
+2007-12-19  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckDirStructure):
+	Ignore /etc/X11/app-defaults
+	(CygbuildCmdInstallCheckSetupHintDependExists): Restore
+	for..in and remove while..do.
+
 2007-12-18  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
