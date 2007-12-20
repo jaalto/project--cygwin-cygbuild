@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.1208"
+CYGBUILD_VERSION="2007.1220.1215"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -11298,12 +11298,12 @@ function CygbuildCommandMain()
 
         local -a arr=( $(< $retval) )
 
-        PACKAGE_NAME_GUESS=${arr[0]}
-        releaseGuess=${arr[1]}
-        srcGuess=${arr[2]}
-        package=$PACKAGE_NAME_GUESS
+        PACKAGE_NAME_GUESS="${arr[0]}"
+        releaseGuess="${arr[1]}"
+        srcGuess="${arr[2]}"
+        package="$PACKAGE_NAME_GUESS"
 
-        if [ $package = "!" ]; then
+        if [ "$package" = "!" ]; then
             CygbuildDie "[FATAL] Can't determine package, version, release." \
                 "Are you at dir foo-N.N/ or do you need option -f ?"
         fi
@@ -11312,7 +11312,7 @@ function CygbuildCommandMain()
 
     if [ ! "$release" ]; then           # User did not give -r RELEASE
         if [ "$releaseGuess" ]; then
-            release=$releaseGuess
+            release="$releaseGuess"
         else
             CygbuildFileReleaseGuess > $retval
             [ -s $retval ] && release=$(< $retval)
