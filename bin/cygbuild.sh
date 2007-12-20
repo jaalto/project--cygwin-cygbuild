@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.1610"
+CYGBUILD_VERSION="2007.1220.2026"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1611,7 +1611,7 @@ function CygbuildCygcheckLibraryDepMain()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
-    local data="$2"  # 2007-12-16 not used
+    local datafile="$2"
 
     local setup="$DIR_CYGPATCH/setup.hint"
 
@@ -1623,7 +1623,7 @@ function CygbuildCygcheckLibraryDepMain()
     CygbuildEcho "-- Trying to resolve depends for" ${file/$srcdir\//}
 
     # old method
-    # CygbuildCygcheckLibraryDepList "$data" > "$retval"
+    # CygbuildCygcheckLibraryDepList "$datafile" > "$retval"
 
     CygbuildObjDumpLibraryDepList "$file" > "$retval"
 
@@ -1682,9 +1682,9 @@ function CygbuildCygcheckMain()
     do
       if [ "$verbose" ] ; then
           CygbuildEcho "-- Wait, listing depends"
-          cygcheck $(cygpath --windows $(type -p $file)) 2> /dev/null
+          cygcheck $file | tee $retval 2> /dev/null
       fi
-      CygbuildCygcheckLibraryDepMain "$file"
+      CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
 }
 
@@ -8470,13 +8470,13 @@ function CygbuildInstallPackageDocs()
             for file in $matchInclude
             do
               [ -f "$file" ] || continue
-              CygbuildRun $scriptInstallFile $file $dest
+              CygbuildRun $scriptInstallFile -D $file $dest/$file
             done
 
         CygbuildPopd
     fi
 
-    #   Next, install whole doc/, Docs/ ... directory
+    #   Next, install whole doc/ Docs/ contrib/ ... directories
 
     CygbuildDetermineDocDir $builddir > $retval
     local dir=$(< $retval)

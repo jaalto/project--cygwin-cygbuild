@@ -15,6 +15,9 @@
 	and use $CYGBUILD_STATIC_PERL_MODULE
 	(CygbuildCygbuildDefineGlobalSrcOrigGuess): Support *.tgz *.tbz
 	(CygbuildTarOptionCompress): Support *.tbz
+	(CygbuildInstallPackageDocs): Obey directory references
+	like --include=contrib/* and create needed directory.
+	(CygbuildCygcheckMain): Send cygcheck output forward.
 
 2007-12-19  Jari Aalto  <jari.aalto@cante.net>
 
