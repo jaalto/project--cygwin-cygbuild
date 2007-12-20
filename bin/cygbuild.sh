@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.0847"
+CYGBUILD_VERSION="2007.1220.0941"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5618,7 +5618,7 @@ function CygbuildCmdPkgSourceStandard()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy="srcinstdir $srcinstdir"
-    local sigext=$CYGBUILD_GPG_SIGN_EXT
+    local sigext="$CYGBUILD_GPG_SIGN_EXT"
     local signkey="$OPTION_SIGN"
     local passphrase="$OPTION_PASSPHRASE"
 
@@ -5718,7 +5718,7 @@ function CygbuildCmdPkgSourceStandard()
 function CygbuildCmdPkgSourceExternal ()
 {
     local id="$0.$FUNCNAME"
-    local prg=$scriptPackagesSource
+    local prg="$scriptPackagesSource"
     local status=0
 
     CygbuildPushd
@@ -5775,7 +5775,8 @@ function CygbuildCmdPkgSourceCvsdiff()
         cvs update ||
         { sleep 5; cvs update; } ||
         { sleep 5; cvs update; } ||
-        { CygbuildEcho "-- [ERROR] Permanent problem. Try later." >&2; return 1; }
+        { CygbuildEcho "-- [ERROR] Permanent problem. Try later." >&2;
+          return 1; }
     )
     else
         try=\
@@ -6496,8 +6497,10 @@ function CygbuildMakefileRunInstallPythonFix()
     for dir in $instdir/{man1,man3,man5,man8}
     do
         [ -d $dir ] || continue
-        install -d -m 755 $instdir
-        $MV $verbose "$dir" "$dest"  ||
+
+        $INSTALL_SCRIPT $INSTALL_BIN_MODES -d $instdir
+
+        $MV $verbose "$dir" "$dest" ||
             CygbuildDie "$id: mv error"
     done
 
@@ -8307,10 +8310,6 @@ function CygbuildInstallPackageInfo()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local dest=$DIR_INFO
-    local file
-    local done
-
     $FIND $srcdir                                               \
         -type d '(' -name ".inst" -o -name ".build" ')' -prune  \
         -a ! -name ".inst"                                      \
@@ -8319,10 +8318,13 @@ function CygbuildInstallPackageInfo()
         | $SORT \
         > $retval
 
+    local dest="$DIR_INFO"
+    local file done
+
     while read file
     do
         if [ ! "$done" ]; then                # Do only once
-            $MKDIR -p "$DIR_INFO" || return 1
+            $INSTALL_SCRIPT $INSTALL_BIN_MODES -d "$DIR_INFO" || return 1
             done=1
             CygbuildEcho "-- Installing info files to" \
                          "${dest/$srcdir\//}"
@@ -8334,15 +8336,13 @@ function CygbuildInstallPackageInfo()
         fi
     done < $retval
 
-
     # Package must not supply central 'dir' file
 
-    file=$DIR_INFO/dir
+    file="$DIR_INFO/dir"
 
     if [ -f "$file" ] ; then
         $RM "$file"   || return 1
     fi
-
 }
 
 function CygbuildInstallTaropt2match ()
@@ -8952,8 +8952,8 @@ function CygbuildCmdInstallCheckInfoFiles()
     local dummy=$(pwd)                    # For debug
     local dir=$instdir
 
-    #   If there is central info "dir", then there must be postinstall
-    #   script to handle it.
+    #   If there is *.infi, then there must be postinstall
+    #   script to call install-info.
 
     local notes
 
