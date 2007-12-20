@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.2026"
+CYGBUILD_VERSION="2007.1220.2040"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5253,7 +5253,8 @@ function CygbuildPatchApplyMaybe()
     if [ "$cmd" = "unpatch" ]; then
 
         if [ ! -f "$statfile" ]; then
-            CygbuildEcho "-- [INFO] Nothing to unpatch. No $statfile"
+            CygbuildEcho "-- [INFO] Nothing to unpatch. No" \
+                         ${statfile/$srcdir\//}
             return 0
         fi
 
@@ -8523,6 +8524,7 @@ function CygbuildInstallPackageDocs()
             if [ "$status" != "0" ]; then
                 CygbuildWarn "$id: [ERROR] tar failed to move files. " \
                      "Need to run [files]?"
+
                 return $status
             fi
 
@@ -9746,6 +9748,7 @@ function CygbuildCmdInstallCheckPkgDocdir()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx="$CYGBUILD_PREFIX"
     local dir="$instdir"
+    local cygdoc="$DIR_DOC_GENERAL"
 
     $FIND -L $dir                        \
         -type f                          \
@@ -9755,14 +9758,21 @@ function CygbuildCmdInstallCheckPkgDocdir()
     [ -s "$retval" ] || return 0
 
     local status=0
-    local file
+    local item
 
-    while read file
+    while read item
     do
         status=1
-
-        CygbuildWarn "-- [ERROR] Wrong location $file"
+        CygbuildWarn "-- [ERROR] Wrong location $item"
     done < $retval
+
+    for item in contrib
+    do
+        [ -d "$item" ]          || continue
+        [ -d "$cygdoc/$item" ]  && continue
+
+        CygbuildEcho "-- [NOTE] $item/ possibly missing from $cygdoc"
+    done
 
     return $status
 }
