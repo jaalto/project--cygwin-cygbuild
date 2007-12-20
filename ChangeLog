@@ -13,6 +13,8 @@
 	(CygbuildCommandMain): Use quotes.
 	(CygbuildHelpLong): Call `CygbuildBootVariablesGlobalShareMain'
 	and use $CYGBUILD_STATIC_PERL_MODULE
+	(CygbuildCygbuildDefineGlobalSrcOrigGuess): Support *.tgz *.tbz
+	(CygbuildTarOptionCompress): Support *.tbz
 
 2007-12-19  Jari Aalto  <jari.aalto@cante.net>
 

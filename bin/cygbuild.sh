@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.1416"
+CYGBUILD_VERSION="2007.1220.1610"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -238,9 +238,9 @@ function CygbuildTarOptionCompress()
     #   .bz2                => "j" option
 
     case "$1" in
-        *tar.gz|*tgz)   echo "z" ;;
-        *bz2)           echo "j" ;;
-        *)              return 1 ;;
+        *.tar.gz|*.tgz)   echo "z" ;;
+        *.bz2|*.tbz)      echo "j" ;;
+        *)                return 1 ;;
     esac
 }
 
@@ -2457,7 +2457,7 @@ function CygbuildMakefileRunTarget()
         if CygbuildIsMakefileTarget $target ; then
             $MAKE -f $makefile $target
         elif [ "$verbose" ]; then
-            CygbuildWarn "-- [NOTE] No target [$target] in $makefile"
+            CygbuildWarn "-- [NOTE] No target '$target' in $makefile"
         fi
 
     CygbuildPopd
@@ -3621,7 +3621,7 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
     else
         local ext
 
-        for ext in .tar.gz .tar.tgz .tar.bz2
+        for ext in .tar.gz .tgz .tar.bz2 .tbz
         do
 
             #  Standard version uses hyphen  : package-NN.NN.tar.gz
@@ -7054,7 +7054,7 @@ function CygbuildPatchCheck()
         local _file=${file/$srcdir\/}   # Relative path name
 
         if [ "$verbose" ]; then
-            CygbuildEcho "-- [INFO] content of" ${file/$srcdir\/}
+            CygbuildEcho "-- content of" ${file/$srcdir\/}
             $AWK '/^\+\+\+ / { print "     " $2}' $file
         fi
 
@@ -8098,7 +8098,9 @@ function CygbuildCmdBuildStdMakefile()
 
             (
                 if [ -r $optfile ]; then
-                    CygbuildEcho "-- Reading extra env from $optfile"
+                    CygbuildEcho "-- Reading extra env from" \
+                                 ${optfile/$srcdir\//}
+
                     [ "$verbose" ] &&  cat $optfile
                     source $optfile || exit $?
                 fi
@@ -10677,7 +10679,7 @@ function CygbuildCmdFinishMain()
 
     if [[ $objdir == *$PKG-$VER*  ]];then
 
-        CygbuildEcho "== [finish] Removing $objdir"
+        CygbuildEcho "== finish: removing $objdir"
 
         if CygbuildIsGbsCompat ; then
             CygbuildEcho "-- [NOTE] GBS compat mode: results" \
