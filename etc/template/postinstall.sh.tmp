@@ -147,16 +147,16 @@ InstalInfo()
 {
     cd "$infodir" || return $?
 
-    central="$infodir/dir"
+    central="./dir"
 
     # -- This part is optional --
 
     # If *.info file does not have START-INFO-DIR-ENTRY ..
     # END-INFO-DIR-ENTRY then the text must be supplied. Remmeber to
-    # add option --entry="$text" to call $infobin
+    # add option --entry="$text" to call install-info
     #
-    # If there are several *.info files, they are not currently
-    # handled correctly, if $text is set to ONE description.
+    # If there are several *.info files, please
+    # handle them correctly and set $text for each.
 
     # text="* $package: ($package). One line description here" #!! CHANGE
 
