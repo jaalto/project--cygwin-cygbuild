@@ -1,5 +1,8 @@
 2007-12-20  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Mention command
+	`almostall'.
+
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
 	Check manual page location and fix it if needed.
 	(CygbuildInstallPackageInfo): chnage mkdir(1) to install(1).

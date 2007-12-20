@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1205.0809';
+$VERSION = '2007.1220.1421';
 
 # ..................................................................
 
@@ -172,9 +172,9 @@ case as simple as running commands:
     $ cygbuild -r 1 configure
     $ cygbuild -r 1 make
     $ cygbuild -r 1 strip            # [optional]
-    $ cygbuild -r 1 -v -t install    # "try and see" mode first
+    $ cygbuild -r 1 -v -t install    # "verbose test mode" first
     $ cygbuild -r 1 install          # The "real" install
-    $ find .inst/ -print                # Verify install structure !!
+    $ find .inst/ -print             # Verify install structure !!
     $ cygbuild -r 1 -v check         # Do install integrity check
     $ cygbuild -r 1 -v depend        # Check depdencies
     $ cygbuild -r 1 package          # Make Net install binary
@@ -190,13 +190,13 @@ mandatory almost for all commands:
     ...
 
 B<CASE B)> If the downloaded Cygwin source release package is
-controlled by cygbuild, then command B<[all]> can be used to to
-build binary package:
+controlled by cygbuild, then commands B<[all]> and B<[almostall]> can
+be used to check the binary build:
 
     $ mkdir -p /tmp/build
     $ rm -rf /tmp/build/*
     $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-    $ cd /tmp/build  &&  ./*.sh --verbose all
+    $ cd /tmp/build  &&  ./*.sh --color --verbose all
 
 =head1 OPTIONS
 
