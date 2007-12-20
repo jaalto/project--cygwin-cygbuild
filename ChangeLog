@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
 	Check manual page location and fix it if needed.
 	(CygbuildInstallPackageInfo): chnage mkdir(1) to install(1).
+	(CygbuildCmdInstallCheckManualPages): Improve missing manual
+	page check.
 
 2007-12-19  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.0941"
+CYGBUILD_VERSION="2007.1220.1054"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9632,9 +9632,6 @@ function CygbuildCmdInstallCheckManualPages()
         return 0
     fi
 
-    local file path manlist manPathList
-    local status=0
-
     $FIND -L $dir                   \
         -type f                     \
         '('                         \
@@ -9643,15 +9640,14 @@ function CygbuildCmdInstallCheckManualPages()
         ')'                         \
         > $retval
 
+    local file path manlist manPathList
+    local status=0
+
+    rm -f $retval.debian
+
     while read file
     do
-        $EGREP -n 'Debian' $file > $retval
-
-        if [ -s $retval ]; then
-            CygbuildEcho "-- [INFO] If page was from Debian," \
-                         "it may need editing"
-            $CAT $retval
-        fi
+        $EGREP -n 'Debian' $file >> $retval.debian
 
         path=${file%/*}
         manPathList="$manPathList $path"
@@ -9663,6 +9659,11 @@ function CygbuildCmdInstallCheckManualPages()
         name=${name%.[0-9]}     # package.1    => package
         manlist="$manlist $name "
     done < $retval
+
+    if [ -s $retval.debian ]; then
+        CygbuildEcho "-- [INFO] If page is form Debian, it may need editing"
+        $CAT $retval.debian
+    fi
 
     #  Check incorrect locations
     #       .inst/usr/share/man1/
@@ -9709,7 +9710,7 @@ function CygbuildCmdInstallCheckManualPages()
         fi
 
         #   The LIST is a string containing binary names and they are
-        #   all surrounded by spaces: " prg1 prg2 ", see if
+        #   all surrounded by spaces: " prg1 prg2 "
 
         if [[ "$manlist" == *\ $nameplain1\ * ]]; then
 
