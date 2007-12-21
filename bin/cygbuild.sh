@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.1101"
+CYGBUILD_VERSION="2007.1221.1233"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3860,14 +3860,14 @@ function CygbuildHelpShort()
 Version $CYGBUILD_VERSION <$CYGBUILD_HOMEPAGE_URL>
 Call syntax: $bin [option] CMD ...
 
-  -d LEVEL              Debug mode with numeric LEVEL
-  -C                    Activate colors
-  -h                    This short help
-  --help                Long help (requires full cygbuild suite)
-  -r RELEASE            Mandatory option for packaging related commands
-  -t                    Run in test mode
-  -v                    More verbose messages
-  -V                    Print version information
+  -C|--color            Activate colors
+  -d|--debug LEVEL      Debug mode with numeric LEVEL
+  -r|--release RELEASE  Mandatory option for packaging related commands
+  -t|--test             Run in test mode
+  -v|--verbose          More verbose messages
+  -V|--version          Print version information
+
+  -h|--help             This short help. Long help requires full install.
 
   GPG support options
 
@@ -8067,7 +8067,7 @@ function CygbuildCmdConfMain()
 
         else
 
-            CygbuildEcho "-- [NOTE] No standard configre script found."
+            CygbuildEcho "-- [NOTE] No ./configre script found."
 
         fi
 

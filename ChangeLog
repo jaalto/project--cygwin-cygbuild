@@ -12,6 +12,7 @@
 	(CygbuildVersionInfo): Support foo1.2.3
 	(CygbuildFilePackageGuessFromDirectory): Loosend version check.
 	(CygbuildCmdInstallCheckPkgDocdir); Ignore certain files.
+	(CygbuildHelpShort): Mention long options.
 
 2007-12-20  Jari Aalto  <jari.aalto@cante.net>
 
