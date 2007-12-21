@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1220.2040"
+CYGBUILD_VERSION="2007.1221.0943"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1266,9 +1266,10 @@ function CygbuildChmodExec()
     CygbuildChmodDo ugo+x "$@"
 }
 
-CygbuildObjDumpLibraryDepList ()
+CygbuildObjDumpLibraryDepList ()  # Unused 2007-12-20
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
 
     if [ ! "$file" ]; then
@@ -1276,8 +1277,12 @@ CygbuildObjDumpLibraryDepList ()
         return 1
     fi
 
+    #   objdump lists only those that the binary is linked against.
+    #   Traditionally setup.hint lists *all* dependencies.
+    #   DO NOT USE THIS FUNCTION
+
     objdump -p "$file" |
-        $AWK '
+        ${AWK:-"awk"} '
             /KERNEL32|cygwin1.dll/ {
                 next;
             }
@@ -1290,12 +1295,51 @@ CygbuildObjDumpLibraryDepList ()
                     print name;
                 }
             }' |
-         $SORT              # No need for --unique; awk uses hash
+         ${SORT:-"sort"}          # No need for --unique; awk uses hash
+}
+
+CygbuildCygcheckLibraryDepListFull ()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ]; then
+        CygbuildWarn "$0: [ERROR] Missing argument FILE"
+        return 1
+    fi
+
+    local bin="cygcheck"
+    CygbuildWhich "$bin" > $retval
+
+    if [ ! -s $retval ] ; then
+        CygbuildWarn "$0: $bin not found. Skipped"
+        return 1
+    fi
+
+    bin=$(< $retval)
+
+    #  /usr/bin/spamprobe.exe - os=4.0 img=1.0 sys=4.0
+    #    D:\cygwin\bin\cygpng12.dll - os=4.0 img=1.0 sys=4.0
+    #      "cygpng12.dll" v0.0 ts=2006/11/6 1:32
+    #      D:\cygwin\bin\cygwin1.dll (already done)
+    #                    ===========================
+    #                    $(NF)
+
+    $bin -v "$file" |
+        ${AWK:-awk} -F\\ '
+            / +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
+                str = $(NF);
+                sub(" .*", "", str);
+                print str;
+            }' |
+        ${SORT:-"sort"} --unique
 }
 
 CygbuildCygcheckLibraryDepList ()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
 
     # $data file includes output of cygcheck:
@@ -1571,7 +1615,13 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
     local bin="cygcheck"
 
     CygbuildWhich $bin > $retval
-    [ -s $retval ] || return 0           # No such program
+
+    if [ ! -s $retval ] ; then
+        CygbuildWarn "$0: $bin not found. Skipped"
+        return 1
+    fi
+
+    bin=$(< $retval)
 
     for file in "$@"
     do
@@ -1585,12 +1635,13 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
       fi
 
       if [ ! -f "$file" ]; then
-          CygbuildWarn "-- [WARN] No susch file: $file"
+          CygbuildWarn "-- [WARN] No such file: $file"
           continue
       fi
 
       # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
       $bin -f $file | $SED 's/-[0-9].*//'
+
     done | $SORT --unique
 }
 
@@ -1598,6 +1649,10 @@ CygbuildCygcheckLibraryDepGrepPgkNamesMain()
 {
     local file="$1"
     local cache="/var/cache/cygbug/package/list/file.lst"
+
+    if [ ! "$file" ]; then
+        CygbuildDie "$0: Missing arg1 FILE"
+    fi
 
 #    if [ -f $cache ]; then
 #        CygbuildCygcheckLibraryDepGrepPgkNamesCache "$file" "$cache"
@@ -1613,6 +1668,10 @@ function CygbuildCygcheckLibraryDepMain()
     local file="$1"
     local datafile="$2"
 
+    if [ ! -f "$file" ]; then
+        CygbuildDie "$0: Missing arg1 FILE"
+    fi
+
     local setup="$DIR_CYGPATCH/setup.hint"
 
     #   Do it in three phases:
@@ -1622,20 +1681,20 @@ function CygbuildCygcheckLibraryDepMain()
 
     CygbuildEcho "-- Trying to resolve depends for" ${file/$srcdir\//}
 
-    # old method
+    # old methods
     # CygbuildCygcheckLibraryDepList "$datafile" > "$retval"
+    # CygbuildObjDumpLibraryDepList "$file" > "$retval"
 
-    CygbuildObjDumpLibraryDepList "$file" > "$retval"
+    CygbuildCygcheckLibraryDepListFull "$file" > "$retval"
 
     if [ ! -s $retval ]; then
-        CygbuildEcho "-- No dependencies other than cygwin"
+        CygbuildEcho "-- No dependencies other than cygwin found"
         return 0
     fi
 
     if CygbuildCygcheckLibraryDepGrepPgkNamesMain \
        "$retval" > "$retval.pkglist"
     then
-
         CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
 
@@ -1684,7 +1743,9 @@ function CygbuildCygcheckMain()
           CygbuildEcho "-- Wait, listing depends"
           cygcheck $file | tee $retval 2> /dev/null
       fi
+
       CygbuildCygcheckLibraryDepMain "$file" "$retval"
+
     done
 }
 
