@@ -13,6 +13,10 @@
 	(CygbuildFilePackageGuessFromDirectory): Loosend version check.
 	(CygbuildCmdInstallCheckPkgDocdir); Ignore certain files.
 	(CygbuildHelpShort): Mention long options.
+	(CygbuildInstallTaropt2type): New.
+	(CygbuildInstallPackageDocs): Improve treatment of
+	CYGWIN-PATCHES/install.tar.options
+
 
 2007-12-20  Jari Aalto  <jari.aalto@cante.net>
 

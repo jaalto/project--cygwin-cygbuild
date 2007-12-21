@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.1233"
+CYGBUILD_VERSION="2007.1221.1314"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8424,6 +8424,43 @@ function CygbuildInstallPackageInfo()
     fi
 }
 
+function CygbuildInstallTaropt2type ()
+{
+    #   Convert each --include or --exclude=  option into tar format.
+
+    local type="$1"   # exclude or include
+    shift
+
+    local find="--exclude="
+
+    if [ "$type" = "include" ]; then
+        find="--include="
+    fi
+
+    local ret item
+
+
+    for item in $*
+    do
+        if [[ "$item" == $find* ]]; then
+
+            item=${item/--include=}     # Delete this portion
+
+            if [[ "$ret"  &&  "$item" ]]; then
+                ret="$ret $item"
+            else
+                ret="$item"
+            fi
+        fi
+    done
+
+    if [ "$ret" ]; then
+        echo "$ret"                 # must use quotes, otherwise * expands
+    else
+        return 1
+    fi
+}
+
 function CygbuildInstallTaropt2match ()
 {
     #   Convert each --exclude=  option into BASH match format.
@@ -8442,7 +8479,9 @@ function CygbuildInstallTaropt2match ()
     for item in $*
     do
         if [[ "$item" == $find* ]]; then
+
             item=${item/$find}     # Delete this portion
+
             if [[ "$ret"  &&  "$item" ]]; then
                 ret="$ret|$item"
             else
@@ -8473,9 +8512,10 @@ function CygbuildInstallPackageDocs()
     local optExtra=$(< $retval)
 
     local docdirInstall="docinstall"
-    local matchExclude matchInclude
+    local matchExclude matchInclude tarOptInclude tarOptExclude
 
     if [ "$optExtra" ]; then
+
         CygbuildInstallTaropt2match exclude "$optExtra" > $retval
         [ -s $retval ] && matchExclude=$(< $retval)
 
@@ -8485,6 +8525,13 @@ function CygbuildInstallPackageDocs()
         if [[ "$optExtra" == *cygbuild-no-docdir-install* ]]; then
             docdirInstall=
         fi
+
+        CygbuildInstallTaropt2type include "$optExtra" > $retval
+        [ -s $retval ] && tarOptInclude=$(< $retval)
+
+        CygbuildInstallTaropt2type exclude "$optExtra" > $retval
+        [ -s $retval ] && tarOptExclude=$(< $retval)
+
     fi
 
     local done name file match
@@ -8569,7 +8616,7 @@ function CygbuildInstallPackageDocs()
 
             CygbuildPushd
 
-                cd $dir || exit 1
+                cd "$dir" || exit 1
 
                 #   Remove manual pages, there are already installed in
                 #   man/manN/
@@ -8584,8 +8631,8 @@ function CygbuildInstallPackageDocs()
                 status=""
 
                 if [ ! "$test" ] ; then
-                    $TAR $optExclude $optExtra $verbose \
-                        --create --dereference --file=- * \
+                    $TAR $optExclude $tarOptExclude $verbose \
+                        --create --dereference --file=- * $tarOptInclude \
                     | ( $TAR -C "$dest" $taropt --file=- )
                     status=$?
                 fi
