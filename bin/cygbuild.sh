@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.1351"
+CYGBUILD_VERSION="2007.1221.1356"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7895,9 +7895,10 @@ function CygbuildConfCC()
             #   print the listing more nicely. Get a hand from perl here
             #   to format the option listing
 
-            echo "$opt" | $PERL -ane \
-            "s/\s+/,/g; print '  ', join( qq(\n  ), sort split ',',$_), qq(\n)"
-            echo
+            echo "$opt" |
+                $PERL -ane \
+                  "s/\s+/,/g;
+                   print '   ', join( qq(\n  ), sort split ',',$_), qq(\n)"
         fi
 
         CygbuildRunShell $conf $opt 2>&1 | tee $retval.log

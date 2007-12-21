@@ -19,7 +19,7 @@
 	(CygbuildInstallPackageInfo): Ignore .sinst
 	(CygbuildTreeSymlinkCopy): Remove egrep and use find -prune.
 	Delete *.dll *.la *.so if included in original package.
-
+	(CygbuildConfCC): Adjust --option list output (perl call).
 
 2007-12-20  Jari Aalto  <jari.aalto@cante.net>
 
