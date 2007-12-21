@@ -1,11 +1,16 @@
 2007-12-21  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl (Version): Support foo1.2.3
+	(Package): Support foo1.2.3
+
 	* bin/cygbuild.sh: (CygbuildCygcheckLibraryDepListFull): New,
 	replaces `CygbuildObjDumpLibraryDepList'.
 	(CygbuildCygcheckLibraryDepMain): Use
 	`CygbuildCygcheckLibraryDepListFull'.
 	(CygbuildCygcheckLibraryDepMain): Add error checking.
 	(CygbuildCygcheckLibraryDepGrepPgkNamesMain): Add error checking.
+	(CygbuildVersionInfo): Support foo1.2.3
+	(CygbuildFilePackageGuessFromDirectory): Loosend version check.
 
 2007-12-20  Jari Aalto  <jari.aalto@cante.net>
 

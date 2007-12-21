@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.0943"
+CYGBUILD_VERSION="2007.1221.1041"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1805,12 +1805,22 @@ function CygbuildVersionInfo()
         {
             push @a, $rel if $rel;
             print qq(@a\n);
+            exit 0;
         }
-        else
+
+        # foo4.16.0.70
+
+        @a = /^([a-z_-]*[A-Za-z])([\d.]*\d)/i ;
+
+        if ( @a )
         {
-            exit 1;
+            push @a, $rel if $rel;
+            print qq(@a\n);
+            exit 0;
         }
-    ' || exit 1
+
+        exit 123;
+    ' || exit $?
 }
 
 function CygbuildDefileInstallVariables()
@@ -10795,9 +10805,9 @@ function CygbuildFilePackageGuessFromDirectory()
     local dir=$(pwd)
     local ret
 
-    #   Does it look like foo-N.N ?
+    #   Does it look like it would have foo-N.N ?
 
-    [[ ! $dir == *-*[0-9]* ]]  && return 1
+    [[ ! $dir == *[0-9]* ]]  && return 1
 
     if CygbuildDefineVersionVariables $dir ; then
 
@@ -10943,8 +10953,6 @@ function CygbuildFilePackageGuessMain()
         local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildFilePackageGuessFromDirectory > $retval &&
         ret=$(< $retval)
-
-        # CygbuildWarn "-- [INFO] Cannot find original package. Version guessed from dir"
     fi
 
     local pwd=$(pwd)
@@ -11794,8 +11802,9 @@ function Test ()
 #    CygbuildStrPackage $tmp
 }
 
-#Test odt2txt-0.3+git20070827-1-src.tar.bz2
-#Test findbugs-1.3.0-rc1.tar.gz
+# Test odt2txt-0.3+git20070827-1-src.tar.bz2
+# Test findbugs-1.3.0-rc1.tar.gz
+# Test jove4.16.0.70 ; exit 111
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"

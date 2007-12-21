@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1220.1421';
+$VERSION = '2007.1221.1046';
 
 # ..................................................................
 
@@ -2452,11 +2452,19 @@ sub Version ($)
 
     if ( not $ret  and  /^.+[-_]v?([\d.]+[_-]?rc.*)/i )
     {
+        $debug > 2  and  warn "$id: exotic 2 [$_]\n";
         $ret = $1;
+    }
+
+    if ( ! $ret  and  /^([a-z_-]*[A-Za-z])([\d.]*\d)/i )
+    {
+        $debug > 2  and  warn "$id: exotic 3 [$_]\n";
+        $ret = $2;         # foo4.16.0.70
     }
 
     unless ( $ret )
     {
+        $debug > 2  and  warn "$id: else [$_]\n";
         # Exotic version like foo-R31b
         my @words = split '[-_][vV]?';
         $ret = $words[-1];
@@ -2507,7 +2515,7 @@ sub Package ($)
 
     $debug  and  warn "$id: VER [$version] ARG [$ARG]";
 
-    if (  $version  and  s/$version.*//  and   m,^(.+)[-_], )
+    if (  $version  and  s/$version.*//  and   m,^(.+)[-_]?, )
     {
         $ARG = $1;
         s/_/-/g;
@@ -4647,7 +4655,8 @@ sub Test ()
     my $a;
     # $a = "remake-3.80+dbg-0.61.tar.gz";
     # $a = "foo_V22.1";
-    $a = "foo-bar-1.1-rc1";
+    # $a = "foo-bar-1.1-rc1";
+    $a = "foo4.16.0.70";
     print "[Version] ", Version $a, " [Package] ", Package $a, "\n";
 }
 
