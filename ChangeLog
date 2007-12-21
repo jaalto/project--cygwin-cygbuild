@@ -16,6 +16,9 @@
 	(CygbuildInstallTaropt2type): New.
 	(CygbuildInstallPackageDocs): Improve treatment of
 	CYGWIN-PATCHES/install.tar.options
+	(CygbuildInstallPackageInfo): Ignore .sinst
+	(CygbuildTreeSymlinkCopy): Remove egrep and use find -prune.
+	Delete *.dll *.la *.so if included in original package.
 
 
 2007-12-20  Jari Aalto  <jari.aalto@cante.net>

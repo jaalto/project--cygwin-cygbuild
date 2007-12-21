@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.1314"
+CYGBUILD_VERSION="2007.1221.1351"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -918,6 +918,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.a \
      --exclude=*.la \
      --exclude=*.sa \
+     --exclude=*.so \
      --exclude=*.dll \
      --exclude=*.dll.a \
     "
@@ -2953,7 +2954,7 @@ function CygbuildTreeSymlinkCopy()
         $MKDIR -p "$to" || exit 1
     fi
 
-    #   cp -lr would do the same as 'lndir'. 'lndir' is widely
+    #   cp -lr might do the same as 'lndir'. 'lndir' is widely
     #   regarded as best cross platform solution.
 
     local LNDIR
@@ -2981,23 +2982,21 @@ function CygbuildTreeSymlinkCopy()
 
         cd $from || return 1
 
-        #   lndir(1) cannot link files that have the same name as executables,
-        #   like:
-        #
-        #       lndir dir/ to/
-        #
-        #       dir/program
-        #       dir/program.exe     =>  to/program.exe
-        #
-        #   The "program" without ".exe" is not copied. This may be due to
-        #   Windows environment.
-        #
         #   Remove all *.exe files before shadowing (they should be generated
         #   anyway.
 
-        $FIND . -type f -name "*.exe" \
-                 | $EGREP -v '[.](build|s?inst)' \
-                 > $retval
+        $FIND . \
+            -type d '(' -name ".inst" -o -name ".sinst" -o -name ".build" ')' \
+            -prune                              \
+            -a ! -name ".inst"                  \
+            -a ! -name ".sinst"                 \
+            -a ! -name ".build"                 \
+            -o -type f '('  -name "*.exe"       \
+                            -o -name "*.dll"    \
+                            -o -name "*.dll.a"  \
+                            -o -name "*.s[ao]"  \
+                            -o -name "*.la" ')' \
+            > $retval
 
         local file done
 
@@ -3007,11 +3006,12 @@ function CygbuildTreeSymlinkCopy()
                 CygbuildEcho "-- Cleaning offending files before shadow"
                 done="yes"
             fi
+
             $RM -f $verbose "$file"
         done < $retval
 
-        local dest
         local current=$(pwd)
+        local dest
 
         for item in * .*
         do
@@ -3024,6 +3024,17 @@ function CygbuildTreeSymlinkCopy()
             fi
 
             dest=$to/$item
+
+            #   lndir(1) cannot link files that have the same name as
+            #   executables, like:
+            #
+            #       lndir dir/ to/
+            #
+            #       dir/program
+            #       dir/program.exe     =>  to/program.exe
+            #
+            #   The "program" without ".exe" is not copied. This may
+            #   be due to Windows environment.
 
             if [ -f "$item" ]; then
 
@@ -8390,8 +8401,11 @@ function CygbuildInstallPackageInfo()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     $FIND $srcdir                                               \
-        -type d '(' -name ".inst" -o -name ".build" ')' -prune  \
+        -type d '(' -name ".inst"                               \
+                    -o -name ".sinst"                           \
+                    -o -name ".build" ')' -prune                \
         -a ! -name ".inst"                                      \
+        -a ! -name ".sinst"                                     \
         -a ! -name ".build"                                     \
         -o -type f '(' -name "*.info" -o -name "*.info-*" ')'   \
         | $SORT \
