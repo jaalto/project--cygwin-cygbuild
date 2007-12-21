@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.1041"
+CYGBUILD_VERSION="2007.1221.1101"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9864,12 +9864,15 @@ function CygbuildCmdInstallCheckDocdir()
         return 1
     fi
 
+    local ignore="*@(AUTHORS)"
     local status=0
     local minsize=100
     local file size _file
 
     while read file
     do
+        [[ "$file" == $ignore ]] && continue
+
         size=
         _file=${file/$srcdir\//}
 
