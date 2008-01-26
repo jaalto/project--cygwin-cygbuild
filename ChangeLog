@@ -1,3 +1,8 @@
+2008-01-26  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (cygbuild_opt_exclude_version_control):
+	Add ignore pattern for quilt's state directories.
+
 2007-12-21  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl (Version): Support foo1.2.3

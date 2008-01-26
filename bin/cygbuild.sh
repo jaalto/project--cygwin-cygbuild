@@ -796,6 +796,7 @@ function CygbuildBootVariablesGlobalMain()
     #   .bzr = bazaar-ng http://bazaar-ng.org/
     #   .hg  = Mercurical http://www.serpentine.com/mercurial
     #   MT   = and .mtn; See http://www.venge.net/monotone/
+    #   .pc  = Quilt's (patch management) state directory
     #
     #   The lowercase variables are used only in this section.
     #   The uppercase variables are globals used in functions.
@@ -803,19 +804,21 @@ function CygbuildBootVariablesGlobalMain()
     cygbuild_opt_exclude_version_control="\
      --exclude=*,v \
      --exclude=.bzr \
+     --exclude=.bzrignore \
+     --exclude=.cvsignore \
      --exclude=.darcs \
      --exclude=.git \
      --exclude=.hg \
+     --exclude=.hgignore \
      --exclude=.mtn \
+     --exclude=.pc \
+     --exclude=.quilt \
      --exclude=.svn \
+     --exclude=.svnignore \
      --exclude=CVS \
      --exclude=MT \
      --exclude=RCS \
      --exclude=SCCS \
-     --exclude=.bzrignore \
-     --exclude=.cvsignore \
-     --exclude=.hgignore \
-     --exclude=.svnignore \
     "
 
     #  This is template file, do not include in patch.
