@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2007.1221.1356"
+CYGBUILD_VERSION="2008.0131.1854"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################

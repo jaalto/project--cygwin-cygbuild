@@ -1,3 +1,8 @@
+2008-01-31  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
+	Fix typo at in variable `cygbuild_opt_exclude_version_control'.
+
 2008-01-26  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (cygbuild_opt_exclude_version_control):
