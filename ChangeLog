@@ -1,5 +1,8 @@
 2008-02-14  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::Packaging commands::publish): Document
+	new PACKAGE argument sent to external publish command.
+
 	* bin/cygbuild.sh (CygbuildMakefilePrefixIsStandard): New.
 	(CygbuildMakefileRunInstallCygwinOptions): Use
 	`CygbuildMakefilePrefixIsStandard' and change automatically
@@ -11,6 +14,10 @@
 	(CygbuildCommandMain): Add alias `pcheck'
 	(CygbuildVersionInfo): Improve parsing packages like
 	foo_0.4.0-test5
+	(CygbuildCmdPublishSignature): Delete trailing slash from
+	input arg `dest'.
+	(CygbuildCmdPublishExternal): Send $PKG to external publish
+	program.
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 

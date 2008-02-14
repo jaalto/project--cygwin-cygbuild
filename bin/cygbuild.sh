@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1042"
+CYGBUILD_VERSION="2008.0214.1159"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4780,6 +4780,8 @@ function CygbuildCmdPublishSignature()
         return
     fi
 
+    dest=${dest%/}                              # Delete trailing slash
+
     local sigext="$CYGBUILD_GPG_SIGN_EXT"
     local sigfile="${file##$pwd/}$sigext"
     local sigfiledest="$dest/$file$sigext"
@@ -4880,10 +4882,11 @@ function CygbuildCmdPublishExternal()
     local signer="$2"
     local pass="$3"
 
-    CygbuildEcho "--- Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
+    CygbuildEcho "--- Publishing with external:" \
+	"$prg $TOPDIR $signer ${pass+<pass>}"
 
     CygbuildChmodExec "$prg"
-    $prg "$TOPDIR" "$VER" "$REL" "$signer" "$pass"
+    $prg "$TOPDIR" "$PKG" "$VER" "$REL" "$signer" "$pass"
 }
 
 function CygbuildCmdPublishMain()
@@ -11907,7 +11910,7 @@ function Test ()
     # tmp=remake-3.80+dbg-0.61.tar.gz
 
     CygbuildVersionInfo $tmp
-#    CygbuildStrPackage $tmp
+    CygbuildStrPackage $tmp
 }
 
 function TestRegression ()

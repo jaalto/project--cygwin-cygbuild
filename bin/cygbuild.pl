@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2007.1221.1046';
+$VERSION = '2008.0214.1201';
 
 # ..................................................................
 
@@ -789,6 +789,7 @@ weill be in form:
 
     $CYGBUILD_PUBLISH_BIN \
         /directory/where/package-N.N/.sinst/
+        <package string>
         <version string>
         <release number>
         [gpg sign id]
