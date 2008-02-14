@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1302"
+CYGBUILD_VERSION="2008.0214.1443"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6732,7 +6732,7 @@ function CygbuildMakefilePrefixIsStandard ()
 function CygbuildMakefileRunInstallCygwinOptions()
 {
     local id="$0.$FUNCNAME"
-    local pfx=${1:-$CYGBUILD_PREFIX}
+    local pfx=${1:-"prefix=$CYGBUILD_PREFIX"}
     local docpfx=${2:-$CYGBUILD_DOCDIR_FULL}
     local rest=$3
 
@@ -6764,19 +6764,12 @@ function CygbuildMakefileRunInstallCygwinOptions()
 
         local docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
 
-	PFX="prefix=$pfx"
-
-	if ! CygbuildMakefilePrefixIsStandard ; then
-	    CygbuildVerb "-- Adjusting PREFIX instead of prefix"
-	    PFX="PREFIX=$pfx"
-	fi
-
         #   Run install with Cygwin options
 
         $MAKE -f $makefile $test        \
              DESTDIR=$instdir           \
              DOCDIR=$docdir             \
-             $PFX                       \
+             $pfx                       \
              exec_prefix=$pfx           \
              man_prefix=$docpfx         \
              info_prefix=$docpfx        \
@@ -6922,9 +6915,16 @@ function CygbuildMakefileRunInstall()
         local docprefix="/$CYGBUILD_DOCDIR_PREFIX_RELATIVE"
         pfx=${pfx%/}                        # remove trailing slash
 
+	local PFX="prefix=$pfx"
+
+	if ! CygbuildMakefilePrefixIsStandard ; then
+	    CygbuildVerb "-- Adjusting PREFIX instead of prefix"
+	    PFX="PREFIX=$pfx"
+	fi
+
         CygbuildPushd
             cd $builddir || exit 1
-            CygbuildMakefileRunInstallCygwinOptions "$pfx" "$docprefix"
+            CygbuildMakefileRunInstallCygwinOptions "$PFX" "$docprefix"
             status=$?
         CygbuildPopd
 

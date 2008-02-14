@@ -19,6 +19,9 @@
 	(CygbuildCmdPublishExternal): Send $PKG to external publish
 	program.
 	(CygbuildReadmeReleaseMatchCheck): Improve release check.
+	(CygbuildMakefileRunInstall): check PREFIX for Makefiles.
+	(CygbuildMakefileRunInstallCygwinOptions): Change input argument
+	`pfx' to accept raw syntax `prefix=<value>'.
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 
