@@ -6,7 +6,9 @@
 	to PREFIX if prefix= is not detected.
 	(CygbuildCmdReadmeFixFile): Adjust message display only
 	in verbose mode.
-	(CygbuildMakefileRunInstall): Remove debug calls 'exit'.
+	(CygbuildMakefileRunInstall): Remove debug `exit' calls.
+	(CygbuildPatchListDisplay): Remove unnecessary `cat'. Add sort -u.
+	(CygbuildCommandMain): Add alias `pcheck'
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 

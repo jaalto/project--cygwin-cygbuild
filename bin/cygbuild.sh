@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.0914"
+CYGBUILD_VERSION="2008.0214.0951"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7134,7 +7134,7 @@ function CygbuildPatchListDisplay()
 
     if [ -f "$file" ]; then
         CygbuildEcho "-- [INFO] Applied local patches"
-        cat $file | sed "s,^,$CYGBUILD_DIR_CYGPATCH_RELATIVE/,"
+        $SED "s,^,$CYGBUILD_DIR_CYGPATCH_RELATIVE/," $file | $SORT -u
     fi
 }
 function CygbuildPatchDiffstat()
@@ -11741,7 +11741,7 @@ function CygbuildCommandMain()
                 status=$?
                 ;;
 
-          patch-check|pchk)
+          patch-check|pcheck|pchk)
                 verbose="verbose" CygbuildPatchCheck
                 CygbuildPatchListDisplay
                 status=$?
