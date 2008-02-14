@@ -27,6 +27,12 @@
 	(CygbuildCmdInstallCheckSetupHintQuotes): New.
 	(CygbuildCmdInstallCheckSetupHintMain): Use
 	`CygbuildCmdInstallCheckSetupHintQuotes'.
+	(CygbuildMakefileRunInstallCygwinOptions): Display
+	make command if option -v is set.
+	(CygbuildIsDirEmpty): New.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Refactor how
+	the postinstall script does things. Use
+	/usr/share/perl/cygwin-pods.
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 

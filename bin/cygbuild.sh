@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1617"
+CYGBUILD_VERSION="2008.0214.1826"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1130,6 +1130,24 @@ function CygbuildLibInstallEnvironment()
 #       Utility functions
 #
 #######################################################################
+
+function CygbuildIsDirEmpty()
+{
+    local dir="$1"
+
+    [ "$dir"    ] || Die "Missing argument to $FUNCNAME"
+    [ -d "$dir" ] || return 1
+
+    local file
+
+    for file in $dir/.* $dir/*
+    do
+	[[ "$file" == */@(.|..) ]] && continue
+	return 1
+    done
+
+    return 0
+}
 
 CygbuildFileSize ()
 {
@@ -6299,11 +6317,16 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
 
     if [ ! -s $retval ]; then
         CygbuildVerb "$id: [NOTE] perllocal.pod not found?"
-        return
+        return 0
     fi
 
+    local poddir="/usr/share/perl/cygwin-pods"
+    local storedir="$instdir$poddir"
     local file
-    local ext=".$PKG-postinstall_append"
+
+    #  install in /usr/share/perl/cygwin-pods/<packagename>.pod and
+    #  cat the contents to /usr/lib/perl5/5.8/cygwin/perllocal.pod
+    #  in postinstall
 
     while read file
     do
@@ -6315,34 +6338,47 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
             return 1
         fi
 
-        $MV $verbose "$file" "$file$ext" || return $?
-
         local dir=${file%/*}
         local name=${file##*/}
         local realdir=${dir#*.inst}    # relative .inst/usr => absolute /usr
 
-        local from="$realdir/$name$ext"
+        local from="$poddir/$PKG.pod"
         local to="$realdir/$name"
 
-        CygbuildEcho "-- Perl install fix: $realdir/$name$ext"
+        install -D -m 644 "$file" "$storedir/$PKG.pod" || return $?
 
-        local commands="
-$commands
-#  Append new utility to Perl installation
-from=$from
-to=$to
-if [ -f \$from ] &&  [ -f \$to ]; then
-    if ! $EGREP --quiet $modulename \$to ; then
-        $CAT \$from >> \$to && $RM -f \$from
-    else
-        $RM -f \$from
-    fi
-fi
+	$RM "$file" || return $?
+
+        CygbuildEcho "-- Perl install fix: $from"
+
+        local commands="\
+#!/bin/sh
+# Append new utility to Perl installation
+from=\"$from\"
+to=\"$to\"
+cat \"\$from\" >> \"\$to\"\
 "
 
         CygbuildPostinstallWrite "$commands" || return $?
 
     done < $retval
+
+    #	Remove perl directory if there are no files in it
+
+#     local libdir="$instdir/usr/lib"
+
+#     file=
+
+#     while read file
+#     do
+# 	break
+#     done <  <(find "$libdir/perl5" -type f)
+
+#     if [  "$file" ]; then
+# 	$RM -rf "$libdir/perl5"
+# 	CygbuildIsDirEmpty "$libdir" && $RMDIR "$libdir"
+#    fi
+
 }
 
 function CygbuildPod2man()
@@ -6766,11 +6802,13 @@ function CygbuildMakefileRunInstallCygwinOptions()
 
         #   Run install with Cygwin options
 
+	[ "$verb" ] && set -x
+
         $MAKE -f $makefile $test        \
              DESTDIR=$instdir           \
              DOCDIR=$docdir             \
              $pfx                       \
-             exec_prefix=$pfx           \
+             exec_prefix=${pfx#*=}      \
              man_prefix=$docpfx         \
              info_prefix=$docpfx        \
              bin_prefix=                \
@@ -6918,7 +6956,7 @@ function CygbuildMakefileRunInstall()
 	local PFX="prefix=$pfx"
 
 	if ! CygbuildMakefilePrefixIsStandard ; then
-	    CygbuildVerb "-- Adjusting PREFIX instead of prefix"
+	    CygbuildVerb "-- Adjusting PREFIX"
 	    PFX="PREFIX=$pfx"
 	fi
 
