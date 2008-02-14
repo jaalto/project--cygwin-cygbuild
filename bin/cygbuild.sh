@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1443"
+CYGBUILD_VERSION="2008.0214.1459"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6303,7 +6303,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
     fi
 
     local file
-    local ext=".postinstall_append"
+    local ext=".$PKG-postinstall_append"
 
     while read file
     do
