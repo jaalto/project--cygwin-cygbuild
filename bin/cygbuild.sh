@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1159"
+CYGBUILD_VERSION="2008.0214.1302"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4636,15 +4636,19 @@ function CygbuildReadmeReleaseMatchCheck()
 
     # extract line: ----- version 3.5-2 -----
     # extract line: ----- version package-name-3.5-2 -----
-    # where 3.5-2 => "3.5 2"
+    # where 3.5-2 => "3.5 2" => "2"
+    # where 0.4.0-test5-1 => "0.4.0-test5" "1"
 
     local -a arr=( $(
-        $AWK ' /^-.*version / {
-                                gsub("^.*version[ \t]+[-_.a-zA-Z]*","");
-                                ver=$1;
-                                i = split(ver, arr, /-/);
-                                print arr[1] " " arr[2];
-                                exit;
+        $AWK ' /^--.*version / {
+            gsub("^.*version[ \t]+[-_.a-zA-Z]*","");
+            ver = $1;
+            i = split(ver, arr, /-/);
+            if ( i == 2 )
+              print arr[1] " " arr[2];
+            else if ( i == 3)
+              print arr[1] "-" arr[2] " " arr[3];
+            exit;
          }' $file
     ))
 
