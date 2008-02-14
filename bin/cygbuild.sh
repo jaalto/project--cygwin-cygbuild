@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1459"
+CYGBUILD_VERSION="2008.0214.1617"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9486,6 +9486,61 @@ function CygbuildCmdInstallCheckReadme()
     return $status
 }
 
+function CygbuildCmdInstallCheckSetupHintQuotes()
+{
+    local path=${1:-/dev/null}
+
+    $AWK '
+	BEGIN {
+	    endquote = -1;
+	}
+
+#	{ print ">> " endquote " " $0 }
+
+	/^[a-z]+:/ && ! /^(sdesc|ldesc):/ {
+
+	    if (endquote == 0)
+	    {
+		printf("%s\n-- [ERROR] missing ending quote\n", prev)
+	    }
+
+	    endquote = -1
+	    next
+	}
+
+	/^(sdesc|ldesc):/ {
+	    start = 1
+
+	    if (endquote == 0)
+	    {
+		printf("%s\n-- [ERROR] missing ending quote\n", prev)
+	    }
+
+	    prev = $0
+	    endquote = 0
+	}
+	start == 1 && /[\"].*[\"]/ {
+	    endquote = 1
+	    start = 0
+	    next
+	}
+	start == 1 && /[\"]/ {
+	    start = 0
+	    next
+	}
+        start == 1 {
+            printf( "%s\n-- [ERROR] missing opening quote\n", $0)
+            start = 0
+            next
+        }
+	start == 0 && /[\"]/ {
+	    endquote = 1
+	}
+
+	{ prev = $0 }
+    ' "$path" | CygbuildMsgFilter >&2
+}
+
 function CygbuildCmdInstallCheckSetupHintFields()
 {
     local path=${1:-/dev/null}
@@ -9674,6 +9729,9 @@ function CygbuildCmdInstallCheckSetupHintMain()
     CygbuildCmdInstallCheckSetupHintSdesc "$path"
 
     CygbuildCmdInstallCheckSetupHintLdesc "$path"
+    status=$?
+
+    CygbuildCmdInstallCheckSetupHintQuotes "$path"
     status=$?
 
     CygbuildCmdInstallCheckSetupHintDependExists "$path"

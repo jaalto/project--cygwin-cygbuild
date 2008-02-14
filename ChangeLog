@@ -24,6 +24,9 @@
 	`pfx' to accept raw syntax `prefix=<value>'.
 	(CygbuildMakeRunInstallFixPerlPostinstall): Add PKG to
 	.postinstall_append to make the file unique.
+	(CygbuildCmdInstallCheckSetupHintQuotes): New.
+	(CygbuildCmdInstallCheckSetupHintMain): Use
+	`CygbuildCmdInstallCheckSetupHintQuotes'.
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 
