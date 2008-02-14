@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.0903"
+CYGBUILD_VERSION="2008.0214.0910"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4674,7 +4674,7 @@ CygbuildCmdReadmeFixFile ()
     #   2. Call function Readmefix() with parameters. It will handle the
     #      text manipulation details.
 
-    CygbuildEcho "-- Calling $module::ReadmeFix()"
+    CygbuildVerb "-- Calling $module::ReadmeFix()"
 
     local out=$readme.tmp
 

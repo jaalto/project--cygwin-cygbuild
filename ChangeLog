@@ -4,6 +4,8 @@
 	(CygbuildMakefileRunInstallCygwinOptions): Use
 	`CygbuildMakefilePrefixIsStandard' and change automatically
 	to PREFIX if prefix= is not detected.
+	(CygbuildCmdReadmeFixFile): Adjust message display only
+	in verbose mode.
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 
