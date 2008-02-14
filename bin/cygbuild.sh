@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.0910"
+CYGBUILD_VERSION="2008.0214.0914"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6914,7 +6914,7 @@ function CygbuildMakefileRunInstall()
             CygbuildMakefileRunInstallCygwinOptions "$pfx" "$docprefix"
             status=$?
         CygbuildPopd
-exit 222
+
         return $status
 
     else
@@ -6926,7 +6926,6 @@ exit 222
         CygbuildDebianRules2MakefileMaybe
 
     fi
-exit 111
 }
 
 #######################################################################
