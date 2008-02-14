@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.0951"
+CYGBUILD_VERSION="2008.0214.1042"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1785,7 +1785,7 @@ function CygbuildVersionInfo()
     #       /usr/src/build/neon/foo-NN.NN/.build/tmp/verify
     #
 
-    echo -n "$str" | $PERL -e \
+    echo -n "$str" | ${PERL:-perl} -e \
     '
         $_  = <>;
         s,.+/,,;
@@ -1803,6 +1803,12 @@ function CygbuildVersionInfo()
         }
 
         @a = /^(.+)[-_]v?([\d.]+[_-]?rc.*)/i;
+
+        #  foo_0.4.0-test5
+	#  foo-1.3.0-rc1
+
+        @a = /^(.+)[-_]v?(\d\.\d.*)/i unless @a;
+
         @a = /^(.+)[-_]v?(.*\d.*)/i unless @a;
 
         if ( @a )
@@ -11894,7 +11900,6 @@ function Test ()
     PERL=perl
 
 #    CygbuildDefineGlobalCommands
-    set -x
 
     local tmp=$1
     # tmp=annoyance-filter-R1.0d
@@ -11905,9 +11910,14 @@ function Test ()
 #    CygbuildStrPackage $tmp
 }
 
-# Test odt2txt-0.3+git20070827-1-src.tar.bz2
-# Test findbugs-1.3.0-rc1.tar.gz
-# Test jove4.16.0.70 ; exit 111
+function TestRegression ()
+{
+    Test odt2txt-0.3+git20070827-1-src.tar.bz2
+    Test findbugs-1.3.0-rc1.tar.gz
+    Test jove4.16.0.70
+    Test cabber_0.4.0-test5.orig.tar.gz
+    exit;
+}
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"

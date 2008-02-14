@@ -42,6 +42,7 @@ SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
 LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
+DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 
 DEBUG		= -g
 CC		= gcc

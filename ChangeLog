@@ -9,6 +9,8 @@
 	(CygbuildMakefileRunInstall): Remove debug `exit' calls.
 	(CygbuildPatchListDisplay): Remove unnecessary `cat'. Add sort -u.
 	(CygbuildCommandMain): Add alias `pcheck'
+	(CygbuildVersionInfo): Improve parsing packages like
+	foo_0.4.0-test5
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 
