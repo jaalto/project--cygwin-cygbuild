@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0131.1854"
+CYGBUILD_VERSION="2008.0214.0903"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6688,6 +6688,34 @@ CygbuildMakefileRunPythonClean ()
     CygbuildMakefileRunPythonInDir "$builddir" clean
 }
 
+function CygbuildMakefilePrefixIsStandard ()
+{
+    local id="$0.$FUNCNAME"
+    local opt up lower
+    local files=$(ls GNUMakefile Makefile* makefile *.mk 2> /dev/null)
+
+    [ ! "$verbose" ] && opt="-q"
+
+    if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]+[+]?=" $files
+    then
+	up="PREFIX"
+    fi
+
+    if $EGREP $opt "^[[:space:]]*prefix[[:space:]]+[+]?=" $files
+    then
+	lower="prefix"
+    fi
+
+    if [ ! "$lower" ]; then
+	if [ "$up" ]; then
+	    CygbuildWarn "-- [NOTE] No prefix= but PREFIX= found."
+	    return 1
+	else
+	    CygbuildWarn "-- [WARN] Makefile prefix= not found."
+	fi
+    fi
+}
+
 function CygbuildMakefileRunInstallCygwinOptions()
 {
     local id="$0.$FUNCNAME"
@@ -6721,14 +6749,21 @@ function CygbuildMakefileRunInstallCygwinOptions()
             source $makeEnv || exit $?
         fi
 
-        local docdir=$instdir/$CYGBUILD_DOCDIR_FULL
+        local docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
+
+	PFX="prefix=$pfx"
+
+	if ! CygbuildMakefilePrefixIsStandard ; then
+	    CygbuildVerb "-- Adjusting PREFIX instead of prefix"
+	    PFX="PREFIX=$pfx"
+	fi
 
         #   Run install with Cygwin options
 
         $MAKE -f $makefile $test        \
              DESTDIR=$instdir           \
              DOCDIR=$docdir             \
-             prefix=$pfx                \
+             $PFX                       \
              exec_prefix=$pfx           \
              man_prefix=$docpfx         \
              info_prefix=$docpfx        \
@@ -6871,7 +6906,7 @@ function CygbuildMakefileRunInstall()
 
         #  GNU autoconf uses 'prefix'
 
-        local docprefix=/$CYGBUILD_DOCDIR_PREFIX_RELATIVE
+        local docprefix="/$CYGBUILD_DOCDIR_PREFIX_RELATIVE"
         pfx=${pfx%/}                        # remove trailing slash
 
         CygbuildPushd
@@ -6879,7 +6914,7 @@ function CygbuildMakefileRunInstall()
             CygbuildMakefileRunInstallCygwinOptions "$pfx" "$docprefix"
             status=$?
         CygbuildPopd
-
+exit 222
         return $status
 
     else
@@ -6891,6 +6926,7 @@ function CygbuildMakefileRunInstall()
         CygbuildDebianRules2MakefileMaybe
 
     fi
+exit 111
 }
 
 #######################################################################
