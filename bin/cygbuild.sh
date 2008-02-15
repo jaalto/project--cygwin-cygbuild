@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1207"
+CYGBUILD_VERSION="2008.0215.1319"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9939,7 +9939,7 @@ function CygbuildCmdInstallCheckDirStructure()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx="$instdir$CYGBUILD_PREFIX"
 
-    local error try
+    local tmp error try
 
     for try in $instdir/bin $pfx/bin $pfx/sbin $pfx/lib
     do
@@ -9947,6 +9947,20 @@ function CygbuildCmdInstallCheckDirStructure()
             error=1
             break
         fi
+    done
+
+    for try in usr/share usr/lib
+    do
+	tmp="$instdir/$try"
+
+	[ -d "$tmp" ] || continue
+
+	if ! CygbuildIsDirEmpty "$tmp" ; then
+            error=1
+	    CygbuildWarn "-- [ERROR] Files in toplevel dir" \
+			 ${tmp/$srcdir\/}
+	    $LS -F $tmp | $EGREP -v '/'
+	fi
     done
 
     if [ -d $pfx/X11R6 ]; then
