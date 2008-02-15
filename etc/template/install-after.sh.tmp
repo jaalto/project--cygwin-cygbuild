@@ -32,6 +32,11 @@ Main()
 
     root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
 
+    # docdir=$(cd $root/usr/share/doc/[a-z]*[0-9] && pwd)
+    # docpkg=$(cd $root/usr/share/doc/[a-z]*[a-z] && pwd)
+    # [ "$docdir" ] || return 0
+    # [ "$docpkg" ] || return 0
+
     # example 1) Copy whole 'doc' directory to package dir
     # echo ">> Relocating doc directory"
     # Cmd mv $root/doc $root/usr/share/doc

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.0201"
+CYGBUILD_VERSION="2008.0215.0946"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9031,7 +9031,7 @@ function CygbuildInstallFixInterpreterPerl ()
     $MV --force $file.tmp $file
 }
 
-function CygbuildInstallFixInterpreterPython ()
+function CygbuildInstallFixInterpreterPython()
 {
     local id="$0.$FUNCNAME"
     local file="$1"
@@ -9045,7 +9045,33 @@ function CygbuildInstallFixInterpreterPython ()
     $MV --force $file.tmp $file
 }
 
-CygbuildInstallFixInterpreterMain ()
+function CygbuildInstallFixDocdirInstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir=$instdir
+
+    #	The Makefile may install in:
+    #
+    #	    .inst/usr/share/doc/foo/
+    #
+    #	But for cygwin, this muust be:
+    #
+    #	    .inst/usr/share/doc/foo-0.10.3/
+
+    local pkgdocdir=$(cd $dir/usr/share/doc/[a-z]*[a-z]/ && pwd)
+
+    [ "$pkgdocdir" ] || return 0
+
+    local dest="$DIR_DOC_GENERAL"
+
+    $TAR -C "$pkgdocdir" -cf - | $TAR -C "$dest" -xf -
+
+    CygbuildEcho "-- [NOTE] Moving ${dir#$(pwd)/} to" \
+		 ${DIR_DOC_GENERAL/$dir\//}
+}
+
+function CygbuildInstallFixInterpreterMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -9080,7 +9106,7 @@ CygbuildInstallFixInterpreterMain ()
     done
 }
 
-CygbuildInstallFixPerlPacklist ()
+function CygbuildInstallFixPerlPacklist()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -9106,6 +9132,7 @@ CygbuildInstallFixPerlPacklist ()
 
 function CygbuildInstallFixMain()
 {
+    CygbuildInstallFixDocdirInstall
     CygbuildInstallFixInterpreterMain
     CygbuildInstallFixPerlPacklist
     CygbuildInstallFixMandir
@@ -10516,51 +10543,76 @@ function CygbuildCmdInstallCheckMain()
     return $stat
 }
 
+function CygbuildCmdInstallDirClean ()
+{
+    local id="$0.$FUNCNAME"
+    local dir=$instdir
+
+    if [ ! "$dir" ]; then
+	CygbuildDie "$id: [ERROR] Internal error. \$instdir is empty"
+    fi
+
+    if [ -d "$dir" ]; then
+
+	#  rm -rf is too dangerous to run without a check
+
+	if [[ "$dir" == *.inst* ]]; then
+
+	    #   If other terminal is in this directory, this may fail.
+
+	    CygbuildVerb "-- Emptying" ${dir/$srcdir\/}
+
+	    $RM -rf $dir/*
+
+	    if [ "$?" != "0" ]; then
+		CygbuildDie "-- [ERROR] Is some other terminal/window" \
+		       "accessing the directory?"
+	    fi
+
+	else
+	    CygbuildDie "$id: [ERROR] Suspicious \$instdir '$dir'"
+	fi
+    fi
+}
+
+function CygbuildCmdInstallFinishMessage()
+{
+    local dir=$instdir
+    local relative=${dir/$srcdir\/}
+
+    if [ "$verbose" ]; then
+        CygbuildEcho "-- Content of: $relative"
+        $FIND -L ${dir##$(pwd)/} -print
+    else
+        CygbuildEcho "-- See also: find $relative -print" \
+             "${test:+(Note: test mode was on)}"
+    fi
+}
+
 function CygbuildCmdInstallMain()
 {
     local id="$0.$FUNCNAME"
-    local scriptInstall=$SCRIPT_INSTALL_MAIN_CYGFILE
-    local scriptAfter=$SCRIPT_INSTALL_AFTER_CYGFILE
+    local scriptInstall="$SCRIPT_INSTALL_MAIN_CYGFILE"
+    local scriptAfter="$SCRIPT_INSTALL_AFTER_CYGFILE"
     local thispath="$CYGBUILD_PROG_FULLPATH"
 
     CygbuildEcho "== Install command"
 
     CygbuildExitNoDir $builddir \
-              "$id: [ERROR] No builddir $builddir. Did you run 'shadow' ?"
+              "$id: [ERROR] No builddir $builddir." \
+	      "Did you run [mkdirs] and [shadow]?"
 
     local dir=$instdir
+
+    if [ ! "$dir" ]; then
+	CygbuildDie "$id: [ERROR] \$instdir is empty"
+    fi
+
+    CygbuildCmdInstallDirClean
 
     CygbuildPushd
 
         cd $builddir || exit 1
-
-        if [ ! "$dir" ]; then
-            CygbuildDie "$id: [ERROR] \$instdir is empty"
-        fi
-
-        local status
-
-        if [ -d "$dir" ]; then
-
-            #  -rf is too dangerous to run without check
-
-            if [[ "$dir" == *.inst* ]]; then
-
-                #   Other terminal is in this directory, so this might fail.
-
-                CygbuildVerb "-- Emptying" ${dir/$srcdir\/}
-
-                $RM -rf $dir/*
-
-                if [ "$?" != "0" ]; then
-                    CygbuildDie "-- [ERROR] Is some other terminal/window" \
-                           "using the directory?"
-                fi
-
-            else
-                CygbuildDie "$id: [ERROR] Suspicious \$instdir [$dir]"
-            fi
-        fi
 
         CygbuildInstallPackageDocs      &&
         CygbuildInstallPackageInfo      &&
@@ -10577,7 +10629,7 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptInstall" ]; then
 
-            $MKDIR -p $verbose "$instdir"
+            $MKDIR -p $verbose "$dir"
 
             CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall/$srcdir\//}" \
@@ -10594,7 +10646,7 @@ function CygbuildCmdInstallMain()
             fi
 
         else
-            CygbuildVerb "-- Running install to" ${instdir/$srcdir\/}
+            CygbuildVerb "-- Running install to" ${dir/$srcdir\//}
 
             CygbuildMakefileRunInstall ||
             {
@@ -10637,14 +10689,7 @@ function CygbuildCmdInstallMain()
     CygbuildInstallExtraMain
     CygbuildInstallFixMain
     CygbuildInstallExtraManualCompress
-
-    if [ "$verbose" ]; then
-        CygbuildEcho "-- Content of:" ${instdir/$srcdir\/}
-        $FIND -L ${instdir##$(pwd)/} -print
-    else
-        CygbuildEcho "-- See also: find .inst/ -print" \
-             "${test:+(Note: test mode was on)} "
-    fi
+    CygbuildCmdInstallFinishMessage
 }
 
 function CygbuildCmdScriptRunMain()

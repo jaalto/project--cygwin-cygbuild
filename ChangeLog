@@ -1,5 +1,10 @@
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh: (CygbuildCmdInstallDirClean): New.
+	(CygbuildCmdInstallFinishMessage): New.
+	(CygbuildInstallFixDocdirInstall): New.
+	(CygbuildInstallFixMain): Use `CygbuildInstallFixDocdirInstall'.
+
 	* etc/template/package.README (Build instructions): Change
 	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src
 
@@ -8,10 +13,10 @@
 
 2008-02-14  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/cygbuild.pl (HELP::Packaging commands::publish): Document
+	* bin/cygbuild.pl: (HELP::Packaging commands::publish): Document
 	new PACKAGE argument sent to external publish command.
 
-	* bin/cygbuild.sh (CygbuildMakefilePrefixIsStandard): New.
+	* bin/cygbuild.sh: (CygbuildMakefilePrefixIsStandard): New.
 	(CygbuildMakefileRunInstallCygwinOptions): Use
 	`CygbuildMakefilePrefixIsStandard' and change automatically
 	to PREFIX if prefix= is not detected.
