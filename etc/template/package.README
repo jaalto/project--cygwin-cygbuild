@@ -38,7 +38,7 @@ Language:
 ------------------------------------
 
 Build instructions:
-  unpack <PKG>-<VER>-<REL>-src.tar.bz2
+  unpack <PKG>-*-src.tar.bz2
     if you use setup to install this src package, it will be
     unpacked under /usr/src automatically
   cd /usr/src
