@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1144"
+CYGBUILD_VERSION="2008.0215.1207"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6358,6 +6358,8 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
         local commands="\
 #!/bin/sh
 # Append new utility to Perl installation
+# This is automatically generated file
+
 from=\"$from\"
 to=\"$to\"
 cat \"\$from\" >> \"\$to\"\
@@ -9110,6 +9112,9 @@ function CygbuildInstallFixEtcdirPostinstall()
 
     local commands="\
 #!/bin/sh
+# Arrange default /etc setup
+# This is automatically generated file
+
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LC_ALL=C
 
