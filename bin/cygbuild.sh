@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1750"
+CYGBUILD_VERSION="2008.0215.1926"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6155,7 +6155,8 @@ function CygbuildPostinstallWrite()
         return 1
 
     elif [ -f "$file" ]; then
-        CygbuildWarn "$id: [WARN] Already exists, won't write to $file"
+        CygbuildWarn "-- [WARN] Already exists, won't write to" \
+		     ${file/$srcdir\//}
 
     else
         echo "$str" > $file || return 1
@@ -7794,7 +7795,7 @@ function CygbuildShellEnvironenment()
     [ "$CYGBUILD_CFLAGS" ] &&
     list="$list CFLAGS='${CYGBUILD_CFLAGS}'"
 
-    list="DESTDIR=$instdir prefix=/usr"
+    list="$list DESTDIR=$instdir prefix=/usr"
 
     if CygbuildIsEmpty "$list" ; then
         return 1
@@ -8293,6 +8294,8 @@ function CygbuildCmdBuildStdMakefile()
                 local env
                 CygbuildShellEnvironenment > $retval
                 [ -s $retval ] && env=$(< $retval)
+
+		[ "$verbose" ] && set -x
 
                 eval $MAKE -f $makefile                 \
                     AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
