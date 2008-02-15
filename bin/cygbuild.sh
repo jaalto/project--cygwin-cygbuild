@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1355"
+CYGBUILD_VERSION="2008.0215.1431"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9132,11 +9132,11 @@ do
     [ -e \$dest ] && continue
 
     if [ -d \$src ] ; then
-	mkdir -p /etc/\$i
+	install -d -m 755 /etc/\$i
 	continue
     fi
 
-    cp \$src \$dest
+    install -m 644 \$src \$dest
 done\
 "
 

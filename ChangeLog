@@ -18,6 +18,8 @@
 	(CygbuildInstallFixEtcdirInstall): Support test mode.
 	(CygbuildInstallFixDocdirInstall): Support test mode. Fix
 	nasty bug where variables weremixed up with the environment.
+	(CygbuildInstallFixEtcdirPostinstall): change cp(1) to
+	install(1) in postinstall script.
 
 	* etc/template/package.README (Build instructions): Change
 	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src

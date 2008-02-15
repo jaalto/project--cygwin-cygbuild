@@ -45,8 +45,7 @@ Build instructions:
   ./<PKG>*.sh all
 
 This will create:
-  /usr/src/<PKG>-<VER>-<REL>.tar.bz2
-  /usr/src/<PKG>-<VER>-<REL>-src.tar.bz2
+  installable binary package
 
 -------------------------------------------
 
