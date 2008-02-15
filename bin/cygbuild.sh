@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1343"
+CYGBUILD_VERSION="2008.0215.1355"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9055,18 +9055,20 @@ function CygbuildInstallFixDocdirInstall()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local dir=$instdir
+    local dir="$instdir"
     local dest="$DIR_DOC_GENERAL"
-    local pwd=$(pwd)
+    local pwd="$(pwd)"
 
     #	Clean any empty directories
 
-    while read dir
+    local tmp
+
+    while read tmp
     do
-        if CygbuildIsDirEmpty "$dir" ; then
+        if CygbuildIsDirEmpty "$tmp" ; then
             CygbuildVerb "-- Removing empty directory" \
-                         ${dir/$pwd\//}
-            $RMDIR "$dir"
+                         ${tmp/$pwd\//}
+            $RMDIR "$tmp"
         fi
     done < <( $FIND "$dest" -type d)
 
@@ -9074,22 +9076,23 @@ function CygbuildInstallFixDocdirInstall()
     #
     #	    .inst/usr/share/doc/foo/
     #
-    #	But for cygwin, this must be:
+    #	But for Cygwin, this must be:
     #
     #	    .inst/usr/share/doc/foo-0.10.3/
 
-    local pkgdocdir=$(cd $dir/usr/share/doc/[a-z]*[a-z]/ && pwd)
-set -x
+    local pkgdocdir="$(cd $dir/usr/share/doc/[a-z]*[a-z]/ && pwd)"
+
     [ "$pkgdocdir" ] || return 0
 
-    if ! $TAR -C "$pkgdocdir" -cf - . | {
+    if ! ${test+echo} $TAR -C "$pkgdocdir" -cf - . | {
 	 $TAR -C "$dest" -xf -  &&
 	 $RM -rf "$pkgdocdir" ; }
     then
+	[ ! "$test" ] &&
 	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgdocdir"
 	return 99
     fi
-exit 111
+
     CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$pwd/} to" \
 		 ${dest/$dir\//}
 }
@@ -9152,7 +9155,7 @@ function CygbuildInstallFixEtcdirInstall()
     #
     #	    .inst/etc/<package>/
     #
-    #	But for cygwin, this must be reloaced + have postinstall
+    #	But for Cygwin, this must be reloaced + have postinstall
     #
     #	    .inst/etc/default/<package/
 
@@ -9162,11 +9165,12 @@ function CygbuildInstallFixEtcdirInstall()
 
     local dest="$DIR_ETC_GENERAL"
 
-    if ! $TAR  -C  "$pkgetcdir" -cf - . | {
+    if ! ${test+echo} $TAR  -C  "$pkgetcdir" -cf - . | {
 	$RM    -rf "$pkgetcdir" &&
 	$MKDIR -p  "$dest"      &&
 	$TAR   -C  "$dest" -xf - ; }
     then
+	[ ! "$test" ] &&
 	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgetcdir"
 	return 99
     fi
@@ -11652,7 +11656,7 @@ function CygbuildCommandMain()
                 fi
 
                 if ! CygbuildIsNumber "$release" ; then
-                    CygbuildDie "$id: [ERROR] release value must be numeric." \
+                    CygbuildDie "$id: [FATAL] release value must be numeric." \
                          "Got [$release]"
                     exit 1
                 fi

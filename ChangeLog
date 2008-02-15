@@ -15,6 +15,9 @@
 	configure.options. Do not clear e.g. --datadir. Move call
 	`CygbuildFileReadOptionsMaybe' after the libtool check.
 	(CygbuildCmdInstallMain): Move postinstall call to end.
+	(CygbuildInstallFixEtcdirInstall): Support test mode.
+	(CygbuildInstallFixDocdirInstall): Support test mode. Fix
+	nasty bug where variables weremixed up with the environment.
 
 	* etc/template/package.README (Build instructions): Change
 	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src
