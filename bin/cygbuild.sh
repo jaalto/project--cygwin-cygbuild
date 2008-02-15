@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1444"
+CYGBUILD_VERSION="2008.0215.1447"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9081,7 +9081,8 @@ function CygbuildInstallFixDocdirInstall()
     #
     #	    .inst/usr/share/doc/foo-0.10.3/
 
-    local pkgdocdir=$(cd $dir/usr/share/doc && ls | $EGREP -v "$dest1")
+    local pkgdocdir=$(cd $dir/usr/share/doc && ls |
+		      $EGREP -v "$dest1|Cygwin" )
 
     [ "$pkgdocdir" ] || return 0
 
