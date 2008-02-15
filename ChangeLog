@@ -4,6 +4,7 @@
 	(CygbuildCmdInstallFinishMessage): New.
 	(CygbuildInstallFixDocdirInstall): New.
 	(CygbuildInstallFixEtcdirInstall): New.
+	(CygbuildInstallFixEtcdirPostinstall): New.
 	(CygbuildDefineGlobalMain): Define $DIR_ETC_GENERAL
 	(CygbuildInstallFixMain): Use `CygbuildInstallFixDocdirInstall'
 	and `CygbuildInstallFixEtcdirInstall'.

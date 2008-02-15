@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1028"
+CYGBUILD_VERSION="2008.0215.1055"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6141,7 +6141,7 @@ function CygbuildPostinstallWrite()
 {
     local id="$0.$FUNCNAME"
     local str="$1"
-    local file=$SCRIPT_POSTINSTALL_CYGFILE
+    local file="$SCRIPT_POSTINSTALL_CYGFILE"
 
     if ! CygbuildIsTemplateFilesInstalled ; then
         CygbuildWarn "$id: [ERROR] No $CYGBUILD_DIR_CYGPATCH_RELATIVE/ " \
@@ -9078,6 +9078,51 @@ function CygbuildInstallFixDocdirInstall()
 		 ${DIR_DOC_GENERAL/$dir\//}
 }
 
+function CygbuildInstallFixEtcdirPostinstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dest="$DIR_ETC_GENERAL"
+
+    CygbuildEcho "-- Writing /etc postinstall script"
+
+    #  Do we have a single file or directory?
+
+    local item=$(cd $DIR_ETC_GENERAL && $LS -F)
+
+    if [[ "$item" == *\ * ]]; then			# Plural
+	CygbuildVerb "-- [NOTE] Possible multiple files in $DIR_ETC_GENERAL."
+    fi
+
+    local commands="\
+#!/bin/sh
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+LC_ALL=C
+
+fromdir=/etc/default
+destdir=/etc
+
+for i in $item
+do
+    item=\$fromdir/\$i
+    dest=\$destdir/\$i
+
+    [ -e \$dest ] && continue
+
+    if [ -d \$item ] ; then
+	mkdir -p /etc/\$i
+	continue
+    fi
+
+    cp \$item \$dest
+done\
+"
+
+    if ! CygbuildPostinstallWrite "$commands" ; then
+	CygbuildEcho "-- [NOTE] Handle $dest manually"
+    fi
+}
+
 function CygbuildInstallFixEtcdirInstall()
 {
     local id="$0.$FUNCNAME"
@@ -9110,6 +9155,7 @@ function CygbuildInstallFixEtcdirInstall()
     CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
 		 ${DIR_ETC_GENERAL/$dir\//}
 
+    CygbuildInstallFixEtcdirPostinstall
 }
 
 function CygbuildInstallFixInterpreterMain()
