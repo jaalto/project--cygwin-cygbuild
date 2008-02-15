@@ -11,6 +11,10 @@
 	(CygbuildInstallFixDocdirInstall): Remove empty directories.
 	(CygbuildCmdInstallCheckDirStructure): Check that there are no
 	files in tolevel usr/share usr/lib.
+	(CygbuildConfCC): Always include users' options from
+	configure.options. Do not clear e.g. --datadir. Move call
+	`CygbuildFileReadOptionsMaybe' after the libtool check.
+	(CygbuildCmdInstallMain): Move postinstall call to end.
 
 	* etc/template/package.README (Build instructions): Change
 	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src

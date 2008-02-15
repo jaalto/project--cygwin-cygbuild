@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1319"
+CYGBUILD_VERSION="2008.0215.1343"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7948,13 +7948,10 @@ function CygbuildConfCC()
             source $envfile || return $?
         fi
 
-        CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
-        local userOptExtra=$(< $retval)
-
         CygbuildConfigureOptionsExtra > $retval
         local extra=$(< $retval)
 
-        opt="$opt $extra $userOptExtra"
+        opt="$opt $extra"
 
         #   Libtool gets confused if option --libdir=/usr/lib
         #   is passed during configure. We must check if this package
@@ -7970,8 +7967,8 @@ function CygbuildConfCC()
         if [ "$makelibtool" ] &&
            PackageUsesLibtoolMain $makelibtool configure
         then
-            CygbuildEcho "-- Hm, package uses libtool; options --libdir" \
-                 "and --datadir are not included"
+            CygbuildEcho "-- Hm, package uses libtool; default options" \
+                 " --libdir and --datadir are not included"
 
             local opt cleaned
 
@@ -7982,8 +7979,13 @@ function CygbuildConfCC()
                 fi
             done
 
-            opt=$cleaned
+            opt="$cleaned"
         fi
+
+        CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
+        local userOptExtra=$(< $retval)
+
+	opt="$opt $userOptExtra"
 
         if [ "$verbose" ]; then
 
@@ -9059,8 +9061,6 @@ function CygbuildInstallFixDocdirInstall()
 
     #	Clean any empty directories
 
-    local dir
-
     while read dir
     do
         if CygbuildIsDirEmpty "$dir" ; then
@@ -9079,7 +9079,7 @@ function CygbuildInstallFixDocdirInstall()
     #	    .inst/usr/share/doc/foo-0.10.3/
 
     local pkgdocdir=$(cd $dir/usr/share/doc/[a-z]*[a-z]/ && pwd)
-
+set -x
     [ "$pkgdocdir" ] || return 0
 
     if ! $TAR -C "$pkgdocdir" -cf - . | {
@@ -9089,7 +9089,7 @@ function CygbuildInstallFixDocdirInstall()
 	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgdocdir"
 	return 99
     fi
-
+exit 111
     CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$pwd/} to" \
 		 ${dest/$dir\//}
 }
@@ -10738,7 +10738,6 @@ function CygbuildCmdInstallMain()
         CygbuildInstallPackageDocs      &&
         CygbuildInstallPackageInfo      &&
         CygbuildInstallCygwinPartMain   &&
-        CygbuildInstallCygwinPartPostinstall
 
         status=$?
 
@@ -10809,6 +10808,7 @@ function CygbuildCmdInstallMain()
 
     CygbuildInstallExtraMain
     CygbuildInstallFixMain
+    CygbuildInstallCygwinPartPostinstall
     CygbuildInstallExtraManualCompress
     CygbuildCmdInstallFinishMessage
 }
