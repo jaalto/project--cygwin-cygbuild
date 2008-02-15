@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0214.1826"
+CYGBUILD_VERSION="2008.0215.0201"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -765,6 +765,8 @@ function CygbuildBootVariablesGlobalMain()
 [.](build|s?inst|tmp)\
 |(CVS|RCS|MT|[.](svn|bzr|hg|git|darcs))$\
 |[.]([oa]|exe|la|dll)$\
+|[.]#\
+|[#~]$\
 "
 
     #   Accept X11 manual pages: package.1x
@@ -8257,7 +8259,7 @@ function CygbuildCmdBuildStdMakefile()
             CygbuildWarn "-- [WARN] No Makefile." \
                  "If you already tried [configure]" \
                  "You may need to write custom script build.sh" \
-                 "(remember to run 'reshadow' after changes)"
+                 "(remember to run [reshadow] after changes)"
 
             status="17"  # Just random number
 

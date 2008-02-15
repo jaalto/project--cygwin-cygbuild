@@ -33,6 +33,9 @@
 	(CygbuildMakeRunInstallFixPerlPostinstall): Refactor how
 	the postinstall script does things. Use
 	/usr/share/perl/cygwin-pods.
+	(CygbuildBootVariablesGlobalMain): Add [#~] to
+	CYGBUILD_SHADOW_TOPLEVEL_IGNORE).
+	(CygbuildCmdBuildStdMakefile): Fix message.
 
 2008-01-31  Jari Aalto  <jari.aalto@cante.net>
 
