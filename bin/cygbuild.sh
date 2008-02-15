@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1454"
+CYGBUILD_VERSION="2008.0215.1745"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3683,10 +3683,10 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin		# global-def
     DIR_DOC_GENERAL=$instdir$prefix/share/doc/$PKG-$VER         # global-def
-    DIR_ETC_GENERAL=$instdir/etc/default                        # global-def
+    DIR_DEFAULTS_GENERAL=$instdir/etc/defaults                  # global-def
     DIR_INFO=$instdir$prefix/share/info                         # global-def
 
-    SCRIPT_PREPARE_CYGFILE=$DIR_CYGPATCH/prepare.sh            # global-def
+    SCRIPT_PREPARE_CYGFILE=$DIR_CYGPATCH/prepare.sh             # global-def
 
     EXTRA_CONF_OPTIONS=$DIR_CYGPATCH/configure.options          # global-def
     EXTRA_CONF_ENV_OPTIONS=$DIR_CYGPATCH/configure.env.options  # global-def
@@ -9102,21 +9102,30 @@ function CygbuildInstallFixDocdirInstall()
 		 ${dest/$dir\//}
 }
 
-function CygbuildInstallFixEtcdirPostinstall()
+function CygbuildInstallDefaultsPostinstall()
 {
     local id="$0.$FUNCNAME"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local dest="$DIR_ETC_GENERAL"
+    local dest="$DIR_DEFAULTS_GENERAL"
 
     CygbuildEcho "-- Writing /etc postinstall script"
 
-    #  Do we have a single file or directory?
+    #	Do we have a single file or directory?
+    #	The SED call fileters out ./leading/path/to.file
 
-    local item=$(cd $DIR_ETC_GENERAL && $LS -F)
+    local i list
 
-    if [[ "$item" == *\ * ]]; then			# Plural
-	CygbuildVerb "-- [NOTE] Possible multiple files in $DIR_ETC_GENERAL."
-    fi
+    while read i
+    do
+	list="$list $i"
+    done < <(
+	cd $dest &&
+	$FIND . -type f |
+	    $SED \
+	    -e 's,^\./,,' \
+	    -e 's,^\.$,,' \
+	)
+
+    [ "$list" ] || return 0
 
     local commands="\
 #!/bin/sh
@@ -9126,13 +9135,12 @@ function CygbuildInstallFixEtcdirPostinstall()
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LC_ALL=C
 
-fromdir=/etc/default
-destdir=/etc
+fromdir=/etc/defaults
 
-for i in $item
+for i in $list
 do
     src=\$fromdir/\$i
-    dest=\$destdir/\$i
+    dest=/\$i
 
     [ -e \$dest ] && continue
 
@@ -9154,7 +9162,7 @@ function CygbuildInstallFixEtcdirInstall()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local dir=$instdir
+    local dir="$instdir"
 
     #	The Makefile may install in:
     #
@@ -9164,11 +9172,11 @@ function CygbuildInstallFixEtcdirInstall()
     #
     #	    .inst/etc/default/<package/
 
-    local pkgetcdir=$(cd $dir/etc/ && pwd)
+    local pkgetcdir=$(cd $dir/etc && pwd)
 
     [ "$pkgetcdir" ] || return 0
 
-    local dest="$DIR_ETC_GENERAL"
+    local dest="$DIR_DEFAULTS_GENERAL/etc"
 
     if ! ${test+echo} $TAR  -C  "$pkgetcdir" -cf - . | {
 	$RM    -rf "$pkgetcdir" &&
@@ -9181,9 +9189,9 @@ function CygbuildInstallFixEtcdirInstall()
     fi
 
     CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
-		 ${DIR_ETC_GENERAL/$dir\//}
+		 ${DIR_DEFAULTS_GENERAL/$dir\//}
 
-    CygbuildInstallFixEtcdirPostinstall
+    CygbuildInstallDefaultsPostinstall
 }
 
 function CygbuildInstallFixInterpreterMain()
@@ -9269,7 +9277,7 @@ function CygbuildInstallCygwinPartPostinstall()
         local tofile="$dest/$PKG.sh"
 
         CygbuildEcho "-- Installing postinstall script to" \
-                     " directory ${tofile/$srcdir\//}"
+                     "directory ${tofile/$srcdir\//}"
 
         $scriptInstallDir $dest
         $scriptInstallFile $file $tofile

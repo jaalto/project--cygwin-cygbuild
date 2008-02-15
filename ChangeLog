@@ -22,9 +22,14 @@
 	install(1) in postinstall script.
 	(CygbuildInstallFixDocdirInstall): Better doc/ check with ls(1).
 	Exclude Cygwin dir from doc/ check.
+	(CygbuildInstallFixEtcdirPostinstall): Correct /etc/default/<files> to
+	/etc/defaults/etc/<files>
+	(CygbuildInstallDefaultsPostinstall): Rename. Was
+	`CygbuildInstallFixEtcdirPostinstall'. Make more general.
 
 	* etc/template/package.README (Build instructions): Change
 	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src
+	(layout): Make all '------' lines equal lenght.
 
 	* bin/cygbuild.pl (Package): Delete trailing slash from 'package-'
 	name.

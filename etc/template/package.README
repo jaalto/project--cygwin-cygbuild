@@ -35,7 +35,7 @@ License:
 Language:
   C
 
-------------------------------------
+------------------------------------------
 
 Build instructions:
   unpack <PKG>-*-src.tar.bz2
@@ -47,13 +47,13 @@ Build instructions:
 This will create:
   installable binary package
 
--------------------------------------------
+------------------------------------------
 
 Files included in the binary distribution:
 
   <See content of *.tar.gz>
 
-------------------
+------------------------------------------
 
 Port Notes:
 
