@@ -8,6 +8,7 @@
 	(CygbuildDefineGlobalMain): Define $DIR_ETC_GENERAL
 	(CygbuildInstallFixMain): Use `CygbuildInstallFixDocdirInstall'
 	and `CygbuildInstallFixEtcdirInstall'.
+	(CygbuildInstallFixDocdirInstall): Remove empty directories.
 
 	* etc/template/package.README (Build instructions): Change
 	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src

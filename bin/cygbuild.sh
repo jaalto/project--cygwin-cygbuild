@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1057"
+CYGBUILD_VERSION="2008.0215.1144"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1144,6 +1144,7 @@ function CygbuildIsDirEmpty()
 
     for file in $dir/.* $dir/*
     do
+	[ -e "$file" ] || continue
 	[[ "$file" == */@(.|..) ]] && continue
 	return 1
     done
@@ -9051,6 +9052,21 @@ function CygbuildInstallFixDocdirInstall()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir=$instdir
+    local dest="$DIR_DOC_GENERAL"
+    local pwd=$(pwd)
+
+    #	Clean any empty directories
+
+    local dir
+
+    while read dir
+    do
+        if CygbuildIsDirEmpty "$dir" ; then
+            CygbuildVerb "-- Removing empty directory" \
+                         ${dir/$pwd\//}
+            $RMDIR "$dir"
+        fi
+    done < <( $FIND "$dest" -type d)
 
     #	The Makefile may install in:
     #
@@ -9064,8 +9080,6 @@ function CygbuildInstallFixDocdirInstall()
 
     [ "$pkgdocdir" ] || return 0
 
-    local dest="$DIR_DOC_GENERAL"
-
     if ! $TAR -C "$pkgdocdir" -cf - . | {
 	 $TAR -C "$dest" -xf -  &&
 	 $RM -rf "$pkgdocdir" ; }
@@ -9074,8 +9088,8 @@ function CygbuildInstallFixDocdirInstall()
 	return 99
     fi
 
-    CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$(pwd)/} to" \
-		 ${DIR_DOC_GENERAL/$dir\//}
+    CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$pwd/} to" \
+		 ${dest/$dir\//}
 }
 
 function CygbuildInstallFixEtcdirPostinstall()
