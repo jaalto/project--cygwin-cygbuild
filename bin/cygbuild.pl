@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0215.0312';
+$VERSION = '2008.0215.1027';
 
 # ..................................................................
 
@@ -3832,7 +3832,10 @@ sub ReadmeFix ($ $ $)
         s,Firstname\s+Lastname,$name,g;
     }
 
-    $ARG = ReadMeFilesIncluded $binpkg, $ARG;
+    # 2008-02-12 Disabled. It is better not to include the listing,
+    # because it can be seen from tar.gz file
+    #
+    # $ARG = ReadMeFilesIncluded $binpkg, $ARG;
 
     print;
 }

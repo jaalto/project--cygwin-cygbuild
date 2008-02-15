@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.0946"
+CYGBUILD_VERSION="2008.0215.1028"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3680,8 +3680,9 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     DIR_PREREMOVE_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/preremove
     DIR_POSTINSTALL_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/postinstall
 
-    DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin
+    DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin		# global-def
     DIR_DOC_GENERAL=$instdir$prefix/share/doc/$PKG-$VER         # global-def
+    DIR_ETC_GENERAL=$instdir/etc/default                        # global-def
     DIR_INFO=$instdir$prefix/share/info                         # global-def
 
     SCRIPT_PREPARE_CYGFILE=$DIR_CYGPATCH/prepare.sh            # global-def
@@ -9055,7 +9056,7 @@ function CygbuildInstallFixDocdirInstall()
     #
     #	    .inst/usr/share/doc/foo/
     #
-    #	But for cygwin, this muust be:
+    #	But for cygwin, this must be:
     #
     #	    .inst/usr/share/doc/foo-0.10.3/
 
@@ -9065,10 +9066,50 @@ function CygbuildInstallFixDocdirInstall()
 
     local dest="$DIR_DOC_GENERAL"
 
-    $TAR -C "$pkgdocdir" -cf - | $TAR -C "$dest" -xf -
+    if ! $TAR -C "$pkgdocdir" -cf - . | {
+	 $TAR -C "$dest" -xf -  &&
+	 $RM -rf "$pkgdocdir" ; }
+    then
+	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgdocdir"
+	return 99
+    fi
 
-    CygbuildEcho "-- [NOTE] Moving ${dir#$(pwd)/} to" \
+    CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$(pwd)/} to" \
 		 ${DIR_DOC_GENERAL/$dir\//}
+}
+
+function CygbuildInstallFixEtcdirInstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir=$instdir
+
+    #	The Makefile may install in:
+    #
+    #	    .inst/etc/<package>/
+    #
+    #	But for cygwin, this must be reloaced + have postinstall
+    #
+    #	    .inst/etc/default/<package/
+
+    local pkgetcdir=$(cd $dir/etc/ && pwd)
+
+    [ "$pkgetcdir" ] || return 0
+
+    local dest="$DIR_ETC_GENERAL"
+
+    if ! $TAR  -C  "$pkgetcdir" -cf - . | {
+	$RM    -rf "$pkgetcdir" &&
+	$MKDIR -p  "$dest"      &&
+	$TAR   -C  "$dest" -xf - ; }
+    then
+	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgetcdir"
+	return 99
+    fi
+
+    CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
+		 ${DIR_ETC_GENERAL/$dir\//}
+
 }
 
 function CygbuildInstallFixInterpreterMain()
@@ -9133,6 +9174,7 @@ function CygbuildInstallFixPerlPacklist()
 function CygbuildInstallFixMain()
 {
     CygbuildInstallFixDocdirInstall
+    CygbuildInstallFixEtcdirInstall
     CygbuildInstallFixInterpreterMain
     CygbuildInstallFixPerlPacklist
     CygbuildInstallFixMandir

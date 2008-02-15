@@ -52,12 +52,7 @@ This will create:
 
 Files included in the binary distribution:
 
-  /usr/bin/...
-  /usr/doc/<PKG>-<VER>/AUTHORS
-  /usr/doc/<PKG>-<VER>/...
-  /usr/doc/Cygwin/<PKG>-<VER>.README
-  /usr/man/man1/...
-  /etc/postinstall/<PKG>.sh
+  <See content of *.tar.gz>
 
 ------------------
 
