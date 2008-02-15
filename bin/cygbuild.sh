@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1745"
+CYGBUILD_VERSION="2008.0215.1748"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9129,7 +9129,7 @@ function CygbuildInstallDefaultsPostinstall()
 
     local commands="\
 #!/bin/sh
-# Arrange default /etc setup
+# Arrange initial setup from defaults directory
 # This is automatically generated file
 
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
