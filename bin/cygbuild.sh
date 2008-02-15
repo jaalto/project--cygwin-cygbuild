@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1447"
+CYGBUILD_VERSION="2008.0215.1454"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9081,15 +9081,18 @@ function CygbuildInstallFixDocdirInstall()
     #
     #	    .inst/usr/share/doc/foo-0.10.3/
 
-    local pkgdocdir=$(cd $dir/usr/share/doc && ls |
-		      $EGREP -v "$dest1|Cygwin" )
+    local pdir=$(cd $dir/usr/share/doc && ls |
+		 $EGREP -v "$dest1|Cygwin" )
 
-    [ "$pkgdocdir" ] || return 0
+    [ "$pdir" ] || return 0
+
+    pkgdocdir="$dir/usr/share/doc/$pdir"
 
     if ! ${test+echo} $TAR -C "$pkgdocdir" -cf - . | {
 	 $TAR -C "$dest" -xf -  &&
 	 $RM -rf "$pkgdocdir" ; }
     then
+
 	[ ! "$test" ] &&
 	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgdocdir"
 	return 99
