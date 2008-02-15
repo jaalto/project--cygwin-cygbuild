@@ -1,3 +1,8 @@
+2008-02-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl (Package): Delete trailing slash from 'package-'
+	name.
+
 2008-02-14  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl: (HELP::Packaging commands::publish): Document

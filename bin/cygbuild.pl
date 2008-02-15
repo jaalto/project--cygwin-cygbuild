@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0214.1201';
+$VERSION = '2008.0215.0312';
 
 # ..................................................................
 
@@ -2516,9 +2516,8 @@ sub Package ($)
 
     $debug  and  warn "$id: VER [$version] ARG [$ARG]";
 
-    if (  $version  and  s/$version.*//  and   m,^(.+)[-_]?, )
+    if (  $version  and  s/[_-]?$version.*// )
     {
-        $ARG = $1;
         s/_/-/g;
     }
     else
