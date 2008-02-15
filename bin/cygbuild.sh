@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1431"
+CYGBUILD_VERSION="2008.0215.1444"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9057,6 +9057,7 @@ function CygbuildInstallFixDocdirInstall()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
     local dest="$DIR_DOC_GENERAL"
+    local dest1=${dest##*/}		    # Delete path. Basename
     local pwd="$(pwd)"
 
     #	Clean any empty directories
@@ -9080,7 +9081,7 @@ function CygbuildInstallFixDocdirInstall()
     #
     #	    .inst/usr/share/doc/foo-0.10.3/
 
-    local pkgdocdir="$(cd $dir/usr/share/doc/[a-z]*[a-z]/ && pwd)"
+    local pkgdocdir=$(cd $dir/usr/share/doc && ls | $EGREP -v "$dest1")
 
     [ "$pkgdocdir" ] || return 0
 
