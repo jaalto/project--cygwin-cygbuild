@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0215.1027';
+$VERSION = '2008.0215.2356';
 
 # ..................................................................
 
@@ -833,12 +833,21 @@ in C<.sinst/>.
 
 =item B<patch>
 
-Apply all local patches in C<CYGWIN-PATCHES/*.patch> to original sources.
-The applied patches are recorded in C<CYGWIN-PATCHES/done-patches.tmp> so
-that next call won't apply the patches again. See also command
-B<[unpatch]>.
+Apply all local I<*patch> files found recursively under
+C<CYGWIN-PATCHES/> to original sources. The applied patches are
+recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't be
+applied multiple times. The order of patches applied is determined by
+call:
 
-The filenames can include extra C<strip+N> keyword to instruct what is
+  find CYGWIN-PATCHES -name "*patch"
+
+The directories and filenames are therefore best to be prefixed with a
+sequential number, like:
+
+  0001-Makefile-rewrite-install.patch
+  0002-command.c-add-ifdef-Cygwin.patch
+
+The filenames can include extra I<strip+N> keyword to instruct what is
 the B<--strip=N> option that should be passed to command patch(1):
 
     <package>-*.strip+N.patch
@@ -847,11 +856,11 @@ An example:
 
     foo-1.2-this-fixes-segfault.strip+2.patch
 
-Case study: The upstrem sources do not work under case X. Someone has
-found the solution, but this patch is still "unofficial" and not yet
-tested or included in upstream sources. This extra patch can be put in
-directory C<CYGWIN-PATCHES/> and the fix applied before compiling
-sources.
+NOTE: The use of I<strip+N> argument is usually unnecessary, because
+the program heuristics can in most cases determine what is the proper
+B<--strip> option to B<patch(1)> command.
+
+See also command B<[unpatch]>.
 
 =item B<patch-check>
 

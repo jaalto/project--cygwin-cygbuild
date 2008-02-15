@@ -1,3 +1,13 @@
+2008-02-16  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::Patch management commands::patch):
+	Document new behavior that patches are searches recursively.
+	Mention about the use of sequential number in patch filenames.
+
+	* bin/cygbuild.sh: (CygbuildPatchList): New. Find any *patch
+	recursively.
+	(CygbuildPatchApplyMaybe): Use `CygbuildPatchList'.
+
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallDirClean): New.
