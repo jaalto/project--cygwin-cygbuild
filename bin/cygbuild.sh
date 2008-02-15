@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.1055"
+CYGBUILD_VERSION="2008.0215.1057"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9104,17 +9104,17 @@ destdir=/etc
 
 for i in $item
 do
-    item=\$fromdir/\$i
+    src=\$fromdir/\$i
     dest=\$destdir/\$i
 
     [ -e \$dest ] && continue
 
-    if [ -d \$item ] ; then
+    if [ -d \$src ] ; then
 	mkdir -p /etc/\$i
 	continue
     fi
 
-    cp \$item \$dest
+    cp \$src \$dest
 done\
 "
 
