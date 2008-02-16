@@ -14,6 +14,8 @@
 	(CygbuildCmdInstallCheckDirStructure): Fix empty dir check.
 	(CygbuildCmdInstallCheckDocdir): Warn about missing doc/PKG dir.
 	(CygbuildInstallPackageDocs): Add files: Copyright, Install
+	(CygbuildBootVariablesGlobalMain): Remove 'debian' from
+	variable `cygbuild_opt_exclude_dir'.
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 

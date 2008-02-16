@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.0209"
+CYGBUILD_VERSION="2008.0216.0850"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -945,7 +945,6 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=.build \
      --exclude=.inst \
      --exclude=.sinst \
-     --exclude=debian \
      --exclude=tmp \
     "
 
@@ -5665,6 +5664,7 @@ function CygbuildCmdMkpatchMain()
             #   If there is custom script, run it.
             CygbuildEcho "-- [NOTE] Running external prediff:" \
                  "$prescript $difforig $diffsrc"
+
             CygbuildChmodExec $prescript
             ${debug:+$BASHX} $prescript "$difforig" "$diffsrc"
         fi
@@ -5694,6 +5694,7 @@ function CygbuildCmdMkpatchMain()
             #   If there is custom script, run it.
             CygbuildEcho "-- [NOTE] Running external diff: $diffscript" \
                  "$difforig $diffsrc $out"
+
             CygbuildChmodExec $difforig
             ${debug:+$BASHX} $diffscript "$difforig" "$diffsrc" "$out"
         else
@@ -7436,8 +7437,8 @@ function CygbuildPatchFindGeneratedFiles()
 
     while read file
     do
-        CygbuildWarn "-- [NOTE] Excluding from patch a Makefile generated" \
-             "file $file"
+        CygbuildWarn "-- [NOTE] Excluding from patch" \
+	     "a Makefile/patch generated file $file"
         ret="$ret --exclude=$file"
     done < $retval2
 
