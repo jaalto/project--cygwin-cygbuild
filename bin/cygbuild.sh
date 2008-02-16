@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.1806"
+CYGBUILD_VERSION="2008.0216.1809"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7228,11 +7228,12 @@ function CygbuildPatchListDisplay()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$CYGPATCH_DONE_PATCHES_FILE"
 
-    if [ -f "$file" ]; then
+    if [ -s "$file" ]; then
         CygbuildEcho "-- [INFO] Applied local patches"
-        $EGREP $file | $SORT -u
+        $SORT -u $file
     fi
 }
+
 function CygbuildPatchDiffstat()
 {
     local id="$0.$FUNCNAME"
