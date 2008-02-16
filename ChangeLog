@@ -8,6 +8,7 @@
 	recursively.
 	(CygbuildPatchApplyMaybe): Use `CygbuildPatchList'.
 	(CygbuildInstallFixEtcdirInstall): Ignore cd call error.
+	(CygbuildPatchApplyRun): Display patch name always.
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 

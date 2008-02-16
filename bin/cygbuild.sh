@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.0052"
+CYGBUILD_VERSION="2008.0216.0128"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5325,7 +5325,11 @@ function CygbuildPatchApplyRun()
     fi
 
     if [ -f "$patch" ]; then
-        CygbuildVerb "-- cd $dummy && patch $patchopt" "$@" "< $patch"
+	if [ "$verbose" ]; then
+	    CygbuildEcho "-- cd $dummy && patch $patchopt" "$@" "< $patch"
+	else
+	    CygbuildEcho "-- ${patch#$srcdir/}"
+	fi
         ${test:+echo} $PATCH $patchopt "$@" < $patch
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
