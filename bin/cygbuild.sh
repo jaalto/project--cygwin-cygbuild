@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.1809"
+CYGBUILD_VERSION="2008.0216.2033"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5361,7 +5361,24 @@ function CygbuildPatchList()
     local id="$0.$FUNCNAME"
     local dir="$DIR_CYGPATCH"
 
-    $FIND $dir -name "*patch" 2> /dev/null
+    #	Ignore verion controlled directories.
+
+    $FIND $dir				\
+	-type d '(' -path "*/.git*"	\
+		    -o -path "*/.bzr*"	\
+		    -o -path "*/.mtn*"	\
+		    -o -path "*/.svn*"	\
+		    -o -path "*/CVS*"	\
+		')'			\
+	    -prune			\
+	    -a ! -name ".git"		\
+	    -a ! -name ".bzr"		\
+	    -a ! -name ".mtn"		\
+	    -a ! -name ".svn"		\
+	    -a ! -name "CVS"		\
+	    -o				\
+	    -type f -name "*patch"  2> /dev/null |
+	    $SORT
 }
 
 function CygbuildPatchApplyMaybe()
@@ -7273,7 +7290,7 @@ function CygbuildPatchCheck()
 
         if [ "$verbose" ]; then
             CygbuildEcho "-- content of $_file"
-            $AWK '/^\+\+\+ / { print "     " $2}' $file > $retval
+            $AWK '/^\+\+\+ / { print "   " $2}' $file > $retval
 
 	    #  Arrange listing a little. Subdirectories last.
 	    #    foo-2.5/CYGWIN-PATCHES/foo.README

@@ -34,6 +34,8 @@
 	running command `package'.
 	(CygbuildPatchListDisplay): Fix displayed names.
 	(CygbuildPatchCheck): Display files first, then directories.
+	(CygbuildPatchList): Sort the patches. Ignore version controlled
+	directories.
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 

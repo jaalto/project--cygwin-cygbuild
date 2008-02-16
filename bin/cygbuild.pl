@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0215.2356';
+$VERSION = '2008.0216.1956';
 
 # ..................................................................
 
@@ -839,7 +839,7 @@ recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't be
 applied multiple times. The order of patches applied is determined by
 call:
 
-  find CYGWIN-PATCHES -name "*patch"
+  find CYGWIN-PATCHES -name "*patch" | sort
 
 The directories and filenames are therefore best to be prefixed with a
 sequential number, like:
