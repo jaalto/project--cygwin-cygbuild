@@ -18,10 +18,6 @@
 	<li><a href="#synopsis">SYNOPSIS</a></li>
 	<li><a href="#quick_overview">QUICK OVERVIEW</a></li>
 	<li><a href="#options">OPTIONS</a></li>
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#quick_overview">QUICK OVERVIEW</a></li>
-	<li><a href="#options">OPTIONS</a></li>
 	<li><a href="#package_maintenance_commands">PACKAGE MAINTENANCE COMMANDS</a></li>
 	<ul>
 
@@ -51,6 +47,7 @@
 	</ul>
 
 	<li><a href="#gpg_examples">GPG EXAMPLES</a></li>
+	<li><a href="#optional_external_directories">OPTIONAL EXTERNAL DIRECTORIES</a></li>
 	<li><a href="#optional_external_files">OPTIONAL EXTERNAL FILES</a></li>
 	<li><a href="#managing_a_build_tree">MANAGING A BUILD TREE</a></li>
 	<ul>
@@ -176,9 +173,9 @@ case as simple as running commands:</p>
     $ cygbuild -r 1 configure
     $ cygbuild -r 1 make
     $ cygbuild -r 1 strip            # [optional]
-    $ cygbuild -r 1 -v -t install    # &quot;try and see&quot; mode first
+    $ cygbuild -r 1 -v -t install    # &quot;verbose test mode&quot; first
     $ cygbuild -r 1 install          # The &quot;real&quot; install
-    $ find .inst/ -print                # Verify install structure !!
+    $ find .inst/ -print             # Verify install structure !!
     $ cygbuild -r 1 -v check         # Do install integrity check
     $ cygbuild -r 1 -v depend        # Check depdencies
     $ cygbuild -r 1 package          # Make Net install binary
@@ -192,195 +189,13 @@ mandatory almost for all commands:</p>
     $ b 1 -v -t install                    # verbose and test mode on
     ...</pre>
 <p><strong>CASE B)</strong> If the downloaded Cygwin source release package is
-controlled by cygbuild, then command <strong>[all]</strong> can be used to to
-build binary package:</p>
+controlled by cygbuild, then commands <strong>[all]</strong> and <strong>[almostall]</strong> can
+be used to check the binary build:</p>
 <pre>
     $ mkdir -p /tmp/build
     $ rm -rf /tmp/build/*
     $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-    $ cd /tmp/build  &amp;&amp;  ./*.sh --verbose all</pre>
-<p>
-</p>
-<hr />
-<h1><a name="options">OPTIONS</a></h1>
-<p>#!/usr/bin/perl
-#
-#   cygbuild.pl --- A Perl library for Cygwin Net Release packager
-#
-#       Copyright (C) 2003-2008 Jari Aalto
-#
-#   License
-#
-#       This program is free software; you can redistribute it and/or
-#       modify it under the terms of the GNU General Public License as
-#       published by the Free Software Foundation; either version 2 of
-#       the License, or (at your option) any later version.
-#
-#       This program is distributed in the hope that it will be useful, but
-#       WITHOUT ANY WARRANTY; without even the implied warranty of
-#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#       General Public License for more details.
-#
-#    Description
-#
-#       This program is part of the cygbuild: Utilities for Cygwin package
-#       maintainers.
-#
-#       This file is bifunctional. It's a callable perl script, but also a perl
-#       function library. It is controlled from cygbuild.sh which see:
-#
-#           $ cygbuild --help</p>
-<p>use 5.004;
-use strict;
-use integer;</p>
-<p>use autouse 'Pod::Text'     =&gt; qw( pod2text                 );
-use autouse 'Pod::Html'     =&gt; qw( pod2html                 );
-use autouse 'Text::Tabs'    =&gt; qw( expand                   );
-use autouse 'File::Copy'    =&gt; qw( copy move                );
-use autouse 'File::Path'    =&gt; qw( mkpath rmtree            );
-use autouse 'File::Basename'=&gt; qw( dirname basename         );
-use autouse 'File::Find'    =&gt; qw( find                     );</p>
-<p>package File::Find;
-    use vars qw($name $fullname);
-package main;</p>
-<p>use English;
-use Cwd;
-# use Getopt::Long;
-# use POSIX qw(strftime);</p>
-<p># ..................................................................</p>
-<p>IMPORT:
-{
-    use Env;</p>
-<pre>
-    #   SYSTEMROOT is WinNT/W2k install root directory</pre>
-<pre>
-    use vars qw
-    (
-        $SYSTEMROOT
-        $NAME
-        $DEBFULLNAME
-        $CYGBUILD_FULLNAME
-        $EMAIL
-        $CYGBUILD_EMAIL
-    );
-}</pre>
-<p>my $systemName  = $CYGBUILD_FULLNAME || $NAME || $DEBFULLNAME;
-my $systemEmail = $CYGBUILD_EMAIL    || $EMAIL;</p>
-<p>my $CYGWIN_PACKAGE_LIST_DIR = ``/var/lib/cygbuild/list'';</p>
-<p>#   Sites that use RETURN, i.e. empty, passwords
-my $PASSORD_RET_SITES = 'sourceforge';</p>
-<p>#   When called as library (from cygbuild.sh), the PATH isn't there.
-$PROGRAM_NAME = ``cygbuild.pl''   if  $PROGRAM_NAME eq '-e';</p>
-<p># ..................................................................</p>
-<p>use vars qw ( $VERSION );</p>
-<p>#   This is for use of Makefile.PL and ExtUtils::MakeMaker
-#   So that it puts the tardist number in format YYYY.MMDD
-#   The REAL version number is defined later</p>
-<p>#   The following variable is updated by Emacs setup whenever
-#   this file is saved.</p>
-<p>$VERSION = '2007.0914.1117';</p>
-<p># ..................................................................</p>
-<p>my $LIB       = ``cygbuild.pl'';
-my $debug     = 0;          # Don't touch. use SetDebug();</p>
-<p>#  See <code>wanted()</code> functions</p>
-<p>my @FILE_FILE_LIST;
-my @FILE_DIR_LIST;
-my @FILE_ALL_LIST;
-my $FILE_REGEXP;
-my $FILE_REGEXP_PRUNE = '\.(build|s?inst)';  # Dynamic variable</p>
-<p># ..................................................................</p>
-<p>
-</p>
-<hr />
-<h1><a name="name">NAME</a></h1>
-<p>cygbuild - Cygwin source and binary package build script</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
-    cygbuild [options] -r RELEASE CMD [CMD ...]</pre>
-<p>
-</p>
-<hr />
-<h1><a name="quick_overview">QUICK OVERVIEW</a></h1>
-<p>The ``big picture'' of the porting directories used are as follows:</p>
-<pre>
-  ROOT/package
-       &lt;downloaded original upstream package(s): package-1.2.3.tar.gz&gt;
-       |
-       +- package-1.2.3/
-          &lt;*.tar.gz unpacked&gt;
-          &lt;All cygbuild commands must be given in *this* directory&gt;
-          |
-          +- .build/
-          |  &lt;generic working area of temporary files&gt;
-          |  |
-          |  +- build/
-          |  |  &lt;separate &quot;shadow&quot; directory where compiling happens&gt;
-          |  |  &lt;contains only symlinks and object *.o etc. files&gt;
-          |  |
-          |  +- package-1.2.3-orig/
-          |  |  &lt;Used for taking a diff&gt;
-          |  |
-          |  +- vc/
-          |     &lt;Version Control System checkouts are done here&gt;
-          |
-          +- .inst/
-          |  &lt;The &quot;make install&quot; target directory&gt;
-          |
-          +- .sinst/
-              &lt;diffs, signatures, binary and source packages&gt;</pre>
-<p><strong>CASE A)</strong> to build Cygwin Net Release from a package that includes a standard
-<code>./configure</code> script, the quick path for porting would be in the fortunate
-case as simple as running commands:</p>
-<pre>
-    $ mkdir -p /tmp/build &amp;&amp; rm /tmp/build/*
-    $ cd /tmp/build
-    $ mv /download/path/package-N.N.tar.gz .
-    $ tar -zxvf package-N.N.tar.gz</pre>
-<pre>
-    ... source has now been unpacked, go there</pre>
-<pre>
-    $ cd package-N.N</pre>
-<pre>
-    ... If this is the first port ever, it is better to run commands
-    ... individually to see possible problems.
-    ...</pre>
-<pre>
-    ... If you have GPG key, you can add options -s &quot;SignerKeyID&quot;
-    ... -p &quot;pass phrase&quot; to commands 'package', 'source-package' and
-    ... 'publish'.</pre>
-<pre>
-    $ cygbuild -r 1 makedirs
-    $ cygbuild -r 1 files
-    $ cygbuild -r 1 shadow           # [optional]
-    $ cygbuild -r 1 configure
-    $ cygbuild -r 1 make
-    $ cygbuild -r 1 strip            # [optional]
-    $ cygbuild -r 1 -v -t install    # &quot;try and see&quot; mode first
-    $ cygbuild -r 1 install          # The &quot;real&quot; install
-    $ find .inst/ -print                # Verify install structure !!
-    $ cygbuild -r 1 -v check         # Do install integrity check
-    $ cygbuild -r 1 -v depend        # Check depdencies
-    $ cygbuild -r 1 package          # Make Net install binary
-    $ cygbuild -r 1 source-package   # Make Net install source
-    $ cygbuild -r 1 publish          # Copy files to publish area (if any)</pre>
-<p>To make this easier, a (b)uild alias will help. The option <strong>-r</strong> is
-mandatory almost for all commands:</p>
-<pre>
-    $ alias b=&quot;cygbuild -s F701D4B3 -r&quot;    # Save this in ~/.bashrc
-    $ b 1 mkdirs files conf make
-    $ b 1 -v -t install                    # verbose and test mode on
-    ...</pre>
-<p><strong>CASE B)</strong> If the downloaded Cygwin source release package is
-controlled by cygbuild, then command <strong>[all]</strong> can be used to to
-build binary package:</p>
-<pre>
-    $ mkdir -p /tmp/build
-    $ rm -rf /tmp/build/*
-    $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-    $ cd /tmp/build  &amp;&amp;  ./*.sh --verbose all</pre>
+    $ cd /tmp/build  &amp;&amp;  ./*.sh --color --verbose all</pre>
 <p>
 </p>
 <hr />
@@ -406,6 +221,12 @@ been checked out, it is possible to package current snapshot straight
 from the directory tree with this option. It will create a separate
 source script based on current timestamp to retrive same files from
 version control repository.</p>
+</dd>
+</li>
+<dt><strong><a name="item__2dc_7c_2d_2dcolor"><strong>-C|--color</strong></a></strong>
+
+<dd>
+<p>Activate colors in displayed messages.</p>
 </dd>
 </li>
 <dt><strong><a name="item__2d_2dcygbuiddir_dir"><strong>--cygbuiddir DIR</strong></a></strong>
@@ -794,6 +615,13 @@ files to weird places.</p>
     cygbuild --release 1 --test install</pre>
 </dd>
 </li>
+<dt><strong><a name="item_import"><strong>import</strong></a></strong>
+
+<dd>
+<p>Start porting the project. Effectively runs steps <strong>[makedirs]</strong>,
+<strong>[files]</strong>, <strong>[configure]</strong>, <strong>[make]</strong>.</p>
+</dd>
+</li>
 <dt><strong><a name="item_check"><strong>check</strong></a></strong>
 
 <dd>
@@ -1143,6 +971,7 @@ weill be in form:</p>
 <pre>
     $CYGBUILD_PUBLISH_BIN \
         /directory/where/package-N.N/.sinst/
+        &lt;package string&gt;
         &lt;version string&gt;
         &lt;release number&gt;
         [gpg sign id]
@@ -1193,13 +1022,27 @@ in <code>.sinst/</code>.</p>
 <dt><strong><a name="item_patch"><strong>patch</strong></a></strong>
 
 <dd>
-<p>Apply all local patches in <code>CYGWIN-PATCHES/*.patch</code> to original sources.
-The applied patches are recorded in <code>CYGWIN-PATCHES/done-patches.tmp</code> so
-that next call won't apply the patches again. See also command
-<strong>[unpatch]</strong>.</p>
+<p>Apply all local <em>*patch</em> files found recursively under
+<code>CYGWIN-PATCHES/</code> to original sources. The applied patches are
+recorded in <code>CYGWIN-PATCHES/done-patches.tmp</code> so that they won't be
+applied multiple times. The order of patches applied is determined by
+call:</p>
 </dd>
 <dd>
-<p>The filenames can include extra <code>strip+N</code> keyword to instruct what is
+<pre>
+  find CYGWIN-PATCHES -name &quot;*patch&quot;</pre>
+</dd>
+<dd>
+<p>The directories and filenames are therefore best to be prefixed with a
+sequential number, like:</p>
+</dd>
+<dd>
+<pre>
+  0001-Makefile-rewrite-install.patch
+  0002-command.c-add-ifdef-Cygwin.patch</pre>
+</dd>
+<dd>
+<p>The filenames can include extra <em>strip+N</em> keyword to instruct what is
 the <strong>--strip=N</strong> option that should be passed to command patch(1):</p>
 </dd>
 <dd>
@@ -1214,11 +1057,12 @@ the <strong>--strip=N</strong> option that should be passed to command patch(1):
     foo-1.2-this-fixes-segfault.strip+2.patch</pre>
 </dd>
 <dd>
-<p>Case study: The upstrem sources do not work under case X. Someone has
-found the solution, but this patch is still ``unofficial'' and not yet
-tested or included in upstream sources. This extra patch can be put in
-directory <code>CYGWIN-PATCHES/</code> and the fix applied before compiling
-sources.</p>
+<p>NOTE: The use of <em>strip+N</em> argument is usually unnecessary, because
+the program heuristics can in most cases determine what is the proper
+<strong>--strip</strong> option to <strong>patch(1)</strong> command.</p>
+</dd>
+<dd>
+<p>See also command <strong>[unpatch]</strong>.</p>
 </dd>
 </li>
 <dt><strong><a name="item_patch_2dcheck"><strong>patch-check</strong></a></strong>
@@ -1250,25 +1094,24 @@ Cygwin net release. Like this:</p>
 </dd>
 <dd>
 <pre>
- step 1)
-    root@foo:/usr/src/buildt# ls
-        package-N.N-1-src.tar.bz2</pre>
-</dd>
-<dd>
-<pre>
- stemp 2)
-    root@foo:/usr/src/build# tar -jxvf *bz2
+    root@foo:/usr/src/build# tar -xvf package-N.N-1-src.tar.bz2
         package-N.N-1.sh
         package-N.N-1.patch
         package-N.N-src.tar.gz</pre>
 </dd>
 <dd>
-<p>If the build process breaks, then the fault is in the packaging. Contact
-maintainer of <code>package-N.N-1-src.tar.bz2</code> for details:</p>
-</dd>
-<dd>
 <pre>
     root@foo:/usr/src/build# ./package-N.N-1.sh all</pre>
+</dd>
+<dd>
+<p>If the build process breaks, then the fault is in the packaging.
+Contact maintainer of <code>package-N.N-1-src.tar.bz2</code> for details.</p>
+</dd>
+</li>
+<dt><strong><a name="item__3calmostall_3e">&lt;almostall&gt;</a></strong>
+
+<dd>
+<p>Same as command <strong>[all]</strong> but without the <strong>[finish]</strong> step.</p>
 </dd>
 </li>
 <dt><strong><a name="item_getsrc"><strong>getsrc PACKAGE</strong></a></strong>
@@ -1336,7 +1179,7 @@ command <code>[reshadow]</code>.</p>
 missing shadow directory and make it as needed.</p>
 </dd>
 </li>
-<dt><strong><a name="item_upstream_2ddownload"><strong>upstream-download</strong></a></strong>
+<dt><strong><a name="item_download"><strong>download</strong></a></strong>
 
 <dd>
 <p>Check upstream site for new versions. External program <em>mywebget.pl</em>
@@ -1631,6 +1474,17 @@ publish area (Apache, Ftp), the last step copies packages elsewhere on
 local disk:</p>
 <pre>
     $ bb 1 publish</pre>
+<p>
+</p>
+<hr />
+<h1><a name="optional_external_directories">OPTIONAL EXTERNAL DIRECTORIES</a></h1>
+<p>All files in <em>CYGWIN-PATCHES/bin</em> are installed as executables into
+directory <code>.inst/usr/bin</code>. The location can be changed if any of the
+files contains tag <strong>cyginstdir:</strong> to point to new location. An example:</p>
+<pre>
+    #!/bin/sh
+    # cyginstdir: /bin
+    ...</pre>
 <p>
 </p>
 <hr />

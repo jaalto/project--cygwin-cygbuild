@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "CYGBUILD 1"
-.TH CYGBUILD 1 "2007-10-18" "perl v5.8.8" "Cygwin source and binary packge build script"
+.TH CYGBUILD 1 "2008-02-16" "perl v5.8.8" "Cygwin source and binary packge build script"
 .SH "NAME"
 cygbuild \- Cygwin source and binary package build script
 .SH "SYNOPSIS"
@@ -207,9 +207,9 @@ case as simple as running commands:
 \&    $ cygbuild -r 1 configure
 \&    $ cygbuild -r 1 make
 \&    $ cygbuild -r 1 strip            # [optional]
-\&    $ cygbuild -r 1 -v -t install    # "try and see" mode first
+\&    $ cygbuild -r 1 -v -t install    # "verbose test mode" first
 \&    $ cygbuild -r 1 install          # The "real" install
-\&    $ find .inst/ -print                # Verify install structure !!
+\&    $ find .inst/ -print             # Verify install structure !!
 \&    $ cygbuild -r 1 -v check         # Do install integrity check
 \&    $ cygbuild -r 1 -v depend        # Check depdencies
 \&    $ cygbuild -r 1 package          # Make Net install binary
@@ -228,234 +228,14 @@ mandatory almost for all commands:
 .Ve
 .PP
 \&\fB\s-1CASE\s0 B)\fR If the downloaded Cygwin source release package is
-controlled by cygbuild, then command \fB[all]\fR can be used to to
-build binary package:
+controlled by cygbuild, then commands \fB[all]\fR and \fB[almostall]\fR can
+be used to check the binary build:
 .PP
 .Vb 4
 \&    $ mkdir -p /tmp/build
 \&    $ rm -rf /tmp/build/*
 \&    $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-\&    $ cd /tmp/build  &&  ./*.sh --verbose all
-.Ve
-.SH "OPTIONS"
-.IX Header "OPTIONS"
-.RS 4
-#!/usr/bin/perl
-#
-#   cygbuild.pl \-\-\- A Perl library for Cygwin Net Release packager
-#
-#       Copyright (C) 2003\-2007 Jari Aalto
-#
-#   License
-#
-#       This program is free software; you can redistribute it and/or
-#       modify it under the terms of the \s-1GNU\s0 General Public License as
-#       published by the Free Software Foundation; either version 2 of
-#       the License, or (at your option) any later version.
-#
-#       This program is distributed in the hope that it will be useful, but
-#       \s-1WITHOUT\s0 \s-1ANY\s0 \s-1WARRANTY\s0; without even the implied warranty of
-#       \s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 \s-1FOR\s0 A \s-1PARTICULAR\s0 \s-1PURPOSE\s0.  See the \s-1GNU\s0
-#       General Public License for more details.
-#
-#    Description
-#
-#       This program is part of the cygbuild: Utilities for Cygwin package
-#       maintainers.
-#
-#       This file is bifunctional. It's a callable perl script, but also a perl
-#       function library. It is controlled from cygbuild.sh which see:
-#
-#           $ cygbuild \-\-help
-.Sp
-use 5.004;
-use strict;
-use integer;
-.Sp
-use autouse 'Pod::Text'     => qw( pod2text                 );
-use autouse 'Pod::Html'     => qw( pod2html                 );
-use autouse 'Text::Tabs'    => qw( expand                   );
-use autouse 'File::Copy'    => qw( copy move                );
-use autouse 'File::Path'    => qw( mkpath rmtree            );
-use autouse 'File::Basename'=> qw( dirname basename         );
-use autouse 'File::Find'    => qw( find                     );
-.Sp
-package File::Find;
-    use vars qw($name \f(CW$fullname\fR);
-package main;
-.Sp
-use English;
-use Cwd;
-# use Getopt::Long;
-# use \s-1POSIX\s0 qw(strftime);
-.Sp
-# ..................................................................
-.Sp
-\&\s-1IMPORT:\s0
-{
-    use Env;
-.Sp
-.Vb 1
-\&    #   SYSTEMROOT is WinNT/W2k install root directory
-.Ve
-.Sp
-.Vb 10
-\&    use vars qw
-\&    (
-\&        $SYSTEMROOT
-\&        $NAME
-\&        $DEBFULLNAME
-\&        $CYGBUILD_FULLNAME
-\&        $EMAIL
-\&        $CYGBUILD_EMAIL
-\&    );
-\&}
-.Ve
-.Sp
-my \f(CW$systemName\fR  = \f(CW$CYGBUILD_FULLNAME\fR || \f(CW$NAME\fR || \f(CW$DEBFULLNAME\fR;
-my \f(CW$systemEmail\fR = \f(CW$CYGBUILD_EMAIL\fR    || \f(CW$EMAIL\fR;
-.Sp
-my \f(CW$CYGWIN_PACKAGE_LIST_DIR\fR = \*(L"/var/lib/cygbuild/list\*(R";
-.Sp
-#   Sites that use \s-1RETURN\s0, i.e. empty, passwords
-my \f(CW$PASSORD_RET_SITES\fR = 'sourceforge';
-.Sp
-#   When called as library (from cygbuild.sh), the \s-1PATH\s0 isn't there.
-\&\f(CW$PROGRAM_NAME\fR = \*(L"cygbuild.pl\*(R"   if  \f(CW$PROGRAM_NAME\fR eq '\-e';
-.Sp
-# ..................................................................
-.Sp
-use vars qw ( \f(CW$VERSION\fR );
-.Sp
-#   This is for use of Makefile.PL and ExtUtils::MakeMaker
-#   So that it puts the tardist number in format \s-1YYYY\s0.MMDD
-#   The \s-1REAL\s0 version number is defined later
-.Sp
-#   The following variable is updated by Emacs setup whenever
-#   this file is saved.
-.Sp
-$VERSION = '2007.0914.1117';
-.Sp
-# ..................................................................
-.Sp
-my \f(CW$LIB\fR       = \*(L"cygbuild.pl\*(R";
-my \f(CW$debug\fR     = 0;          # Don't touch. use \fISetDebug()\fR;
-.Sp
-#  See \fIwanted()\fR functions
-.Sp
-my \f(CW@FILE_FILE_LIST\fR;
-my \f(CW@FILE_DIR_LIST\fR;
-my \f(CW@FILE_ALL_LIST\fR;
-my \f(CW$FILE_REGEXP\fR;
-my \f(CW$FILE_REGEXP_PRUNE\fR = '\e.(build|s?inst)';  # Dynamic variable
-.Sp
-# ..................................................................
-.SH "NAME"
-cygbuild \- Cygwin source and binary package build script
-.SH "SYNOPSIS"
-.IX Header "SYNOPSIS"
-.Vb 1
-\&    cygbuild [options] -r RELEASE CMD [CMD ...]
-.Ve
-.SH "QUICK OVERVIEW"
-.IX Header "QUICK OVERVIEW"
-The \*(L"big picture\*(R" of the porting directories used are as follows:
-.Sp
-.Vb 25
-\&  ROOT/package
-\&       <downloaded original upstream package(s): package-1.2.3.tar.gz>
-\&       |
-\&       +- package-1.2.3/
-\&          <*.tar.gz unpacked>
-\&          <All cygbuild commands must be given in *this* directory>
-\&          |
-\&          +- .build/
-\&          |  <generic working area of temporary files>
-\&          |  |
-\&          |  +- build/
-\&          |  |  <separate "shadow" directory where compiling happens>
-\&          |  |  <contains only symlinks and object *.o etc. files>
-\&          |  |
-\&          |  +- package-1.2.3-orig/
-\&          |  |  <Used for taking a diff>
-\&          |  |
-\&          |  +- vc/
-\&          |     <Version Control System checkouts are done here>
-\&          |
-\&          +- .inst/
-\&          |  <The "make install" target directory>
-\&          |
-\&          +- .sinst/
-\&              <diffs, signatures, binary and source packages>
-.Ve
-.Sp
-\&\fB\s-1CASE\s0 A)\fR to build Cygwin Net Release from a package that includes a standard
-\&\f(CW\*(C`./configure\*(C'\fR script, the quick path for porting would be in the fortunate
-case as simple as running commands:
-.Sp
-.Vb 4
-\&    $ mkdir -p /tmp/build && rm /tmp/build/*
-\&    $ cd /tmp/build
-\&    $ mv /download/path/package-N.N.tar.gz .
-\&    $ tar -zxvf package-N.N.tar.gz
-.Ve
-.Sp
-.Vb 1
-\&    ... source has now been unpacked, go there
-.Ve
-.Sp
-.Vb 1
-\&    $ cd package-N.N
-.Ve
-.Sp
-.Vb 3
-\&    ... If this is the first port ever, it is better to run commands
-\&    ... individually to see possible problems.
-\&    ...
-.Ve
-.Sp
-.Vb 3
-\&    ... If you have GPG key, you can add options -s "SignerKeyID"
-\&    ... -p "pass phrase" to commands 'package', 'source-package' and
-\&    ... 'publish'.
-.Ve
-.Sp
-.Vb 14
-\&    $ cygbuild -r 1 makedirs
-\&    $ cygbuild -r 1 files
-\&    $ cygbuild -r 1 shadow           # [optional]
-\&    $ cygbuild -r 1 configure
-\&    $ cygbuild -r 1 make
-\&    $ cygbuild -r 1 strip            # [optional]
-\&    $ cygbuild -r 1 -v -t install    # "try and see" mode first
-\&    $ cygbuild -r 1 install          # The "real" install
-\&    $ find .inst/ -print                # Verify install structure !!
-\&    $ cygbuild -r 1 -v check         # Do install integrity check
-\&    $ cygbuild -r 1 -v depend        # Check depdencies
-\&    $ cygbuild -r 1 package          # Make Net install binary
-\&    $ cygbuild -r 1 source-package   # Make Net install source
-\&    $ cygbuild -r 1 publish          # Copy files to publish area (if any)
-.Ve
-.Sp
-To make this easier, a (b)uild alias will help. The option \fB\-r\fR is
-mandatory almost for all commands:
-.Sp
-.Vb 4
-\&    $ alias b="cygbuild -s F701D4B3 -r"    # Save this in ~/.bashrc
-\&    $ b 1 mkdirs files conf make
-\&    $ b 1 -v -t install                    # verbose and test mode on
-\&    ...
-.Ve
-.Sp
-\&\fB\s-1CASE\s0 B)\fR If the downloaded Cygwin source release package is
-controlled by cygbuild, then command \fB[all]\fR can be used to to
-build binary package:
-.Sp
-.Vb 4
-\&    $ mkdir -p /tmp/build
-\&    $ rm -rf /tmp/build/*
-\&    $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-\&    $ cd /tmp/build  &&  ./*.sh --verbose all
+\&    $ cd /tmp/build  &&  ./*.sh --color --verbose all
 .Ve
 .SH "OPTIONS"
 .IX Header "OPTIONS"
@@ -474,6 +254,9 @@ been checked out, it is possible to package current snapshot straight
 from the directory tree with this option. It will create a separate
 source script based on current timestamp to retrive same files from
 version control repository.
+.IP "\fB\-C|\-\-color\fR" 4
+.IX Item "-C|--color"
+Activate colors in displayed messages.
 .IP "\fB\-\-cygbuiddir \s-1DIR\s0\fR" 4
 .IX Item "--cygbuiddir DIR"
 \&\s-1PATH\s0 where all the temporaqry files are kept; object files, taking diffs
@@ -665,8 +448,6 @@ Python or Shell scripts etc.
 .Sp
 \&\fB\s-1NOTE:\s0\fR This options should be avoided and it may be removed. Program is
 99% in the cases able to detect if and when strip is needed.
-.RE
-.RS 4
 .SH "PACKAGE MAINTENANCE COMMANDS"
 .IX Header "PACKAGE MAINTENANCE COMMANDS"
 .Sh "Preparation commands"
@@ -708,8 +489,6 @@ If you remove the extension \f(CW\*(C`.tmp\*(C'\fR, the shell scripts are automa
 noticed and used. You can leave the files alone if you do not use them,
 because all files ending to \f(CW\*(C`.tmp\*(C'\fR are ignored during
 packaging commands \fB[package]\fR or \fB[source\-package]\fR.
-.RE
-.RS 4
 .Sh "Build commands"
 .IX Subsection "Build commands"
 .IP "\fBconfigure\fR" 4
@@ -735,8 +514,6 @@ Synonym for command \fB[build]\fR.
 .IX Item "[dist|real]clean"
 Run any \fImake\fR target whose name ends to \f(CW\*(C`clean\*(C'\fR. That is: clean,
 distclean, realclean etc.
-.RE
-.RS 4
 .Sh "Install commands (in order of execution)"
 .IX Subsection "Install commands (in order of execution)"
 .IP "\fBstrip\fR" 4
@@ -758,6 +535,10 @@ files to weird places.
 .Vb 1
 \&    cygbuild --release 1 --test install
 .Ve
+.IP "\fBimport\fR" 4
+.IX Item "import"
+Start porting the project. Effectively runs steps \fB[makedirs]\fR,
+\&\fB[files]\fR, \fB[configure]\fR, \fB[make]\fR.
 .IP "\fBcheck\fR" 4
 .IX Item "check"
 Run various checks to ensure that the install to directory .inst/ look
@@ -803,8 +584,6 @@ Run \f(CW\*(C`package\-N.N/CYGWIN\-PATCHES/preremove.sh\*(C'\fR if it exists. Th
 destination install root directory \f(CW\*(C`package\-N.N/.inst/\*(C'\fR is used. This
 command is meant for testing the \f(CW\*(C`preremove.sh\*(C'\fR script if it is
 supplied.
-.RE
-.RS 4
 .Sh "Packaging commands"
 .IX Subsection "Packaging commands"
 .IP "\fBmkpatch\fR" 4
@@ -1047,9 +826,10 @@ program is called with 3 mandatory and 2 optional arguments from options
 \&\fB\-\-sign\fR and \fB\-\-passphrase\fR if those were available. The shell call
 weill be in form:
 .Sp
-.Vb 6
+.Vb 7
 \&    $CYGBUILD_PUBLISH_BIN \e
 \&        /directory/where/package-N.N/.sinst/
+\&        <package string>
 \&        <version string>
 \&        <release number>
 \&        [gpg sign id]
@@ -1064,8 +844,6 @@ It makes sense to run publish command only after commands
 was used, then the published files are copied to separate
 subdirectories below \f(CW\*(C`$CYGBUILD_PUBLISH_DIR/package/\*(C'\fR. See command
 \&\fB[package\-devel]\fR for more information.
-.RE
-.RS 4
 .Sh "Digital signature commands"
 .IX Subsection "Digital signature commands"
 .IP "\fBsign\fR" 4
@@ -1081,18 +859,29 @@ or archive builds.
 .IX Item "verify"
 Verify all signatures belonging to current package in current directory or
 in \f(CW\*(C`.sinst/\*(C'\fR.
-.RE
-.RS 4
 .Sh "Patch management commands"
 .IX Subsection "Patch management commands"
 .IP "\fBpatch\fR" 4
 .IX Item "patch"
-Apply all local patches in \f(CW\*(C`CYGWIN\-PATCHES/*.patch\*(C'\fR to original sources.
-The applied patches are recorded in \f(CW\*(C`CYGWIN\-PATCHES/done\-patches.tmp\*(C'\fR so
-that next call won't apply the patches again. See also command
-\&\fB[unpatch]\fR.
+Apply all local \fI*patch\fR files found recursively under
+\&\f(CW\*(C`CYGWIN\-PATCHES/\*(C'\fR to original sources. The applied patches are
+recorded in \f(CW\*(C`CYGWIN\-PATCHES/done\-patches.tmp\*(C'\fR so that they won't be
+applied multiple times. The order of patches applied is determined by
+call:
 .Sp
-The filenames can include extra \f(CW\*(C`strip+N\*(C'\fR keyword to instruct what is
+.Vb 1
+\&  find CYGWIN-PATCHES -name "*patch"
+.Ve
+.Sp
+The directories and filenames are therefore best to be prefixed with a
+sequential number, like:
+.Sp
+.Vb 2
+\&  0001-Makefile-rewrite-install.patch
+\&  0002-command.c-add-ifdef-Cygwin.patch
+.Ve
+.Sp
+The filenames can include extra \fIstrip+N\fR keyword to instruct what is
 the \fB\-\-strip=N\fR option that should be passed to command \fIpatch\fR\|(1):
 .Sp
 .Vb 1
@@ -1105,11 +894,11 @@ An example:
 \&    foo-1.2-this-fixes-segfault.strip+2.patch
 .Ve
 .Sp
-Case study: The upstrem sources do not work under case X. Someone has
-found the solution, but this patch is still \*(L"unofficial\*(R" and not yet
-tested or included in upstream sources. This extra patch can be put in
-directory \f(CW\*(C`CYGWIN\-PATCHES/\*(C'\fR and the fix applied before compiling
-sources.
+\&\s-1NOTE:\s0 The use of \fIstrip+N\fR argument is usually unnecessary, because
+the program heuristics can in most cases determine what is the proper
+\&\fB\-\-strip\fR option to \fB\f(BIpatch\fB\|(1)\fR command.
+.Sp
+See also command \fB[unpatch]\fR.
 .IP "\fBpatch-check\fR" 4
 .IX Item "patch-check"
 Display content of \f(CW\*(C`CYGWIN\-PATCHES/done\-patches.tmp\*(C'\fR if any and list
@@ -1119,8 +908,6 @@ filenames from result of command \fB[mkpatch]\fR.
 Deapply all local patches in \f(CW\*(C`CYGWIN\-PATCHES/*.patch\*(C'\fR. On success,
 the record keeping file \f(CW\*(C`CYGWIN\-PATCHES/done\-patches.tmp\*(C'\fR is deleted.
 The opposite of \fB[patch]\fR command.
-.RE
-.RS 4
 .Sh "Other commands"
 .IX Subsection "Other commands"
 .IP "\fBall\fR" 4
@@ -1129,26 +916,22 @@ Run all relevant steps: \fBprep, conf, build, install, strip, package,
 source\-package, finish\fR. This command is used to test the integrity of
 Cygwin net release. Like this:
 .Sp
-.Vb 3
-\& step 1)
-\&    root@foo:/usr/src/buildt# ls
-\&        package-N.N-1-src.tar.bz2
-.Ve
-.Sp
-.Vb 5
-\& stemp 2)
-\&    root@foo:/usr/src/build# tar -jxvf *bz2
+.Vb 4
+\&    root@foo:/usr/src/build# tar -xvf package-N.N-1-src.tar.bz2
 \&        package-N.N-1.sh
 \&        package-N.N-1.patch
 \&        package-N.N-src.tar.gz
 .Ve
 .Sp
-If the build process breaks, then the fault is in the packaging. Contact
-maintainer of \f(CW\*(C`package\-N.N\-1\-src.tar.bz2\*(C'\fR for details:
-.Sp
 .Vb 1
 \&    root@foo:/usr/src/build# ./package-N.N-1.sh all
 .Ve
+.Sp
+If the build process breaks, then the fault is in the packaging.
+Contact maintainer of \f(CW\*(C`package\-N.N\-1\-src.tar.bz2\*(C'\fR for details.
+.IP "<almostall>" 4
+.IX Item "<almostall>"
+Same as command \fB[all]\fR but without the \fB[finish]\fR step.
 .IP "\fBgetsrc \s-1PACKAGE\s0\fR" 4
 .IX Item "getsrc PACKAGE"
 Download Cygwin net release source package to current directory. This
@@ -1196,8 +979,8 @@ command \f(CW\*(C`[reshadow]\*(C'\fR.
 .Sp
 This command is not usually needed, because the \fB[configure]\fR will notice
 missing shadow directory and make it as needed.
-.IP "\fBupstream-download\fR" 4
-.IX Item "upstream-download"
+.IP "\fBdownload\fR" 4
+.IX Item "download"
 Check upstream site for new versions. External program \fImywebget.pl\fR
 http://perl\-webget.sourceforge.net/ is used to do the download. The
 configuration file \f(CW\*(C`CYGWIN\-PATCHES/upstream.perl\-webget\*(C'\fR must contain \s-1URL\s0
@@ -1213,8 +996,6 @@ configuration file to download and extract new versions of package:
 .IX Item "vars"
 Print variables and quit. Use this option to see what files and directories
 program thinks that it will be using.
-.RE
-.RS 4
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 This program builds Cygwin binary and source packages. Refer to \fICygwin
@@ -1228,7 +1009,7 @@ install files to all over the system and distribute copies of files with
 drill and have to use your hands to \f(CW\*(C`Makefile\*(C'\fR mud tar pit. Solid
 \&\f(CW\*(C`Makefile\*(C'\fR experience is therefore a requirement before thinking to port
 any packages to Cygwin.
-.Sp
+.PP
 If \fIgpg\fR\|(1) is installed, the patch, binary and source package can be
 cryptographically signed. See options \fB\-\-sign\fR and \fB\-\-passphrase\fR.
 .Sh "Packages with no version number"
@@ -1238,29 +1019,29 @@ generated out of the blue. Program relies on the fact that the \s-1VERSION\s0 is
 available both in the original package name and in the unpack directory.
 The package extensions can be \f(CW\*(C`.gz\*(C'\fR, \f(CW\*(C`*.bz2\*(C'\fR or \f(CW\*(C`*.tgz\*(C'\fR. The recognized
 package filename formats include:
-.Sp
+.PP
 .Vb 2
 \&    package-N[.N]+.tar.gz                Universal packaging format
 \&    package_N[.N]+.orig.tar.gz           Debian source packages
 .Ve
-.Sp
+.PP
 Like in here:
-.Sp
+.PP
 .Vb 1
 \&    foo-1.2.tar.gz, foo-0.0.2.tar.bz2, foo-12.0.2.1.tgz
 .Ve
-.Sp
+.PP
 The package name can consist of many words separated by hyphens:
-.Sp
+.PP
 .Vb 2
 \&    package-name-long-N[.N]+.tar.gz         Uses hyphens only
 \&    package_name_invalid-N[.N]+.tar.gz      Underscores not allowed
 .Ve
-.Sp
+.PP
 In case file uses some other naming and numbering scheme, it's a problem.
 Similarly if the unpack directory structure does not use universal scheme
 \&\f(CW\*(C`package\-N.N\*(C'\fR, it's a problem. Suppose a package unpacks like this:
-.Sp
+.PP
 .Vb 5
 \&    $ tar zxvf package-beta-latest.tar.gz
 \&        ...
@@ -1268,19 +1049,19 @@ Similarly if the unpack directory structure does not use universal scheme
 \&        package-latest/src
 \&        package-latest/doc
 .Ve
-.Sp
+.PP
 The situation can be coped by making a symbolic link to whatever is
 appropriate for the version number. If unsure, pick a \s-1YYYYMMDD\s0 in case
 there is no relevant version that can be used for the package.
-.Sp
+.PP
 .Vb 2
 \&    $ ln -s package-beta-latest.tar.gz package-YYYYMMDD.tar.gz
 \&    $ ln -s package-latest/ package-YYYYMMDD/
 .Ve
-.Sp
+.PP
 It is important that you do all your work inside the directory with \s-1VERSION\s0
 number, not in directory \f(CW\*(C`package\-latest/\*(C'\fR.
-.Sp
+.PP
 .Vb 2
 \&    $ cd package-YYYYMMDD/
 \&    ... now proceed with the porting
@@ -1292,7 +1073,7 @@ number, not in directory \f(CW\*(C`package\-latest/\*(C'\fR.
 It is easy to make build snapshots by using symlinks with time based
 version numbers, like \f(CW\*(C`package\-20010123\*(C'\fR, which effectively means
 \&\s-1YYYYMMDD\s0. To make a release, it could be done like this:
-.Sp
+.PP
 .Vb 6
 \&    $ cvs -d :pserver:<remote> co foopackage
 \&    $ date=$(date "+%Y%M%d")
@@ -1346,8 +1127,6 @@ from the start.
 \&    $ find .sinst/ -name "*patch"    << copy this to safe place
 .Ve
 .RE
-.RE
-.RS 4
 .Sh "Now the real thing; making a Cygwin package"
 .IX Subsection "Now the real thing; making a Cygwin package"
 .RS 4
@@ -1462,26 +1241,24 @@ package. The \s-1RELEASE\s0 number is the result of the \fB\-r\fR option.
 \&    foo-1.13-1-src.tar.bz2
 .Ve
 .RE
-.RE
-.RS 4
 .Sh "Contributing packages"
 .IX Subsection "Contributing packages"
 Refer to \*(L"Submitting a package\*(R" at http://cygwin.com/setup.html for
 full description.
-.Sp
+.PP
 To contribute your package, place them somewhere available and send message
 to <cygwin\-apps@cygwin.com> with following message. The \s-1ITP\s0 acronym used in
 from Debian and it means \*(L"intent to package\*(R":
-.Sp
+.PP
 .Vb 1
 \&    Subject: ITP: package-N.N
 .Ve
-.Sp
+.PP
 \&\fBPackage submittal:\fR Include contents of \f(CW\*(C`setup.hint\*(C'\fR and the binary
 package listing \f(CW\*(C`tar jtvf foo\-1.13\-RELEASE.tar.bz2\*(C'\fR. Provide complete to a
 ftp/http server download links to package files where they can be
 downloaded when you submit a contributed package.
-.Sp
+.PP
 \&\fBLicensing:\fR As a package maintainer, the licensing responsibility is on
 your shoulders. If the upstream package's license if not \s-1OSD\s0 compatible
 (see http://www.opensource.org/docs/definition_plain.html ) there may be
@@ -1489,11 +1266,11 @@ problems, as the Cygwin glue code (libcygwin.a) is linked in on all
 cygwin\-targets, thus rendering the compiled result \s-1GPL\s0'd (see
 http://www.cygwin.com/licensing.html ), unless the license is \s-1OSD\s0
 approved (see http://www.opensource.org/licenses/ ).
-.Sp
+.PP
 The Cygwin net release is a volunteer effort. If you, the volunteer, do not
 feel comfortable with the licensing, then ask for advice on the cygwin-apps
 mailing list.
-.Sp
+.PP
 \&\fB\s-1TTL\s0; Time To Live:\fR If a submitted package has been on the pending
 packages list for two months or more, without receiving any votes or no
 follow-ups (when requested) it may be dropped from the list. You can
@@ -1502,20 +1279,20 @@ Packages that are already included in major Linux distributions like
 Debian, Ubuntu, Redhat, \s-1SUSE\s0, Gentoo, Slackware do not need voting
 procedure. Mention the link to the distribution page where package is
 maintained.
-.Sp
+.PP
 \&\fBPublishing:\fR In case you're running Apache web server and world known \s-1IP\s0
 address, you can publish your files to the world directly. Add this line to
 your \f(CW\*(C`httpd.conf\*(C'\fR and make \fIapache\fR\|(1) read configuration again with
 \&\fBapachectl restart\fR. Check that your connection can see the files with
 \&\fIlynx\fR\|(1).
-.Sp
+.PP
 .Vb 1
 \&    Alias /cygwin /usr/src/cygwin-packages
 .Ve
-.Sp
+.PP
 As a finishing touch, there is command command \fB[publish]\fR which copies
 ready source package, binary package and setup.hint to publish area:
-.Sp
+.PP
 .Vb 2
 \&   <you're still at directory package-N.N/>
 \&   $ cygbuild publish
@@ -1524,52 +1301,63 @@ ready source package, binary package and setup.hint to publish area:
 .IX Header "GPG EXAMPLES"
 Let's assume that you have added a build alias command to your
 \&\f(CW\*(C`~/.bashrc\*(C'\fR:
-.Sp
+.PP
 .Vb 1
 \&    alias b="cygbuild -r"
 .Ve
-.Sp
+.PP
 Switch to a command prompt and write following bash alias by hand. This can
 be copied to other terminals open. You don't want this second alias to be
 stored in permanent places, because it contains your \s-1GPG\s0 identification
 details.
-.Sp
+.PP
 .Vb 1
 \&    $ alias bb="cygbuild -s gpg-key-id -p 'gpg-password' -r"
 .Ve
-.Sp
+.PP
 Assuming there already unpacked original package, which has been tested to
 build correctly, it's a simple matter of making \s-1GPG\s0 signed releases.
 Perhaps there is something in \f(CW\*(C`*.README\*(C'\fR that needs some correction or
 final words. Maybe it had typos. Or \f(CW\*(C`setup.hint\*(C'\fR needed updating. Okay,
 run this to make new install which replaced older \f(CW\*(C`*.README\*(C'\fR file:
-.Sp
+.PP
 .Vb 2
 \&    $ cd foo-1.13/
 \&    $ b 1 -v install check
 .Ve
-.Sp
+.PP
 Look closely at the results of check command. If anything needs to be
 edited or corrected, repeat the command after edit. Double check the
 installation:
-.Sp
+.PP
 .Vb 1
 \&    $ find .inst/ -print
 .Ve
-.Sp
+.PP
 If all looks good, the signed packages can be made. If you don't have gpg
 installed, then substitute plain \*(L"b\*(R" instead of for \*(L"bb\*(R" below:
-.Sp
+.PP
 .Vb 1
 \&    $ bb 1 package source-package
 .Ve
-.Sp
+.PP
 In case there is permanent Internet connection where files can be put to a
 publish area (Apache, Ftp), the last step copies packages elsewhere on
 local disk:
-.Sp
+.PP
 .Vb 1
 \&    $ bb 1 publish
+.Ve
+.SH "OPTIONAL EXTERNAL DIRECTORIES"
+.IX Header "OPTIONAL EXTERNAL DIRECTORIES"
+All files in \fICYGWIN\-PATCHES/bin\fR are installed as executables into
+directory \f(CW\*(C`.inst/usr/bin\*(C'\fR. The location can be changed if any of the
+files contains tag \fBcyginstdir:\fR to point to new location. An example:
+.PP
+.Vb 3
+\&    #!/bin/sh
+\&    # cyginstdir: /bin
+\&    ...
 .Ve
 .SH "OPTIONAL EXTERNAL FILES"
 .IX Header "OPTIONAL EXTERNAL FILES"
@@ -2091,8 +1879,6 @@ mentioned in <preremove\-manifest\-from.lst>. This effectively means:
 .IP "\fBpublish.sh\fR" 4
 .IX Item "publish.sh"
 A custom script to publish packages.
-.RE
-.RS 4
 .SH "MANAGING A BUILD TREE"
 .IX Header "MANAGING A BUILD TREE"
 .Sh "How to organize Cygwin Net Release builds"
@@ -2101,7 +1887,7 @@ If you intend to port many packages to Cygwin, a good directory structure
 helps keeping things organized. Suppose you have 3 packages (foo, bar,
 quux) of which 2 have been updated twice (there has been two ported
 releases):
-.Sp
+.PP
 .Vb 32
 \&    ROOT/           ( /usr/src/cygwin-build )
 \&    |
@@ -2136,86 +1922,86 @@ releases):
 \&       quux-2.2-1.tar.bz2
 \&       quux-2.2-1-src.tar.bz2
 .Ve
-.Sp
+.PP
 At first sight this may look complex, but with this structure you can
 manage several packages easily. For each package, reserve a separate
 directory where you do your work: \f(CW\*(C`foo/\*(C'\fR, \f(CW\*(C`bar/\*(C'\fR, \f(CW\*(C`quux/\*(C'\fR etc. Download
 orignal packages to these directories and upack the sources. Let's examine
 package \f(CW\*(C`foo\*(C'\fR
-.Sp
+.PP
 .Vb 2
 \&    $ cd /usr/src/cygwin-build/foo
 \&    $ wget <URL>/foo-1.4.tar.gz
 .Ve
-.Sp
+.PP
 After unpack, you should see a clean directory name:
-.Sp
+.PP
 .Vb 1
 \&    $ tar zxvf foo-1.4.tar.gz
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    foo-1.4/
 .Ve
-.Sp
+.PP
 Sometimes the packages unpacks to an uncommon directory:
-.Sp
+.PP
 .Vb 1
 \&    foo1.4b/
 .Ve
-.Sp
+.PP
 Use previously recommended symlink approach to convert the name into more
 standard form. Here the 'b' is minor release '2':
-.Sp
+.PP
 .Vb 1
 \&    $ ln -s foo1.4b/ foo-1.4.2/
 .Ve
-.Sp
+.PP
 There isn't much to do after that. You do your builds in the unpack
 directories as usual. Supposing this is \*(L"standard\*(R" looking \s-1GNU\s0 package
 which includes a \f(CW\*(C`./configure\*(C'\fR, making a Net release should be as simple
 as running:
-.Sp
+.PP
 .Vb 2
 \&    $ cd foo-1.4/
 \&    $ cygbuild files
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    ...  Now edit files in CYGWIN-PATCHES/
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    $ cygbuild configure make install
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    ... Verify install results
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    $ find .inst/
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    ... If all look okay, make binary and source Net releases
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    $ cygbuild -r 1 install package readmefix install package source-package
 .Ve
-.Sp
+.PP
 With these commands, Cygwin Net release packages are copied one directory
 up to the same place where the original compresses source kit is:
-.Sp
+.PP
 .Vb 2
 \&    /usr/src/cygwin-build/foo/foo-1.4-1.tar.bz2
 \&    /usr/src/cygwin-build/foo/foo-1.4-1-src.tar.bz2
 .Ve
-.Sp
+.PP
 If you have a web server that can serve the package, copy the files to
 publish area with command:
-.Sp
+.PP
 .Vb 1
 \&    foo-1.4$ cygbuild publish
 .Ve
@@ -2223,7 +2009,7 @@ publish area with command:
 .IX Subsection "Rebuilding packages"
 \&\s-1NOTE:\s0 This section is highly experimental and the program has not yet been
 tested well. (\s-1FIXME\s0)
-.Sp
+.PP
 As Cywin is improved, the main library file \f(CW\*(C`cygwin1.dll\*(C'\fR may change and
 periodically all packages must be rebuilt so that they link to the latest
 function calls. In this case you have to rebuild every package you
@@ -2232,7 +2018,7 @@ maintain. Instead of going to every directory and typing the relevant
 automates the task. If you use the standard build layout as described in
 previous topic, you can use rebuild sript to do the steps. Is is also a
 good chance to verify that the package build process is repeatable:
-.Sp
+.PP
 .Vb 5
 \&    $ cygbuild-rebuild.sh -d /usr/src/cygwin-build -i 1 2>&1 | tee build.log
 \&                           |                       |
@@ -2240,7 +2026,7 @@ good chance to verify that the package build process is repeatable:
 \&                           |
 \&                           directory where to start recursive build
 .Ve
-.Sp
+.PP
 If something goes wrong, you have to manually fix the package. Do not run
 the rebuild script again until you have fixed the build process for a
 broken package.
@@ -2252,67 +2038,67 @@ selectively use functions in it. The library feature is anabled by setting
 variable \f(CW\*(C`CYGBUILD_LIB\*(C'\fR before \f(CW\*(C`source\*(C'\fR command. When invoked this way,
 the \fIcygbuild's\fR \f(CW\*(C`Main()\*(C'\fR function in not invoked and options or
 commands are bypassed.
-.Sp
+.PP
 \&\fB\s-1WARNING:\s0\fR All the functions are namespace clean and contain prefix
 \&\fBCygbuild*\fR, but many global variables are defined that do not
 include the prefix: \f(CW$instdir\fR, \f(CW$builddir\fR etc.
-.Sp
+.PP
 To get access to full power of the functions, these steps are needed:
-.Sp
+.PP
 .Vb 1
 \&    #!/bin/sh
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    CYGBUILD=$(which cygbuild)
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    #   Load "as library"
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    CYGBUILD_LIB=1 source $CYGBUILD
 .Ve
-.Sp
+.PP
 .Vb 2
 \&    #   Prepare the library's internal variables, like defining where
 \&    #   RM, CP, PERL and AWK commands are.
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    CygbuildDefineGlobalCommands
 .Ve
-.Sp
+.PP
 .Vb 3
 \&    #   And more preparations provided that the current directory's PWD,
 \&    #   is inside some/path/foo-1.13. If not, then please skip
 \&    #   this part completely.
 .Ve
-.Sp
+.PP
 .Vb 4
 \&    local tdir=$(pwd)
 \&    local -a array=( $(CygbuildSrcDirLocation $tdir) )
 \&    local top=${array[0]}
 \&    local src=${array[1]}
 .Ve
-.Sp
+.PP
 .Vb 4
 \&    CygbuildDefineGlobalMain    \e
 \&        "$top"                  \e
 \&        "$src"                  \e
 \&        "$RELEASE"              \e
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    #   Now any function can be called. Like installing documentation
 .Ve
-.Sp
+.PP
 .Vb 2
 \&    CygbuildInstallPackageDocs
 \&    CygbuildInstallCygwinPart
 .Ve
-.Sp
+.PP
 .Vb 1
 \&    #   End of example
 .Ve
@@ -2325,13 +2111,13 @@ installation typically copies the package's default setup file there but
 subsequent installations won't overwrite existing files in order to
 preserve user's modifications. If new version of the package includes new
 features, those are not found from the \*(L"old\*(R" /etc configuration files.
-.Sp
+.PP
 Let's suppose user has not yet modified system wide configuration file
 \&\f(CW\*(C`/etc/foo.conf\*(C'\fR and package includes newer one in
 \&\f(CW\*(C`/usr/share/doc/foo\-1.2/foo.conf.example\*(C'\fR. In this case the installation
 should copy the new example file over \f(CW\*(C`/etc/foo.conf\*(C'\fR to reflect possible
 new features in the program.
-.Sp
+.PP
 The trick is to include a \fIpreremove.sh\fR script in the Cygwin Net Release
 binary package. A file named \f(CW\*(C`/etc/preremove/foo.sh\*(C'\fR will be called just
 before the package is uninstalled (setup.exe uninstalls the old version
@@ -2340,7 +2126,7 @@ before installing the upgraded version), so in that script, if
 \&\f(CW\*(C`/usr/share/doc/foo.conf.example\*(C'\fR, the \fIpreremove.sh\fR should delete it
 and let \fIpostinstall.sh\fR install new one. If the \f(CW\*(C`/etc/foo.conf\*(C'\fR is
 modified, it must be left alone.
-.Sp
+.PP
 Also, it is a good idea to have a file \f(CW\*(C`/etc/preremove/foo\-manifest.lst\*(C'\fR,
 which lists every file that was created by the \fIpostinstall.sh\fR script,
 and which will be removed on \fIpreremove.sh\fR if untouched by the user.
@@ -2351,18 +2137,18 @@ postinstalls have not completed.
 It is allowed to include any music related code if \s-1MP3\s0 related code is not
 compiled in (cf.
  http://permalink.gmane.org/gmane.os.cygwin.applications/11360 )
-.Sp
+.PP
 As long as Cygwin is released on this \s-1US\s0 based server, the general rules
 are that it is permissable to include and not include in Cywgwin are
 basically the same as for the Fedora project
 <http://fedoraproject.org/wiki/ForbiddenItems>:
-.Sp
+.PP
 .Vb 3
 \&  * If it is proprietary, it cannot be included in Fedora^WCygwin.
 \&  * If it is legally encumbered, it cannot be included in Cygwin.
 \&  * If it violates US Federal law, it cannot be included in Cygwin.
 .Ve
-.Sp
+.PP
 This is different from \s-1SUSE\s0 and Debian. \s-1SUSE\s0 is located in another country
 may even pay royalties. Debian has a different legal point of view than Red
 Hat (see debian-legal list maiing list
@@ -2380,50 +2166,50 @@ else, the program does not know where it is.
 .IX Subsection "Problem with command [all]"
 If you get an error, make sure that you have a clean build directory.
 Nothing else other than:
-.Sp
+.PP
 .Vb 2
 \&    1. a source file
 \&    2. a possible patch to make package work under Cygwin
 .Ve
-.Sp
+.PP
 The \fB[all]\fR is special and it should not be run only for testing already
 packages Cygwin Net Releases. It unpacks and patches the source package. If
 any other commands are run patch may be tried to apply second time which
 naturally fails and script execution stops. Something like
-.Sp
+.PP
 .Vb 4
 \&    The next patch would create the file ...
 \&    which already exists!  Skipping patch.
 \&    1 out of 1 hunk ignored -- saving rejects to file ...
 \&    [FATAL] status is 1.
 .Ve
-.Sp
+.PP
 Start all from fresh. Remove unpack directory \f(CW\*(C`rm \-rf package\-N.N/\*(C'\fR and
 repeat command \fB[all]\fR.
 .Sh "Command [check] cannot find files"
 .IX Subsection "Command [check] cannot find files"
 The full error reads smething like this:
-.Sp
+.PP
 .Vb 1
 \&    cygbuild.pl.CygcheckDepsCheckMain: Nothing to do, no *.exe *.dll found in /usr/src/build/package/package-5.07/.inst
 .Ve
-.Sp
+.PP
 You tried to run command \fB[check]\fR, but you had not ran commands \fB[conf]\fR
 \&\fB[make]\fR and \fB[install]\fR. The install copies files under \f(CW\*(C`.inst/\*(C'\fR
 directory where the \fB[check]\fR command expects them.
 .Sh "Problem with command [install]"
 .IX Subsection "Problem with command [install]"
 You try to build a package and following error is displayed:
-.Sp
+.PP
 .Vb 1
 \&    $ cygbuild -v -r 1 package
 .Ve
-.Sp
+.PP
 .Vb 2
 \&    [ERROR] no package-0.5/.inst/usr/share/doc/Cygwin.
 \&    Did forget to run 'files' before 'install'?
 .Ve
-.Sp
+.PP
 The install check did not find anything inside
 \&\f(CW\*(C`.inst/usr/share/doc/Cygwin\*(C'\fR which is mandatory directory for Cygwin
 binary packages. Check that directory \f(CW\*(C`package\-N.N/CYGWIN\-PATCHES/\*(C'\fR
@@ -2432,14 +2218,14 @@ edit. These files can be initially created with command \fB[files]\fR.
 .Sh "Command [package] gives warnings"
 .IX Subsection "Command [package] gives warnings"
 You get following warning while making a binary package:
-.Sp
+.PP
 .Vb 4
 \&    -- Wait, reading and preparing variables based on current directory
 \&    -- Hm, no *.exe or *.dll files, skipping strip.
 \&    /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:1:<PKG>
 \&    /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack <PKG>-VER-REL-src.tar.bz2
 .Ve
-.Sp
+.PP
 The warning means, that file \f(CW\*(C`CYGWIN\-PATCHES/package.README\*(C'\fR was not
 modified before command \fB[install]\fR was run. Edit \f(CW\*(C`package.README\*(C'\fR file
 and leave all <\s-1PKG\s0> <\s-1VER\s0> <\s-1REL\s0> tags alone. Then run \fB[package]\fR followed
@@ -2450,18 +2236,18 @@ Program uses predefined set of ignore rules to exclude binary files from
 the difference comparison, but there is always a possibility that the
 package you compiled generated files that are unknown. In those cases,
 examine the diff output carefully, since the program will tell you:
-.Sp
+.PP
 .Vb 1
 \&    [ERROR] Making a patch failed, check /usr/src/foo-N.N/.sinst/foo-*.patch
 .Ve
-.Sp
+.PP
 Now run this command to determine the problematic files in the \fIdiff\fR\|(1)
 listing:
-.Sp
+.PP
 .Vb 1
 \&    $ egrep -n -i 'files.*differ' /usr/src/foo-N.N/.sinst/foo-*.patch
 .Ve
-.Sp
+.PP
 To include more files to be excluded, send mail to maintainer if the files
 are general enough to be detected as binary files. If files' extensions are
 specific to the current package build add these to file \fIdiff.options\fR or
@@ -2470,38 +2256,38 @@ section \*(L"Optional external scripts\*(R" for more.
 .SH "ENVIRONMENT"
 .IX Header "ENVIRONMENT"
 Default values for command \fB[install]\fR:
-.Sp
+.PP
 .Vb 3
 \&    CYGBUILD_INSTALL=/usr/bin/install
 \&    CYGBUILD_INSTALL_DATA="-m 644"
 \&    CYGBUILD_INSTALL_BIN="-m 755"
 .Ve
-.Sp
+.PP
 Default values for command \fB[publish]\fR:
-.Sp
+.PP
 .Vb 2
 \&    CYGBUILD_PUBLISH_DIR=/usr/src/cygwin-packages
 \&    CYGBUILD_PUBLISH_BIN=
 .Ve
-.Sp
+.PP
 Default values for command \fB[readmefix]\fR are below. The lines below mean
 that if \f(CW\*(C`CYGBUILD_FULLNAME\*(C'\fR is not set, the \f(CW\*(C`NAME\*(C'\fR is tried, and last Debian
 \&\f(CW\*(C`DEBFULLNAME\*(C'\fR variable. See also option \fB\-\-email\fR.
-.Sp
+.PP
 .Vb 2
 \&    CYGBUILD_FULLNAME || NAME
 \&    CYGBUILD_EMAIL    || EMAIL
 .Ve
-.Sp
+.PP
 Default values for command \fB[getsrc]\fR. The value must point to
 \&\s-1URL\s0 directory where Cygwin Net Release setup.ini file resides.
-.Sp
+.PP
 .Vb 1
 \&    CYGBUILD_SRCPKG_URL=http://mirror.switch.ch/ftp/mirror/cygwin
 .Ve
-.Sp
+.PP
 Temporary values can be given from /bin/bash prompt like this:
-.Sp
+.PP
 .Vb 1
 \&    bash$ EMAIL=me@example.org cygbuild [options] -r RELEASE <commands>
 .Ve
@@ -2509,30 +2295,30 @@ Temporary values can be given from /bin/bash prompt like this:
 .IX Header "FILES"
 Temporary files are created to \f(CW\*(C`/tmp/cygbuild.tmp.*\*(C'\fR. They are removed at
 the end of program except on interrupt.
-.Sp
+.PP
 Several files are created under \f(CW\*(C`./CYGWIN\-PATCHES\*(C'\fR after command
 \&\fB[files]\fR. Default template files are in \f(CW\*(C`/usr/share/cygbuild/template\*(C'\fR.
 No user files should be placed there because directory is emptied on new
 cygbuild installs. User files placed in \f(CW\*(C`/etc/cygbuild/template\*(C'\fR overwrite
 those in \f(CW\*(C`/usr/share/cygbuild/template\*(C'\fR.
-.Sp
+.PP
 The results of \fB\-\-init\-pkgdb\fR are stored under \f(CW\*(C`/var/cache/cygbuild\*(C'\fR.
 .SH "STANDARDS"
 .IX Header "STANDARDS"
 Cygwin Package Contributor's Guide' at http://cygwin.com/setup.html .
 Remember to compile libraries using \fB\-Wl,\-\-enable\-auto\-image\-base\fR
 (cf. 2005\-12\-19 http://cygwin.com/ml/cygwin\-apps/2005\-12/msg00101.html ).
-.Sp
+.PP
 A generic Bourne Shell build script can be found at page
 http://cygwin.com/setup.html and also available at
-.Sp
+.PP
 .Vb 1
 \&  cvs -d :pserver:anoncvs@sources.redhat.com:/cvs/cygwin-apps checkout packaging/templates
 .Ve
-.Sp
+.PP
 Consult list of packages from  before intent to port [\s-1ITP\s0]: See
 /etc/setup/installed.db or http://cygwin.com/packages/
-.Sp
+.PP
 Filesystem Hierarchy Standard at <http://www.pathname.com/fhs/>
 .SH "BUGS"
 .IX Header "BUGS"
@@ -2542,11 +2328,11 @@ The application does not check the sanity of the command line
 arguments. For example running commands in wrong order. It makes no
 sense trying to make a binary \fIpackage\fR before the program has been
 even built or installed.
-.Sp
+.PP
 .Vb 1
 \&   cygbuild -r 1 package make install
 .Ve
-.Sp
+.PP
 The commands are always executed in listed order.
 .Sh "Perl and double install is needed"
 .IX Subsection "Perl and double install is needed"
@@ -2556,18 +2342,18 @@ because in the first time, program writes
 \&\f(CW\*(C`CYGWIN\-PATCHES/postinstall.sh\*(C'\fR file that handles announcing the
 program to
 \&\f(CW\*(C`/usr/lib/perl5/5.8.2/cygwin\-thread\-multi\-64int/perllocal.pod\*(C'\fR.
-.Sp
+.PP
 The next time the \fB[install]\fR is run, you will see this message,
 because the file was already generated and program will not overwrite
 existing postinstall:
-.Sp
+.PP
 .Vb 1
 \&    [WARN] Already exists, won't write to /usr/src/build/try/package-N.N/CYGWIN-PATCHES/postinstall.sh
 .Ve
-.Sp
+.PP
 Ignore it, and check the contents of \f(CW\*(C`.inst/\*(C'\fR directory. After the
 seconf \fB[install]\fR you should find the correct postinstall:
-.Sp
+.PP
 .Vb 2
 \&    .inst/etc/postinstall
 \&    .inst/etc/postinstall/program.sh
@@ -2577,7 +2363,7 @@ seconf \fB[install]\fR you should find the correct postinstall:
 This porting tool only handles \f(CW\*(C`*.tar.gz\*(C'\fR or \f(CW\*(C`*.tar.bz2\*(C'\fR artchives. To
 port e.g. a \f(CW\*(C`*.zip\*(C'\fR archive, you need to manually convert it to recognized
 format:
-.Sp
+.PP
 .Vb 4
 \&    unzip foo-1.1.zip
 \&    tar cvf foo-1.1.tar.gz foo-1.1/
@@ -2589,7 +2375,7 @@ format:
 If you ran into a bug, run script in debug mode and send complete
 output listing to the maintainer. Provide also an \s-1URL\s0 link to the
 source package that you tried to build.
-.Sp
+.PP
 .Vb 2
 \&    $ pwd; ls -la . ..                       >  ~/tmp/error.log
 \&    $ bash -x cygbuild [options] CMD ...  >> ~/tmp/error.log 2>&1
@@ -2609,7 +2395,7 @@ same checks of version and release numbers multiple times.
 To compile libraries for Cygwin, the \f(CW\*(C`LDFLAGS\*(C'\fR should include option
 \&\f(CW\*(C`\-no\-undefined\*(C'\fR. If there is \f(CW\*(C`Makefile(.in|.am)\*(C'\fR you can regenerate the
 Makefiles with
-.Sp
+.PP
 .Vb 1
 \&    $ autoreconf --install --force --verbose
 .Ve
@@ -2617,12 +2403,12 @@ Makefiles with
 .IX Subsection "yacc or lex file compiling notes"
 Sometimes the \f(CW\*(C`*.y\*(C'\fR file won't compile. See thread \*(L"ftpcmd.y \*(-- syntax
 error\*(R" at http://lists.gnu.org/archive/html/help\-bison/2004\-04/msg00015.html
-.Sp
+.PP
 .Vb 2
 \&    bison -y ftpcmd.y
 \&    ftpcmd.y:185.17: syntax error, unexpected "="
 .Ve
-.Sp
+.PP
 .Vb 4
 \&    ...There are 85 occurrences of "<tab>=<tab>{" in ftpcmd.y (in the
 \&    wu-ftpd 2.6.2 source release). Changing all of these to "<tab>{"
@@ -2650,6 +2436,6 @@ Cygwin
 \&\fIgpg\fR\|(1)
 .SH "AUTHOR"
 .IX Header "AUTHOR"
-Copyright (C) 2003\-2007 Jari Aalto. This program is free software; you
+Copyright (C) 2003\-2008 Jari Aalto. This program is free software; you
 can redistribute and/or modify program under the terms of Gnu General
 Public licence v2 or, at your option, any later version.

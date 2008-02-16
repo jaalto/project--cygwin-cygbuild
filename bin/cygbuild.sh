@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0215.2347"
+CYGBUILD_VERSION="2008.0216.0052"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5405,7 +5405,7 @@ function CygbuildPatchApplyMaybe()
     do
         [ -f "$file" ] || continue
 
-        name=${file##*/}
+        name=${file#$srcdir\/}
         done=
         continue=
 
@@ -9189,7 +9189,7 @@ function CygbuildInstallFixEtcdirInstall()
     #
     #	    .inst/etc/default/<package/
 
-    local pkgetcdir=$(cd $dir/etc && pwd)
+    local pkgetcdir=$(cd $dir/etc 2> /dev/null && pwd)
 
     [ "$pkgetcdir" ] || return 0
 
