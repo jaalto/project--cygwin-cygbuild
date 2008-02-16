@@ -16,6 +16,8 @@
 	(CygbuildInstallPackageDocs): Add files: Copyright, Install
 	(CygbuildBootVariablesGlobalMain): Remove 'debian' from
 	variable `cygbuild_opt_exclude_dir'.
+	(CygbuildCmdInstallCheckDocdir): Correct typo in find command
+	that cause error: -type: command not found
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 

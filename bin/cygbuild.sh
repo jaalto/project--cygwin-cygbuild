@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.0850"
+CYGBUILD_VERSION="2008.0216.1000"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -10259,7 +10259,7 @@ function CygbuildCmdInstallCheckDocdir()
 	return 0
     fi
 
-    $FIND -L #$dir"                     \
+    $FIND -L "$dir"                     \
         -type f                         \
         '(' -path   "*$PKG*"   ')'      \
         > $retval
