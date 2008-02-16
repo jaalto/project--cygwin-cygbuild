@@ -8,8 +8,3 @@ category: name1[ name2...]
 requires: cygwin [ package...]
 external-source: package
 conflicts:
-    Admin	Archive Audio	    Base  	Comm
-    Database	    Devel	Doc	Editors	    Games 	Gnome
-    Graphics	    Interpreters Libs	Mail	    Math 	Mingw
-    Net		    Perl	Python	Publishing  Science 	Shells
-    System	    Text	Utils	Web	    X11
