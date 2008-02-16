@@ -9,6 +9,11 @@
 	(CygbuildPatchApplyMaybe): Use `CygbuildPatchList'.
 	(CygbuildInstallFixEtcdirInstall): Ignore cd call error.
 	(CygbuildPatchApplyRun): Display patch name always.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Loose dot from file
+	extension check so that *patch matches both .dpatch and .patch.
+	(CygbuildCmdInstallCheckDirStructure): Fix empty dir check.
+	(CygbuildCmdInstallCheckDocdir): Warn about missing doc/PKG dir.
+	(CygbuildInstallPackageDocs): Add files: Copyright, Install
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 

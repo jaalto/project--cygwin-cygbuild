@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.0128"
+CYGBUILD_VERSION="2008.0216.0209"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8672,6 +8672,8 @@ function CygbuildInstallPackageDocs()
     for file in $builddir/[A-Z][A-Z][A-Z]* \
                 $builddir/changelog        \
                 $builddir/ChangeLog        \
+		$builddir/Copyright	   \
+		$builddir/Install	   \
                 $builddir/*.html           \
                 $builddir/*.pdf            \
                 $builddir/*.txt
@@ -9993,11 +9995,11 @@ function CygbuildCmdInstallCheckDirStructure()
 
 	[ -d "$tmp" ] || continue
 
-	if ! CygbuildIsDirEmpty "$tmp" ; then
+	if $LS -F $tmp | $EGREP --quiet --invert-match '/' ; then
             error=1
 	    CygbuildWarn "-- [ERROR] Files in toplevel dir" \
 			 ${tmp/$srcdir\/}
-	    $LS -F $tmp | $EGREP -v '/'
+	    $LS -F $tmp
 	fi
     done
 
@@ -10251,7 +10253,12 @@ function CygbuildCmdInstallCheckDocdir()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$DIR_DOC_GENERAL"
 
-    $FIND -L $dir                       \
+    if [ ! -d "$dir" ]; then
+        CygbuildWarn "-- [WARN] Hm, not found ${dir#$srcdir/}"
+	return 0
+    fi
+
+    $FIND -L #$dir"                     \
         -type f                         \
         '(' -path   "*$PKG*"   ')'      \
         > $retval
@@ -10643,7 +10650,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
     |
     while read file
     do
-        [[ "$file" == *.@(patch|diff|orig) ]] && continue
+        [[ "$file" == *@(patch|diff|orig) ]] && continue
         [ -f $file ] || continue
 
         if $EGREP --line-number '[[:space:]]$' $file > $retval
