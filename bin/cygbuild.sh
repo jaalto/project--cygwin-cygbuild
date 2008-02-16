@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.1424"
+CYGBUILD_VERSION="2008.0216.1806"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3287,7 +3287,7 @@ function CygbuildDefineGlobalCommands()
     CP=cp                               # global-def
     DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
-    EGREPP="grep --binary-files=without-match" # global-def
+    GREP="grep --binary-files=without-match" # global-def
     FILE=file                           # global-def
     FIND=find                           # global-def
     GZIP=gzip                           # global-def
@@ -4759,7 +4759,7 @@ function CygbuildCmdReadmeFixMain()
     CygbuildEcho "-- Fixing $readme"
 
     if [ ! "$readme" ]; then
-        CygbuildWarn "$id: [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
+        CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
         return 1
     fi
 
@@ -4768,9 +4768,14 @@ function CygbuildCmdReadmeFixMain()
         return 1
     fi
 
-    # CygbuildDefineGlobalSrcOrig || return 1
+    local pkg="$FILE_BIN_PKG"
 
-    CygbuildCmdReadmeFixFile "$readme" "$FILE_BIN_PKG"
+    if [ ! -f "$pkg" ]; then
+	CygbuildWarn "-- [ERROR] Can't read ${pkg#$srcdir/}." \
+		     "Try running [package] first"
+    fi
+
+    CygbuildCmdReadmeFixFile "$readme" "$pkg"
 }
 
 function CygbuildCmdPublishSetupFix()
@@ -5429,7 +5434,7 @@ function CygbuildPatchApplyMaybe()
         if [ "$statCheck" ]; then
             if [ -f "$statfile" ]; then
 
-                $EGREPP --quiet --fixed-strings "$name" $statfile && done=done
+                $GREP --quiet --fixed-strings "$name" $statfile && done=done
 
                 if [ "$cmd" = patch ] ; then
                     if [ "$done" ]; then
@@ -5474,7 +5479,7 @@ function CygbuildPatchApplyMaybe()
 
             #   Remove name from patch list
             if [ -f "$statfile" ]; then
-                $EGREPP --invert-match --fixed-strings "$name" \
+                $GREP --invert-match --fixed-strings "$name" \
                         "$statfile" > $retval
 
                 $MV "$retval" "$statfile"
@@ -7225,7 +7230,7 @@ function CygbuildPatchListDisplay()
 
     if [ -f "$file" ]; then
         CygbuildEcho "-- [INFO] Applied local patches"
-        $SED "s,^,$CYGBUILD_DIR_CYGPATCH_RELATIVE/," $file | $SORT -u
+        $EGREP $file | $SORT -u
     fi
 }
 function CygbuildPatchDiffstat()
@@ -7263,11 +7268,26 @@ function CygbuildPatchCheck()
 
     if [ -f "$file" ]; then
 
-        local _file=${file/$srcdir\/}   # Relative path name
+        local _file=${file#$srcdir/}   # Relative path name
 
         if [ "$verbose" ]; then
-            CygbuildEcho "-- content of" ${file/$srcdir\/}
-            $AWK '/^\+\+\+ / { print "     " $2}' $file
+            CygbuildEcho "-- content of $_file"
+            $AWK '/^\+\+\+ / { print "     " $2}' $file > $retval
+
+	    #  Arrange listing a little. Subdirectories last.
+	    #    foo-2.5/CYGWIN-PATCHES/foo.README
+	    #    foo-2.5/CYGWIN-PATCHES/patches/...
+
+	    $EGREP "/.+/.+/"    $retval > $retval.dir
+
+	    if [ -s "$retval.dir" ]; then
+		$GREP --invert-match --fixed-strings \
+		    --file=$retval.dir  $retval | $SORT
+		$SORT $retval.dir
+	    else
+		cat $retval
+	    fi
+
         fi
 
         CygbuildPatchDiffstat "$file"
@@ -10197,7 +10217,7 @@ function CygbuildCmdInstallCheckManualPages()
     done < $retval
 
     if [ -s $retval.debian ]; then
-        CygbuildEcho "-- [INFO] If page is form Debian, it may need editing"
+        CygbuildEcho "-- [INFO] If manpage is from Debian, it may need editing"
         $CAT $retval.debian
     fi
 

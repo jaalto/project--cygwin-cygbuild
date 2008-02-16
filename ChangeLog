@@ -1,10 +1,14 @@
 2008-02-16  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/etc/programs.conf: Replace EGREPP with EGREP.
+
 	* bin/cygbuild.pl: (HELP::Patch management commands::patch):
 	Document new behavior that patches are searches recursively.
 	Mention about the use of sequential number in patch filenames.
 
-	* bin/cygbuild.sh: (CygbuildPatchList): New. Find any *patch
+	* bin/cygbuild.sh:
+	-- Replace all EGREPP with EGREP.
+	(CygbuildPatchList): New. Find any *patch
 	recursively.
 	(CygbuildPatchApplyMaybe): Use `CygbuildPatchList'.
 	(CygbuildInstallFixEtcdirInstall): Ignore cd call error.
@@ -26,6 +30,10 @@
 	(CygbuildCmdInstallCheckSetupHintFieldCategory): New.
 	(CygbuildCmdInstallCheckSetupHintMain): Use
 	`CygbuildCmdInstallCheckSetupHintFieldCategory'.
+	(CygbuildCmdReadmeFixMain): Check missing archive and suggest
+	running command `package'.
+	(CygbuildPatchListDisplay): Fix displayed names.
+	(CygbuildPatchCheck): Display files first, then directories.
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 
