@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.1000"
+CYGBUILD_VERSION="2008.0216.1037"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -9961,13 +9961,14 @@ function CygbuildCmdInstallCheckDirEmpty()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir
 
-    $FIND $instdir -type d > $retval
+    $FIND "$instdir" -type d > $retval
+    [ -s "$retval" ] || return 0
 
     while read dir
     do
         [ "$dir" = "$instdir" ] && continue
 
-        if ! $LS -A $dir | $EGREP --quiet '[a-zA-Z0-9]' ; then
+        if ! $LS -A "$dir" | $EGREP --quiet '[a-zA-Z0-9]' ; then
             CygbuildWarn "-- [WARN] empty directory" ${dir/$srcdir\//}
         fi
 
@@ -10596,11 +10597,12 @@ function CygbuildCmdInstallCheckLineEndings()
     else
         # --files-with-matches = ... The scanning will stop on the first match.
 
-        if  head $DIR_CYGPATCH/* | $CAT -v \
+        if  head $DIR_CYGPATCH/* 2> /dev/null | $CAT -v \
             | $EGREP --files-with-matches "\^M" \
               > /dev/null 2>&1
         then
-            CygbuildEcho "-- [INFO] Converting to Unix line endings: $DIR_CYGPATCH/*"
+            CygbuildEcho "-- [INFO] Converting to Unix line endings" \
+			 "$DIR_CYGPATCH/*"
             CygbuildFileConvertToUnix $DIR_CYGPATCH/*
         fi
     fi

@@ -18,6 +18,7 @@
 	variable `cygbuild_opt_exclude_dir'.
 	(CygbuildCmdInstallCheckDocdir): Correct typo in find command
 	that cause error: -type: command not found
+	(CygbuildCmdInstallCheckLineEndings): Ignore error after head(1).
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 
