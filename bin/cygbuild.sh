@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.1037"
+CYGBUILD_VERSION="2008.0216.1424"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -718,6 +718,20 @@ function CygbuildBootVariablesGlobalMain()
     #       Private: install options and other variables
     #
     #######################################################################
+
+    #  List of allowed values for Category header
+    #  The authorative list is in the Cygwin installer setup.hint
+    #  See also http://cygwin.com/setup.html
+    #
+    #  NOTICE: All this must be space separated, no tabs anywhere.
+
+    CYGBUILD_SETUP_HINT_CATEGORY="\
+    Accessibility   Admin       Archive Audio       Base        Comm\
+    Database        Devel       Doc     Editors     Games       Gnome\
+    Graphics        Interpreters Libs   Mail        Math        Mingw\
+    Net             Perl        Python  Publishing  Science     Shells\
+    System          Text        Utils   Web         X11 \
+    "
 
     #  This variable holds bash match expressions for files to exclude
     #  from original sources while copying the user documentation to
@@ -9756,9 +9770,15 @@ function CygbuildCmdInstallCheckSetupHintQuotes()
     ' "$path" | CygbuildMsgFilter >&2
 }
 
-function CygbuildCmdInstallCheckSetupHintFields()
+function CygbuildCmdInstallCheckSetupHintFieldNames()
 {
-    local path=${1:-/dev/null}
+    local id="$0.$FUNCNAME"
+    local path="$1"
+
+    if [ ! "$path" ]; then
+	CygbuildWarn "$id: Missing argument PATH"
+	return 1
+    fi
 
     #   Check required fields
 
@@ -9789,8 +9809,14 @@ function CygbuildCmdInstallCheckSetupHintFields()
 
 function CygbuildCmdInstallCheckSetupHintSdesc()
 {
-    local path=${1:-/dev/null}
+    local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local path="$1"
+
+    if [ ! "$path" ]; then
+	CygbuildWarn "$id: Missing argument PATH"
+	return 1
+    fi
 
     if $EGREP --quiet "^sdesc:.+\.[[:space:]]*\"" $path
     then
@@ -9807,6 +9833,34 @@ function CygbuildCmdInstallCheckSetupHintSdesc()
     then
         CygbuildWarn "-- [ERROR] sdesc: No starting double quote"
     fi
+}
+
+function CygbuildCmdInstallCheckSetupHintFieldCategory()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local path="$1"
+
+    if [ ! "$path" ]; then
+	CygbuildWarn "$id: Missing argument PATH"
+	return 1
+    fi
+
+    if ! $EGREP --ignore-case "^category:" $path > $retval ; then
+	CygbuildWarn "-- [ERROR] setup.hint lacks header Category:"
+	return 1
+    fi
+
+    for item in $(< $retval)
+    do
+	#  Skip first word, the "Category:" header
+	[[ "$item" == *:* ]] && continue
+
+
+	if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
+	    CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"
+	fi
+    done
 }
 
 function CygbuildCmdInstallCheckSetupHintLdesc()
@@ -9940,7 +9994,8 @@ function CygbuildCmdInstallCheckSetupHintMain()
 
     local path=$(< $retval)
 
-    CygbuildCmdInstallCheckSetupHintFields "$path"
+    CygbuildCmdInstallCheckSetupHintFieldNames "$path"
+    CygbuildCmdInstallCheckSetupHintFieldCategory "$path"
     CygbuildCmdInstallCheckSetupHintSdesc "$path"
 
     CygbuildCmdInstallCheckSetupHintLdesc "$path"

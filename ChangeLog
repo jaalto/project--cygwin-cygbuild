@@ -19,6 +19,13 @@
 	(CygbuildCmdInstallCheckDocdir): Correct typo in find command
 	that cause error: -type: command not found
 	(CygbuildCmdInstallCheckLineEndings): Ignore error after head(1).
+	(CygbuildCmdInstallCheckSetupHintFieldNames): Renamed. Was
+	`CygbuildCmdInstallCheckSetupHintFields'.
+	(CygbuildBootVariablesGlobalMain): New variable
+	`CYGBUILD_SETUP_HINT_CATEGORY'.
+	(CygbuildCmdInstallCheckSetupHintFieldCategory): New.
+	(CygbuildCmdInstallCheckSetupHintMain): Use
+	`CygbuildCmdInstallCheckSetupHintFieldCategory'.
 
 2008-02-15  Jari Aalto  <jari.aalto@cante.net>
 
