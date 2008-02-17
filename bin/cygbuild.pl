@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0216.1956';
+$VERSION = '2008.0217.2054';
 
 # ..................................................................
 
@@ -899,7 +899,7 @@ Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
 
 Same as command B<[all]> but without the B<[finish]> step.
 
-=item B<getsrc PACKAGE>
+=item B<cygsrc PACKAGE>
 
 Download Cygwin net release source package to current directory. This
 command is primarily used for downloading sources of orphaned package
@@ -2072,7 +2072,7 @@ C<DEBFULLNAME> variable. See also option B<--email>.
     CYGBUILD_FULLNAME || NAME
     CYGBUILD_EMAIL    || EMAIL
 
-Default values for command B<[getsrc]>. The value must point to
+Default values for command B<[cygsrc]>. The value must point to
 URL directory where Cygwin Net Release setup.ini file resides.
 
     CYGBUILD_SRCPKG_URL=http://mirror.switch.ch/ftp/mirror/cygwin

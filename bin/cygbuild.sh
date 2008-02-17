@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0217.1118"
+CYGBUILD_VERSION="2008.0217.2053"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -11843,7 +11843,7 @@ function CygbuildCommandMain()
     do
         case $opt in
 
-          getsrc)               shift
+          cygsrc)               shift
                                 arg="$1"
                                 shift
                                 CygbuildCmdGetSource "$arg"

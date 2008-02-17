@@ -1,7 +1,11 @@
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::Other commands): Change
+	getsrc command to cygsrc.
+
 	* bin/cygbuild.sh (CygbuildBootVariablesId): Remove unused
 	CVS based variables.
+	(CygbuildCommandMain): Change getsrc command to cygsrc.
 
 2008-02-16  Jari Aalto  <jari.aalto@cante.net>
 
