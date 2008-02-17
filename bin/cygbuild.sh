@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0217.2121"
+CYGBUILD_VERSION="2008.0217.2150"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1186,6 +1186,12 @@ function CygbuildFileConvertLF ()
     $SED 's/$/\r/' "$file" &&
     $MV "$retval" "$file"
 
+}
+
+function CygbuildFileIsCRLF ()
+{
+    local ctrlM=$'\015'
+    $EGREP --quiet --files-with-matches "[$ctrlM]" "$file"
 }
 
 CygbuildFileSize ()

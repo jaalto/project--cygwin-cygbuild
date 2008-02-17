@@ -8,6 +8,7 @@
 	(CygbuildCommandMain): Change getsrc command to cygsrc.
 	(CygbuildFileConvertCRLF): New
 	(CygbuildFileConvertLF): New.
+	(CygbuildFileIsCRLF): New.
 
 2008-02-16  Jari Aalto  <jari.aalto@cante.net>
 
