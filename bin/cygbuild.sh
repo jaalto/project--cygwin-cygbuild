@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0216.2033"
+CYGBUILD_VERSION="2008.0217.1118"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -140,8 +140,7 @@ CYGBUILD_NAME="cygbuild"
 	    [ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
 	fi
 
-        echo $CYGBUILD_ID >&2
-        echo "$0 [FATAL] Called with wrong shell: needs bash" >&2
+        echo "$0 [FATAL] $prg salled with wrong shell: needs bash" >&2
         exit 1
     fi
 
@@ -483,20 +482,6 @@ function CygbuildBootVariablesId()
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
 
     TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
-
-    if [ "" ]; then  # Disabled, work for CVS Id strings only
-
-        CYGBUILD_VERSION=${CYGBUILD_ID##*,v[ ]}
-        CYGBUILD_VERSION=${CYGBUILD_VERSION%%[ ]*}
-
-        #   This could be more easily done in sed or awk, but it is
-        #   faster to use bash to convert YYYY/MM/DD into ISO8601
-        #   format YYYY-MM-DD
-
-        CYGBUILD_DATE=${CYGBUILD_ID#*.[0-9][0-9][0-9][ ]}   # Delete leading
-        CYGBUILD_DATE=${CYGBUILD_DATE%%[ ]*}                # And trailing
-        CYGBUILD_DATE=${CYGBUILD_DATE//\//-}       # And substitute / with -
-    fi
 
     CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
 
