@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0217.2053"
+CYGBUILD_VERSION="2008.0217.2121"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1148,6 +1148,44 @@ function CygbuildIsDirEmpty()
     done
 
     return 0
+}
+
+function CygbuildFileConvertCRLF ()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    [ "$file" ]      || return 0
+    [ ! -s "$file" ] || return 0
+
+    if [ ! -f "$file" ]; then
+	CygbuildWarn "$id: Not a file '$file'
+	return 1
+    fi
+
+    $TR -d '\015' < "$file" > "$retval" &&
+    $MV "$retval" "$file"
+}
+
+function CygbuildFileConvertLF ()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    [ "$file" ]      || return 0
+    [ ! -s "$file" ] || return 0
+
+    if [ ! -f "$file" ]; then
+	CygbuildWarn "$id: Not a file '$file'
+	return 1
+    fi
+
+#    $AWK '{ printf "%s\r\n", $0}' "$file" > "$retval" &&
+    $SED 's/$/\r/' "$file" &&
+    $MV "$retval" "$file"
+
 }
 
 CygbuildFileSize ()

@@ -6,6 +6,8 @@
 	* bin/cygbuild.sh (CygbuildBootVariablesId): Remove unused
 	CVS based variables.
 	(CygbuildCommandMain): Change getsrc command to cygsrc.
+	(CygbuildFileConvertCRLF): New
+	(CygbuildFileConvertLF): New.
 
 2008-02-16  Jari Aalto  <jari.aalto@cante.net>
 
