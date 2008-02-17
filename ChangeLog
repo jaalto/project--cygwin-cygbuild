@@ -1,4 +1,16 @@
+2008-02-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/build.env.options.tmp: REmove obsolte file.
+
+	* bin/cygbuild.sh:
+	(CygbuildDefineGlobalMain): Remove obsolete EXTRA_BUILD_ENV_OPTIONS.
+	(CygbuildCmdBuildStdMakefile): Do not use EXTRA_BUILD_ENV_OPTIONS.
+
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/patch-after.sh.tmp: New.
+
+	* etc/template/patch-before.sh.tmp: New.
 
 	* bin/cygbuild.pl: (HELP::Other commands): Change
 	getsrc command to cygsrc.
@@ -9,6 +21,9 @@
 	(CygbuildFileConvertCRLF): New
 	(CygbuildFileConvertLF): New.
 	(CygbuildFileIsCRLF): New.
+	(CygbuildDefineGlobalMain): Define SCRIPT_PATCH_BEFORE,
+	SCRIPT_PATCH_AFTER
+	(CygbuildBootFunctionExport): Export new functions.
 
 2008-02-16  Jari Aalto  <jari.aalto@cante.net>
 

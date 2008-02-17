@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0217.2150"
+CYGBUILD_VERSION="2008.0217.2345"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3732,7 +3732,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     EXTRA_CONF_OPTIONS=$DIR_CYGPATCH/configure.options          # global-def
     EXTRA_CONF_ENV_OPTIONS=$DIR_CYGPATCH/configure.env.options  # global-def
-    EXTRA_BUILD_ENV_OPTIONS=$DIR_CYGPATCH/build.env.options     # global-def
+
     EXTRA_BUILD_OPTIONS=$DIR_CYGPATCH/build.options             # global-def
     EXTRA_DIFF_OPTIONS_PATCH=$DIR_CYGPATCH/diff.options         # global-def
     EXTRA_TAR_OPTIONS_INSTALL=$DIR_CYGPATCH/install.tar.options # global-def
@@ -3747,6 +3747,9 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
+
+    SCRIPT_PATCH_BEFORE=$DIR_CYGPATCH/patch-before.sh	        # global-def
+    SCRIPT_PATCH_AFTER=$DIR_CYGPATCH/patch-after.sh	        # global-def
 
     SCRIPT_BIN_PACKAGE=$DIR_CYGPATCH/package-bin.sh             # global-def
     SCRIPT_SOURCE_PACKAGE=$DIR_CYGPATCH/package-source.sh       # global-def
@@ -5468,6 +5471,8 @@ function CygbuildPatchApplyMaybe()
 
 	list="$tmp"
     fi
+
+    # FIXME: patch-before.sh
 
     for file in $list
     do
@@ -8339,9 +8344,8 @@ function CygbuildCmdBuildPython()
 function CygbuildCmdBuildStdMakefile()
 {
     local id="$0.$FUNCNAME"
+    local optfile="$EXTRA_BUILD_OPTIONS"
     local status=0
-    local envfile=$EXTRA_BUILD_ENV_OPTIONS
-    local optfile=$EXTRA_BUILD_OPTIONS
 
     CygbuildExitNoDir "$builddir" "$id: builddir not found [$builddi]"
 
@@ -8383,7 +8387,7 @@ function CygbuildCmdBuildStdMakefile()
                     CygbuildEcho "-- Reading extra env from" \
                                  ${optfile/$srcdir\//}
 
-                    [ "$verbose" ] &&  cat $optfile
+                    [ "$verbose" ] && cat $optfile
                     source $optfile || exit $?
                 fi
 
