@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0217.2345"
+CYGBUILD_VERSION="2008.0218.0052"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3820,7 +3820,7 @@ function CygbuildDefineGlobalSrcOrig()
 
     local id="$0.$FUNCNAME"
     local sourcefile="$OPTION_FILE"
-    local dummy="pwd $(pwd)"    # for debugging
+    local dummy="$(pwd)"    # for debugging
 
     if [ ! "$PKG" ] || [ ! "$VER" ]; then
         CygbuildWarn "$id: [FATAL] variables PKG and VER" \
@@ -5895,7 +5895,7 @@ function CygbuildCmdPkgSourceStandard()
         #   *-1.tar.bz2, *-2.tar.bz2  when the current release source
         #   is -3.
 
-        local pkg=$PKG-$VER-$REL
+        local pkg="$PKG-$VER-$REL"
         local re
 
         CygbuildStrToRegexpSafe "$pkg" > $retval
@@ -5916,7 +5916,7 @@ function CygbuildCmdPkgSourceStandard()
         local pkg="$FILE_SRC_PKG"
 
         $TAR $taropt $FILE_SRC_PKG \
-             $(ls $PKG*  | $EGREP -v "$pkg(-src)?\.tar")
+             $(ls $PKG*  | $EGREP -v "$pkg|-src\.tar|$VER-[0-9]+\.tar")
 
         status=$?
 
@@ -6178,7 +6178,7 @@ function CygbuildCmdPkgSourceMain()
         CygbuildCmdPkgSourceExternal
 
     elif [ "$OPTION_VC_PACKAGE" ] && [ "$type" = "cvs" ] ; then
-        CygbuildEcho "-- Erm, packaging sources from Version Control dir is" \
+        CygbuildEcho "-- Packaging sources from Version Control dir is" \
              "still highly experimental."
         CygbuildCmdPkgSourceCvsMain
     else

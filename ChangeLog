@@ -1,10 +1,12 @@
 2008-02-18  Jari Aalto  <jari.aalto@cante.net>
 
-	* etc/template/build.env.options.tmp: REmove obsolte file.
+	* etc/template/build.env.options.tmp: Remove obsolte file.
 
 	* bin/cygbuild.sh:
 	(CygbuildDefineGlobalMain): Remove obsolete EXTRA_BUILD_ENV_OPTIONS.
 	(CygbuildCmdBuildStdMakefile): Do not use EXTRA_BUILD_ENV_OPTIONS.
+	(CygbuildCmdPkgSourceStandard): Tighten regexp to *not*
+	include binary package in src package.
 
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
 
