@@ -1,5 +1,11 @@
 2008-02-18  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::Packaging commands): Remove functionality
+	no longer presend in command `readmefix.
+
+	* etc/template/package.README (Language): Typo in word
+	'Licenced ...'. Corrected to Licensed.
+
 	* etc/template/build.env.options.tmp: Remove obsolte file.
 
 	* bin/cygbuild.sh:
@@ -10,6 +16,8 @@
 	(CygbuildCmdBuildStdMakefile): Display Gcc version information.
 	(CygbuildCmdInstallCheckManualPages): Verify integrity of
 	compressed files.
+	(CygbuildCmdReadmeRemoveFileSection): New
+	(CygbuildCmdReadmeFixFile): Call `CygbuildCmdReadmeRemoveFileSection'
 
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
 

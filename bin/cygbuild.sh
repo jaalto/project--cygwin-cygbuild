@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0218.0656"
+CYGBUILD_VERSION="2008.0218.2136"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1192,6 +1192,12 @@ function CygbuildFileIsCRLF ()
 {
     local ctrlM=$'\015'
     $EGREP --quiet --files-with-matches "[$ctrlM]" "$file"
+}
+
+function CygbuildFileCmpDiffer ()
+{
+    cmp "$1" "$2" > /dev/null 2>&1
+    [ "$?" = "1" ]	    # 0 = same, 1 = differ, 2 = error
 }
 
 CygbuildFileSize ()
@@ -4728,6 +4734,50 @@ function CygbuildReadmeReleaseMatchCheck()
     fi
 }
 
+CygbuildCmdReadmeRemoveFileSection ()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local str="  <See content of *.tar.gz>"
+    local file=${1:-/dev/null}
+
+    #  ------------------------------------------
+    #
+    #  Files included in the binary distro:
+    #
+    #  etc/postinstall/bogofilter.sh
+    #  ...
+
+    $AWK '
+	/Files included in.*binary dist.*:/ {
+	    print
+	    section = 1
+	    next
+	}
+
+	{
+	    if ( section )
+	    {
+		if ( match($0, "^[a-z]+/|^[ \t]*$") > 0 )
+		{
+		    clean = 1
+		}
+		else
+		{
+		    if ( clean )
+			print "  <See content of *.tar.gz>\n"
+
+		    print
+		    section = 0
+		}
+		next
+	    }
+
+	    print
+	}
+
+    ' $file
+}
+
 CygbuildCmdReadmeFixFile ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -4739,12 +4789,20 @@ CygbuildCmdReadmeFixFile ()
 
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-#     CygbuildPerlModuleLocation  > $retval || exit 1
-#     local module=$(< $retval)
-
     if [ ! "$module" ]; then
         echo "$id: [FATAL] Perl module was not found"
         return 1                # Error is already displayed
+    fi
+
+    #	Delete file path information
+
+    CygbuildCmdReadmeRemoveFileSection "$readme" > "$retval.tmp"
+
+    if [ -s "$retval.tmp" ] &&
+       CygbuildFileCmpDiffer "$readme" "$retval.tmp"
+    then
+	CygbuildVerb "-- [NOTE] Remove 'files included':" ${readme#$srcdir/}
+	$MV "$retval.tmp" "$readme" || return $?
     fi
 
     #   1. Load library MODULE
@@ -4802,10 +4860,11 @@ function CygbuildCmdReadmeFixMain()
 
     local pkg="$FILE_BIN_PKG"
 
-    if [ ! -f "$pkg" ]; then
-	CygbuildWarn "-- [ERROR] Can't read ${pkg#$srcdir/}." \
-		     "Try running [package] first"
-    fi
+# FIXME: Old code
+#     if [ ! -f "$pkg" ]; then
+# 	CygbuildWarn "-- [ERROR] Can't read ${pkg#$srcdir/}." \
+# 		     "Try running [package] first"
+#     fi
 
     CygbuildCmdReadmeFixFile "$readme" "$pkg"
 }
@@ -12382,6 +12441,8 @@ function TestRegression ()
     Test cabber_0.4.0-test5.orig.tar.gz
     exit;
 }
+
+# AWK=awk CygbuildCmdReadmeRemoveFileSection /usr/src/build/build/bogofilter/bogofilter-1.1.6/CYGWIN-PATCHES/bogofilter.README ; exit 1222
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
