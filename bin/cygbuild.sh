@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0218.0052"
+CYGBUILD_VERSION="2008.0218.0100"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8400,6 +8400,9 @@ function CygbuildCmdBuildStdMakefile()
                 [ -s $retval ] && env=$(< $retval)
 
 		[ "$verbose" ] && set -x
+
+		#   Display version information before compiling
+		gcc --version | head -1
 
                 eval $MAKE -f $makefile                 \
                     AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \

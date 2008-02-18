@@ -7,6 +7,7 @@
 	(CygbuildCmdBuildStdMakefile): Do not use EXTRA_BUILD_ENV_OPTIONS.
 	(CygbuildCmdPkgSourceStandard): Tighten regexp to *not*
 	include binary package in src package.
+	(CygbuildCmdBuildStdMakefile): Display Gcc version information.
 
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
 
