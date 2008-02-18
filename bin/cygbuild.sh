@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0218.0100"
+CYGBUILD_VERSION="2008.0218.0656"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -10252,12 +10252,28 @@ function CygbuildCmdInstallCheckManualPages()
 
     local file path manlist manPathList
     local status=0
+    local itest
 
     rm -f $retval.debian
 
     while read file
     do
-        $EGREP -n 'Debian' $file >> $retval.debian
+        $EGREP -n 'Debian' $file /dev/null >> $retval.debian
+
+	itest=0
+
+	if [[ "$file" == *.gz  ]]; then
+	    gzip --test --verbose "$file"  > $retval.test 2>&1
+	    itest=$?
+	elif [[ "$file" == *.bz2 ]]; then
+	    bgzip2 --test --verbose "$file"  > $retval.test 2>&1
+	    itest=$?
+	fi
+
+	if [ ! "$itest" = "0" ]; then
+	    CygbuildWarn "-- [ERROR] integrity check failed:" ${file#$srcdir/}
+	    cat $retval.test
+	fi
 
         path=${file%/*}
         manPathList="$manPathList $path"
@@ -10265,7 +10281,7 @@ function CygbuildCmdInstallCheckManualPages()
         name=${file##*/}        # Delete path
         name=${name%.gz}        # package.1.gz => package.1
         name=${name%.bz2}       # package.1.gz => package.1
-        name=${name%$addsect}   # package.1x    => package.1
+        name=${name%$addsect}   # package.1x   => package.1
         name=${name%.[0-9]}     # package.1    => package
         manlist="$manlist $name "
     done < $retval

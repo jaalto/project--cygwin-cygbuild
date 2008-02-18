@@ -8,6 +8,8 @@
 	(CygbuildCmdPkgSourceStandard): Tighten regexp to *not*
 	include binary package in src package.
 	(CygbuildCmdBuildStdMakefile): Display Gcc version information.
+	(CygbuildCmdInstallCheckManualPages): Verify integrity of
+	compressed files.
 
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
 
