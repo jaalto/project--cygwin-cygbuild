@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0219.1555';
+$VERSION = '2008.0219.1749';
 
 # ..................................................................
 
@@ -3809,7 +3809,7 @@ sub ReadmeFix ($ $ $)
     my $placeholder = "  <See content of *.tar.gz>";
 
     s{(Files included in.*binary.*dist\w+:).+?(^---------)}
-     {$1$placeholder\n\n$2}ms;
+     {$1\n$placeholder\n\n$2}ms;
 
     # 2008-02-12 Disabled. It is better not to include the listing,
     # because it can be seen from tar.gz file

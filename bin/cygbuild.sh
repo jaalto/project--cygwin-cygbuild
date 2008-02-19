@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1617"
+CYGBUILD_VERSION="2008.0219.1758"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1829,7 +1829,7 @@ function CygbuildCheckRunDir()
 
     if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
-        CygbuildWarn "-- [WARN] Current directory is not source ROOT"
+        CygbuildWarn "-- [WARN] Current directory is not source ROOT" $srcdir
         return 1
     fi
 }
@@ -4736,9 +4736,7 @@ CygbuildCmdReadmeFixFile ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local readme="$1"
-    local tar="$2"
 
-    CygbuildExitNoFile "$tar" "$id: [ERROR] Cannot read files from $tar"
     CygbuildExitNoDir "$srcdir" "$id: [FATAL] Not exists $srcdir"
 
     local module="$CYGBUILD_STATIC_PERL_MODULE"
@@ -4801,15 +4799,7 @@ function CygbuildCmdReadmeFixMain()
         return 1
     fi
 
-    local pkg="$FILE_BIN_PKG"
-
-# FIXME: Old code
-#     if [ ! -f "$pkg" ]; then
-# 	CygbuildWarn "-- [ERROR] Can't read ${pkg#$srcdir/}." \
-# 		     "Try running [package] first"
-#     fi
-
-    CygbuildCmdReadmeFixFile "$readme" "$pkg"
+    CygbuildCmdReadmeFixFile "$readme"
 }
 
 function CygbuildCmdPublishSetupFix()
