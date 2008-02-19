@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1059"
+CYGBUILD_VERSION="2008.0219.1110"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5518,6 +5518,8 @@ function CygbuildPatchApplyMaybe()
 
                         continue="continue"
                     fi
+		elif [ ! "$done" ]; then
+		    continue				# Nothing to unpatch
                 fi
             fi
 
