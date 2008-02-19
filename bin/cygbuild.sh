@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0218.2136"
+CYGBUILD_VERSION="2008.0219.0848"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1200,7 +1200,22 @@ function CygbuildFileCmpDiffer ()
     [ "$?" = "1" ]	    # 0 = same, 1 = differ, 2 = error
 }
 
-CygbuildFileSize ()
+function CygbuildFileCmpReplaceIfDiffer ()
+{
+    local from="$1"
+    local to="$2"
+    local msg="$3"
+
+    if [ -s "$from" ] &&
+       [ -s "$to"   ] &&
+       CygbuildFileCmpDiffer "$from" "$to"
+    then
+	CygbuildVerb "$msg"
+        $MV "$from" "$to"
+    fi
+}
+
+function CygbuildFileSize ()
 {
     file="$1"
 
@@ -4798,12 +4813,8 @@ CygbuildCmdReadmeFixFile ()
 
     CygbuildCmdReadmeRemoveFileSection "$readme" > "$retval.tmp"
 
-    if [ -s "$retval.tmp" ] &&
-       CygbuildFileCmpDiffer "$readme" "$retval.tmp"
-    then
-	CygbuildVerb "-- [NOTE] Remove 'files included':" ${readme#$srcdir/}
-	$MV "$retval.tmp" "$readme" || return $?
-    fi
+    CygbuildFileCmpReplaceIfDiffer "$retval.tmp" "$readme" \
+	"-- [NOTE] Remove 'files included':" ${readme#$srcdir/}
 
     #   1. Load library MODULE
     #   2. Call function Readmefix() with parameters. It will handle the
@@ -4823,12 +4834,12 @@ CygbuildCmdReadmeFixFile ()
 
     local status=$?
 
-    if [ "$status" != "0" ]; then
+    if [ ! "$status" = "0" ]; then
         CygbuildWarn "-- [ERROR] Perl call ReadmeFix() failed."
         return $status          # Something went wrong
     fi
 
-    if [[ ! -s $out ]]; then # Zero length?
+    if [ ! -s "$out" ]; then # Zero length?
         CygbuildWarn "-- [ERROR] ReadmeFix() output file is empty $out"
         return 1
     fi
@@ -12441,8 +12452,6 @@ function TestRegression ()
     Test cabber_0.4.0-test5.orig.tar.gz
     exit;
 }
-
-# AWK=awk CygbuildCmdReadmeRemoveFileSection /usr/src/build/build/bogofilter/bogofilter-1.1.6/CYGWIN-PATCHES/bogofilter.README ; exit 1222
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"

@@ -18,6 +18,7 @@
 	compressed files.
 	(CygbuildCmdReadmeRemoveFileSection): New
 	(CygbuildCmdReadmeFixFile): Call `CygbuildCmdReadmeRemoveFileSection'
+	(CygbuildFileCmpReplaceIfDiffer): New.
 
 2008-02-17  Jari Aalto  <jari.aalto@cante.net>
 
