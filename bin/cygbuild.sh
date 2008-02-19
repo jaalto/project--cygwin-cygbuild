@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.2140"
+CYGBUILD_VERSION="2008.0219.2238"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1887,7 +1887,7 @@ function CygbuildVersionInfo()
 
         # foo4.16.0.70
 
-        @a = /^([a-z_-]*[A-Za-z])([\d.]*\d)/i ;
+        @a = /^([a-z_-]*[A-Za-z])([\d.]*\d.*)/i ;
 
         if ( @a )
         {
@@ -12168,6 +12168,7 @@ function TestRegression ()
     Test findbugs-1.3.0-rc1.tar.gz
     Test jove4.16.0.70
     Test cabber_0.4.0-test5.orig.tar.gz
+    Test unace1.2n
     exit;
 }
 
