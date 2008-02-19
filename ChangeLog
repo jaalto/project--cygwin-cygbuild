@@ -14,6 +14,7 @@
 	(CygbuildBootVariablesGlobalMain): Remove CYGBUILD_CVSDIFF_OPTIONS.
 	Move CYGBUILD_DIFF_OPTIONS opions to new variable
 	`cygbuild_opt_exclude_cache_files'.
+	(CygbuildCmdConfMain): Add case for configure.in
 
 	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
 	Remove 'files included...' section.

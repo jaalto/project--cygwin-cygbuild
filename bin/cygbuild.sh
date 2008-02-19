@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1608"
+CYGBUILD_VERSION="2008.0219.1617"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8032,7 +8032,7 @@ function CygbuildCmdConfMain()
 
         if [ -f "$script" ]; then
 
-            CygbuildEcho "-- [NOTE] External configure script $script"
+            CygbuildEcho "-- [NOTE] External configure script" ${script#$srcdir/}
 
             CygbuildChmodExec $script
             $script $instdir
@@ -8077,6 +8077,15 @@ function CygbuildCmdConfMain()
                      "running: xmkmf -a"
                 xmkmf -a
             fi
+
+        elif [ -f configure.in ]; then
+
+           CygbuildEcho "-- Running: autoconf -r -i"
+                        "(auto detected; ./configure.in)"
+
+	    autoconf -r -i  &&
+	    CygbuildConfCC
+	    status=$?
 
         else
 
