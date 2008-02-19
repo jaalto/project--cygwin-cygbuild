@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0218.2138';
+$VERSION = '2008.0219.1004';
 
 # ..................................................................
 
@@ -3801,6 +3801,30 @@ sub ReadmeFix ($ $ $)
     {
         s,Firstname\s+Lastname,$name,g;
     }
+
+    # Update newer year.
+    #   Cygwin port maintained by: Firstname Lastname <Your email here>
+    #   Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
+    #
+    #   yyyy      => yyyy-xxxx
+    #   yyyy-yyyy => yyyy-xxxx
+
+    s/(Copyright\s+\(C\)\s+)(?!$YYYY)(\d{4})(\s)/$1$2-$YYYY$3/;
+    s/(Copyright\s+\(C\)\s+\d{4}-)(?!$YYYY)\d+(\s)/$1$YYYY$2/;
+
+    #  Remove this section:
+    #
+    #  ------------------------------------------
+    #
+    #  Files included in the binary distro:
+    #
+    #  etc/postinstall/bogofilter.sh
+    #  ...
+
+    my $placeholder = "  <See content of *.tar.gz>";
+
+    s{(Files included in.*binary.*dist\w+:).+?(^---------)}
+     {$1$placeholder\n\n$2}ms;
 
     # 2008-02-12 Disabled. It is better not to include the listing,
     # because it can be seen from tar.gz file
