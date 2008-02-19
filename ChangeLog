@@ -17,6 +17,8 @@
 	(CygbuildCmdConfMain): Add case for configure.in
 	(CygbuildCmdReadmeFixFile): Remove binpkg tar `CygbuildExitNoFile' call.
 	(CygbuildCmdReadmeFixMain): Remove binpkg tar file check.
+	(CygbuildDefineGlobalMain): Change SCRIPT_CONFIGURE_CYGFILE and
+	SCRIPT_BUILD_CYGFILE use relative paths.
 
 	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
 	Remove 'files included...' section.

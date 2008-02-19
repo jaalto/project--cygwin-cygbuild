@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1758"
+CYGBUILD_VERSION="2008.0219.2140"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3745,8 +3745,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_DIFF_BEFORE_CYGFILE=$DIR_CYGPATCH/diff-before.sh     # global-def
     SCRIPT_DIFF_CYGFILE=$DIR_CYGPATCH/diff.sh                   # global-def
 
-    SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
-    SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
+    SCRIPT_CONFIGURE_CYGFILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/configure.sh # global-def
+    SCRIPT_BUILD_CYGFILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/build.sh                 # global-def
 
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
@@ -5726,7 +5726,7 @@ function CygbuildCmdMkpatchMain()
 
         if [ -f "$prescript" ]; then
             #   If there is custom script, run it.
-            CygbuildEcho "-- [NOTE] Running external prediff:" \
+            CygbuildEcho "--- Running external prediff:" \
                  "$prescript $difforig $diffsrc"
 
             CygbuildChmodExec $prescript
@@ -5756,7 +5756,7 @@ function CygbuildCmdMkpatchMain()
 
         if [ -f "$diffscript" ]; then
             #   If there is custom script, run it.
-            CygbuildEcho "-- [NOTE] Running external diff: $diffscript" \
+            CygbuildEcho "--- Running external diff: $diffscript" \
                  "$difforig $diffsrc $out"
 
             CygbuildChmodExec $difforig
@@ -7567,6 +7567,8 @@ function CygbuildCmdPrepPatch()
 function CygbuildCmdShadowDelete()
 {
     local id="$0.$FUNCNAME"
+    local pfile="$CYGPATCH_DONE_PATCHES_FILE"
+
     CygbuildVerb "-- Emptying shadow directory" ${builddir/$srcdir\/}
 
     if [[ ! -d "$srcdir" ]]; then
@@ -7998,9 +8000,9 @@ function CygbuildCmdConfMain()
 {
     local id="$0.$FUNCNAME"
     local perlconf="$srcdir/Makefile.PL"
+    local script="$SCRIPT_CONFIGURE_CYGFILE"
     local dummy=$(pwd)      # For debugger
     local status=0
-    local script=$SCRIPT_CONFIGURE_CYGFILE
 
     CygbuildEcho "== Configure command"
 
@@ -8022,10 +8024,10 @@ function CygbuildCmdConfMain()
 
         if [ -f "$script" ]; then
 
-            CygbuildEcho "-- [NOTE] External configure script" ${script#$srcdir/}
+            CygbuildEcho "--- Running external configure: $script"
 
             CygbuildChmodExec $script
-            $script $instdir
+            $script $instdir | CygbuildMsgFilter
             status=$?
 
         elif [ -f "$perlconf" ]; then
@@ -8146,12 +8148,6 @@ function CygbuildCmdBuildStdMakefile()
 
     CygbuildExitNoDir "$builddir" "$id: builddir not found [$builddi]"
 
-    # #todo: There are two competing files, use only one of them.
-    # if [ -f "$envfile" ]; then
-    #     CygbuildEcho "--- Reading external env: $envfile"
-    #     source $envfile || return $?
-    # fi
-
     CygbuildPushd
 
         cd $builddir || exit 1
@@ -8229,12 +8225,12 @@ function CygbuildCmdBuildMain()
     if [ -f "$script" ]; then
 
         CygbuildEcho "--- Building with external:" \
-             ${script/$srcdir\/} $PKG $VER $REL
+		 ${script/$srcdir\/} $PKG $VER $REL
 
         CygbuildPushd
             cd $builddir || exit 1
             CygbuildChmodExec $script
-            $script $PKG $VER $REL
+            $script $PKG $VER $REL | CygbuildMsgFilter
             status=$?
         CygbuildPopd
 
@@ -10780,7 +10776,7 @@ function CygbuildCmdInstallMain()
             CygbuildChmodExec $scriptAfter
 
             CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-            $scriptAfter "$dir" "$thispath" | CygbuildMsgFilter ||
+		$scriptAfter "$dir" "$thispath" | CygbuildMsgFilter ||
             {
                 status=$?
                 CygbuildPopd
