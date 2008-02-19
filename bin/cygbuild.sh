@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1110"
+CYGBUILD_VERSION="2008.0219.1546"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -822,12 +822,6 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=SCCS \
     "
 
-    #  This is template file, do not include in patch.
-
-    cygbuild_opt_exclude_cygbuild="\
-      --exclude=vc-cvs-checkout.sh\
-    "
-
     #   RCS and CVS version control tags cause conflicts in patches.
     #   See ident(1)
 
@@ -1001,7 +995,6 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_dir \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
-     $cygbuild_opt_exclude_cygbuild\
     "
 
     CYGBUILD_DIFF_OPTIONS="\
@@ -1025,7 +1018,6 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_dir \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
-     $cygbuild_opt_exclude_cygbuild\
     "
 
     #  --forward  Ignore patches that seem to be reversed
