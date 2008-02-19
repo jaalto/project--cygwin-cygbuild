@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1546"
+CYGBUILD_VERSION="2008.0219.1600"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6094,90 +6094,6 @@ function CygbuildCmdPkgSourceCvsdiff()
     return $status
 }
 
-function CygbuildCmdPkgSourceCvsMain()
-{
-    local id="$0.$FUNCNAME"
-    local dummy
-
-    #  We need the help of Perl library
-
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local module="$CYGBUILD_STATIC_PERL_MODULE"
-
-#    CygbuildPerlModuleLocation  > $retval || exit 1
-#    local module=$(< $retval)
-
-    [ ! "$module" ] && return 1
-
-    if [ ! -f "$BUILD_SCRIPT" ]; then
-        CygbuildWarn "$id: [FATAL] Cannot find BUILD_SCRIPT, please debug."
-        return 1
-    fi
-
-    CygbuildPackageSourceDirClean
-
-    if [ -f "$SCRIPT_SOURCE_GET" ]; then
-        $RM $SCRIPT_SOURCE_GET
-    fi
-
-    local dir=dummy=$(pwd)                # For debugging
-    local debug=${OPTION_DEBUG:-0}
-    local template=$DIR_CYGPATCH/vc-cvs-$SCRIPT_SOURCE_GET_TEMPLATE
-
-    [ ! -f "$template" ] &&
-        CygbuildDie "-- [FATAL] Can't fund template $template"
-
-    $PERL -e "require qq($module);  SetDebug($debug); \
-      PackageCVSmain( -dir => qq($srcdir), -script => qq($template) );" \
-    > $SCRIPT_SOURCE_GET
-
-    local status
-    status=$?
-
-    if [ "$status" != "0" ]; then
-        return $status
-    fi
-
-    if  [ ! -f "$SCRIPT_SOURCE_GET" ] || [ ! -s "$SCRIPT_SOURCE_GET" ]
-    then
-        echo "$id: [ERROR] during file generation $SCRIPT_SOURCE_GET"
-        return 1
-    fi
-
-    CygbuildEcho "-- Wrote $SCRIPT_SOURCE_GET"
-
-    CygbuildCmdPkgSourceCvsdiff  || return $?
-
-    # .......................................... make source package ...
-
-    local tarOpt="$verbose -jcf"
-
-    #   There is no source.tar.gz to go with this, but we include
-    #   a shell script that gets the source from CVS. Rename the
-    #   Checkout script with 'mv'.
-    #
-    #       source-install.sh => <PKG>-N.N-REL-source-install.sh
-
-    local install="$PKG-$VER-$REL.sh"               # foo-VERSION-RELEASE.sh
-    local script=${SCRIPT_SOURCE_GET##*/}
-    script="$PKG-$VER-$REL-$script"
-
-    $MV "$SCRIPT_SOURCE_GET" "$srcinstdir/$script"  || return $?
-    $CP "$BUILD_SCRIPT"      "$srcinstdir/$install" || return $?
-
-    CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
-
-    local status=0
-
-    CygbuildPushd
-        cd $srcinstdir || exit 1
-        $TAR $CYGBUILD_TAR_EXCLUDE $tarOpt "$FILE_SRC_PKG" *
-        status=$?
-    CygbuildPopd
-
-    return $status
-}
-
 function CygbuildCmdPkgSourceMain()
 {
     local id="$0.$FUNCNAME"
@@ -6193,14 +6109,9 @@ function CygbuildCmdPkgSourceMain()
 
     if [ -f "$SCRIPT_SOURCE_PACKAGE" ]; then
         CygbuildCmdPkgSourceExternal
-
-    elif [ "$OPTION_VC_PACKAGE" ] && [ "$type" = "cvs" ] ; then
-        CygbuildEcho "-- Packaging sources from Version Control dir is" \
-             "still highly experimental."
-        CygbuildCmdPkgSourceCvsMain
-    else
-        CygbuildCmdPkgSourceStandard
     fi
+
+    CygbuildCmdPkgSourceStandard
 }
 
 function CygbuildCmdDownloadUpstream ()
@@ -11752,12 +11663,7 @@ function CygbuildCommandMain()
                 shift 1
                 ;;
 
-            -c|--checkout)
-                OPTION_VC_PACKAGE="opt-vc"      # global-def
-                shift 1
-                ;;
-
-            -C|--color)
+            -c|--color)
                 OPTION_COLOR="color"            # global-def
                 shift 1
                 ;;

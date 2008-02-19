@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0219.1004';
+$VERSION = '2008.0219.1555';
 
 # ..................................................................
 
@@ -134,10 +134,7 @@ The "big picture" of the porting directories used are as follows:
           |  |  <contains only symlinks and object *.o etc. files>
           |  |
           |  +- package-1.2.3-orig/
-          |  |  <Used for taking a diff>
-          |  |
-          |  +- vc/
-          |     <Version Control System checkouts are done here>
+          |     <Used for taking a diff>
           |
           +- .inst/
           |  <The "make install" target directory>
@@ -207,19 +204,7 @@ be used to check the binary build:
 Use bzip2 compression instead of default gzip(1). This affects the
 manual pages and the usr/share/doc/*/ content.
 
-=item B<-c|--checkout>
-
-Package version control files into a custom checkout script. This option is
-meanigful only with command B<[source-package]>.
-
-Take for example package 'foo', whose development versions can be
-easily followed with version control software. After the sources have
-been checked out, it is possible to package current snapshot straight
-from the directory tree with this option. It will create a separate
-source script based on current timestamp to retrive same files from
-version control repository.
-
-=item B<-C|--color>
+=item B<-c|--color>
 
 Activate colors in displayed messages.
 
@@ -913,7 +898,7 @@ missing shadow directory and make it as needed.
 =item B<download>
 
 Check upstream site for new versions. External program I<mywebget.pl>
-http://perl-webget.sourceforge.net/ is used to do the download. The
+http://freshmeat.net/projects/perlwebget is used to do the download. The
 configuration file C<CYGWIN-PATCHES/upstream.perl-webget> must contain URL
 and additional parameters how to retrieve newer versions. See
 I<mywebget.pl>'s manual for more information. Here is an example
@@ -3953,135 +3938,6 @@ sub CVSinfo ( $ )
     $debug > 1  and  PrintHash "$id: RET\n", %hash;
 
     %hash;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
-#       Make a checkout script
-#
-#   INPUT PARAMETERS
-#
-#       %hash       Details of the CVS repository, Root and password, script.
-#
-#   RETURN VALUES
-#
-#       $           Shell script to do the checkout
-#
-# ****************************************************************************
-
-sub PackageCVScoScript ( % )
-{
-    my $id      = "$PROGRAM_NAME.PackageCVScoScript";
-    my( %hash ) =  @ARG;
-
-    $debug > 1  and  PrintHash "$id: ARGS\n", %hash;
-
-    my $script      = $hash{script}  ||  die "$id: arg 'script' missing";
-    my $repository  = $hash{repository};
-    my $root        = $hash{root};
-    my $pass        = $hash{password};
-    my($codir)      = $hash{codir}   || ($root =~ m,.+/(.+),);
-
-    not $codir   and  die "$id: ARG 'codir' was not set.";
-
-    my $prg         = $PROGRAM_NAME;
-    $prg =~ s,.*/,,;                        # Delete path component.
-
-    $pass =~ s/\r?\n//;                     # Delete RETURN
-
-    #   CVS nearly always displays times in UTC (nee GMT), but interprets
-    #   user-entered times that don't specify a specific timezone as local
-    #   time.
-
-    my $utc         = Date(-utc => 1, -time => 1) . " UTC";
-    local $ARG      = FileRead $script;
-
-    s/:COMMENT:/This script was automatically generated from template file./;
-    s/:URL:/$root/;
-    s/:PASS:/$pass/;
-    s/:CHECKOUTDATE:/$utc/;
-    s/:CHECKOUTROOT:/$root/;
-    s/:CHECKOUTDIR:/$codir/;
-    s/:CHECKOUTMODULE:/$codir/;
-
-    #  Emacs font-lock fontifying stopper comment ' for cperl-mode
-    #  => Got confused by the single and double quotes above.
-    #  DO NOT REMOVE THESE THIS COMMENT
-
-    $ARG;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
-#       Make a source package + diff directly from CVS checkout directory
-#
-#   INPUT PARAMETERS
-#
-#       script      The template script for checkout.
-#       dir         [optional] The source dir root. CWD() is expected.
-#       password    [optional] Checkout password. Asked interactively
-#                   if not supplied.
-#
-#   RETURN VALUES
-#
-#       @           list of directories to install
-#
-# ****************************************************************************
-
-sub PackageCVSmain ( % )
-{
-    my $id      = "$PROGRAM_NAME.PackageCVSmain";
-    my( %hash ) =  @ARG;
-
-    $debug > 1  and  PrintHash "$id: ARGS\n", %hash;
-
-    my $script      = $hash{-script}     || die "$id: arg 'script' missing";
-    my $dir         = $hash{-dir}        || cwd();
-    my $pass        = $hash{-password}   || "";
-
-    not -f $script  and  die "$id: Template [$script] not found.";
-
-    my $regexp      = $PASSORD_RET_SITES;
-    my %info        = CVSinfo $dir;
-
-    $info{dir}      = $dir;
-    $info{script}   = $script;
-
-    unless ( %info )
-    {
-        die "$id: Cannot read CVS info from $dir";
-    }
-
-    #   Use stderr, so that this output is not included in stdout redirection.
-
-    my $root = $info{root};
-
-    if ( not $pass  and  $root =~ /$regexp/o )
-    {
-        $pass = "\n";
-    }
-
-    unless ( $pass )
-    {
-        printf STDERR "[Give password] ";
-        $pass = <STDIN>;
-    }
-
-    printf STDERR "
-[The information was]
-Root      : $info{root}
-Repository: $info{repository}
-Passowrd  : $pass";
-
-    $info{password} = $pass;
-
-    my @script = PackageCVScoScript %info;
-
-    print @script;
 }
 
 # ****************************************************************************

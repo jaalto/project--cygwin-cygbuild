@@ -5,10 +5,19 @@
 	(CygbuildBootVariablesGlobalMain): Add --binary to CYGBUILD_PATCH_OPT.
 	(CygbuildPatchApplyMaybe): Fix problem with `unpatch' where not
 	all files ere patched.
-	(CygbuildBootVariablesGlobalMain): Remove `cygbuild_opt_exclude_cygbuild'.
+	(CygbuildBootVariablesGlobalMain): Remove
+	`cygbuild_opt_exclude_cygbuild'.
+	(CygbuildCmdPkgSourceCvsMain): Remove.
+	(CygbuildCmdPkgSourceMain): Remove version contol handling.
+	(CygbuildCommandMain): Remove --checkout option.
 
 	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
 	Remove 'files included...' section.
+	(HELP::OPTIONS): Remove --checkout option and related documentation.
+	Change -C to -c (color) short option.
+	(HELP::Other commands::download): Update perl webget project URL.
+	(PackageCVScoScript): Remove.
+	(PackageCVSmain): Remove.
 
 2008-02-18  Jari Aalto  <jari.aalto@cante.net>
 
