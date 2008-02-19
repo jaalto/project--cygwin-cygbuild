@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.0848"
+CYGBUILD_VERSION="2008.0219.1006"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4749,50 +4749,6 @@ function CygbuildReadmeReleaseMatchCheck()
     fi
 }
 
-CygbuildCmdReadmeRemoveFileSection ()
-{
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local str="  <See content of *.tar.gz>"
-    local file=${1:-/dev/null}
-
-    #  ------------------------------------------
-    #
-    #  Files included in the binary distro:
-    #
-    #  etc/postinstall/bogofilter.sh
-    #  ...
-
-    $AWK '
-	/Files included in.*binary dist.*:/ {
-	    print
-	    section = 1
-	    next
-	}
-
-	{
-	    if ( section )
-	    {
-		if ( match($0, "^[a-z]+/|^[ \t]*$") > 0 )
-		{
-		    clean = 1
-		}
-		else
-		{
-		    if ( clean )
-			print "  <See content of *.tar.gz>\n"
-
-		    print
-		    section = 0
-		}
-		next
-	    }
-
-	    print
-	}
-
-    ' $file
-}
-
 CygbuildCmdReadmeFixFile ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -4808,13 +4764,6 @@ CygbuildCmdReadmeFixFile ()
         echo "$id: [FATAL] Perl module was not found"
         return 1                # Error is already displayed
     fi
-
-    #	Delete file path information
-
-    CygbuildCmdReadmeRemoveFileSection "$readme" > "$retval.tmp"
-
-    CygbuildFileCmpReplaceIfDiffer "$retval.tmp" "$readme" \
-	"-- [NOTE] Remove 'files included':" ${readme#$srcdir/}
 
     #   1. Load library MODULE
     #   2. Call function Readmefix() with parameters. It will handle the

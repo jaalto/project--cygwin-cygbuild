@@ -1,3 +1,11 @@
+2008-02-19  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdReadmeRemoveFileSection): Remove
+	awk edit. Moved to perl library.
+
+	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
+	Remove 'files included...' section.
+
 2008-02-18  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl: (HELP::Packaging commands): Remove functionality
