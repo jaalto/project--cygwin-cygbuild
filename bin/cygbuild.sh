@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.2245"
+CYGBUILD_VERSION="2008.0219.2316"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6349,12 +6349,10 @@ function CygbuildMakeRunInstallFixPerlMain()
 function CygbuildMakefilePrefixCheck()
 {
     local id="$0.$FUNCNAME"
-
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    CygbuildMakefileName > $retval
-    local makefile=$(< $retval)
+    local makefile="$1"
 
-    if [ ! "$makefile" ] ; then
+    if [ ! "$makefile" ] || [ ! -f "$makefile" ] ; then
         return 0
     fi
 
@@ -6627,9 +6625,10 @@ function CygbuildMakefilePrefixIsStandard ()
 {
     local id="$0.$FUNCNAME"
     local opt up lower
-    local files=$(ls GNUMakefile Makefile* makefile *.mk 2> /dev/null)
+    local files=$(ls "$@" *.mk 2> /dev/null)
 
-    [ ! "$verbose" ] && opt="-q"
+    [ "$verbose" ] || opt="-q"
+    [ "$files"   ] || return 0
 
     if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]+[+]?=" $files
     then
@@ -6814,13 +6813,13 @@ function CygbuildMakefileRunInstall()
         #   Debian package uses @bin_prefix@ to install
         #   programs under another name. Do not set it
 
-        local pfx=$CYGBUILD_PREFIX
+        local pfx="$CYGBUILD_PREFIX"
 
         if CygbuildIsAutotoolPackage ; then
             CygbuildVerb "-- ...Looks like standard autotool package"
         fi
 
-        CygbuildMakefilePrefixCheck
+        CygbuildMakefilePrefixCheck "$makefile"
 
         if [ "$OPTION_PREFIX" ]; then
 
@@ -6841,7 +6840,7 @@ function CygbuildMakefileRunInstall()
 
 	local PFX="prefix=$pfx"
 
-	if ! CygbuildMakefilePrefixIsStandard ; then
+	if ! CygbuildMakefilePrefixIsStandard "$makefile"; then
 	    CygbuildVerb "-- Adjusting PREFIX"
 	    PFX="PREFIX=$pfx"
 	fi
@@ -9743,7 +9742,10 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
     CygbuildStrToRegexpSafe "$PKG" > $retval
     [ -s $retval ] && re=$(< $retval)
 
-    $AWK '/^ldesc:/ {
+    #	Ignore compression utilities, whose name is same as the compression
+    #	extension.
+
+    $AWK '/^ldesc:/ && ! /compress|archive/ {
             line = tolower($0);
             name = tolower(name);
 
