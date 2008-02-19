@@ -10,6 +10,8 @@
 	(CygbuildCmdPkgSourceCvsMain): Remove.
 	(CygbuildCmdPkgSourceMain): Remove version contol handling.
 	(CygbuildCommandMain): Remove --checkout option.
+	(CygbuildCmdPkgSourceCvsdiff): Remove.
+	(CygbuildBootVariablesGlobalMain): Remove CYGBUILD_CVSDIFF_OPTIONS
 
 	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
 	Remove 'files included...' section.

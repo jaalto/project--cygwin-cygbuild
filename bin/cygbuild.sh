@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1600"
+CYGBUILD_VERSION="2008.0219.1604"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -975,24 +975,6 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_auto_files \
      $cygbuild_opt_exclude_library_files \
      $cygbuild_opt_exclude_object_files \
-     $cygbuild_opt_exclude_tmp_files \
-     $cygbuild_opt_exclude_version_control \
-    "
-
-    CYGBUILD_CVSDIFF_OPTIONS="\
-     --unified \
-     --recursive \
-     --new-file \
-     --ignore-all-space \
-     --ignore-blank-lines \
-     $opt_ignore_version_control \
-     --exclude=config.* \
-     --exclude=*.cache \
-     $cygbuild_opt_exclude_archive_files \
-     $cygbuild_opt_exclude_library_files \
-     $cygbuild_opt_exclude_object_files \
-     $cygbuild_opt_exclude_bin_files \
-     $cygbuild_opt_exclude_dir \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
     "
@@ -5976,123 +5958,6 @@ function CygbuildCmdPkgSourceExternal ()
 #       Making packages from CVS
 #
 #######################################################################
-
-function CygbuildCmdPkgSourceCvsdiff()
-{
-    local id="$0.$FUNCNAME"
-    local out="$FILE_SRC_PATCH"
-    local orig=$builddir_vc_root
-    local prg=$SCRIPT_SOURCE_GET
-
-    if [ ! -f "$prg" ]; then
-        CygbuildWarn "$id: [ERROR] Can't find $prg"
-        return 1
-    fi
-
-    CygbuildEcho "== Making cvs patch getting sources"
-
-    #   If already there is a checkout, use it
-    #   Otherwise download a fresh copy from pserver where we
-    #   compare
-
-    local try=$(cd $orig/*/ && pwd)
-
-    if [ "$try" ] && [ -d "$try/CVS" ]; then
-    (
-        #   There is only one directory, so go there
-        cd "$try" || return $?
-
-        #  Overcome "end of file from server" problem
-        cvs update ||
-        { sleep 5; cvs update; } ||
-        { sleep 5; cvs update; } ||
-        { CygbuildEcho "-- [ERROR] Permanent problem. Try later." >&2;
-          return 1; }
-    )
-    else
-        try=\
-        $(
-            $MKDIR -p "$orig"       || return $?
-            cd "$orig"              || return $?
-
-            # clean previous sources
-            $RM -rf *
-
-            $prg --quiet            &&
-            cd ./*/                 &&
-            pwd
-        )
-    fi
-
-    [ "$?" != "0" ] &&
-        CygbuildDie "$try" "$id: [FATAL] Couldn't download sources to make diff"
-
-    #   Files that were generated after checkout must be filtered out
-    #   Examine how the current directory is different from the
-    #   original chekout (Perl function does this)
-
-    CygbuildEcho "-- Making cvs patch: Examining files to exclude."
-
-    local debug=${OPTION_DEBUG:-0}
-    local status exclude
-
-    $PERL -e "require qq($module); SetDebug($debug);
-        DiffToExclude(qq($try));" > $retval
-    status=$?
-
-    [ -s $retval ] && exclude=$(< $retval)
-
-    if [ "$status" != "0" ]; then
-        CygbuildWarn "$id: [ERROR] Hm, either full 'cygbuild' suite is not" \
-             "installed or cygbuild.pl perl module is not in PATH." \
-             "See $CYGBUILD_HOMEPAGE_URL"
-        return $status
-    fi
-
-    #   Good. Now we have all the details to make the patch
-    #   It is not guaranteed that this is perfectly okay.
-    #   => Every user added directory except CYGWIN-PATHCES are
-    #   => filtered out.
-
-    CygbuildEcho "-- Making cvs patch $out"
-
-    #   Make the patch relative to the current directory.
-    #
-    #       diff -r there/cvs-dir/ package-N.N/
-
-    local compare=$(basename $(pwd))
-
-    local status=0
-
-    CygbuildPushd
-        cd ..
-        xTZ=UTC0 $DIFF $CYGBUILD_CVSDIFF_OPTIONS \
-            $exclude $try $compare \
-            > $out
-
-        status=$?
-
-        #   GNU diff(1) changed return codes.
-        #   Return code 1 is OK and value > 1 is an error
-        #
-        #   0 = no differences
-        #   1 = differences
-        #   2 = some sort of recoverable error occurred
-        #       => that means that there were biary files. Look for
-        #       message "Files X and Y differ"
-
-        if [ "$status" = "1" ]; then
-            status=0
-        else
-            CygbuildWarn "$id: [ERROR] Making a patch failed, check $out"
-            $EGREP --line-number --ignore-case 'files.*differ' $out
-            status=$(( $status + 10 ))
-        fi
-
-    CygbuildPopd
-
-    return $status
-}
 
 function CygbuildCmdPkgSourceMain()
 {
