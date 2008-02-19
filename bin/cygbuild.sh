@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.2238"
+CYGBUILD_VERSION="2008.0219.2245"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2500,7 +2500,9 @@ function CygbuildMakefileName()
 
     local file path
 
-    for file in GNUMakefile Makefile makefile ${1+"$@"}
+    for file in GNUMakefile Makefile makefile ${1+"$@"} \
+	unix/makefile unix/Makefile \
+	gnu/makefile gnu/Makefile
     do
         path="$dir/$file"
 

@@ -3,6 +3,7 @@
 	* bin/cygbuild.sh: (CygbuildVersionInfo): Fix small error
 	in version detection: foo1.2b was interpreted as [foo 1.2], not
 	[foo 1.2b].
+	(CygbuildMakefileName): Add few more guesses for the makefile.
 
 2008-02-19  Jari Aalto  <jari.aalto@cante.net>
 
