@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.1006"
+CYGBUILD_VERSION="2008.0219.1059"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -680,7 +680,7 @@ function CygbuildBootVariablesGlobalColors()
     CYGBUILD_COLOR_GRAY="\033[00;37m"     # not readable in cygwin rxvt
     CYGBUILD_COLOR_WHITE="\033[01;37m"    # not readable in cygwin rxvt
 
-    CYGBUILD_COLOR_RESET="\033[00m"           # reset to teminal default
+    CYGBUILD_COLOR_RESET="\033[00m"       # reset to teminal default
 }
 
 function CygbuildBootVariablesGlobalMain()
@@ -1032,8 +1032,12 @@ function CygbuildBootVariablesGlobalMain()
     #  --strip=N  Strip the smallest prefix containing num leading slashes
     #             setting 0 gives the entire file name unmodified
     #  --fuzz=N   Set the maximum fuzz factor.(default is 2)
+    #
+    #  Cygwin's patch(1) needs --binary option to be able to handle CRLF
+    #  diffs correctly.
 
     CYGBUILD_PATCH_OPT="\
+     --binary \
      --strip=0 \
      --forward \
      --fuzz=3 \

@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh: (CygbuildCmdReadmeRemoveFileSection): Remove
 	awk edit. Moved to perl library.
+	(CygbuildBootVariablesGlobalMain): Add --binary to CYGBUILD_PATCH_OPT.
 
 	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
 	Remove 'files included...' section.
