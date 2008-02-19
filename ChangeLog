@@ -5,6 +5,7 @@
 	(CygbuildBootVariablesGlobalMain): Add --binary to CYGBUILD_PATCH_OPT.
 	(CygbuildPatchApplyMaybe): Fix problem with `unpatch' where not
 	all files ere patched.
+	(CygbuildBootVariablesGlobalMain): Remove `cygbuild_opt_exclude_cygbuild'.
 
 	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
 	Remove 'files included...' section.
