@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.2213"
+CYGBUILD_VERSION="2008.0220.2242"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -367,6 +367,7 @@ function CygbuildMsgFilter()
     local warn="$CYGBUILD_COLOR_RED"
     local info="$CYGBUILD_COLOR_PURPLE"
     local msg="$CYGBUILD_COLOR_BLUE"
+    local em="$CYGBUILD_COLOR_BLUE1"
     local note="$CYGBUILD_COLOR_BLUEU"
     local external="$CYGBUILD_COLOR_PINK"
     local end="$CYGBUILD_COLOR_RESET"
@@ -376,18 +377,27 @@ function CygbuildMsgFilter()
     local str=$(
         ${PERL:-perl} -ane '
             exit 0 unless /\S/;
+
             eval "\$$_ = q($ENV{$_});" for
               qw(topic error error fatal warn info
                  msg note external end);
+
             $e = $end;
+
             s,^(==.*),$topic$1$e, ;
             s,(.*ERROR.*),$error$1$e, ;
             s,(.*FATAL.*),$fatal$1$e, ;
             s,(.*WARN.*),$warn$1$e, ;
             s,(.*(?:INFO|NOTE).*),$info$1$e, ;
-            s,^(-- [^[].*),$msg$1$e, ;
-            s,^--- ([^[].*?:)(.*),-- $note$1$msg$2$e, ;
             s,^(>>.*),$external$1$e, ;
+            s,^--- ([^[].*?:)(.*),-- $note$1$msg$2$e, ;
+
+	    s{^(-- [^[].+ \s+ < \s+)
+		(\S+/\S+) \s* $
+	     }
+	     {$msg$1$external$2$e}x    or
+            s,^(-- [^[].*),$msg$1$e, ;
+
             print;
     ')
 
@@ -2621,7 +2631,8 @@ function CygbuildMakefileRunTarget()
         if CygbuildIsMakefileTarget $target ; then
             $MAKE -f $makefile $target
         elif [ "$verbose" ]; then
-            CygbuildWarn "-- [NOTE] No target '$target' in $makefile"
+            CygbuildWarn "-- [NOTE] No target '$target' in" \
+		         ${makefile#$srcdir/}
         fi
 
     CygbuildPopd

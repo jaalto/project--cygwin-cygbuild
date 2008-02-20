@@ -23,6 +23,7 @@
 	(CygbuildFileIsCRLF): Check that FILE exists.
 	(CygbuildCmdInstallPatchVerify): New
 	(CygbuildCmdInstallMain): Use `CygbuildCmdInstallPatchVerify'
+	(CygbuildMsgFilter): Show patch patch in different color.
 
 2008-02-19  Jari Aalto  <jari.aalto@cante.net>
 
