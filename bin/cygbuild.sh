@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.2242"
+CYGBUILD_VERSION="2008.0220.2330"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -119,13 +119,15 @@ CYGBUILD_NAME="cygbuild"
 #   The following will succeed under bash, but will give error under sh
 #
 #   NOTE: In some places the sh is copy of bash (or symlink), but bash
-#   would still restrict it to certain features. The process substitution
-#   tested here will fail in bash running as "sh" mode. More robust, but
-#   slower test:
+#   would still restrict it to certain features. The simplistic test
+#   is not enough.
 #
-#       eval ": <(:)" > /dev/null
+#       eval "[[ 1 ]]" > /dev/null
+#
+#   The process substitution tested here will fail in bash running as
+#   "sh" mode. More robust, but slower test:
 
-    eval "[[ 1 ]]" > /dev/null
+    eval ": <(:)" > /dev/null
 
     #   Check result, do we need to exchange shell?
 
@@ -140,7 +142,7 @@ CYGBUILD_NAME="cygbuild"
 	    [ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
 	fi
 
-        echo "$0 [FATAL] $prg salled with wrong shell: needs bash" >&2
+        echo "$0 [FATAL] $prg called with wrong shell: needs bash" >&2
         exit 1
     fi
 
@@ -8210,7 +8212,7 @@ function CygbuildCmdBuildStdMakefile()
     local optfile="$EXTRA_BUILD_OPTIONS"
     local status=0
 
-    CygbuildExitNoDir "$builddir" "$id: builddir not found [$builddi]"
+    CygbuildExitNoDir "$builddir" "$id: builddir not found: $builddir"
 
     CygbuildPushd
 
@@ -8226,7 +8228,8 @@ function CygbuildCmdBuildStdMakefile()
 
             CygbuildWarn "-- [WARN] No Makefile." \
                  "If you already tried [configure]" \
-                 "You may need to write custom script build.sh" \
+                 "You may need to write custom script" \
+		 "CYGWIN-PATCHES/build.sh" \
                  "(remember to run [reshadow] after changes)"
 
             status="17"  # Just random number
@@ -8240,7 +8243,7 @@ function CygbuildCmdBuildStdMakefile()
             [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
             (
-                if [ -r $optfile ]; then
+                if [ -r "$optfile" ]; then
                     CygbuildEcho "-- Reading extra env from" \
                                  ${optfile/$srcdir\//}
 
