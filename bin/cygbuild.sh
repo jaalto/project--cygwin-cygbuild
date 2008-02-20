@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.2330"
+CYGBUILD_VERSION="2008.0220.2358"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -120,31 +120,29 @@ CYGBUILD_NAME="cygbuild"
 #
 #   NOTE: In some places the sh is copy of bash (or symlink), but bash
 #   would still restrict it to certain features. The simplistic test
-#   is not enough.
+#   is not enough. See bash manual anc section "INVOCATION".
 #
 #       eval "[[ 1 ]]" > /dev/null
 #
-#   The process substitution tested here will fail in bash running as
-#   "sh" mode. More robust, but slower test:
+#   The process substitution tested will fail in bash running as
+#   "sh" mode.
+#
+#    eval ": <(:)" > /dev/null
 
-    eval ": <(:)" > /dev/null
+[ "$BASH" = "/usr/bin/bash" ] || [ "$BASH" = "/bin/bash" ] ||
+{
+    prg="$0"
 
-    #   Check result, do we need to exchange shell?
+    # If we did not find ourselves, most probably we were run as
+    # 'sh PROGRAM' in which case we are not to be found in the path.
 
-    if [ "$?" != "0" ] ; then
-
-	prg="$0"
-
-	# If we did not find ourselves, most probably we were run as
-        # 'sh PROGRAM' in which case we are not to be found in the path.
-
-	if [ -f "$prg" ]; then
-	    [ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
-	fi
-
-        echo "$0 [FATAL] $prg called with wrong shell: needs bash" >&2
-        exit 1
+    if [ -f "$prg" ]; then
+	[ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
     fi
+
+    echo "$0 [FATAL] $prg called with wrong shell: needs bash" >&2
+    exit 1 ;
+}
 
 shopt -s extglob    # Use extra pattern matching options
 set -o pipefail     # status comes from the failed pipe command
@@ -9082,7 +9080,7 @@ function CygbuildInstallDefaultsPostinstall()
     CygbuildEcho "-- Writing /etc postinstall script"
 
     #	Do we have a single file or directory?
-    #	The SED call fileters out ./leading/path/to.file
+    #	The SED call filters out ./leading/path/to/file
 
     local i list
 
