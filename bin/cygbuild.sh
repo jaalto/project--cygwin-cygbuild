@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.0004"
+CYGBUILD_VERSION="2008.0220.0020"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -2572,9 +2572,7 @@ function CygbuildIsMakefileCplusplus ()
     CygbuildMakefileName > $retval
     local file=$(< $retval)
 
-    if [ ! "$file" ]; then
-        return 1
-    fi
+    [ "$file" ] || return 1
 
     CygbuildGrepCheck "^[^#]+=[[:space:]]*g[+][+]" $file
 }
@@ -3473,11 +3471,6 @@ function CygbuildDefineGlobalCompile()
             msg="-- [INFO] Using ccache for CC environment variable"
 
             CYGBUILD_CC="ccache gcc"                        # global-def
-
-            if CygbuildIsCplusplusPackage || CygbuildIsMakefileCplusplus
-            then
-                CYGBUILD_CC="ccache g++"
-            fi
             CYGBUILD_CXX="ccache g++"                       # global-def
 
             CygbuildVerb $msg
