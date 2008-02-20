@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.2145"
+CYGBUILD_VERSION="2008.0220.2213"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1845,7 +1845,7 @@ function CygbuildCheckRunDir()
 
     if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
-        CygbuildWarn "-- [WARN] Current directory is not source ROOT" $srcdir
+        CygbuildWarn "-- [WARN] Current directory is not source ROOT $srcdir"
         return 1
     fi
 }
@@ -6894,7 +6894,7 @@ function CygbuildMakefileRunInstall()
 
     #   install under .inst/
 
-    CygbuildEcho "-- Running 'make install' (or equiv.) in" \
+    CygbuildVerb "-- Running 'make install' (or equiv.) in" \
                  ${builddir/$srcdir\/}
 
     if [ -f "$makeScript" ]; then
@@ -10747,7 +10747,7 @@ function CygbuildCmdInstallFinishMessage()
         CygbuildEcho "-- Content of: $relative"
         $FIND -L ${dir##$(pwd)/} -print
     else
-        CygbuildEcho "-- See also: find $relative -print" \
+        CygbuildVerb "-- See also: find $relative -print" \
              "${test:+(Note: test mode was on)}"
     fi
 }
