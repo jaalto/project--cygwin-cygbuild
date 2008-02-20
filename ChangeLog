@@ -21,6 +21,8 @@
 	(CygbuildPatchApplyRun): Use `CygbuildFileIsCRLF' to set patch
 	option --binary
 	(CygbuildFileIsCRLF): Check that FILE exists.
+	(CygbuildCmdInstallPatchVerify): New
+	(CygbuildCmdInstallMain): Use `CygbuildCmdInstallPatchVerify'
 
 2008-02-19  Jari Aalto  <jari.aalto@cante.net>
 

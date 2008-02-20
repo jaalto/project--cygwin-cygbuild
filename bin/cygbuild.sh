@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.0917"
+CYGBUILD_VERSION="2008.0220.2145"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -7214,7 +7214,7 @@ function CygbuildPatchListDisplay()
 
     if [ -s "$file" ]; then
         CygbuildEcho "-- [INFO] Applied local patches"
-        $SORT -u $file
+        $SORT --unique $file
     fi
 }
 
@@ -10751,6 +10751,18 @@ function CygbuildCmdInstallFinishMessage()
              "${test:+(Note: test mode was on)}"
     fi
 }
+function CygbuildCmdInstallPatchVerify()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$CYGPATCH_DONE_PATCHES_FILE"
+
+    CygbuildPatchList > $retval
+
+    if [ -s $retval ] && [ ! -f "$file" ]; then
+	CygbuildWarn "-- [WARN] Patches are not applied"
+	return 1
+    fi
+}
 
 function CygbuildCmdInstallMain()
 {
@@ -10771,6 +10783,7 @@ function CygbuildCmdInstallMain()
 	CygbuildDie "$id: [ERROR] \$instdir is empty"
     fi
 
+    CygbuildCmdInstallPatchVerify
     CygbuildCmdInstallDirClean
 
     CygbuildPushd
