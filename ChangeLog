@@ -15,6 +15,12 @@
 	(CygbuildPatchPrefixStripCountFromFilename): Return error code.
 	(CygbuildPatchPrefixStripCountFromContent): Return error code.
 	Improve -p1 detection.
+	(CygbuildMatchRemoveWord): New.
+	(CygbuildBootVariablesGlobalMain): Remove --binary from CYGBUILD_PATCH_OPT,
+	Under Cygwin it is legal only if destination file has CRLF.
+	(CygbuildPatchApplyRun): Use `CygbuildFileIsCRLF' to set patch
+	option --binary
+	(CygbuildFileIsCRLF): Check that FILE exists.
 
 2008-02-19  Jari Aalto  <jari.aalto@cante.net>
 

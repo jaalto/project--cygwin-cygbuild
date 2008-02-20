@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.0837"
+CYGBUILD_VERSION="2008.0220.0917"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -268,6 +268,23 @@ function CygbuildMatchRegexp()
     else
         echo "$2" | $EGREP -q "$1"
     fi
+}
+
+function CygbuildMatchRemoveWord()
+{
+    local pattern="$1"
+    shift
+
+    local item new
+
+    for item in "$@"
+    do
+	[[ "$item" == $pattern ]] && continue
+
+	new="$new $item"
+    done
+
+    echo $new
 }
 
 function CygbuildIsEmpty()
@@ -1011,12 +1028,8 @@ function CygbuildBootVariablesGlobalMain()
     #  --strip=N  Strip the smallest prefix containing num leading slashes
     #             setting 0 gives the entire file name unmodified
     #  --fuzz=N   Set the maximum fuzz factor.(default is 2)
-    #
-    #  Cygwin's patch(1) needs --binary option to be able to handle CRLF
-    #  diffs correctly.
 
     CYGBUILD_PATCH_OPT="\
-     --binary \
      --strip=0 \
      --forward \
      --fuzz=3 \
@@ -1174,7 +1187,10 @@ function CygbuildFileConvertLF ()
 function CygbuildFileIsCRLF ()
 {
     local ctrlM=$'\015'
-    $EGREP --quiet --files-with-matches "[$ctrlM]" "$file"
+
+    [ "$1"    ] &&
+    [ -f "$1" ] &&
+    $EGREP --quiet --files-with-matches "[$ctrlM]" "$1" 2> /dev/null
 }
 
 function CygbuildFileCmpDiffer ()
@@ -5347,9 +5363,15 @@ CygbuildPackageSourceDirClean()
     fi
 }
 
+function CygbuildPatchLs ()
+{
+    $AWK ' /^\+\+\+ / {print $2}' ${1:-/dev/null}
+}
+
 function CygbuildPatchApplyRun()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local patch=$1
     shift
     # $@ contains additional options
@@ -5361,13 +5383,35 @@ function CygbuildPatchApplyRun()
         patchopt="$patchopt --quiet"
     fi
 
+    #  Cygwin's patch(1) needs --binary option to be able to handle CRLF
+    #  diffs correctly.
+
+    if CygbuildFileIsCRLF "$patch" ; then
+	opt="--binary"
+    fi
+
+    #  FIXME: We don't need to test destination files
+
+#     local dest opt
+#     CygbuildPatchLs "$patch" > $retval
+#     for dest in $(< $retval)
+#     do
+# 	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 1
+# 	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 2
+# 	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 3
+
+# 	if CygbuildFileIsCRLF "$dest"; then
+# 	    opt="--binary"
+# 	fi
+#    done
+
     if [ -f "$patch" ]; then
 	if [ "$verbose" ]; then
 	    CygbuildEcho "-- cd $dummy && patch $patchopt" "$@" "< $patch"
 	else
 	    CygbuildEcho "-- ${patch#$srcdir/}"
 	fi
-        ${test:+echo} $PATCH $patchopt "$@" < $patch
+        ${test:+echo} $PATCH $patchopt $opt "$@" < $patch
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
              "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
@@ -5606,7 +5650,7 @@ function CygbuildPatchApplyMaybe()
 
         if [ -s $retval ]; then
             local count=$(< $retval)
-            opt="--strip=$count"
+            opt="$opt --strip=$count"
         fi
 
         [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
