@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0219.2316"
+CYGBUILD_VERSION="2008.0220.0004"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5558,8 +5558,8 @@ function CygbuildCmdMkpatchMain()
 
     local status=0
     local sigext=$CYGBUILD_GPG_SIGN_EXT
-    local origdir=$builddir_root
-    local origpkgdir=$origdir/$PKG-$VER-orig
+    local origdir="$builddir_root"
+    local origpkgdir="$origdir/$PKG-$VER-orig"
     local out=$FILE_SRC_PATCH
 
     local diffopt="$CYGBUILD_DIFF_OPTIONS"
@@ -5596,7 +5596,7 @@ function CygbuildCmdMkpatchMain()
 
     local copydir=$builddir_root/${srcdir##*/}
 
-    local file=$SRC_ORIG_PKG
+    local file="$SRC_ORIG_PKG"
 
     CygbuildExitNoFile "$file" "$id: [ERROR] Original archive not found $file"
 
@@ -5620,7 +5620,7 @@ function CygbuildCmdMkpatchMain()
 
         # ................................. Extract original package ...
 
-        cd $origdir || exit 1
+        cd "$origdir" || exit 1
 
         CygbuildVerb "-- Extracting original $file"
 
@@ -5656,7 +5656,7 @@ function CygbuildCmdMkpatchMain()
             $RM -rf "$origpkgdir" || exit 1
         fi
 
-        CygbuildTarOptionCompress $file > $retval
+        CygbuildTarOptionCompress "$file" > $retval
         [ -s $retval ] && z=$(< $retval)
 
         opt="-${z}xf"
@@ -5672,7 +5672,7 @@ function CygbuildCmdMkpatchMain()
         #   Rename by moving:  foo-1.12-orig
         $MV "$dir" "$origpkgdir" || return $?
 
-        cd $srcdir || exit 1
+        cd "$srcdir" || exit 1
 
         cursrcdir=$srcdir
 
@@ -5700,6 +5700,7 @@ function CygbuildCmdMkpatchMain()
 
             dummy="PWD is $(pwd)"           # Used for debugging
 
+
             $TAR $CYGBUILD_TAR_EXCLUDE \
                 --create --file=- . \
                 | ( cd "$cursrcdir" && $TAR --extract --file=- ) \
@@ -5715,7 +5716,7 @@ function CygbuildCmdMkpatchMain()
 
                 cd $cursrcdir &&
                 CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
-            )
+            ) || exit 1
         fi
 
         cd $cursrcdir || exit 1

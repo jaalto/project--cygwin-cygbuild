@@ -34,14 +34,15 @@ INSTALL_OBJS_BIN   = $(PACKAGE)
 INSTALL_OBJS_MAN1  = *.1 *.1x
 INSTALL_OBJS_SHARE =
 
+BINDIR		= $(DESTDIR)$(exec_prefix)/bin
+SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
+LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
 MANDIR1		= $(DESTDIR)$(man_prefix)/man/man1
 MANDIR5		= $(DESTDIR)$(man_prefix)/man/man5
 MANDIR8		= $(DESTDIR)$(man_prefix)/man/man8
-BINDIR		= $(DESTDIR)$(exec_prefix)/bin
+
 SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
-SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
-LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
 DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 
 DEBUG		= -g
@@ -80,15 +81,15 @@ install-etc:
 	$(INSTALL_BIN) -d $(ETCDIR)
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_ETC) $(ETCDIR)
 
-install-bin:
-	# install-bin
-	$(INSTALL_BIN) -d $(BINDIR)
-	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
-
 install-man:
 	# install-man
 	$(INSTALL_BIN) -d $(MANDIR1)
 	$(INSTALL_DATA) $(INSTALL_OBJS_MAN1) $(MANDIR1)
+
+install-bin:
+	# install-bin
+	$(INSTALL_BIN) -d $(BINDIR)
+	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
 
 install: all install-bin install-man
 

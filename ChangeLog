@@ -10,6 +10,7 @@
 	`CygbuildMakefilePrefixCheck' and `CygbuildMakefilePrefixIsStandard'.
 	(CygbuildMakefilePrefixCheck): Add input arg MAKEFILE and throw away
 	Makefile name guessing code.
+	(CygbuildCmdMkpatchMain): Check unpatch failure.
 
 2008-02-19  Jari Aalto  <jari.aalto@cante.net>
 
