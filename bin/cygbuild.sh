@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.0020"
+CYGBUILD_VERSION="2008.0220.0837"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5400,6 +5400,112 @@ function CygbuildPatchList()
 	    $SORT
 }
 
+function CygbuildPatchPrefixStripCountFromContent()
+{
+    local id="$0.$FUNCNAME"
+    local file="$1"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    #   Read the first line in patch that is in format:
+    #       +++ path/to/foo-0.11.7.3.1/subdir/code.c
+    #
+    #   => up till 'foo'
+
+    if ! $AWK ' /^\+\+\+ / {ok = 1; print $2; exit}
+                END { if (!ok) exit(1) }
+              ' $file > $retval
+    then
+        CygbuildWarn "-- [WARN] Unrecognized patch format $file"
+        return 1
+    fi
+
+    local tmp=0
+    local saved="$IFS"
+    local path=$(< $retval)
+
+    local part=${path#*/}	    # dir/this.patch => this.patch
+
+    if [ -f "$path" ]; then
+        echo 0
+        return 0
+    elif [ -f "$part" ]; then
+        echo 1
+        return 0
+    fi
+
+    local prefix1
+
+    if [[ "$path" == b/* ]]; then
+        #  Mercurical and Git outputs 'patch -p1' format:
+        #   --- a/Makefile.in       Sun Aug 05 20:45:37 2007 +0300
+        #   +++ b/Makefile.in       Sun Aug 05 23:55:17 2007 +0300
+        prefix1="$path"
+    fi
+
+    local count
+
+    #   If PART name match the package name, then that is
+    #   the strip count. Typical in: diff -ru ../orig/foo-1.1 foo-1.1
+
+    local IFS="/"
+        set -- $path
+
+        if [ $# -gt 1 ]; then
+            for part in $*
+            do
+                tmp=$((tmp + 1))
+
+                if [[ $part == $PKG-*[0-9]* ]]; then
+                    count=$tmp
+                    break;
+                fi
+            done
+        fi
+
+    IFS="$saved"
+
+    #  If no PKG was found, then perhaps this is patch generated from VCS
+
+    if [ ! "$count" ] && [ "$prefix1" ] && [ ! -f "$prefix1" ]; then
+        count=1
+    fi
+
+    if [ "$count" ]; then
+        echo $count
+    else
+	return 1
+    fi
+}
+
+function CygbuildPatchPrefixStripCountFromFilename()
+{
+    local id="$0.$FUNCNAME"
+    local str=$1
+
+    #   Read the filename contains hint how much to strip, use it.
+    #       CYGWIN/-PATCHES/foo-1.2.3.strip+3.patch
+
+    [[ $str != *strip+*  ]] && return 1
+
+    str=${str##*strip+}
+    str=${str%%[!0-9]*}
+
+    if [ "$str" ]; then
+	echo $str
+    else
+	return 1
+    fi
+}
+
+function CygbuildPatchPrefixStripCountMain ()
+{
+    local id="$0.$FUNCNAME"
+    local file=$1
+
+    CygbuildPatchPrefixStripCountFromFilename "$file"   ||
+    CygbuildPatchPrefixStripCountFromContent  "$file"
+}
+
 function CygbuildPatchApplyMaybe()
 {
     local id="$0.$FUNCNAME"
@@ -7165,98 +7271,6 @@ function CygbuildPatchCheck()
         CygbuildWarn "-- [ERROR] Patch file is missing $_file"
         return 1
     fi
-}
-
-function CygbuildPatchPrefixStripCountFromContent()
-{
-    local id="$0.$FUNCNAME"
-    local file=$1
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
-    #   Read the first line in patch that is in format:
-    #       +++ path/to/foo-0.11.7.3.1/subdir/code.c
-    #
-    #   => up till 'foo'
-
-    if ! $AWK ' /^\+\+\+ / {ok = 1; print $2; exit}
-                END { if (!ok) exit(1) }
-              ' $file > $retval; then
-        CygbuildWarn "-- [WARN] Unrecognized patch format $file"
-        return 1
-    fi
-
-    local part count
-    local tmp=0
-    local saved="$IFS"
-    local path=$(< $retval)
-    local prefix1
-
-    if [ -f "$path" ]; then
-        echo 0      # No strip needed
-        return
-    fi
-
-    if [[ "$path" == b/* ]]; then
-        #  Mercurical and Git outputs 'patch -p1' format:
-        #   --- a/Makefile.in       Sun Aug 05 20:45:37 2007 +0300
-        #   +++ b/Makefile.in       Sun Aug 05 23:55:17 2007 +0300
-        prefix1="$path"
-    fi
-
-    #   If PART name match the package name, then that is
-    #   the strip count. Typical in: diff -ru ../orig/foo-1.1 foo-1.1
-
-    local IFS="/"
-        set -- $path
-
-        if [ $# -gt 1 ]; then
-            for part in $*
-            do
-                tmp=$((tmp + 1))
-
-                if [[ $part == $PKG-*[0-9]* ]]; then
-                    count=$tmp
-                    break;
-                fi
-            done
-        fi
-
-    IFS="$saved"
-
-    #  If no PKG was found, then perhaps this is patch generated from VCS
-
-    if [ ! "$count" ] && [ "$prefix1" ] && [ ! -f "$prefix1" ]; then
-        count=1
-    fi
-
-    if [ "$count" ]; then
-        echo $count
-    fi
-}
-
-function CygbuildPatchPrefixStripCountFromFilename()
-{
-    local id="$0.$FUNCNAME"
-    local str=$1
-
-    #   Read the filename contains hint how much to strip, use it.
-    #       CYGWIN/-PATCHES/foo-1.2.3.strip+3.patch
-
-    [[ $str != *strip+*  ]] && return 1
-
-    str=${str##*strip+}
-    str=${str%%[!0-9]*}
-
-    echo $str
-}
-
-function CygbuildPatchPrefixStripCountMain ()
-{
-    local id="$0.$FUNCNAME"
-    local file=$1
-
-    CygbuildPatchPrefixStripCountFromFilename "$file"   ||
-    CygbuildPatchPrefixStripCountFromContent  "$file"
 }
 
 function CygbuildPatchFindGeneratedFiles()

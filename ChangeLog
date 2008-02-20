@@ -12,6 +12,9 @@
 	Makefile name guessing code.
 	(CygbuildCmdMkpatchMain): Check unpatch failure.
 	(CygbuildDefineGlobalCompile): Remove C++ autodetections.
+	(CygbuildPatchPrefixStripCountFromFilename): Return error code.
+	(CygbuildPatchPrefixStripCountFromContent): Return error code.
+	Improve -p1 detection.
 
 2008-02-19  Jari Aalto  <jari.aalto@cante.net>
 
