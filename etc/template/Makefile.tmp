@@ -60,7 +60,6 @@ ASM_SRCS	=
 ASM_OBJS	= $(ASM_SRCS:.asm=.o)
 ASM_FLAGS	=
 
-.PHONY: clean distclean install install-man install-bin
 .SUFFIXES: .asm
 
 all: $(PACKAGE)
@@ -93,5 +92,7 @@ install-bin:
 	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
 
 install: all install-bin install-man
+
+.PHONY: clean distclean install install-man install-bin
 
 # End of file
