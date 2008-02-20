@@ -47,6 +47,7 @@ DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 
 DEBUG		= -g
 CC		= gcc
+CXX		= g++
 GCCFLAGS	= -Wall
 CFLAGS		= $(GCCFLAGS) $(DEBUG) -O2
 LDFLAGS		=
