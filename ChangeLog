@@ -6,6 +6,7 @@
 	(CygbuildCmdPrepMain): Move message 'applying included patches ...'
 	to the `CygbuildPatchApplyMaybe'. Improve error code handling
 	after `CygbuildPatchApplyMaybe'.
+	(CygbuildMakefileRunClean): Remove unused function.
 
 2008-02-20  Jari Aalto  <jari.aalto@cante.net>
 

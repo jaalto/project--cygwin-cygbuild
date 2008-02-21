@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0221.1733"
+CYGBUILD_VERSION="2008.0221.1738"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6578,26 +6578,6 @@ function CygbuildMakefilePrefixCheck()
 
         fi
     fi
-}
-
-function CygbuildMakefileRunClean()
-{
-    #   Before making a patch, a "make distclean" should be run
-
-    local id="$0.$FUNCNAME"
-    local dir=$builddir
-
-    CygbuildEcho "-- Running 'make clean' in" ${dir/$srcdir\/}
-
-    local status=0
-
-    CygbuildPushd
-        cd $dir || exit 1
-        $MAKE clean
-        status=$?
-    CygbuildPopd
-
-    return $status
 }
 
 function CygbuildPythonCompileFiles()
