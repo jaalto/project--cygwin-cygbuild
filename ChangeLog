@@ -15,6 +15,7 @@
 	extra rm *.o call.
 	(CygbuildPatchApplyRun): Add 'local opt', which causes nasty bug
 	During source package 'prep' phase.
+	(CygbuildCmdInstallCheckReadme): Shorten path names in messages.
 
 2008-02-20  Jari Aalto  <jari.aalto@cante.net>
 

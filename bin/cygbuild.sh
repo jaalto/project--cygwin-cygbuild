@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0221.1910"
+CYGBUILD_VERSION="2008.0221.2210"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6163,7 +6163,7 @@ function CygbuildCmdDownloadUpstream ()
         return 1
     fi
 
-    CygbuildEcho "-- [upstream] Checking for new versions..."
+    CygbuildEcho "-- Upstream download: checking for new versions..."
 
     local confpath=$(cd $DIR_CYGPATCH; pwd)
     local conffile=$confpath/$name
@@ -6713,7 +6713,7 @@ function CygbuildRunPythonSetupCmd()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    CygbuildEcho "-- Running Python command: $*"
+    CygbuildVerb "-- Running Python command: $*"
 
     CygbuildRunShell $PYTHON setup.py "$@" > $retval 2>&1
     local status=$?
@@ -9633,9 +9633,11 @@ function CygbuildCmdInstallCheckReadme()
         CygbuildWarn \
             "-- [WARN] Missing reference $version" \
             "(Perhaps you didn't run [install] after edit?)" \
-            "from $path"
+            "from" ${path#$srcdir/}
 
-        [ "$verbose" ] && $EGREP --with-filename "$sversion" $path
+        if [ "$verbose" ]; then
+	    $EGREP --with-filename "$sversion" ${path#$srcdir/}
+	fi
 
         CygbuildWarn \
             "-- [INFO] Give different -r RELEASE or edit $origreadme"
