@@ -8,8 +8,13 @@
 	after `CygbuildPatchApplyMaybe'.
 	(CygbuildMakefileRunClean): Remove unused function.
 	(CygbuildCmdCleanMain): write messages only during verbose.
-	(CygbuildHelpShort): Correct option -C to -c. Rephrase feew
+	(CygbuildHelpShort): Correct option -C to -c. Rephrase few
 	paragrahs.
+	(CygbuildIsSourceUnpacked): New.
+	(CygbuildCmdPrepPatch): Use `CygbuildIsSourceUnpacked'. Remove
+	extra rm *.o call.
+	(CygbuildPatchApplyRun): Add 'local opt', which causes nasty bug
+	During source package 'prep' phase.
 
 2008-02-20  Jari Aalto  <jari.aalto@cante.net>
 

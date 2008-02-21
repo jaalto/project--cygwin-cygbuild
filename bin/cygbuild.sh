@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0221.1848"
+CYGBUILD_VERSION="2008.0221.1910"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -341,6 +341,11 @@ function CygbuildIsSourceProgram ()
     # Check "the packaging script" foo-N.N.sh
 
     [[ $0 == *[0-9]* ]]
+}
+
+function CygbuildIsSourceUnpacked ()
+{
+    [ -f $DIR_CYGPATCH/$PKG.README ]
 }
 
 function CygbuildIsGbsCompat()
@@ -3692,7 +3697,7 @@ function CygbuildDefineGlobalMain()
     FILE_SRC_PKG=$tmpinst/$NAME_SRC_PKG                         # global-def
 
     if CygbuildIsGbsCompat ; then
-        CygbuildEcho "-- [NOTE] Using GBS compat mode for" \
+        CygbuildVerb "-- [NOTE] Using GBS compat mode for" \
                      "source and binary packages"
         FILE_SRC_PKG=$TOPDIR/$NAME_SRC_PKG
     fi
@@ -5385,12 +5390,12 @@ function CygbuildPatchApplyRun()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local patch=$1
-    shift
-    # $@ contains additional options
-
-    local dummy=$(pwd)                      # For debug
     local patchopt="$CYGBUILD_PATCH_OPT"
+    local patch="$1"
+    shift
+
+    local dummy="Additional options: $@"    # For debug
+    local dummy=$(pwd)                      # For debug
 
     if [ ! "$verbose" ]; then
         patchopt="$patchopt --quiet"
@@ -5399,11 +5404,13 @@ function CygbuildPatchApplyRun()
     #  Cygwin's patch(1) needs --binary option to be able to handle CRLF
     #  diffs correctly.
 
+    local opt
+
     if CygbuildFileIsCRLF "$patch" ; then
 	opt="--binary"
     fi
 
-    #  FIXME: We don't need to test destination files
+    #  FIXME: We don't need to test destination files for --binary
 
 #     local dest opt
 #     CygbuildPatchLs "$patch" > $retval
@@ -5422,7 +5429,7 @@ function CygbuildPatchApplyRun()
 	if [ "$verbose" ]; then
 	    CygbuildEcho "-- cd $dummy && patch $patchopt" "$@" "< $patch"
 	else
-	    CygbuildEcho "-- ${patch#$srcdir/}"
+	    CygbuildEcho "-- Patching with ${patch#$srcdir/}"
 	fi
         ${test:+echo} $PATCH $patchopt $opt "$@" < $patch
     else
@@ -7602,14 +7609,13 @@ function CygbuildCmdPrepPatch()
     local id="$0.$FUNCNAME"
     local status=0
 
-    if [ ! -f $DIR_CYGPATCH/$PKG.README ]; then
-        CygbuildPushd
-            cd $TOPDIR              &&
-            $RM -f *.o 2> /dev/null && # Otherwise does not start compiling
-            CygbuildPatchApplyRun ${FILE_SRC_PATCH##*/}
-            status=$?
-        CygbuildPopd
-    fi
+    CygbuildIsSourceUnpacked && return 0
+
+    CygbuildPushd
+	cd $TOPDIR            &&
+	CygbuildPatchApplyRun ${FILE_SRC_PATCH##*/}
+	status=$?
+    CygbuildPopd
 
     return $status
 }
@@ -7888,6 +7894,7 @@ function CygbuildConfCC()
     else
 
         local opt
+
         CygbuildConfOptionAdjustment > $retval
         [ -s $retval ] && opt=$(< $retval)
 
