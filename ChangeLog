@@ -2,6 +2,10 @@
 
 	* bin/cygbuild.sh (top level): Remove old BASH test and change
 	to more reliable process substitution test.
+	(CygbuildPatchApplyMaybe): Add 2nd argument MSG.
+	(CygbuildCmdPrepMain): Move message 'applying included patches ...'
+	to the `CygbuildPatchApplyMaybe'. Improve error code handling
+	after `CygbuildPatchApplyMaybe'.
 
 2008-02-20  Jari Aalto  <jari.aalto@cante.net>
 

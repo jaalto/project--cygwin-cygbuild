@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0220.2358"
+CYGBUILD_VERSION="2008.0221.1733"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -5567,7 +5567,10 @@ function CygbuildPatchApplyMaybe()
     local dir="$DIR_CYGPATCH"
     local statfile="$CYGPATCH_DONE_PATCHES_FILE"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local cmd=${1:-"patch"}  # or: unpatch[-nostat][-quiet][-force]
+    local cmd="$1"  # {patch,unpatch}[-nostat][-quiet][-force]
+    local msg="$2"
+
+    [ ! "$cmd" ] && cmd="patch"
 
     local verb="$verbose"
     local statCheck="statCheck"
@@ -5599,7 +5602,9 @@ function CygbuildPatchApplyMaybe()
     CygbuildPatchList > $retval
     local list=$(< $retval)
 
-    [ ! "$list" ] && return 0
+    [ "$list" ] || return 0
+
+    [ "$msg" ] && CygbuildEcho "$msg"
 
     if [ "$cmd" = "unpatch" ]; then
 
@@ -7721,11 +7726,17 @@ function CygbuildCmdPrepMain()
         CygbuildCmdPrepPatch        || return $?
     fi
 
+    local status
+
     CygbuildPushd
-      CygbuildEcho "-- [NOTE] applying included patches to sources (if any)"
-      cd "$srcdir"            || return $?
-      CygbuildPatchApplyMaybe || return $?
+	cd "$srcdir" || return $?
+	CygbuildPatchApplyMaybe \
+	    "patch" \
+	    "-- [NOTE] applying included patches to sources (if any)"
+	status=$?
     CygbuildPopd
+
+    [ ! "$status" = "0" ] && return $status
 
     CygbuildCmdMkdirs || return $?
 
