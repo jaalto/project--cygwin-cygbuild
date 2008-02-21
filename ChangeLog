@@ -8,6 +8,8 @@
 	after `CygbuildPatchApplyMaybe'.
 	(CygbuildMakefileRunClean): Remove unused function.
 	(CygbuildCmdCleanMain): write messages only during verbose.
+	(CygbuildHelpShort): Correct option -C to -c. Rephrase feew
+	paragrahs.
 
 2008-02-20  Jari Aalto  <jari.aalto@cante.net>
 

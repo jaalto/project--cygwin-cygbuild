@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0221.1741"
+CYGBUILD_VERSION="2008.0221.1848"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -3973,14 +3973,14 @@ function CygbuildHelpShort()
 Version $CYGBUILD_VERSION <$CYGBUILD_HOMEPAGE_URL>
 Call syntax: $bin [option] CMD ...
 
-  -C|--color            Activate colors
+  -c|--color            Activate colors
   -d|--debug LEVEL      Debug mode with numeric LEVEL
   -r|--release RELEASE  Mandatory option for packaging related commands
   -t|--test             Run in test mode
   -v|--verbose          More verbose messages
   -V|--version          Print version information
 
-  -h|--help             This short help. Long help requires full install.
+  -h|--help             Short help. Long help requires full install.
 
   GPG support options
 
@@ -3990,15 +3990,17 @@ Call syntax: $bin [option] CMD ...
 
 DESCRIPTION
 
-Cygbuild is a tool for making, building and maintaining source and binary
-packages under Windows/Cygwin platform. Similar to Debian dh_make(1) or
-other build tools.
+Cygbuild is a tool for making, building and maintaining source and
+binary packages under Windows/Cygwin platform. Modelled somewhat after
+dh_make(1) that is used to manage Debian packages.
 
 TO USE CYGBUILD FOR MAKING Cygwin Net Releases
 
     The CMD can be one of the following. The full description can be
     read from the manual page. Commands are listed in order of
     execution:
+
+	<precondition: cd /to/package/foo-N.N/>
 
         To prepare port : mkdirs files patch shadow
         To port         : conf build strip
@@ -4019,24 +4021,24 @@ CYGBUILD CONTROLLED SOURCE PACKAGE
     files:
 
         foo-N.N-RELEASE-src.tar.bz2
-        foo-N.N-RELEASE.patch
+        foo-N.N-RELEASE*.patch
         foo-N.N-RELEASE.sh
 
     Run included shell script:
 
-        $ ./foo-N.N-RELEASE.sh -v all
+        $ ./foo-N.N-RELEASE.sh -v -c all
 
     In essence, command 'all' is used for testing the integrity of
-    source build - it does not produce any visible results. Command
-    'all' will try to build binary packages and if everything goes ok,
-    command 'finish' which removes the unpacked source directory.
+    source build and will try to build binary packages. If everything
+    succeeded, it runs command 'finish' which removes the unpacked
+    source directory.
 
   Testing the source builds - step by step
 
     To see the results of source compilation, the commands must to be run
     one by one are:
 
-        $ ./foo-N.N-RELEASE.sh -v prep conf make install
+        $ ./foo-N.N-RELEASE.sh -v -c prep conf make install
         $ cd foo-N.N/
         $ find .inst/
         $ cd ..
@@ -5597,7 +5599,7 @@ function CygbuildPatchApplyMaybe()
         cmd=${cmd%-nostat}
     fi
 
-    local file done name opt continue list
+    local file done name continue list
 
     CygbuildPatchList > $retval
     local list=$(< $retval)
@@ -5660,7 +5662,7 @@ function CygbuildPatchApplyMaybe()
             fi
         fi
 
-        opt=
+        local opt=
 
         CygbuildPatchPrefixStripCountMain "$file" > $retval
 
@@ -5668,6 +5670,7 @@ function CygbuildPatchApplyMaybe()
             local count=$(< $retval)
             opt="$opt --strip=$count"
         fi
+
 
         [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
 
@@ -5708,9 +5711,7 @@ function CygbuildCmdMkpatchMain()
     local signkey="$1"
     local passphrase="$2"
 
-    if ! CygbuildDefineGlobalSrcOrig; then
-        return 1
-    fi
+    CygbuildDefineGlobalSrcOrig || return 1
 
     CygbuildIsSrcdirOk \
         "[FATAL] Not recognized; expect package-N[.N]+: $srcdir"
