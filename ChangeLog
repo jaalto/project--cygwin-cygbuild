@@ -7,6 +7,7 @@
 	to the `CygbuildPatchApplyMaybe'. Improve error code handling
 	after `CygbuildPatchApplyMaybe'.
 	(CygbuildMakefileRunClean): Remove unused function.
+	(CygbuildCmdCleanMain): write messages only during verbose.
 
 2008-02-20  Jari Aalto  <jari.aalto@cante.net>
 

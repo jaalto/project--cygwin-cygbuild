@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0221.1738"
+CYGBUILD_VERSION="2008.0221.1741"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -8385,16 +8385,14 @@ function CygbuildCmdCleanMain()
 
             cd $dir  || exit 1
 
-            local file
-
             $MAKE -f $makefile clean ||
             {
-                CygbuildEcho "-- [NOTE] Hm, running recursive" \
+                CygbuildVerb "-- [NOTE] Hm, running recursive" \
                              "rm *.o *.exe *.dll instead"
-                CygbuildEcho "-- [NOTE] Better, patch the Makefile to include"
-                CygbuildEcho "-- [NOTE] target 'clean:'"
+                CygbuildVerb "-- [NOTE] Better, patch the Makefile to include"
+                CygbuildVerb "-- [NOTE] target 'clean:'"
 
-                set -o noglob    # Don not expand variables, like  "*.exe"
+                set -o noglob    # Do not expand $CYGBUILD_FIND_OBJS; "*.exe"
 
                     $FIND . \
                         -type f '(' $CYGBUILD_FIND_OBJS ')' \
@@ -8402,10 +8400,12 @@ function CygbuildCmdCleanMain()
 
                 set +o noglob
 
+		local file
+
                 while read file
                 do
                     $RM $verbose "$file"
-                done < $retval
+                done < $retval ;
 
             }
         CygbuildPopd
