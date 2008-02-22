@@ -8,6 +8,9 @@
 	files.
 	(CygbuildInstallFixDocdirInstall): Protect regexp with
 	`CygbuildStrToRegexpSafe'.
+	(CygbuildInstallFixDocdirInstall): Add --test mode support.
+	(CygbuildCmdFilesWrite): Add unpack support for template files.
+	E.g. install cygwin-announce.mail.tmp as cygwin-announce.mail.
 
 2008-02-21  Jari Aalto  <jari.aalto@cante.net>
 

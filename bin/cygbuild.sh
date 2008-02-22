@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.0027"
+CYGBUILD_VERSION="2008.0222.0745"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -1364,7 +1364,7 @@ function CygbuildChmodDo()
     for file in "$@"
     do
         [ -f "$file" ] || continue
-        chmod ugo+x $file || return $?
+        chmod ugo+x "$file" || return $?
     done
 }
 
@@ -8941,8 +8941,9 @@ function CygbuildInstallExtraMain()
 function CygbuildInstallFixMandir()
 {
     local id="$0.$FUNCNAME"
+    local mandir="$dir/usr/man"
 
-    [ -d "$dir/usr/man" ] || return 0
+    [ -d "$mandir" ] || return 0
 
     CygbuildVerb "-- Fixing manual page locations"
 
@@ -8951,26 +8952,27 @@ function CygbuildInstallFixMandir()
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
 
-    $scriptInstallDir $manroot || return 1
+    $scriptInstallDir "$manroot" || return 1
 
     local item
-    for item in $dir/usr/man/*
+
+    for item in $mandir/*
     do
-      $MV $item $manroot
+      $MV "$item" "$manroot"
     done
 
-    $RMDIR $dir/usr/man
+    $RMDIR "$dir/usr/man"
 }
 
 function CygbuildInstallFixPermissions()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local file exeList readList
 
-    $FIND $instdir -type f > $retval
-
+    $FIND "$instdir" -type f > $retval
     [ -s $retval ] || return 0
+
+    local file exeList readList
 
     while read file
     do
@@ -8978,10 +8980,13 @@ function CygbuildInstallFixPermissions()
          [[ "$file" == */bin/*  ]] ||
          [[ "$file" == */sbin/* ]]
       then
+
           exeList="$exeList $file"
 
       elif [[ "$file" == */man/* ]]; then
+
           readList="$readList $file"
+
       fi
     done < $retval
 
@@ -9007,8 +9012,9 @@ function CygbuildInstallFixInterpreterPerl ()
     $SED -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,' \
          -e '/.*eval.*exec.*bin\/perl.*/d' \
          -e '/.*not running under some shell/d' \
-         $file > $file.tmp &&
-    $MV --force $file.tmp $file
+         "$file" > "$file.tmp" &&
+
+    $MV --force "$file.tmp" "$file"
 }
 
 function CygbuildInstallFixInterpreterPython()
@@ -9021,8 +9027,8 @@ function CygbuildInstallFixInterpreterPython()
         return 1
     fi
 
-    $SED -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' $file > $file.tmp &&
-    $MV --force $file.tmp $file
+    $SED -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$file.tmp" &&
+    $MV --force "$file.tmp" "$file"
 }
 
 function CygbuildInstallFixDocdirInstall()
@@ -9033,6 +9039,11 @@ function CygbuildInstallFixDocdirInstall()
     local dest="$DIR_DOC_GENERAL"
     local dest1=${dest##*/}		    # Delete path. Basename
     local pwd="$(pwd)"
+
+    if [ "$test" ]; then
+	CygbuildEcho "-- Handling of doc/foo-N-N/ directory (TEST MODE)"
+	return 0
+    fi
 
     #	Clean any empty directories
 
@@ -9180,11 +9191,11 @@ function CygbuildInstallFixInterpreterMain()
 
     for file in $instdir/usr/bin/*
     do
-        [ -f $file ] || continue
+        [ -f "$file" ] || continue
 
         local _file=${file/$srcdir\/}       # relative path
 
-        head -1 $file > $retval 2> /dev/null
+        head -1 "$file" > $retval 2> /dev/null
 
         if $EGREP --quiet "perl" $retval &&
            ! $EGREP --quiet "/usr/bin/perl([ \t]|$)" $retval
@@ -9202,7 +9213,6 @@ function CygbuildInstallFixInterpreterMain()
 
             CygbuildInstallFixInterpreterPython "$file"
         fi
-
     done
 }
 
@@ -9225,8 +9235,8 @@ function CygbuildInstallFixPerlPacklist()
 
         CygbuildVerb "-- Adjusting $_file"
 
-        $SED 's/.*.inst//' $file > $file.tmp &&
-        $MV $file.tmp $file
+        $SED 's/.*.inst//' "$file" > "$file.tmp" &&
+        $MV "$file.tmp" "$file"
     done
 }
 
@@ -10722,7 +10732,7 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckSymlinkExe        || stat=$?
     CygbuildCmdInstallCheckCygpatchDirectory || stat=$?
 
-    CygbuildEcho "-- Check done. Please verify messages above."
+    CygbuildEcho "-- Check finished. Please verify messages above."
 
     return $stat
 }
@@ -11032,7 +11042,7 @@ function CygbuildCmdFilesWrite()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local to="$1"
+    local todir="$1"						# destdir
     shift
     local trydirs="$*"
 
@@ -11043,8 +11053,8 @@ function CygbuildCmdFilesWrite()
         return 1
     fi
 
-    if [ ! -d "$to" ]; then
-        CygbuildWarn "$id: [ERROR] Write directory does not exist: $to"
+    if [ ! -d "$todir" ]; then
+        CygbuildWarn "$id: [ERROR] Write directory does not exist: $todir"
         return 1
     fi
 
@@ -11054,11 +11064,11 @@ function CygbuildCmdFilesWrite()
 
     for file in package.README setup.hint
     do
-        CygbuildFileExists $file $trydirs > $retval || return $?
+        CygbuildFileExists "$file" $trydirs > $retval || return $?
         local from=$(< $retval)
-        local dest=$to/$file
+        local dest="$todir/$file"
 
-        [[ $file == *README ]] && dest=$to/$PKG.README
+        [[ $file == *README ]] && dest="$todir/$PKG.README"
 
         if [ -f "$dest" ]; then
             CygbuildVerb "-- Skip, already exists $dest"
@@ -11067,6 +11077,7 @@ function CygbuildCmdFilesWrite()
         fi
     done
 
+    local unpack="*@(cygwin-announce.mail.tmp)"			# remove *.tmp
     local dir
 
     for dir in $trydirs
@@ -11077,19 +11088,23 @@ function CygbuildCmdFilesWrite()
         do
             [ ! -f "$file" ] && continue
 
-            local sh=${file##*/}        # /path/to/file.sh.tmp => file.sh.tmp
-            local script=${sh%.tmp}     # file.sh.tmp => file.sh
-            local dest=$to/$script
+            local name=${file##*/}      # /path/to/file.sh.tmp => file.sh.tmp
+            local plain=${name%.tmp}    # file.sh.tmp => file.sh
+            local dest="$todir/$plain"
 
             if [ -f "$dest" ]; then
                 #   User has taken template file into use
                 CygbuildVerb "-- Skip, already exists $dest"
 
-            elif [ -f "$to/$sh" ]; then
+            elif [ -f "$todir/$name" ]; then
                 #  Template file is already there.
                 :
             else
-                $CP $verbose "$file" "$to" || return $?
+                $CP $verbose "$file" "$todir" || return $?
+
+		if [[ "$name" == $unpack ]] && [ ! -f "$dest" ]; then
+		    $MV "$todir/$name" "$dest" || return $?
+		fi
             fi
         done
     done
@@ -11119,7 +11134,7 @@ function CygbuildCmdFilesMain()
         CygbuildCmdMkdirs "$verbose" || return 1
     fi
 
-    CygbuildCmdFilesWrite $destdir $userdir $templatedir
+    CygbuildCmdFilesWrite "$destdir" "$userdir" "$templatedir"
 }
 
 function CygbuildCmdPackageBinMain()
