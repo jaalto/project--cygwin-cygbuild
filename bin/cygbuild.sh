@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.0745"
+CYGBUILD_VERSION="2008.0222.0841"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -4822,7 +4822,8 @@ function CygbuildCmdReadmeFixMain()
     CygbuildDetermineReadmeFile > $retval
     [ -s $retval ] && readme=$(< $retval)
 
-    CygbuildEcho "== Readmefix command: $readme"
+    CygbuildEcho "== Readmefix command:"
+    CygbuildVerb "-- Modifying ${readme#$srcdir/}"
 
     if [ ! "$readme" ]; then
         CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
@@ -7459,7 +7460,7 @@ CygbuildCmdGetSource ()
     local url=${CYGBUILD_SRCPKG_URL:-\
 "http://mirror.switch.ch/ftp/mirror/cygwin"}
 
-    CygbuildEcho "-- ** Source download from \$CYGBUILD_SRCPKG_URL"
+    CygbuildEcho "-- [NOTE] Source download from \$CYGBUILD_SRCPKG_URL"
 
     url=${url%/}        # Remove trailing slash
 
@@ -9044,6 +9045,8 @@ function CygbuildInstallFixDocdirInstall()
 	CygbuildEcho "-- Handling of doc/foo-N-N/ directory (TEST MODE)"
 	return 0
     fi
+
+    [ -d "$dest" ] || return 0
 
     #	Clean any empty directories
 

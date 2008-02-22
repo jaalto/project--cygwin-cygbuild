@@ -136,10 +136,7 @@
           |  |  &lt;contains only symlinks and object *.o etc. files&gt;
           |  |
           |  +- package-1.2.3-orig/
-          |  |  &lt;Used for taking a diff&gt;
-          |  |
-          |  +- vc/
-          |     &lt;Version Control System checkouts are done here&gt;
+          |     &lt;Used for taking a diff&gt;
           |
           +- .inst/
           |  &lt;The &quot;make install&quot; target directory&gt;
@@ -208,22 +205,7 @@ be used to check the binary build:</p>
 manual pages and the usr/share/doc/*/ content.</p>
 </dd>
 </li>
-<dt><strong><a name="item__2dc_7c_2d_2dcheckout"><strong>-c|--checkout</strong></a></strong>
-
-<dd>
-<p>Package version control files into a custom checkout script. This option is
-meanigful only with command <strong>[source-package]</strong>.</p>
-</dd>
-<dd>
-<p>Take for example package 'foo', whose development versions can be
-easily followed with version control software. After the sources have
-been checked out, it is possible to package current snapshot straight
-from the directory tree with this option. It will create a separate
-source script based on current timestamp to retrive same files from
-version control repository.</p>
-</dd>
-</li>
-<dt><strong><a name="item__2dc_7c_2d_2dcolor"><strong>-C|--color</strong></a></strong>
+<dt><strong><a name="item__2dc_7c_2d_2dcolor"><strong>-c|--color</strong></a></strong>
 
 <dd>
 <p>Activate colors in displayed messages.</p>
@@ -858,30 +840,10 @@ from beginning to publish.</p>
 <dt><strong><a name="item_readmefix"><strong>readmefix</strong></a></strong>
 
 <dd>
-<p>Update <code>CYGWIN-PATCHES/package.README</code> or <code>CYGWIN-PATCHES/README</code> file to
-reflect current package's version and release numbers. Replace file listing
-with current binary package's content. Update 'Cygwin port maintained by'
-from environment values (See ENVIRONMENT).</p>
-</dd>
-<dd>
-<p>Command <strong>[readmefix]</strong> supposes that a binary has already been built. Its
-content is examined and README file is updated accordingly. Follow these
-steps:</p>
-</dd>
-<dd>
-<pre>
-    1. Generate initial binary package with command [package].
-       Ignore all errors that may be displayed concerning
-       PKG, VER etc. tags.
-    2. Run [readmefix]
-    3. Run [install] to update the changed README to
-       the correct location
-    3. Generate binary package again with command [package}</pre>
-</dd>
-<dd>
-<p>Yes, after step 2, the newly updated README must be installed and updated
-to distribution, so it is necessary to build binary package again. Don't
-forger to supply the <strong>-r RELEASE</strong> when you run readmefix.</p>
+<p>Update <code>CYGWIN-PATCHES/package.README</code> or <code>CYGWIN-PATCHES/README</code>
+file to reflect current package's version and release numbers. Update
+'Cygwin port maintained by' from environment values (See ENVIRONMENT).
+Don't forget to supply the <strong>-r RELEASE</strong> when you run readmefix.</p>
 </dd>
 <dd>
 <p>Warning: command <strong>[readmefix]</strong> relies on the format of original README file
@@ -898,54 +860,19 @@ The command will look for following lines:</p>
 <dd>
 <pre>
     Build instructions:
-      unpack &lt;PKG&gt;-VER-REL-src.tar.bz2
+      unpack &lt;PKG&gt;-*-src.tar.bz2
         if you use setup to install this src package, it will be
              unpacked under /usr/src automatically
       cd /usr/src
-      ./&lt;PKG&gt;-VER-REL.sh all</pre>
+      ./&lt;PKG&gt;-*.sh all</pre>
 </dd>
 <dd>
-<pre>
-    This will create:
-      /usr/src/&lt;PKG&gt;-VER-REL.tar.bz2
-      /usr/src/&lt;PKG&gt;-VER-REL-src.tar.bz2</pre>
-</dd>
-<dd>
-<p>After this, follows a section which announces the files in a package. Make
-no modifications to any of these lines. The wording ``Files included'' is a
-keyword after which the <strong>[readmefix]</strong> knows where to insert new file
-listing from built binary package.</p>
-</dd>
-<dd>
-<pre>
-    -------------------------------------------</pre>
-</dd>
-<dd>
-<pre>
-    Files included in the binary distribution:</pre>
-</dd>
-<dd>
-<pre>
-      /usr/bin/...
-      /usr/share/doc/&lt;PKG&gt;-&lt;VER&gt;/AUTHORS
-      ...</pre>
-</dd>
-<dd>
-<p>This line will be updated to reflect your name and email
-address (See ENVIRONMENT):</p>
+<p>This lst line will be updated to reflect your name and email address
+(See ENVIRONMENT):</p>
 </dd>
 <dd>
 <pre>
     Cygwin port maintained by: &lt;Firstname Lastname&gt;  &lt;Your email here&gt;</pre>
-</dd>
-<dd>
-<p>You must update manually <code>Build requirement</code>, but the dependencies line
-will be fixed:</p>
-</dd>
-<dd>
-<pre>
-    Runtime requirements:
-      cygwin-1.5.x or newer</pre>
 </dd>
 </li>
 <dt><strong><a name="item_finish"><strong>finish</strong></a></strong>
@@ -1030,7 +957,7 @@ call:</p>
 </dd>
 <dd>
 <pre>
-  find CYGWIN-PATCHES -name &quot;*patch&quot;</pre>
+  find CYGWIN-PATCHES -name &quot;*patch&quot; | sort</pre>
 </dd>
 <dd>
 <p>The directories and filenames are therefore best to be prefixed with a
@@ -1114,7 +1041,7 @@ Contact maintainer of <code>package-N.N-1-src.tar.bz2</code> for details.</p>
 <p>Same as command <strong>[all]</strong> but without the <strong>[finish]</strong> step.</p>
 </dd>
 </li>
-<dt><strong><a name="item_getsrc"><strong>getsrc PACKAGE</strong></a></strong>
+<dt><strong><a name="item_cygsrc"><strong>cygsrc PACKAGE</strong></a></strong>
 
 <dd>
 <p>Download Cygwin net release source package to current directory. This
@@ -1183,7 +1110,7 @@ missing shadow directory and make it as needed.</p>
 
 <dd>
 <p>Check upstream site for new versions. External program <em>mywebget.pl</em>
-<a href="http://perl-webget.sourceforge.net/">http://perl-webget.sourceforge.net/</a> is used to do the download. The
+<a href="http://freshmeat.net/projects/perlwebget">http://freshmeat.net/projects/perlwebget</a> is used to do the download. The
 configuration file <code>CYGWIN-PATCHES/upstream.perl-webget</code> must contain URL
 and additional parameters how to retrieve newer versions. See
 <em>mywebget.pl</em>'s manual for more information. Here is an example
@@ -1924,7 +1851,7 @@ documentation directory and its installation is suppressed:</p>
     --exclude=cygbuild-no-docdir-install</pre>
 </dd>
 </li>
-<dt><strong><a name="item_manualpage_2epod"><strong>manualpage.pod</strong></a></strong>
+<dt><strong><a name="item_manualpage_2e1_2epod"><strong>manualpage.1.pod</strong></a></strong>
 
 <dd>
 <p>In case package does not include manual page or pages for certain binaries,
@@ -1935,12 +1862,19 @@ documented. The page number is automatically read from file name:</p>
 </dd>
 <dd>
 <pre>
-      X11 programs use section &quot;x&quot;
-                                |
-   cp manualpage.pod  xprogram.1x.pod
-   cp manualpage.pod  123chess.6.pod
-                               |
-      Section name indicates where to put manual. Here under man/ma6/</pre>
+       X11 programs use section &quot;x&quot;
+                                  |
+   cp manualpage.1.pod  xprogram.1x.pod
+   cp manualpage.1.pod  program.8.pod</pre>
+</dd>
+<dd>
+<p>The typical sections are:</p>
+</dd>
+<dd>
+<pre>
+   1  Normal binaries
+   5  Configuration files
+   8  Administrative binaries: /sbin</pre>
 </dd>
 <dd>
 <p>Here are some markup to use in <code>*.pod</code> files. See more information by
@@ -2413,7 +2347,7 @@ that if <code>CYGBUILD_FULLNAME</code> is not set, the <code>NAME</code> is trie
 <pre>
     CYGBUILD_FULLNAME || NAME
     CYGBUILD_EMAIL    || EMAIL</pre>
-<p>Default values for command <strong>[getsrc]</strong>. The value must point to
+<p>Default values for command <strong>[cygsrc]</strong>. The value must point to
 URL directory where Cygwin Net Release setup.ini file resides.</p>
 <pre>
     CYGBUILD_SRCPKG_URL=<a href="http://mirror.switch.ch/ftp/mirror/cygwin">http://mirror.switch.ch/ftp/mirror/cygwin</a></pre>
