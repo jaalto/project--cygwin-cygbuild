@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.1734"
+CYGBUILD_VERSION="2008.0222.1848"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8776,7 +8776,10 @@ function CygbuildInstallPackageDocs()
 
             CygbuildPopd
 
-            if [ "$status" != "0" ]; then
+            if [ "$status" != "0" ] && [ "$test" ] ; then
+                CygbuildEcho "-- Ignore harmless tar error (TEST MODE)"
+
+	    elif [ "$status" != "0" ]; then
                 CygbuildWarn "$id: [ERROR] tar failed to move files. " \
                      "Need to run [files]?"
 
@@ -11591,6 +11594,10 @@ function CygbuildProgramVersion()
 function CygbuildCommandMainCheckSpecial()
 {
     local tmp
+
+    if [[ "$*" == *--color* ]]; then
+	OPTION_COLOR="color" 					# global-def
+    fi
 
     for tmp in "$@"
     do
