@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.1709"
+CYGBUILD_VERSION="2008.0222.1729"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -7488,6 +7488,7 @@ CygbuildCmdDownloadCygwinPackage ()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pkg="$1"
+    local mode=${2:-"source-binary"}		# Download both
 
     if [ ! "$pkg" ]; then
         CygbuildDie "$id: [FATAL] command needs PACKAGE name"
@@ -7580,11 +7581,14 @@ CygbuildCmdDownloadCygwinPackage ()
     local name=${name%-src*}
     local name=${name%.orig*}
 
+    local list
+
+    [[ "$mode" == *binary* ]] && list="$list $url/$binpath"
+    [[ "$mode" == *source* ]] && list="$list $url/$path $url/$dir/setup.hint"
+
     if [ ! -f "$archive" ]; then
-        $wget --no-directories --no-host-directories --timestamping \
-            "$url/$dir/setup.hint" \
-	    "$url/$path" \
-	    "$url/$binpath" ||
+        echo $wget --no-directories --no-host-directories --timestamping \
+            $list ||
 	CygbuildDie "-- [ERROR] Download failed. Incorrect package name?"
     fi
 
@@ -11604,20 +11608,34 @@ function CygbuildCommandMainCheckSpecial()
     local cmd=$(
 	echo $* |
 	grep --extended-regexp --only-matching --ignore-case \
-	     "cygsrc( +(-d|--dir) +)?[a-z][^ ]+"
+	     "cygsrc( +(-b|--binary))?( +(-d|--dir) +)?[a-z][^ ]+"
     )
 
     if [ "$cmd" ]; then
 
 	set -- $cmd
+	shift
 
-	local pkg="$2"
-	local mkdir
+	local mode="source-binary"
+	local pkg mkdir
 
-	if [[ "$pkg" = @(-d|--dir) ]]; then
-	    pkg="$3"
-	    mkdir="mkdir"
-	fi
+	while :
+	do
+	    case "$1" in
+		-b|--binary)
+		    shift
+		    mode="binary"
+		    ;;
+		-d|--dir*)
+		    shift
+		    mkdir="mkdir"
+		    ;;
+		*)
+		    pkg="$1"
+		    break
+		    ;;
+	    esac
+	done
 
 	if [ "$mkdir" ] && [ -e "$pkg" ]; then
 	    CygbuildDie "-- [ERROR] Already exists dir/or file: $pkg"
@@ -11626,7 +11644,7 @@ function CygbuildCommandMainCheckSpecial()
 	    cd "$pkg" 	  || exit $?
 	fi
 
-	CygbuildCmdDownloadCygwinPackage "$pkg"
+	CygbuildCmdDownloadCygwinPackage "$pkg" "$mode"
 	exit $?
     fi
 }
