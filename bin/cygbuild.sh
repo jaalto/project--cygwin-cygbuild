@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.1729"
+CYGBUILD_VERSION="2008.0222.1734"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -7487,6 +7487,7 @@ CygbuildCmdDownloadCygwinPackage ()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local url="$CYGBUILD_SRCPKG_URL"
     local pkg="$1"
     local mode=${2:-"source-binary"}		# Download both
 
@@ -7496,8 +7497,7 @@ CygbuildCmdDownloadCygwinPackage ()
         CygbuildDie "$id: [FATAL] suspicious package name: $pkg"
     fi
 
-    local url="$CYGBUILD_SRCPKG_URL"
-
+    CygbuildEcho "-- Download Cygwin package: $pkg"
     CygbuildVerb "-- Using download location $url"
 
     url=${url%/}        # Remove trailing slash
@@ -7534,7 +7534,7 @@ CygbuildCmdDownloadCygwinPackage ()
 
     if [ ! -f "$cache" ]; then
         CygbuildEcho "-- Wait, downloading Cygwin package information."
-        $wget -q -O $cache "$url/$file" || return $?
+        $wget --quiet --output-document=$cache "$url/$file" || return $?
     fi
 
     # @ xfig
@@ -7587,10 +7587,12 @@ CygbuildCmdDownloadCygwinPackage ()
     [[ "$mode" == *source* ]] && list="$list $url/$path $url/$dir/setup.hint"
 
     if [ ! -f "$archive" ]; then
-        echo $wget --no-directories --no-host-directories --timestamping \
+        $wget --no-directories --no-host-directories --timestamping \
             $list ||
 	CygbuildDie "-- [ERROR] Download failed. Incorrect package name?"
     fi
+
+    [[ "$mode" == *source* ]] || return 0
 
     CygbuildEcho "-- Wait, extracting source and preparing *.patch file"
 
