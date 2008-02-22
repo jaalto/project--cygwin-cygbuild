@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.1705"
+CYGBUILD_VERSION="2008.0222.1709"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -7584,7 +7584,8 @@ CygbuildCmdDownloadCygwinPackage ()
         $wget --no-directories --no-host-directories --timestamping \
             "$url/$dir/setup.hint" \
 	    "$url/$path" \
-	    "$url/$binpath"
+	    "$url/$binpath" ||
+	CygbuildDie "-- [ERROR] Download failed. Incorrect package name?"
     fi
 
     CygbuildEcho "-- Wait, extracting source and preparing *.patch file"

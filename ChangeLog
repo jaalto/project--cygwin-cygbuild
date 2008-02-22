@@ -27,6 +27,7 @@
 	(CygbuildCommandMain): Add option --dir to command 'cygsrc'.
 	(CygbuildCommandMainCheckSpecial): Renamed. Was
 	`CygbuildCommandMainCheckHelp'.
+	(CygbuildCmdDownloadCygwinPackage): Check wget error status.
 
 2008-02-21  Jari Aalto  <jari.aalto@cante.net>
 
