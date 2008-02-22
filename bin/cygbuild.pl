@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0219.1749';
+$VERSION = '2008.0222.0754';
 
 # ..................................................................
 
@@ -1557,7 +1557,7 @@ documentation directory and its installation is suppressed:
 
     --exclude=cygbuild-no-docdir-install
 
-=item B<manualpage.pod>
+=item B<manualpage.1.pod>
 
 In case package does not include manual page or pages for certain binaries,
 this file can be used as a template for manaul pages. The format is Perl's
@@ -1565,12 +1565,16 @@ plain old documentation (pod) and the file itself is self explanatory. Just
 fill in the text and rename the file according to binaries that are
 documented. The page number is automatically read from file name:
 
-      X11 programs use section "x"
-                                |
-   cp manualpage.pod  xprogram.1x.pod
-   cp manualpage.pod  123chess.6.pod
-                               |
-      Section name indicates where to put manual. Here under man/ma6/
+       X11 programs use section "x"
+                                  |
+   cp manualpage.1.pod  xprogram.1x.pod
+   cp manualpage.1.pod  program.8.pod
+
+The typical sections are:
+
+   1  Normal binaries
+   5  Configuration files
+   8  Administrative binaries: /sbin
 
 Here are some markup to use in C<*.pod> files. See more information by
 running C<perldoc perlpod> or visit http://perldoc.perl.org/perlpod.html
