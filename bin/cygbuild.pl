@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0222.0754';
+$VERSION = '2008.0222.1633';
 
 # ..................................................................
 
@@ -845,13 +845,15 @@ Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
 
 Same as command B<[all]> but without the B<[finish]> step.
 
-=item B<cygsrc PACKAGE>
+=item B<cygsrc [<--dir|-d>] PACKAGE>
 
-Download Cygwin net release source package to current directory. This
-command is primarily used for downloading sources of orphaned package
-in order to prepare ITA (intent to adopt) to Cygwin application
-mailing list. See ENVIRONMENT for changing the download URL location
-to closer mirror.
+Download Cygwin net release package. If option B<--dir> is given,
+create directory with name I<PACKAGE>, cd to it and start downloading
+I<PACKAGE>.
+
+This command is primarily used for downloading sources of orphaned
+package in order to prepare ITA (intent to adopt) to Cygwin
+application mailing list.
 
   1. The content of *-src.tar.bz2 and setup.hist are store
   2. the *.bzr is unpacked
@@ -859,7 +861,11 @@ to closer mirror.
   4. the rest of the patches (excluding CYGWIN-PATCHES) is stored
      to *-rest.patch
 
-NOTE: This command must be run in an empty directory to work properly.
+NOTE: This command must be run in an empty directory for it to work
+properly.
+
+See ENVIRONMENT for changing the download URL location to closer
+local Cygwin package mirror site.
 
 =item B<prepare>
 
