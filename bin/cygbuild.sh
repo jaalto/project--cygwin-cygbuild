@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0221.2210"
+CYGBUILD_VERSION="2008.0222.0027"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -768,6 +768,10 @@ function CygbuildBootVariablesGlobalMain()
     *.bak
     *.BAK
     *.in
+    *.orig
+    *.rej
+    *.tmp
+    *.TMP
     *.TST
     *ABOUT-NLS
     *CHANGES-*
@@ -781,6 +785,7 @@ function CygbuildBootVariablesGlobalMain()
     *README.vms
     *RISC-*
     *VMS*
+    *[~#]
     "
 
     #  This variable holds bash match expressions for files to exclude
@@ -4306,7 +4311,8 @@ function CygbuildNoticeGPG()
 {
     if [ ! "$OPTION_SIGN" ]; then
          if CygbuildGPGavailableCheck ; then
-            CygbuildEcho "-- [INFO] gpg available. You should use package signing (-s)"
+            CygbuildEcho "-- [INFO] gpg available." \
+		"You should use package signing (-s)"
         fi
     fi
 }
@@ -4757,7 +4763,7 @@ function CygbuildReadmeReleaseMatchCheck()
 
     if [ "$rel" != "$REL" ]; then
         CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel" \
-                     " in ${file/$srcdir\//}"
+                     "in ${file/$srcdir\//}"
     fi
 }
 
@@ -4816,7 +4822,7 @@ function CygbuildCmdReadmeFixMain()
     CygbuildDetermineReadmeFile > $retval
     [ -s $retval ] && readme=$(< $retval)
 
-    CygbuildEcho "-- Fixing $readme"
+    CygbuildEcho "== Readmefix command: $readme"
 
     if [ ! "$readme" ]; then
         CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
@@ -6612,7 +6618,7 @@ for arg in sys.argv[2:]:
         if os.path.exists(dir):
             os.chdir(dir)
             if verbose:
-                print "-- [Python] compiling %s" % (file)
+                print "-- Python compile %s" % (file)
             py_compile.compile(file)
     ' "${verbose+1}" "$@"
 }
@@ -6923,7 +6929,7 @@ function CygbuildMakefileRunInstall()
 
     elif CygbuildIsPythonPackage ; then
 
-        CygbuildEcho "-- ... Looks like Python package [install]"
+        CygbuildVerb "-- ... Looks like Python package [install]"
 
         CygbuildPushd
             cd $builddir || exit 1
@@ -6940,7 +6946,7 @@ function CygbuildMakefileRunInstall()
         #  - Perl makefiles use DESTDIR, but the configure phase already
         #    set the PREFIX, so DESTDIR would cause bad karma at this point
 
-        CygbuildEcho "-- ... Looks like Perl package"
+        CygbuildVerb "-- ... Looks like Perl package"
 
         CygbuildPushd
             cd $builddir || exit 1
@@ -8630,8 +8636,7 @@ function CygbuildInstallPackageDocs()
         [ ! -s "$file" ]          &&  continue  # Zero length
 
         #   Ignore backups
-
-        [[ $file == @(*[~#]|*.bak|*.rej|*.orig) ]]    && continue
+        # [[ $file == @(*[~#]|*.bak|*.rej|*.orig|*.tmp) ]]    && continue
 
         name="${file##*/}"
         match=""
@@ -9050,8 +9055,11 @@ function CygbuildInstallFixDocdirInstall()
     #
     #	    .inst/usr/share/doc/foo-0.10.3/
 
+    CygbuildStrToRegexpSafe "$dest1" > $retval   # 1.20+r100 etc.
+    local re=$(< $retval)
+
     local pdir=$(cd $dir/usr/share/doc && ls |
-		 $EGREP -v "$dest1|Cygwin" )
+		 $EGREP -v "$re|Cygwin" )
 
     [ "$pdir" ] || return 0
 
@@ -10805,8 +10813,7 @@ function CygbuildCmdInstallMain()
 
         CygbuildInstallPackageDocs      &&
         CygbuildInstallPackageInfo      &&
-        CygbuildInstallCygwinPartMain   &&
-
+        CygbuildInstallCygwinPartMain
         status=$?
 
         if [ "$status" != "0" ]; then

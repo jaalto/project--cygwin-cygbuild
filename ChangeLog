@@ -1,3 +1,14 @@
+2008-02-22  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildBootVariablesGlobalMain) Add *.{rej,bak,tmp} to
+	CYGBUILD_INSTALL_IGNORE.
+	(CygbuildInstallPackageDocs): Comment out
+	pattern match code and use solely CYGBUILD_INSTALL_IGNORE.
+	files.
+	(CygbuildInstallFixDocdirInstall): Protect regexp with
+	`CygbuildStrToRegexpSafe'.
+
 2008-02-21  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (top level): Remove old BASH test and change
