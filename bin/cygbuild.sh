@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.1848"
+CYGBUILD_VERSION="2008.0222.2149"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -887,7 +887,6 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.dvi \
      --exclude=*.log \
      --exclude=*.orig \
-     --exclude=*.ps  \
      --exclude=*.eps  \
      --exclude=*.rej \
      --exclude=*.stackdump \

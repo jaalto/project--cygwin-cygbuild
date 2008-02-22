@@ -30,6 +30,8 @@
 	(CygbuildCmdDownloadCygwinPackage): Check wget error status.
 	(CygbuildCmdDownloadCygwinPackage): add MODE argument to
 	select only binary package download.
+	(CygbuildBootVariablesGlobalMain): Remove *.ps from
+	`cygbuild_opt_exclude_tmp_files'.
 
 2008-02-21  Jari Aalto  <jari.aalto@cante.net>
 
