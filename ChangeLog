@@ -16,6 +16,7 @@
 	(CygbuildCmdFilesWrite): Add unpack support for template files.
 	E.g. install cygwin-announce.mail.tmp as cygwin-announce.mail.
 	(CygbuildInstallFixDocdirInstall): Return of nothing to do.
+	(CygbuildInstallExtraMain): Add `CygbuildMakeRunInstallFixPerlManpage'.
 
 2008-02-21  Jari Aalto  <jari.aalto@cante.net>
 

@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.0841"
+CYGBUILD_VERSION="2008.0222.0851"
 CYGBUILD_NAME="cygbuild"
 
 #######################################################################
@@ -6475,12 +6475,11 @@ function CygbuildPod2man()
 function CygbuildMakeRunInstallFixPerlManpage()
 {
     local id="$0.$FUNCNAME"
-
     local bindir="$instdir/usr/bin"
 
-    [ -d $bindir ] || return 0
+    [ -d "$bindir" ] || return 0
 
-    #  See of we can use POD section to generate manuals
+    #  See if we can use POD section to generate manuals
 
     local mandir="$instdir/usr/share/man"
     local destdir="$mandir/man1"
@@ -6493,7 +6492,7 @@ function CygbuildMakeRunInstallFixPerlManpage()
         name=${name%.pl}
         manpage="$destdir/$name.1"
 
-        if [ ! -f $manpage ]; then
+        if [ ! -f "$manpage" ]; then
             if $EGREP --quiet "^=cut" $file ; then
                 CygbuildEcho "-- [NOTE] Making POD manpage from $_file"
                 CygbuildPod2man "$file"
@@ -6517,8 +6516,6 @@ function CygbuildMakeRunInstallFixPerlMain()
     if [ "$module" ]; then
         CygbuildMakeRunInstallFixPerlPostinstall "$module"
     fi
-
-    CygbuildMakeRunInstallFixPerlManpage
 }
 
 function CygbuildMakefilePrefixCheck()
@@ -8935,7 +8932,8 @@ function CygbuildInstallExtraMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildInstallExtraManual &&
+    CygbuildInstallExtraManual		 &&
+    CygbuildMakeRunInstallFixPerlManpage &&
     CygbuildInstallExtraBinFiles
 }
 
