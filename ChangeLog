@@ -1,3 +1,8 @@
+2008-02-23  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildMakefileName): Look under
+	src/ dir for makefiles.
+
 2008-02-22  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl: (OPTIONAL EXTERNAL FILES::manualpage.1.pod):

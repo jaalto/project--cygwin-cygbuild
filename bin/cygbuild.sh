@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0222.2149"
+CYGBUILD_VERSION="2008.0224.0954"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1564,6 +1564,8 @@ function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
 
     $SED 's/ \+/- /' "$file" > $retval  # convert leading spaces to "-"
 
+    [ -s $retval ] || return 1
+
     while read minus lib
     do
         if [ "$minus" = "-" ]; then
@@ -1664,6 +1666,9 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
     echo "cygwin" > $retval.collect
 
     $TR '\n' ',' < $file > $retval
+
+    [ -s $retval ] || return 1
+
     local list=$(< $retval)
 
     local lib list
@@ -1769,16 +1774,14 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
     fi
 
     bin=$(< $retval)
+    local file
 
     for file in "$@"
     do
 
       if [[ ! "$file" == /* ]]; then
           CygbuildWhich "$file" > $retval
-
-          if [ -s $retval ]; then
-              file=$(< $retval)
-          fi
+          [ -s $retval ] && file=$(< $retval)
       fi
 
       if [ ! -f "$file" ]; then
@@ -1857,17 +1860,19 @@ function CygbuildCygcheckMainOld() # 2007-12-16 not used
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local bin="cygpath"
-    local file path
 
     if ! CygbuildWhich $bin > /dev/null; then
         CygbuildWarn "[WARN] $id: Not found in PATH: $bin"
         return 1
     fi
 
+    local file path
+
     for file in "$@"
     do
-        if $bin --windows "$file" > $retval
-        then
+        $bin --windows "$file" > $retval
+
+        if [ -s $retval ]; then
             path=$(< $retval)
             /usr/bin/cygcheck "$path" | tee $retval
 
@@ -2493,9 +2498,8 @@ function CygbuildBuildScriptPath()
 
         local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildScriptPathAbsolute $name > $retval
-        local path=$(< $retval)
+        [ -s $retval ] && echo $(< $retval)
 
-        echo $path
     fi
 }
 
@@ -2633,7 +2637,9 @@ function CygbuildIsMakefileTarget()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
-    local file=$(< $retval)
+
+    local file
+    [ -s $retval ] && file=$(< $retval)
 
     if [ ! "$file" ]; then
         return 1
@@ -2646,11 +2652,13 @@ function CygbuildIsMakefileCplusplus ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
-    local file=$(< $retval)
+
+    local file
+    [ -s $retval ] && file=$(< $retval)
 
     [ "$file" ] || return 1
 
-    CygbuildGrepCheck "^[^#]+=[[:space:]]*g[+][+]" $file
+    CygbuildGrepCheck "^[^#]+=[[:space:]]*g[+][+]" "$file"
 }
 
 function CygbuildMakefileRunTarget()
@@ -2665,7 +2673,9 @@ function CygbuildMakefileRunTarget()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $dir > $retval
-    local makefile=$(< $retval)
+
+    local makefile
+    [ -s $retval ] && makefile=$(< $retval)
 
     if [ ! "$makefile" ]; then
         if [ "$opt" != "nomsg" ]; then
@@ -2861,6 +2871,9 @@ function CygbuildIsX11Package()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $(pwd) Makefile.in > $retval
+
+    [ -s $retval ] || return 2
+
     local file=$(< $retval)
 
     if [ -f "$file" ]; then
@@ -2877,6 +2890,9 @@ function CygbuildIsX11appDefaults()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $(pwd) Makefile.in > $retval
+
+    [ -s $retval ] || return 2
+
     local file=$(< $retval)
 
     if [ -f "$file" ]; then
@@ -3069,7 +3085,9 @@ function CygbuildFileConvertToUnix()
         return 1
     fi
 
-    $LS $* > $retval
+    $LS "$@" > $retval 2> /dev/null
+
+    [ -s $retval ] || return 2
 
     perl -e '
         for my $file (@ARGV)
@@ -3085,7 +3103,7 @@ function CygbuildFileConvertToUnix()
             print OUT $_;
             close OUT;
         }
-    ' $(< $retval) /dev/null
+    ' $(< $retval)
 }
 
 function CygbuildTreeSymlinkCopy()
@@ -3151,17 +3169,19 @@ function CygbuildTreeSymlinkCopy()
                             -o -name "*.la" ')' \
             > $retval
 
-        local file done
+	if [ -s $retval ]; then
+	    local file done
 
-        while read file
-        do
-            if [ "$verbose" ] && [ ! "$done" ]; then
-                CygbuildEcho "-- Cleaning offending files before shadow"
-                done="yes"
-            fi
+	    while read file
+	    do
+		if [ "$verbose" ] && [ ! "$done" ]; then
+		    CygbuildEcho "-- Cleaning offending files before shadow"
+		    done="yes"
+		fi
 
-            $RM -f $verbose "$file"
-        done < $retval
+		$RM -f $verbose "$file"
+	    done < $retval
+	fi
 
         local current=$(pwd)
         local dest
@@ -3176,7 +3196,7 @@ function CygbuildTreeSymlinkCopy()
                 continue
             fi
 
-            dest=$to/$item
+            dest="$to/$item"
 
             #   lndir(1) cannot link files that have the same name as
             #   executables, like:
@@ -3203,9 +3223,9 @@ function CygbuildTreeSymlinkCopy()
                 fi
 
             else
-                item=$(pwd)/$item
+                item="$(pwd)/$item"
                 echo ""
-                ls -l $item
+                ls -l "$item"
                 CygbuildDie "$id: Don't know what to do with $item"
             fi
 
@@ -3235,15 +3255,17 @@ function CygbuildFileReadOptionsFromFile()
 
 function CygbuildFileReadOptionsMaybe()
 {
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
     local msg="$2"
-
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local str
 
     if [ -f "$file" ]; then
 
         CygbuildFileReadOptionsFromFile "$file" > $retval
+
+	[ -s $retval ] || return 0
+
         str=$(< $retval)
 
         if [ ! "$msg" ]; then
@@ -3300,6 +3322,8 @@ setup.exe and see value 'Local Package Directory'
     local path name dest
 
     $FIND $fromdir -type f -name "*.bz2" > $retval
+
+    [ -s $retval ] || return 0
 
     while read path
     do
@@ -3439,6 +3463,11 @@ function CygbuildDefineGlobalScript()
     SCRIPT_RELEASE=          # 1
 
     CygbuildBuildScriptPath  > $retval
+
+    if [ ! -s $retval ]; then
+	CygbuildWarb "-- [ERROR] Couldn't determine *self* path"
+    fi
+
     local script=$(< $retval)
     SCRIPT_FULLPATH=$script                             # global-def
 
@@ -3488,15 +3517,17 @@ function CygbuildDefineGlobalCompile()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    CygbuildMakefileName "." Makefile.am Makefile.in > $retval
-    local makefile=$(< $retval)
+    local make
+    CygbuildMakefileName "." Makefile.am Makefile.in > $retval &&
+    make=$(< $retval)
 
     local libtool libtoolCompile
 
-    if PackageUsesLibtoolMain $makefile configure ; then
+    if [ "$make" ] && PackageUsesLibtoolMain $make configure
+    then
         libtool="libtool"
 
-        if PackageUsesLibtoolCompile $makefile ; then
+        if PackageUsesLibtoolCompile $make ; then
             libtoolCompile="libtool"
         fi
     fi
@@ -3686,7 +3717,7 @@ function CygbuildDefineGlobalMain()
 
     if [[ ! "$argDirective" == *noCheckSrc* ]] && [ ! -d "$srcdir" ]
     then
-        CygbuildDie "$id: SRCDIR doesn't exists $srcdir"
+        CygbuildDie "$id: SRCDIR doesn't exists: '$srcdir'"
     fi
 
     #   objdir=${srcdir}/.build
@@ -4719,7 +4750,8 @@ function CygbuildPerlModuleLocation()
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
     if [ ! "$module" ]; then
-        if CygbuildCommandPath $name > $retval; then
+        if CygbuildCommandPath $name > $retval
+	then
             module=$(< $retval)
             CYGBUILD_STATIC_PERL_MODULE="$module"
         fi
@@ -5522,8 +5554,15 @@ function CygbuildPatchPrefixStripCountFromContent()
     #
     #   => up till 'foo'
 
-    if ! $AWK ' /^\+\+\+ / {ok = 1; print $2; exit}
-                END { if (!ok) exit(1) }
+    if ! $AWK ' /^\+\+\+ / {
+		    ok = 1
+		    print $2
+		    exit
+                }
+                END {
+		    if (!ok)
+			exit(1)
+                }
               ' $file > $retval
     then
         CygbuildWarn "-- [WARN] Unrecognized patch format $file"
@@ -8133,11 +8172,11 @@ function CygbuildCmdConfMain()
 
     CygbuildPushd
 
-        cd $builddir || exit 1
+        cd "$builddir" || exit 1
 
         CygbuildCmdConfAutomake || return 1
 
-        CygbuildVerb "-- Configuring in $(pwd)"
+        CygbuildVerb "-- Configuring in" ${builddir#$srcdir/}
 
         CygbuildMakefileCheck
 
@@ -8734,7 +8773,8 @@ function CygbuildInstallPackageDocs()
     #   Next, install whole doc/ Docs/ contrib/ ... directories
 
     CygbuildDetermineDocDir $builddir > $retval
-    local dir=$(< $retval)
+    local dir
+    [ -s $retval ] && dir=$(< $retval)
 
     if [ "$dir" ] &&  [ "$docdirInstall" ] ; then
 
@@ -11493,9 +11533,8 @@ function CygbuildFilePackageGuessMain()
         #  No tar files around to guess, try if this directory holds
         #  package name and user is currently porting a package
 
-        local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildFilePackageGuessFromDirectory > $retval &&
-        ret=$(< $retval)
+        [ -s $retval ] && ret=$(< $retval)
     fi
 
     local pwd=$(pwd)

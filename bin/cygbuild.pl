@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0222.1725';
+$VERSION = '2008.0223.1031';
 
 # ..................................................................
 
@@ -3818,7 +3818,7 @@ sub ReadmeFix ($ $ $)
     #  etc/postinstall/bogofilter.sh
     #  ...
 
-    my $placeholder = "  <See content of *.tar.gz>";
+    my $placeholder = "  See content of *.tar.gz";
 
     s{(Files included in.*binary.*dist\w+:).+?(^---------)}
      {$1\n$placeholder\n\n$2}ms;

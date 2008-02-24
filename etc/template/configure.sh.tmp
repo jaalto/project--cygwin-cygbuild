@@ -36,7 +36,6 @@ ConfigurePerl()
 
     log="config.log"
 
-    rm -f
     set -x  # Show configuration to user
 
     perl Makefile.PL                \
