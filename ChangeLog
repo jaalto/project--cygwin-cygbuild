@@ -5,6 +5,7 @@
 	(CygbuildInstallPackageDocs): Streamline function. If there
 	is no doc/ dir, still run the install if --include option is set.
 	(CygbuildIsDirEmpty): Remove die call.
+	(CygbuildFileConvertToUnix): Ignore *.rtf etc
 
 2008-02-22  Jari Aalto  <jari.aalto@cante.net>
 

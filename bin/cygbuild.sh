@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.2300"
+CYGBUILD_VERSION="2008.0224.2305"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3102,6 +3102,8 @@ function CygbuildFileConvertToUnix()
         for my $file (@ARGV)
         {
             ! -f $file  and next;
+	    /\.(gz|bz2|tgz|zip|rar|rz|ps|pdf|rtf|odt|jpg)  and next;
+
             open IN, $file  or  print("$file $!\n"), next;
             binmode IN;
             $_ = join qq(), <IN>;
@@ -10752,8 +10754,8 @@ function CygbuildCmdInstallCheckLineEndings()
             | $EGREP --files-with-matches "\^M" \
               > /dev/null 2>&1
         then
-            CygbuildEcho "-- [INFO] Converting to Unix line endings" \
-			 "$DIR_CYGPATCH/*"
+            CygbuildEcho "-- [INFO] Converting to Unix line endings in dir" \
+			 ${DIR_CYGPATCH#$srcdir/}
             CygbuildFileConvertToUnix $DIR_CYGPATCH/*
         fi
     fi
