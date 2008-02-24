@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh (CygbuildPod2man): Add --release to pod2man.
 	(CygbuildCygcheckMain): Make sure slashes are correct.
+	(CygbuildInstallPackageDocs): Streamline function. If there
+	is no doc/ dir, still run the install if --include option is set.
 
 2008-02-22  Jari Aalto  <jari.aalto@cante.net>
 

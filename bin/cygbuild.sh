@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.1523"
+CYGBUILD_VERSION="2008.0224.1815"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8627,7 +8627,6 @@ function CygbuildInstallTaropt2type ()
 
     local ret item
 
-
     for item in $*
     do
         if [[ "$item" == $find* ]]; then
@@ -8786,86 +8785,82 @@ function CygbuildInstallPackageDocs()
 
     #   Next, install whole doc/ Docs/ contrib/ ... directories
 
+    [ "$docdirInstall" ] || return 0
+
     CygbuildDetermineDocDir $builddir > $retval
     local dir
     [ -s $retval ] && dir=$(< $retval)
 
-    if [ "$dir" ] &&  [ "$docdirInstall" ] ; then
-
-        #   Are there any files in it?
-
-        local status
-        $LS $dir/* > /dev/null 2>&1
-        status=$?
-
-        if [ "$status" = "0" ]; then
-
-            CygbuildEcho "-- Installing docs from" ${dir/$srcdir\/}
-
-            CygbuildRun $scriptInstallDir $dest || return $?
-
-            CygbuildPushd
-
-                cd "$dir" || exit 1
-
-                #   Remove manual pages, there are already installed in
-                #   man/manN/
-
-                local taropt="--extract"
-
-                if [ "$test" ]; then
-                    taropt="--list"
-                    CygbuildEcho "-- [NOTE] Test mode: install in $dir"
-                fi
-
-                status=""
-
-                if [ ! "$test" ] ; then
-                    $TAR $optExclude $tarOptExclude $verbose \
-                        --create --dereference --file=- * $tarOptInclude \
-                    | ( $TAR -C "$dest" $taropt --file=- )
-                    status=$?
-                fi
-
-            CygbuildPopd
-
-            if [ "$status" != "0" ] && [ "$test" ] ; then
-                CygbuildEcho "-- Ignore harmless tar error (TEST MODE)"
-
-	    elif [ "$status" != "0" ]; then
-                CygbuildWarn "$id: [ERROR] tar failed to move files. " \
-                     "Need to run [files]?"
-
-                return $status
-            fi
-
-            CygbuildVerb "-- Adjusting permissions in" ${dest/$srcdir\/}
-
-            $FIND $dest -print > $retval
-
-            local mode644 mode755
-
-            while read item
-            do
-                if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
-                then
-                    mode755="$mode755 $item"
-                else
-                    mode644="$mode644 $item"
-                fi
-            done < $retval
-
-            if [ "$mode644" ]; then
-                chmod 644 $mode644 || return $?
-            fi
-
-            if [ "$mode755" ]; then
-                chmod 755 $mode755 || return $?
-            fi
-
-            return $status
-        fi
+    if CygbuildIsDirEmpty "$dir" && [ ! "$tarOptInclude" ]; then
+	return 0			#  Nothing to install
     fi
+
+    CygbuildEcho "-- Installing docs" ${dir/$srcdir\/}
+
+    CygbuildRun $scriptInstallDir $dest || return $?
+
+    CygbuildPushd
+
+	if [ "$dir" ]; then
+	    cd "$dir" || exit 1
+	fi
+
+	#   Remove manual pages, there are already installed in
+	#   man/manN/
+
+	local taropt="--extract"
+
+	if [ "$test" ]; then
+	    taropt="--list"
+	    CygbuildVerb "-- Test mode: install in $dir (TEST MODE)"
+	fi
+
+	local status=0
+
+	if [ ! "$test" ] ; then
+	    $TAR $optExclude $tarOptExclude $verbose \
+		--create --dereference --file=- ${dir:+"*"} $tarOptInclude \
+	    | ( $TAR -C "$dest" $taropt --file=- )
+	    status=$?
+	fi
+
+    CygbuildPopd
+
+    if [ "$status" != "0" ] && [ "$test" ] ; then
+	CygbuildEcho "-- Ignore harmless tar error (TEST MODE)"
+
+    elif [ "$status" != "0" ]; then
+	CygbuildWarn "$id: [ERROR] tar failed to move files. " \
+	     "Need to run [files]?"
+
+	return $status
+    fi
+
+    CygbuildVerb "-- Adjusting permissions in" ${dest/$srcdir\/}
+
+    $FIND "$dest" -print > $retval
+
+    local mode644 mode755
+
+    while read item
+    do
+	if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
+	then
+	    mode755="$mode755 $item"
+	else
+	    mode644="$mode644 $item"
+	fi
+    done < $retval
+
+    if [ "$mode644" ]; then
+	chmod 644 $mode644 || return $?
+    fi
+
+    if [ "$mode755" ]; then
+	chmod 755 $mode755 || return $?
+    fi
+
+    return $status
 }
 
 function CygbuildInstallExtraManual()
