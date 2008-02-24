@@ -55,6 +55,7 @@ LDFLAGS		=
 SRCS		= $(PACKAGE).c
 OBJS		= $(SRCS:.c=.o)
 EXE		= $(PACKAGE)
+LIBS		=
 
 ASM_SRCS	=
 ASM_OBJS	= $(ASM_SRCS:.asm=.o)
@@ -65,7 +66,7 @@ ASM_FLAGS	=
 all: $(PACKAGE)
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
 
 .asm.o: $(ASM_OBJS)
 	nasm $(ASM_FLAGS) $<
@@ -75,6 +76,8 @@ clean:
 	-rm -f *[#~] *.\#* *.o *.exe core *.stackdump $(PACKAGE) *.exe
 
 distclean: clean
+
+realclean: clean
 
 install-etc:
 	# install-etc
