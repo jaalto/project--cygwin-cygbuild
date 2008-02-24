@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.1815"
+CYGBUILD_VERSION="2008.0224.1818"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1153,7 +1153,7 @@ function CygbuildIsDirEmpty()
 {
     local dir="$1"
 
-    [ "$dir"    ] || Die "Missing argument to $FUNCNAME"
+    [ "$dir"    ] || return 1
     [ -d "$dir" ] || return 1
 
     local file
