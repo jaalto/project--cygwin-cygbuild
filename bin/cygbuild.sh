@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.1818"
+CYGBUILD_VERSION="2008.0224.2300"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8727,7 +8727,6 @@ function CygbuildInstallPackageDocs()
                 $builddir/changelog        \
                 $builddir/ChangeLog        \
 		$builddir/Copyright	   \
-		$builddir/Install	   \
                 $builddir/*.html           \
                 $builddir/*.pdf            \
                 $builddir/*.txt
@@ -8818,10 +8817,15 @@ function CygbuildInstallPackageDocs()
 	local status=0
 
 	if [ ! "$test" ] ; then
-	    $TAR $optExclude $tarOptExclude $verbose \
-		--create --dereference --file=- ${dir:+"*"} $tarOptInclude \
-	    | ( $TAR -C "$dest" $taropt --file=- )
-	    status=$?
+
+	    if [ "$tarOptInclude" ] || [ "$dir" ]; then
+		$TAR $optExclude $tarOptExclude $verbose \
+		    --create --dereference --file=- \
+		    ${dir:+"*"} $tarOptInclude \
+		| ( $TAR -C "$dest" $taropt --file=- )
+
+		status=$?
+	    fi
 	fi
 
     CygbuildPopd
