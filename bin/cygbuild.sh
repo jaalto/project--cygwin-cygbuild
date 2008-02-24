@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.0954"
+CYGBUILD_VERSION="2008.0224.1523"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -785,6 +785,7 @@ function CygbuildBootVariablesGlobalMain()
     *README.hp*
     *README.mingw32
     *README.vms
+    *README.OS2
     *RISC-*
     *VMS*
     *[~#]
@@ -1891,13 +1892,21 @@ function CygbuildCygcheckMain()
 
     for file in "$@"
     do
-      if [ "$verbose" ] ; then
-          CygbuildEcho "-- Wait, listing depends"
-          cygcheck $file | tee $retval 2> /dev/null
-      fi
+	file=${file#$srcdir/}		# Make relative path
 
-      CygbuildCygcheckLibraryDepMain "$file" "$retval"
+	if [[ "$file" == /* ]]; then
+	    #  Change / => \
+	    file=$(cygpath -w $file)
+	else
+	    file=${file//\+/\/}
+	fi
 
+	if [ "$verbose" ] ; then
+	    CygbuildEcho "-- Wait, listing depends"
+	    cygcheck "$file" | tee $retval 2> /dev/null
+	fi
+
+	CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
 }
 
@@ -6541,11 +6550,16 @@ function CygbuildPod2man()
     local destdir="$mandir/man$mansect"
     local manpage="$destdir/$package.$mansect"
 
+    local date=$(date "%Y-%m-%d")
+
     mkdir -p $destdir
+
+    # --official --release 0.4
 
     pod2man --center="$podcenter" \
             --name="$package" \
             --section="$mansect" \
+	    --release="$date" \
             $file \
     | sed "s,[Pp]erl v[0-9.]\+,$package," > $manpage &&
     rm -f pod*.tmp
@@ -8825,7 +8839,7 @@ function CygbuildInstallPackageDocs()
                 return $status
             fi
 
-            CygbuildVerb "-- Fixing permissions in" ${dest/$srcdir\/}
+            CygbuildVerb "-- Adjusting permissions in" ${dest/$srcdir\/}
 
             $FIND $dest -print > $retval
 
@@ -11718,15 +11732,6 @@ function CygbuildCommandMain()
     CygbuildDefileInstallVariables
 
     # ................................................. read options ...
-
-    local arg args dir quiet
-    local release package
-
-    local stripflag="yes"
-    unset verbose
-
-    local OPTIND=1
-
     #   Globally visible options
 
     unset OPTION_COLOR              # global-def
@@ -11757,33 +11762,35 @@ function CygbuildCommandMain()
         CygbuildDie "$id: 'getopt' not in PATH. Cannot read options."
     fi
 
+    local arg args dir quiet release package
+    local stripflag="yes"
+    local OPTIND=1
+
+    unset verbose
+
     getopt \
         -n $id \
-        --long bip2,checkout,color,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
-        --option cCDd:e:f:gmp:Pr:s:tvVx -- "$@" \
+        --long bip2,color,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
+        --option cDd:e:f:gmp:Pr:s:tvVx -- "$@" \
         > $retval
 
-    if [ $? != 0 ] ; then
+    if [ ! "$?" = "0" ] ; then
         CygbuildDie "$id: Cannot read options."
     fi
 
     eval set -- $(< $retval)
-    tmp=15
+    local tmp=15			# safeguard against infinite loop
 
     while [ "$*" ]
     do
+	local dummy="$1, $*"			# just for debugging
+	tmp=$((tmp - 1))
 
-      # safeguard against infinite loops
+	if [ $tmp -eq 0 ]; then
+	    CygbuildDie "$id:  [FATAL] Infinite loop while parsing arguments"
+	fi
 
-      tmp=$((tmp - 1))
-
-      if [ $tmp -eq 0 ]; then
-          CygbuildDie "$id:  [FATAL] Infinite loop while parsing arguments"
-      fi
-
-      local dummy="$1, $*"        # just for debugging
-
-      case $1 in
+	case $1 in
 
             --bzip2)
                 OPTION_BZIP="opt-bzip"          # global-def
@@ -11947,10 +11954,8 @@ function CygbuildCommandMain()
 
             -*) CygbuildDie "$id: Unknown option  [$1]. Aborted."
                 ;;
-      esac
+        esac
     done
-
-    local status=0
 
     # ........................................ determine environment ...
 
@@ -11974,8 +11979,7 @@ function CygbuildCommandMain()
     #  the build directories cannot be determined correctly
 
     PACKAGE_NAME_GUESS=                 # global-def
-    local releaseGuess
-    local srcGuess
+    local releaseGuess srcGuess
 
     if [ ! "$package" ]; then
 
@@ -12071,289 +12075,274 @@ function CygbuildCommandMain()
     for opt in "$@"
     do
         case $opt in
+	    all)
+		CygbuildCmdAllMain finish
+		status=$?
+		;;
 
-          all)
-                CygbuildCmdAllMain finish
-                status=$?
-                ;;
+	    almostall)
+		CygbuildCmdAllMain
+		status=$?
+		;;
 
-          almostall)
-                CygbuildCmdAllMain
-                status=$?
-                ;;
+	    auto*)
+		CygbuildCmdAutotool
+		status=$?
+		;;
 
-          auto*)
-                CygbuildCmdAutotool
-                status=$?
-                ;;
+	    *clean)
+		CygbuildCmdCleanByType $opt
+		status=$?
+		;;
 
-          *clean)
-                CygbuildCmdCleanByType $opt
-                status=$?
-                ;;
+	    check)
+		CygbuildCmdInstallCheckMain
+		status=$?
+		;;
 
-          check)
-                CygbuildCmdInstallCheckMain
-                status=$?
-                ;;
+	    checksig)
+		CygbuildCmdGPGVerifyMain
+		status=$?
+		;;
 
-          checksig)
-                CygbuildCmdGPGVerifyMain
-                status=$?
-                ;;
+	    check-deps)
+		# CygbuildCmdDependCheckMain
+		CygbuildCmdInstallCheckBinFiles
+		status=$?
+		;;
 
-          check-deps)
-                # CygbuildCmdDependCheckMain
-                CygbuildCmdInstallCheckBinFiles
-                status=$?
-                ;;
+	    conf*)
+		CygbuildCmdConfMain
+		status=$?
+		;;
 
-          conf*)
-                CygbuildCmdConfMain
-                status=$?
-                ;;
+	    depend*)
+		CygbuildCmdDependMain
+		status=$?
+		;;
 
-          depend*)
-                CygbuildCmdDependMain
-                status=$?
-                ;;
+	    finish)
+		CygbuildCmdFinishMain
+		status=$?
+		;;
 
-          finish)
-                CygbuildCmdFinishMain
-                status=$?
-                ;;
+	    files)
+		CygbuildCmdFilesMain
+		status=$?
+		;;
 
-          files)
-                CygbuildCmdFilesMain
-                status=$?
-                ;;
+	    install)
+		CygbuildCmdInstallMain
+		status=$?
+		;;
 
-          install)
-                CygbuildCmdInstallMain
-                status=$?
-                ;;
+	    install-extra)
+		#  Generate POD manuals and
+		#  compress manual pages etc.
+		CygbuildInstallExtraMain
+		status=$?
+		;;
 
-          install-extra)
-                #  Generate POD manuals and
-                #  compress manual pages etc.
-                CygbuildInstallExtraMain
-                status=$?
-                ;;
+	    import)
+		CygbuildCmdMkdirs       &&
+		CygbuildCmdFilesMain    &&
+		CygbuildCmdConfMain     &&
+		CygbuildCmdBuildMain
+		status=$?
+		;;
 
-          import)
-                CygbuildCmdMkdirs       &&
-                CygbuildCmdFilesMain    &&
-                CygbuildCmdConfMain     &&
-                CygbuildCmdBuildMain
-                status=$?
-                ;;
+	    make|build)
+		CygbuildCmdBuildMain
+		status=$?
+		;;
 
-          make|build)
-                CygbuildCmdBuildMain
-                status=$?
-                ;;
+	    makedirs|mkdirs)
+		CygbuildCmdMkdirs $verbose
+		status=$?
+		;;
 
-          makedirs|mkdirs)
-                CygbuildCmdMkdirs $verbose
-                status=$?
-                ;;
+	    makepatch|mkpatch)
+		CygbuildCmdMkpatchMain   \
+		    "$OPTION_SIGN"       \
+		    "$OPTION_PASSPHRASE" &&
+		CygbuildPatchCheck
+		status=$?
+		;;
 
-          makepatch|mkpatch)
-                CygbuildCmdMkpatchMain   \
-                    "$OPTION_SIGN"       \
-                    "$OPTION_PASSPHRASE" &&
-                CygbuildPatchCheck
-                status=$?
-                ;;
+	    package|bin-package|package-bin|pkg)
+		CygbuildCmdPackageBinMain "$stripflag"
+		status=$?
+		;;
 
-          package|bin-package|package-bin|pkg)
-                CygbuildCmdPackageBinMain "$stripflag"
-                status=$?
-                ;;
+	    package-devel|pkgdev)
+		CygbuildCmdPackageDevMain "$stripflag"
+		status=$?
+		;;
 
-          package-devel|pkgdev)
-                CygbuildCmdPackageDevMain "$stripflag"
-                status=$?
-                ;;
-
-          package-sign|pkg-sign|sign|sign-package)
-                if WasLibraryInstall ; then
-                    CygbuildEcho "-- [WARN] Libs found." \
-                                 "Did you mean [package-devel]?"
-                fi
+	    package-sign|pkg-sign|sign|sign-package)
+		if WasLibraryInstall ; then
+		    CygbuildEcho "-- [WARN] Libs found." \
+				   "Did you mean [package-devel]?"
+		fi
 
 
-                if [ ! "$OPTION_SIGN" ]; then
-                    CygbuildWarn "[ERROR] -s option missing"
-                    status=1
-                else
-                    CygbuildGPGsignMain      \
-                        "$OPTION_SIGN"       \
-                        "$OPTION_PASSPHRASE"
-                    status=$?
-                fi
-                ;;
+		if [ ! "$OPTION_SIGN" ]; then
+		    CygbuildWarn "[ERROR] -s option missing"
+		    status=1
+		else
+		    CygbuildGPGsignMain      \
+			  "$OPTION_SIGN"       \
+			  "$OPTION_PASSPHRASE"
+		    status=$?
+		fi
+		;;
 
-          repackage-all|repackage|repkg)
+	    repackage-all|repackage|repkg)
 
-                #   - Both bin and source packages are made:
-                #     install, pkg, fix, install pkg ...
-                #   - This is needed twice due to way
-                #     readmefix works.
+		CygbuildNoticeGPG
 
-                CygbuildNoticeGPG
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdInstallCheckMain &&
+		CygbuildStripCheck          &&
+		CygbuildCmdPkgBinaryMain    &&
+		{
+		    CygbuildHelpSourcePackage   &&
+		    CygbuildCmdPkgSourceMain ;
+		}   || :                        &&
+		CygbuildCmdPublishMain
+		status=$?
+		;;
 
-                CygbuildCmdConfMain         &&
-                CygbuildCmdBuildMain        &&
-                CygbuildCmdInstallMain      &&
-                CygbuildCmdInstallCheckMain &&
-                CygbuildStripCheck          &&
-                CygbuildCmdPkgBinaryMain    &&
-                CygbuildCmdInstallMain      &&
-                CygbuildCmdPkgBinaryMain    &&
-                {
-                    CygbuildHelpSourcePackage   &&
-                    CygbuildCmdPkgSourceMain ;
-                }   || :                        &&
-                CygbuildCmdPublishMain
-                status=$?
-                ;;
+	    repackage-bin|repkgbin)
+		CygbuildNoticeGPG
 
-          repackage-bin|repkgbin)
-                CygbuildNoticeGPG
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdPkgBinaryMain
+		status=$?
+		;;
 
-                CygbuildCmdConfMain         &&
-                CygbuildCmdBuildMain        &&
-                CygbuildCmdInstallMain      &&
-                CygbuildCmdPkgBinaryMain
-                status=$?
-                ;;
+	    repackage-devel|repkgdev)
+		CygbuildNoticeGPG
 
-          repackage-devel|repkgdev)
-                CygbuildNoticeGPG
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdPkgDevelMain
+		status=$?
+		;;
 
-                CygbuildCmdConfMain         &&
-                CygbuildCmdBuildMain        &&
-                CygbuildCmdInstallMain      &&
-                CygbuildCmdPkgDevelMain
-                status=$?
-                ;;
+	    patch)
+		CygbuildPatchApplyMaybe
+		status=$?
+		;;
 
-          patch)
-                CygbuildPatchApplyMaybe
-                status=$?
-                ;;
+	    patch-check|pchk)
+		verbose="verbose" CygbuildPatchCheck
+		CygbuildPatchListDisplay
+		status=$?
+		;;
 
-          patch-check|pcheck|pchk)
-                verbose="verbose" CygbuildPatchCheck
-                CygbuildPatchListDisplay
-                status=$?
-                ;;
+	    prep*|unpack)
+		CygbuildCmdPrepMain
+		status=$?
+		;;
 
-          prep*|unpack)
-                CygbuildCmdPrepMain
-                status=$?
-                ;;
+	    preremove)
+		CygbuildCmdPreremoveInstallMain
+		status=$?
+		;;
 
-          preremove)
-                CygbuildCmdPreremoveInstallMain
-                status=$?
-                ;;
+	    postinstall)
+		CygbuildCmdPostInstallMain
+		status=$?
+		;;
 
-          postinstall)
-                CygbuildCmdPostInstallMain
-                status=$?
-                ;;
+	    publish)
+		CygbuildCmdPublishMain
+		status=$?
+		;;
 
-          publish)
-                CygbuildCmdPublishMain
-                status=$?
-                ;;
+	    source-package|package-source|spkg)
+		CygbuildHelpSourcePackage
+		status=$?
 
-          source-package|package-source|spkg)
-                CygbuildHelpSourcePackage
-                status=$?
+		if [ "$status" = "0" ]; then
+		    CygbuildNoticeGPG
+		    CygbuildNoticeMaybe
+		    CygbuildCmdPkgSourceMain
+		    status=$?
+		fi
+		;;
 
-                if [ "$status" = "0" ]; then
-                    CygbuildNoticeGPG
-                    CygbuildNoticeMaybe
-                    CygbuildCmdPkgSourceMain
-                    status=$?
-                fi
-                ;;
+	    readmefix)
+		CygbuildCmdReadmeFixMain
+		status=$?
+		;;
 
-          readme)
-                CygbuildDocFileReadme
-                status=$?
-                ;;
+	    reshadow)
+		CygbuildCmdShadowDelete  &&
+		CygbuildCmdShadowMain
+		status=$?
+		;;
 
-          readmefix)
-                CygbuildCmdReadmeFixMain
-                status=$?
-                ;;
+	    rmshadow)
+		CygbuildCmdShadowDelete
+		status=$?
+		;;
 
-          reshadow)
-                CygbuildCmdShadowDelete  &&
-                CygbuildCmdShadowMain
-                status=$?
-                ;;
+	    shadow)
+		CygbuildCmdShadowMain
+		status=$?
+		;;
 
-          rmshadow)
-                CygbuildCmdShadowDelete
-                status=$?
-                ;;
+	    strip)
+		if [ "$stripflag" ]; then
+		    CygbuildCmdStripMain
+		    status=$?
+		else
+		    status=0
+		fi
+		;;
 
-          shadow)
-                CygbuildCmdShadowMain
-                status=$?
-                ;;
+	    test)
+		CygbuildCmdTestMain
+		status=$?
+		;;
 
-          strip)
-                if [ "$stripflag" ]; then
-                    CygbuildCmdStripMain
-                    status=$?
-                else
-                    status=0
-                fi
-                ;;
+	    unpatch)
+		CygbuildPatchApplyMaybe unpatch
+		status=$?
+		;;
 
-          test)
-                CygbuildCmdTestMain
-                status=$?
-                ;;
+	    download|dl)
+		CygbuildCmdDownloadUpstream
+		status=$?
+		;;
 
-          unpatch)
-                CygbuildPatchApplyMaybe unpatch
-                status=$?
-                ;;
+	    vars)
+		set -x
+		CygbuildDefineGlobalMain "$TOPDIR" "$srcdir" \
+		    "$release" "$package"
+		return
+		;;
 
-          download|dl)
-                CygbuildCmdDownloadUpstream
-                status=$?
-                ;;
+	  verify)
+		CygbuildCmdGPGVerifyMain
+		status=$?
+		;;
 
-          vars)
-                set -x
-                CygbuildDefineGlobalMain "$TOPDIR" "$srcdir" \
-                    "$release" "$package"
-                return
-                ;;
-
-        verify)
-                CygbuildCmdGPGVerifyMain
-                status=$?
-                ;;
-
-          *)    CygbuildWarn "$id: [ERROR] bad argument [$opt]. See -h"
-                exit 1
-                ;;
-
+	    *)  CygbuildWarn "$id: [ERROR] bad argument [$opt]. See -h"
+		exit 1
+		;;
         esac
 
         if [ "$status" != "0" ]; then
             CygbuildExit $status "$id: [FATAL] status is $status."
         fi
-
     done
 
     CygbuildEcho "-- Done."

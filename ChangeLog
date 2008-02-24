@@ -1,7 +1,7 @@
-2008-02-23  Jari Aalto  <jari.aalto@cante.net>
+2008-02-24  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/cygbuild.sh: (CygbuildMakefileName): Look under
-	src/ dir for makefiles.
+	* bin/cygbuild.sh (CygbuildPod2man): Add --release to pod2man.
+	(CygbuildCygcheckMain): Make sure slashes are correct.
 
 2008-02-22  Jari Aalto  <jari.aalto@cante.net>
 

@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "CYGBUILD 1"
-.TH CYGBUILD 1 "2008-02-22" "perl v5.8.8" "Cygwin source and binary packge build script"
+.TH CYGBUILD 1 "2008-02-23" "perl v5.8.8" "Cygwin source and binary packge build script"
 .SH "NAME"
 cygbuild \- Cygwin source and binary package build script
 .SH "SYNOPSIS"
@@ -867,13 +867,20 @@ Contact maintainer of \f(CW\*(C`package\-N.N\-1\-src.tar.bz2\*(C'\fR for details
 .IP "<almostall>" 4
 .IX Item "<almostall>"
 Same as command \fB[all]\fR but without the \fB[finish]\fR step.
-.IP "\fBcygsrc \s-1PACKAGE\s0\fR" 4
-.IX Item "cygsrc PACKAGE"
-Download Cygwin net release source package to current directory. This
-command is primarily used for downloading sources of orphaned package
-in order to prepare \s-1ITA\s0 (intent to adopt) to Cygwin application
-mailing list. See \s-1ENVIRONMENT\s0 for changing the download \s-1URL\s0 location
-to closer mirror.
+.IP "\fBcygsrc [\-b|\-\-binary] [<\-\-dir|\-d\fR] \s-1PACKAGE\s0>" 4
+.IX Item "cygsrc [-b|--binary] [<--dir|-d] PACKAGE>"
+\&\s-1NOTES:\s0 1) This command must be run in an empty directory for it to
+work properly 2) No other rcommand line options are interpreted. This
+is standalone command.
+.Sp
+Download both Cygwin source and binary net release package. If option
+\&\fB\-\-dir\fR is given, create directory with name \fI\s-1PACKAGE\s0\fR, cd to it and
+start downloading \fI\s-1PACKAGE\s0\fR. If option \fB\-\-binary\fR is given, download
+only binary package.
+.Sp
+This command is primarily used for downloading sources of orphaned
+package in order to prepare \s-1ITA\s0 (intent to adopt) to Cygwin
+application mailing list.
 .Sp
 .Vb 5
 \&  1. The content of *-src.tar.bz2 and setup.hist are store
@@ -883,7 +890,8 @@ to closer mirror.
 \&     to *-rest.patch
 .Ve
 .Sp
-\&\s-1NOTE:\s0 This command must be run in an empty directory to work properly.
+See \s-1ENVIRONMENT\s0 for changing the download \s-1URL\s0 location to closer
+local Cygwin package mirror site.
 .IP "\fBprepare\fR" 4
 .IX Item "prepare"
 This command is not part of the porting commands. It is meant to be used as

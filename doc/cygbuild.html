@@ -1041,14 +1041,23 @@ Contact maintainer of <code>package-N.N-1-src.tar.bz2</code> for details.</p>
 <p>Same as command <strong>[all]</strong> but without the <strong>[finish]</strong> step.</p>
 </dd>
 </li>
-<dt><strong><a name="item_cygsrc"><strong>cygsrc PACKAGE</strong></a></strong>
+<dt><strong><a name="item_cygsrc__5b_2db_7c_2d_2dbinary_5d__5b_3c_2d_2ddir_7"><strong>cygsrc [-b|--binary] [&lt;--dir|-d</strong>] PACKAGE&gt;</a></strong>
 
 <dd>
-<p>Download Cygwin net release source package to current directory. This
-command is primarily used for downloading sources of orphaned package
-in order to prepare ITA (intent to adopt) to Cygwin application
-mailing list. See ENVIRONMENT for changing the download URL location
-to closer mirror.</p>
+<p>NOTES: 1) This command must be run in an empty directory for it to
+work properly 2) No other rcommand line options are interpreted. This
+is standalone command.</p>
+</dd>
+<dd>
+<p>Download both Cygwin source and binary net release package. If option
+<strong>--dir</strong> is given, create directory with name <em>PACKAGE</em>, cd to it and
+start downloading <em>PACKAGE</em>. If option <strong>--binary</strong> is given, download
+only binary package.</p>
+</dd>
+<dd>
+<p>This command is primarily used for downloading sources of orphaned
+package in order to prepare ITA (intent to adopt) to Cygwin
+application mailing list.</p>
 </dd>
 <dd>
 <pre>
@@ -1059,7 +1068,8 @@ to closer mirror.</p>
      to *-rest.patch</pre>
 </dd>
 <dd>
-<p>NOTE: This command must be run in an empty directory to work properly.</p>
+<p>See ENVIRONMENT for changing the download URL location to closer
+local Cygwin package mirror site.</p>
 </dd>
 </li>
 <dt><strong><a name="item_prepare"><strong>prepare</strong></a></strong>

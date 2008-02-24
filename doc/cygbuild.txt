@@ -648,12 +648,19 @@ PACKAGE MAINTENANCE COMMANDS
     <almostall>
         Same as command [all] but without the [finish] step.
 
-    cygsrc PACKAGE
-        Download Cygwin net release source package to current directory.
+    cygsrc [-b|--binary] [<--dir|-d] PACKAGE>
+        NOTES: 1) This command must be run in an empty directory for it to
+        work properly 2) No other rcommand line options are interpreted.
+        This is standalone command.
+
+        Download both Cygwin source and binary net release package. If
+        option --dir is given, create directory with name *PACKAGE*, cd to
+        it and start downloading *PACKAGE*. If option --binary is given,
+        download only binary package.
+
         This command is primarily used for downloading sources of orphaned
         package in order to prepare ITA (intent to adopt) to Cygwin
-        application mailing list. See ENVIRONMENT for changing the download
-        URL location to closer mirror.
+        application mailing list.
 
           1. The content of *-src.tar.bz2 and setup.hist are store
           2. the *.bzr is unpacked
@@ -661,8 +668,8 @@ PACKAGE MAINTENANCE COMMANDS
           4. the rest of the patches (excluding CYGWIN-PATCHES) is stored
              to *-rest.patch
 
-        NOTE: This command must be run in an empty directory to work
-        properly.
+        See ENVIRONMENT for changing the download URL location to closer
+        local Cygwin package mirror site.
 
     prepare
         This command is not part of the porting commands. It is meant to be
