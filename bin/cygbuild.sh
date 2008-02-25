@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0225.0027"
+CYGBUILD_VERSION="2008.0225.1236"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3511,7 +3511,7 @@ function CygbuildDefineGlobalScript()
 
         SCRIPT_PACKAGE=${arr[0]}                        # global-def
         SCRIPT_VERSION=${arr[1]}                        # global-def
-        SCRIPT_PKGVER=${scriptname%$SCRIPT_VERSION}     # global-def
+        SCRIPT_PKGVER=${arr[0]}-${arr[1]}               # global-def
 
         #  Make command "./<package>-N.N.sh all" generated result
         #  files to $TOPDIR

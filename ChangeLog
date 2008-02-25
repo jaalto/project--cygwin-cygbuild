@@ -7,6 +7,9 @@
 	error code.
 	(CygbuildDefineVersionVariables): Remove extra code from end.
 	Die if `CygbuildDefineVersionVariables' fails.
+	(CygbuildCmdInstallCheckBinFiles): Warn about .py and .pl
+	exensions.
+	(CygbuildDefineGlobalScript): Adjust SCRIPT_PKGVER.
 
 2008-02-24  Jari Aalto  <jari.aalto@cante.net>
 
