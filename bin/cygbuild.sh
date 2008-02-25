@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0225.1236"
+CYGBUILD_VERSION="2008.0225.2248"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6375,70 +6375,6 @@ function CygbuildMakefileCheck()
     fi
 }
 
-function CygbuildDebianRules2Makefile()
-{
-    local id="$0.$FUNCNAME"
-    local file="$1"
-
-    if [ ! "$file" ]; then
-        CygbuildWarn "$id: [ERROR] argument FILE is missing"
-        return 1
-    fi
-
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local module="$CYGBUILD_STATIC_PERL_MODULE"
-
-#    CygbuildPerlModuleLocation  > $retval
-#    local module=$(< $retval)
-
-    if [ ! "$module" ]; then
-        return 1
-    fi
-
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] 'srcdir' [$srcdir] not exists."
-
-    local out=$srcdir/Makefile
-
-    echo -e "-- Debian: writing $out\n" \
-            "-- Debian: Makefile was based on debian/rules. Please check!"
-
-    local debug=${OPTION_DEBUG:-0}
-
-    $PERL -e "require qq($module);  SetDebug($debug); \
-      DebianRulesMain(qq($file), -makefile);"         \
-      > $out
-
-    if [ ! -s "$out" ]; then
-        #  Some error happened if there was no output from perl
-        CygbuildWarn "$id: [ERROR] failed to write $out"
-        $RM -f "$out"
-        return 1
-    fi
-}
-
-function CygbuildDebianRules2MakefileMaybe()
-{
-    local id="$0.$FUNCNAME"
-    local file="$srcdir/debian/rules"
-    local status=0
-
-    if [ -f "$file" ]; then
-        CygbuildEcho "-- Debian: examining 'debian/rules'"
-        CygbuildDebianRules2Makefile $file || return $?
-
-        CygbuildPushd
-            cd $srcdir || exit 1
-            $MAKE prefix=$instdir install
-            status=$?
-        CygbuildPopd
-
-    else
-        status=1
-    fi
-
-    return $status
-}
-
 function CygbuildPerlPodModule()
 {
     #  =head2 Mon Dec  1 16:22:48 2003: C<Module> L<libwww-perl|libwww-perl>
@@ -6904,7 +6840,7 @@ function CygbuildMakefilePrefixIsStandard ()
 
     if [ ! "$lower" ]; then
 	if [ "$up" ]; then
-	    CygbuildWarn "-- [NOTE] No prefix= but PREFIX= found."
+	    CygbuildVerb "-- [NOTE] No prefix= but PREFIX= found."
 	    return 1
 	else
 	    CygbuildWarn "-- [WARN] Makefile prefix= not found."
@@ -7012,7 +6948,7 @@ function CygbuildMakefileRunInstall()
 
     #   install under .inst/
 
-    CygbuildVerb "-- Running 'make install' (or equiv.) in" \
+    CygbuildEcho "-- Running 'make install' (or equiv.) in" \
                  ${builddir/$srcdir\/}
 
     if [ -f "$makeScript" ]; then
@@ -7117,11 +7053,10 @@ function CygbuildMakefileRunInstall()
 
     else
 
-        CygbuildNoticeBuilddirMaybe ||
-        CygbuildWarn "-- [WARN] There is no Makefile." \
-             "Did you forget to run [configure]?"
+        CygbuildNoticeBuilddirMaybe
 
-        CygbuildDebianRules2MakefileMaybe
+        CygbuildWarn "-- [WARN] There is no Makefile." \
+             "Did you forget to run [configure] or [reshadow]?"
 
     fi
 }
@@ -8743,7 +8678,8 @@ function CygbuildInstallPackageDocs()
     for file in $builddir/[A-Z][A-Z][A-Z]* \
                 $builddir/changelog        \
                 $builddir/ChangeLog        \
-		$builddir/Copyright	   \
+		$builddir/[Cc]opyright	   \
+		$builddir/[Ll]icense	   \
                 $builddir/*.html           \
                 $builddir/*.pdf            \
                 $builddir/*.txt
@@ -9115,7 +9051,7 @@ function CygbuildInstallFixPermissions()
     done < $retval
 
     [ "$exeList"  ] && chmod 755 $exeList
-    [ "$readList" ] && chmod 644 $exeList
+    [ "$readList" ] && chmod 644 $readList
 }
 
 function CygbuildInstallFixInterpreterPerl ()

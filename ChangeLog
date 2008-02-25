@@ -1,3 +1,20 @@
+2008-02-26  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildMakefileRunInstall): Remove call to
+	`CygbuildDebianRules2MakefileMaybe'.
+	(CygbuildDebianRules2MakefileMaybe): Remove.
+	(CygbuildDebianRules2Makefile): Remove.
+	(CygbuildMakefileRunInstall): Notify about missing makefile.
+
+	* bin/cygbuild.pl (DebianRulesInstalldirs): Remove.
+	(DebianRulesInstall): Remove.
+	(DebianRulesProcess): Remove.
+	(DebianMakefile): Remove.
+	(DebianRulesMain): Remove.
+	(CygbuildInstallFixPermissions): Incorrect variable at the end.
+	Use `readList'.
+
 2008-02-25  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildDefineGlobalScript): Use

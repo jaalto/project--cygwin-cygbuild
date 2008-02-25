@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0223.1031';
+$VERSION = '2008.0225.2210';
 
 # ..................................................................
 
@@ -3956,37 +3956,6 @@ sub CVSinfo ( $ )
 #
 #   DESCRIPTION
 #
-#       Process 'rules' file and examine install commands and mimic the
-#       steps using standard shell commands.
-#
-#   INPUT PARAMETERS
-#
-#       $string     content of the file
-#
-#   RETURN VALUES
-#
-#       @           list of directories to install
-#
-# ****************************************************************************
-
-sub DebianRulesInstalldirs ( $ )
-{
-    local ($ARG) = @ARG;
-
-    my @ret;
-
-    while ( m/dh_installdirs(?:\s|-\S+)+(\S+)/mg )
-    {
-        push @ret, $1;
-    }
-
-    @ret;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
 #       Read entry from  setup.ini. Each entry looks like this:
 #
 #       @ foo
@@ -4084,170 +4053,6 @@ sub CygwinSetupIniUpdate ( $ $ )
     my $new = $content . $block;
 
     print $new;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
-#       Process 'rules' file and examine install commands
-#
-#   INPUT PARAMETERS
-#
-#       $string     content of the file
-#
-#   RETURN VALUES
-#
-#       @           install commands without debian specific parts
-#
-# ****************************************************************************
-
-sub DebianRulesInstall ( $ )
-{
-    local ($ARG) = @ARG;
-
-    my @ret;
-
-    while ( m/^\s+(install\s.*)/mg )
-    {
-        my $line = $1;
-
-        #  install -m 644 askconfig.py   $(CURDIR)/debian/ask/usr/lib/ask
-        #  =>
-        #  install -m 644 askconfig.py   $(prefix)/ask/usr/lib/ask
-
-        $line =~ s,\$.*?debian/[^/]+,\$(prefix),;
-
-        #  docs/*.1.gz =>  docs/*.1
-
-        $line =~ s/(\.\d)\.gz/$1/;
-
-        push @ret, "$line\n";
-    }
-
-    @ret;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
-#       Examine Debian rules file and write equicvalent shell commands.
-#
-#   INPUT PARAMETERS
-#
-#       $string     Content of the 'rules'
-#
-#   RETURN VALUES
-#
-#       @           Shell commands
-#
-# ****************************************************************************
-
-sub DebianRulesProcess ($)
-{
-    local ($ARG) = @ARG;
-
-    my @ret;
-
-    my @arr = DebianRulesInstalldirs $ARG;
-
-    #   convert each directory from /usr/bin =>$prefix/usr/bin
-
-    @arr = map { $ARG = '$(prefix)/' . $ARG; $ARG; } @arr;
-
-    push @ret, "install -d @arr;\n";
-
-    @arr = DebianRulesInstall $ARG;
-    push @ret, @arr;
-
-    @ret;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
-#       Write standard Makefile's 'install target by using LIST
-#
-#   INPUT PARAMETERS
-#
-#       @list       List of lines
-#
-#   RETURN VALUES
-#
-#       @           Complete Makefile
-#
-# ****************************************************************************
-
-sub DebianMakefile (@)
-{
-    my (@list) = @ARG;
-
-    my @ret;
-
-    my $header = << 'EOF';
-#!/usr/bin/make -f
-# This Makefile has been automatically generated from debian/rules
-# by cygbuild.pl. Please check that the content is in par with 'rules' file
-
-prefix=
-
-install:
-EOF
-
-    my $footer =<< 'EOF';
-
-# End of Makefile
-
-EOF
-
-
-    if ( @list )
-    {
-        push @ret, $header;
-
-        push @ret, map { $ARG = "\t$ARG"; $ARG, } @list;
-
-        push @ret, $footer;
-    }
-
-
-    @ret;
-}
-
-# ****************************************************************************
-#
-#   DESCRIPTION
-#
-#       Examine Debian rules file.
-#
-#   INPUT PARAMETERS
-#
-#       $file       Path to 'rules'.
-#       $type       {optional] if 'makefile', then output standard Makefile
-#                   'install' target.
-#
-#   RETURN VALUES
-#
-#       print shell commands to stdout
-#
-# ****************************************************************************
-
-sub DebianRulesMain ($  $)
-{
-    my $id  = "$LIB.DebianRulesMain";
-    my ($file, $type) = @ARG;
-
-    my $content = FileRead $file;
-    my @ret     = DebianRulesProcess $content;
-
-    if ( $type =~ /makefile/i )
-    {
-        @ret = DebianMakefile @ret;
-    }
-
-    print @ret;
 }
 
 # ****************************************************************************

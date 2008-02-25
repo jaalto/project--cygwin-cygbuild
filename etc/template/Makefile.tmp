@@ -64,7 +64,7 @@ ASM_FLAGS	=
 
 .SUFFIXES: .asm
 
-all: $(PACKAGE)
+all: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
@@ -97,6 +97,6 @@ install-bin:
 
 install: all install-bin install-man
 
-.PHONY: clean distclean install install-man install-bin
+.PHONY: clean distclean install install-bin install-man
 
 # End of file
