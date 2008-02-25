@@ -3,6 +3,10 @@
 	* bin/cygbuild.sh: (CygbuildDefineGlobalScript): Use
 	`CygbuildVersionInfo' instead of unreliable bash substitution
 	code.
+	(CygbuildDefineVersionVariables): Remove exit and return
+	error code.
+	(CygbuildDefineVersionVariables): Remove extra code from end.
+	Die if `CygbuildDefineVersionVariables' fails.
 
 2008-02-24  Jari Aalto  <jari.aalto@cante.net>
 

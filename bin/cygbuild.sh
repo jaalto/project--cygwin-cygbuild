@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.2348"
+CYGBUILD_VERSION="2008.0225.0027"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1987,7 +1987,7 @@ function CygbuildVersionInfo()
         }
 
         exit 123;
-    ' || exit $?
+    '
 }
 
 function CygbuildDefileInstallVariables()
@@ -2070,10 +2070,12 @@ function CygbuildDefineVersionVariables()
     else
 
         local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-        CygbuildVersionInfo "$str" > $retval
+
+        if ! CygbuildVersionInfo "$str" > $retval ; then
+	    CygbuildDie "$id: Can't read version info: $str"
+	fi
 
         arr=( $(< $retval) )
-
         dummy="${arr[*]}"  #  For debugging
 
         CYGBUILD_STATIC_VER_ARRAY=( ${arr[*]} )
@@ -2090,13 +2092,7 @@ function CygbuildDefineVersionVariables()
 
     #  Return status: Do we have the VERSION?
 
-    local digit2="[0-9][0-9]"
-    local yyyy=$digit2$digit2
-    local mm=$digit2
-    local dd=$digit2
-
-    [[ "$CYGBUILD_STATIC_VER_VERSION" == *[0-9]* ]] ||
-    [[ "$CYGBUILD_STATIC_VER_VERSION" == $yyyy$mm$dd*  ]]
+    [[ "$CYGBUILD_STATIC_VER_VERSION" == *[0-9]* ]]
 }
 
 function CygbuildStrRemoveExt()
@@ -3500,15 +3496,22 @@ function CygbuildDefineGlobalScript()
     SCRIPT_FILENAME=$scriptname                         # global-def
     scriptname=${scriptname%.sh}
 
-    local release=${scriptname##*-}
+    CygbuildVersionInfo "$scriptname" > $retval
+
+    [ -s $retval ] || return 0
+
+    local -a arr
+    arr=( $(< $retval) )
+    local dummy="${arr[*]}"  #  For debugging
+
+    local release=${arr[2]}
 
     if CygbuildIsNumber "$release" ; then
         SCRIPT_RELEASE=$release                         # global-def
 
-        scriptname=${scriptname%-$release}
-        SCRIPT_PKGVER=$scriptname                       # global-def
-        SCRIPT_PACKAGE=${scriptname%-*}                 # global-def
-        SCRIPT_VERSION=${scriptname#$SCRIPT_PACKAGE-}   # global-def
+        SCRIPT_PACKAGE=${arr[0]}                        # global-def
+        SCRIPT_VERSION=${arr[1]}                        # global-def
+        SCRIPT_PKGVER=${scriptname%$SCRIPT_VERSION}     # global-def
 
         #  Make command "./<package>-N.N.sh all" generated result
         #  files to $TOPDIR
@@ -10559,6 +10562,8 @@ function CygbuildCmdInstallCheckBinFiles()
 
     local list=$(< $retval)
 
+    [ -s $retval ] || return 0
+
     for file in $list
     do
         if [ -h $file ]; then
@@ -10605,6 +10610,11 @@ function CygbuildCmdInstallCheckBinFiles()
                 fi
             fi
         fi
+
+	if [[ "$file" == *.@(py|pl) ]]; then
+	    CygbuildEcho "-- [WARN] Extension found: $_file"
+	    continue
+	fi
 
         #   Sometimes package includes compiled binaries for Linux.
         #   Warn about those. The file(1) will report:
