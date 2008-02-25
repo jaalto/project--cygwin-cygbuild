@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0224.2305"
+CYGBUILD_VERSION="2008.0224.2348"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3090,7 +3090,7 @@ function CygbuildFileConvertToUnix()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ $# -eq 0 ]; then
-        echo "$id [ERROR] Argument list \$* is empty"
+        CygbuildWarn "$id: [ERROR] Argument list \$* is empty"
         return 1
     fi
 
@@ -3102,6 +3102,7 @@ function CygbuildFileConvertToUnix()
         for my $file (@ARGV)
         {
             ! -f $file  and next;
+
 	    /\.(gz|bz2|tgz|zip|rar|rz|ps|pdf|rtf|odt|jpg)  and next;
 
             open IN, $file  or  print("$file $!\n"), next;
@@ -3114,7 +3115,18 @@ function CygbuildFileConvertToUnix()
             print OUT $_;
             close OUT;
         }
-    ' $(< $retval)
+    ' "$@"
+}
+
+function CygbuildFileConvertEolWhitespace()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    if [ $# -eq 0 ]; then
+        CygbuildWarn "$id: [ERROR] Argument list \$* is empty"
+        return 1
+    fi
 }
 
 function CygbuildTreeSymlinkCopy()
@@ -11160,8 +11172,8 @@ function CygbuildStripCheck()
         return 0
 
     else
-        CygbuildVerbWarn "-- [WARN] Symbols found. I'm going to call" \
-                         "[strip] first"
+        CygbuildVerbWarn "-- [WARN] Symbols found." \
+			 "I'm going to call [strip]"
         CygbuildCmdStripMain
     fi
 }
@@ -12406,6 +12418,7 @@ function TestRegression ()
     Test jove4.16.0.70
     Test cabber_0.4.0-test5.orig.tar.gz
     Test unace1.2n
+    Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
     exit;
 }
 
