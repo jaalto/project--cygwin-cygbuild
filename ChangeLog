@@ -1,3 +1,9 @@
+2008-02-27  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallDefaultsPostinstall): Escape
+	variable correcly, so the postinstall file contains contains the
+	name, not the value.
+
 2008-02-26  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:

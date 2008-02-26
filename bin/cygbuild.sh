@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0226.1222"
+CYGBUILD_VERSION="2008.0226.2237"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9203,7 +9203,7 @@ do
     [ -e \$dest ] && continue
 
     if [ -d \$src ] ; then
-	install -d -m 755 /etc/\$i
+	install -d -m 755 \$dest
 	continue
     fi
 
@@ -11967,7 +11967,7 @@ function CygbuildCommandMain()
 
         if [ "$package" = "!" ]; then
             CygbuildDie "[FATAL] Can't determine package, version, release." \
-                "Are you at dir foo-N.N/ or do you need option -f ?"
+                "Are you at dir foo-N.N/?"
         fi
 
     fi
