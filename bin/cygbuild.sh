@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0226.0916"
+CYGBUILD_VERSION="2008.0226.1222"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6577,7 +6577,7 @@ function CygbuildMakefilePrefixCheck()
     CygbuildIsDestdirSupported
     local destdir=$?
 
-    if [ "$destdir" != "0" ]; then
+    if [ ! "$destdir" = "0" ]; then
 
         #   In some very weird cases, File::Find.pm dies with
         #   symbolic links, so we might end here saying "no destdir".
@@ -6596,7 +6596,7 @@ function CygbuildMakefilePrefixCheck()
 
         if $EGREP $opt \
            "^[[:space:]]*DESTDIR|^[^[:space:]]+=.*DESTDIR|^[^#].*[$][({]DESTDIR" \
-           $makefile $list
+           $makefile $list 2> /dev/null
         then
             destdir=0
         fi
@@ -6605,11 +6605,11 @@ function CygbuildMakefilePrefixCheck()
     #   There is no DESTDIR support, so try to see if Makefile uses
     #   'prefix' then
 
-    if [ "$destdir" != "0" ]; then
+    if [ ! "$destdir" = "0" ]; then
 
         local re='^[[:space:]]*(prefix)[[:space:]]*='
 
-        $EGREP "$re" $makefile # >  /dev/null  2>&1
+        $EGREP "$re" $makefile *.mk Makefile* 2> /dev/null
         status=$?
 
         if [ ! "$OPTION_PREFIX"  ] && [ "$status" = "0" ]; then
@@ -6885,7 +6885,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
 
         #   Run install with Cygwin options
 
-	[ "$verb" ] && set -x
+	[ "$verbose" ] && set -x
 
         $MAKE -f $makefile $test        \
              DESTDIR=$instdir           \

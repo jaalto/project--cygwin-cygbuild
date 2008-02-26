@@ -16,6 +16,9 @@
 	(DebianRulesMain): Remove.
 	(CygbuildInstallFixPermissions): Incorrect variable at the end.
 	Use `readList'.
+	(CygbuildMakefilePrefixCheck): Grep more files.
+	(CygbuildMakefileRunInstallCygwinOptions): correct
+	variable name verb to verbose.
 
 2008-02-25  Jari Aalto  <jari.aalto@cante.net>
 
