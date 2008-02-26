@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0225.2248"
+CYGBUILD_VERSION="2008.0226.0916"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8767,14 +8767,22 @@ function CygbuildInstallPackageDocs()
 	    CygbuildVerb "-- Test mode: install in $dir (TEST MODE)"
 	fi
 
+	local extradir
+	[ -d examples ] && extradir="$extradir examples"
+	[ -d example  ] && extradir="$extradir example"
+	[ -d sample   ] && extradir="$extradir sample"
+
 	local status=0
 
 	if [ ! "$test" ] ; then
 
-	    if [ "$tarOptInclude" ] || [ "$dir" ]; then
+	    if [ "$tarOptInclude" ] || [ "$dir" ] || [ "$extradir" ]
+	    then
 		$TAR $optExclude $tarOptExclude $verbose \
 		    --create --dereference --file=- \
-		    ${dir:+"*"} $tarOptInclude \
+		    ${dir:+"*"} \
+		    $extradir \
+		    $tarOptInclude \
 		| ( $TAR -C "$dest" $taropt --file=- )
 
 		status=$?
@@ -8788,7 +8796,7 @@ function CygbuildInstallPackageDocs()
 
     elif [ "$status" != "0" ]; then
 	CygbuildWarn "$id: [ERROR] tar failed to move files. " \
-	     "Need to run [files]?"
+	     "Need to run [files] or [reshadow]?"
 
 	return $status
     fi
@@ -11087,12 +11095,12 @@ function CygbuildStripCheck()
 
         if [ ! "$file" ]; then
             file=
-            CygbuildWarn \
+            CygbuildVerb \
                 "-- [NOTE] No *.exe, *.a or *.dll files, skipped strip."
             return 0
         fi
 
-        CygbuildEcho "-- Hm, looks like a library .a or .la package," \
+        CygbuildVerb "-- Hm, looks like a library .a or .la package," \
                  "skipping strip."
         return 0
     fi

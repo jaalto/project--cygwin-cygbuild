@@ -6,6 +6,8 @@
 	(CygbuildDebianRules2MakefileMaybe): Remove.
 	(CygbuildDebianRules2Makefile): Remove.
 	(CygbuildMakefileRunInstall): Notify about missing makefile.
+	(CygbuildInstallPackageDocs): Install also directories
+	examples, example and sample.
 
 	* bin/cygbuild.pl (DebianRulesInstalldirs): Remove.
 	(DebianRulesInstall): Remove.
