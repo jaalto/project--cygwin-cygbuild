@@ -103,7 +103,7 @@
 #       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0226.2237"
+CYGBUILD_VERSION="2008.0227.1010"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8751,6 +8751,14 @@ function CygbuildInstallPackageDocs()
 
     CygbuildRun $scriptInstallDir $dest || return $?
 
+    #	The relative path "../" is needed, in case of 'cd' command
+    #	below.
+
+    local extradir
+    [ -d examples ] && extradir="$extradir ${dir:+../}examples"
+    [ -d example  ] && extradir="$extradir ${dir:+../}example"
+    [ -d sample   ] && extradir="$extradir ${dir:+../}sample"
+
     CygbuildPushd
 
 	if [ "$dir" ]; then
@@ -8767,11 +8775,6 @@ function CygbuildInstallPackageDocs()
 	    CygbuildVerb "-- Test mode: install in $dir (TEST MODE)"
 	fi
 
-	local extradir
-	[ -d examples ] && extradir="$extradir examples"
-	[ -d example  ] && extradir="$extradir example"
-	[ -d sample   ] && extradir="$extradir sample"
-
 	local status=0
 
 	if [ ! "$test" ] ; then
@@ -8780,7 +8783,7 @@ function CygbuildInstallPackageDocs()
 	    then
 		$TAR $optExclude $tarOptExclude $verbose \
 		    --create --dereference --file=- \
-		    ${dir:+"*"} \
+		    ${dir:+"."} \
 		    $extradir \
 		    $tarOptInclude \
 		| ( $TAR -C "$dest" $taropt --file=- )

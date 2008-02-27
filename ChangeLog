@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh: (CygbuildInstallDefaultsPostinstall): Escape
 	variable correcly, so the postinstall file contains contains the
 	name, not the value.
+	(CygbuildInstallPackageDocs): Use relative paths for ../examples
+	as necessary.
 
 2008-02-26  Jari Aalto  <jari.aalto@cante.net>
 
