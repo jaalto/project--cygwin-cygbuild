@@ -37,73 +37,9 @@
 #       o   Global variables ARE_LIKE_THIS and local variables are areLikeThis
 #       o   GNU programs are required. grep(1), egrep(1), awk(1) etc.
 #
-#   MISCELLANEOUS SCRATCHBOARD
-#
-#     Packages without a patch file?
-#
-#        http://sources.redhat.com/ml/cygwin-apps/2003-01/msg00248.html
-#
-#     Preremove and others
-#
-#        Preremove is to do things like removing cached rebased .dll
-#        files etc - things you can only do while the rest of your
-#        package is installed. postremove is to do cleanup that you
-#        cannot do while the rest of your package is installed.
-#
-#     Other notes
-#
-#       Daniel Reed <n@ml.org> writes 2003-10-14 in cygwin-apps-L
-#       http://sources.redhat.com/ml/cygwin-apps/2002-07/msg00144.html
-#
-#       prefix=/usr/X11R6
-#       includedir=${prefix}/include    # /usr/X11R6/include
-#       sysconfdir=/etc
-#       localstatedir=/var
-#
-#       exec_prefix=${prefix}
-#       bindir=${exec_prefix}/bin       # /usr/X11R6/bin
-#       libdir=${exec_prefix}/lib       # /usr/X11R6/lib
-#
-#       datadir=/usr/share
-#       pkgdatadir=${datadir}/${PACKAGE_TARNAME}-${PACKAGE_VERSION}
-#                                       # /usr/share/tcm-2.20
-#       docdir=${datadir}/doc           # /usr/share/doc
-#       pkgdocdir=${docdir}/${PACKAGE_TARNAME}-${PACKAGE_VERSION}
-#                                       # /usr/share/doc/tcm-2.20
-#       cygdocdir=${docdir}/Cygwin      # /usr/share/doc/Cygwin
-#       mandir=${datadir}/man           # /usr/share/man
-#       man1dir=${mandir}/man1          # /usr/share/man/man1
-#
-#
-#       If you use:
-#       --prefix=/usr/X11R6 \
-#       --sysconfdir=/etc \
-#       --libexecdir=/usr/lib \
-#       --localstatedir=/var \
-#       --datadir=/usr/share \
-#       --mandir='${datadir}/man' \
-#       --infodir='${datadir}/info'
-#
-#       or:
-#       --prefix=/usr \
-#       --exec-prefix=/usr/X11R6 \
-#       --includedir=/usr/X11R6/include \
-#       --sysconfdir=/etc \
-#       --libexecdir=/usr/lib \
-#       --localstatedir=/var \
-#       --mandir='${datadir}/man' \
-#       --infodir='${datadir}/info'
-#
-#       everything should end up in the proper place. The last few lines in
-#       both are because mandir and infodir default to ${prefix}/man and
-#       ${prefix}/info, libexec defaults to ${exec_prefix}/libexec,
-#       sysconfdir defaults to ${prefix}/etc, and localstatedir defaults to
-#       ${prefix}/var.
-#       not sure if this is what existing X packages use, but this seems
-#       to be the latest reference to paths from the archive.
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
-CYGBUILD_VERSION="2008.0227.1010"
+CYGBUILD_VERSION="2008.0227.1054"
 CYGBUILD_NAME="cygbuild"
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8615,7 +8551,7 @@ function CygbuildInstallTaropt2match ()
 
     local ret item
 
-    for item in $*
+    for item in "$@"
     do
         if [[ "$item" == $find* ]]; then
 
