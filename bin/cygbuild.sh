@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0227.1057"
+CYGBUILD_VERSION="2008.0228.0907"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -403,7 +403,7 @@ function CygbuildExitNoDir()
     local dir="$1"
     shift
 
-    if [[ ! -d "$dir" ]]; then
+    if [ ! -d "$dir" ]; then
         CygbuildDie "$@"
     fi
 }
@@ -413,8 +413,16 @@ function CygbuildExitNoFile()
     local file="$1"
     shift
 
-    if [[ ! -f "$file" ]]; then
+    if [ ! -f "$file" ]; then
         CygbuildDie "$@"
+    fi
+}
+
+function CygbuildExitIfEmpty()
+{
+    if [ ! "$1" ]; then
+	shift
+	CygbuildDie "$@"
     fi
 }
 
@@ -6482,7 +6490,9 @@ function CygbuildMakeRunInstallFixPerlManpage()
                 CygbuildEcho "-- [NOTE] Making POD manpage from $_file"
                 CygbuildPod2man "$file"
             else
-                CygbuildVerb "-- [NOTE] possibly no manpage for $_file"
+                :
+		# FIXME: Is this check correct?
+		# CygbuildVerb "-- [NOTE] possibly no manpage for $_file"
             fi
         fi
     done
@@ -6790,11 +6800,12 @@ function CygbuildMakefilePrefixIsStandard ()
 function CygbuildMakefileRunInstallCygwinOptions()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx=${1:-"prefix=$CYGBUILD_PREFIX"}
     local docpfx=${2:-$CYGBUILD_DOCDIR_FULL}
     local rest=$3
 
-    local makeEnv=$EXTRA_ENV_OPTIONS_INSTALL
+    local makeEnv="$EXTRA_ENV_OPTIONS_INSTALL"
     local test=${test:+"-n"}
 
     if [ $test ]; then
@@ -6802,16 +6813,19 @@ function CygbuildMakefileRunInstallCygwinOptions()
                      "(test mode, no real install)"
     fi
 
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
-    local makefile=$(< $retval)
+    local makefile
+    [ -s $retval ] && makefile=$(< $retval)
+
+    CygbuildExitIfEmpty "$makefile" \
+	"-- [FATAL] Internal error. \$makefile variable is empty"
 
     if [ "$CYGBUILD_MAKEFLAGS" ]; then
         CygbuildEcho "-- Extra make flags: $CYGBUILD_MAKEFLAGS"
     fi
 
-    #   inside subshell the [source] command does not pollute
-    #   current namespace.
+    #   Use subshell. The 'source' command does not pollute
+    #   current environment.
 
     (
         if [ -f "$makeEnv" ]; then
@@ -6820,7 +6834,8 @@ function CygbuildMakefileRunInstallCygwinOptions()
             source $makeEnv || exit $?
         fi
 
-        local docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
+        # local docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
+        local docdir="$instdir/$DIR_DOC_GENERAL"
 
         #   Run install with Cygwin options
 
@@ -6925,15 +6940,17 @@ function CygbuildMakefileRunInstall()
 
     elif CygbuildIsPerlPackage ; then
 
-        #  - Perl already created a Makefile from Makefile.PL, so ...
-        #  - Perl makefiles use DESTDIR, but the configure phase already
-        #    set the PREFIX, so DESTDIR would cause bad karma at this point
+        #  - Perl creates Makefile from Makefile.PL
+        #  - Set the PREFIX, so DESTDIR.
+
+        local pfx="$instdir$CYGBUILD_PREFIX"
+	local PFX="PREFIX=$pfx"
 
         CygbuildVerb "-- ... Looks like Perl package"
 
         CygbuildPushd
             cd $builddir || exit 1
-            CygbuildMakefileRunInstallCygwinOptions &&
+            CygbuildMakefileRunInstallCygwinOptions "$PFX" &&
             CygbuildMakeRunInstallFixPerlMain       &&
             CygbuildInstallCygwinPartPostinstall
             status=$?
@@ -7989,7 +8006,7 @@ function CygbuildConfPerlCheck()
 $id [ERROR] It is not possible to make Perl source package.
 
 Standard Perl (5.8.0) MM:MakeMaker 6.05 does not handle PREFIX variable
-correctly to install files into separate directory. YInstall latest
+correctly to install files into separate directory. Install latest
 MakeMaker from <http://search.cpan.org/author/MSCHWERN/ =>
 ExtUtils-MakeMaker
 
@@ -8009,31 +8026,37 @@ function CygbuildConfPerlMain()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local conf="$srcdir/Makefile.PL"
+    local envfile=$EXTRA_CONF_ENV_OPTIONS
     local userOptFile=$EXTRA_CONF_OPTIONS
     local status=0
 
     if [ -f "$conf" ]; then
         CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
-        local userOptExtra=$(< $retval)
+        local userOptExtra
+	[ -s $retval ] && userOptExtra=$(< $retval)
 
         local _prefix="/usr"
 
-        CygbuildEcho "-- Running: perl Makefile.PL" \
-             "INSTALLDIRS=vendor $userOptExtra"
-
-        CygbuildPushd
+	(
             cd $builddir || exit 1
 
             #   See http://www.makemaker.org/drafts/prefixification.txt
             #   Do not set: SITEPREFIX  (SITEPREFIX=PREFIX/local)
             #   or PREFIX="$_prefix" because they are set during install
 
+	    if [ -f "$envfile" ]; then
+		CygbuildEcho "--- Reading external env: $envfile"
+		source $envfile || return $?
+	    fi
+
+	    [ "$verbose" ] && set -x
+
             $PERL Makefile.PL           \
                   INSTALLDIRS=vendor    \
                   $userOptExtra
+	)
 
-            status=$?
-        CygbuildPopd
+        status=$?
 
     fi
 
@@ -8590,6 +8613,7 @@ function CygbuildInstallPackageDocs()
     local optExtra=$(< $retval)
 
     local docdirInstall="docinstall"
+    local docdirGuess="docdirGuess"
     local matchExclude matchInclude tarOptInclude tarOptExclude
 
     if [ "$optExtra" ]; then
@@ -8602,6 +8626,10 @@ function CygbuildInstallPackageDocs()
 
         if [[ "$optExtra" == *cygbuild-no-docdir-install* ]]; then
             docdirInstall=
+        fi
+
+        if [[ "$optExtra" == *cygbuild-no-docdir-guess* ]]; then
+            docdirGuess=
         fi
 
         CygbuildInstallTaropt2type include "$optExtra" > $retval
@@ -8678,12 +8706,15 @@ function CygbuildInstallPackageDocs()
 
     [ "$docdirInstall" ] || return 0
 
-    CygbuildDetermineDocDir $builddir > $retval
     local dir
-    [ -s $retval ] && dir=$(< $retval)
 
-    if CygbuildIsDirEmpty "$dir" && [ ! "$tarOptInclude" ]; then
-	return 0			#  Nothing to install
+    if [ "$docdirGuess" ]; then
+	CygbuildDetermineDocDir $builddir > $retval
+	[ -s $retval ] && dir=$(< $retval)
+
+	if CygbuildIsDirEmpty "$dir" && [ ! "$tarOptInclude" ]; then
+	    return 0			#  Nothing to install
+	fi
     fi
 
     CygbuildEcho "-- Installing docs" ${dir/$srcdir\/}
@@ -11933,7 +11964,7 @@ function CygbuildCommandMain()
         #   User did not supply -r, or we cannot parse release from
         #   -f NAME
 
-        CygbuildVerb "-- [NOTE] -r RELEASE not set. Assuming 1"
+        CygbuildVerb "-- [NOTE] -r RELEASE was not set. Assuming 1"
         release=1
     fi
 

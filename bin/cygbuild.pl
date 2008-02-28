@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0225.2210';
+$VERSION = '2008.0228.0807';
 
 # ..................................................................
 
@@ -1555,13 +1555,20 @@ ignored. Comments must be palaced in separate lines.
     --exclude=*RISC*
     --exclude=*README.vms
 
-    #  This is not a tar(1) option, but interpreted by cygbuild
+    #  Include files
     --include=notes.txt
 
     # End of file
 
 If this option is defined, the automatic detection of possible
-documentation directory and its installation is suppressed:
+documentation directory is suppressed. Standard options like
+B<--include=dir> are still obeyed.
+
+    --exclude=cygbuild-no-docdir-guess
+
+If this option is defined, only standard COPYING, TODO etc. files
+found from toplevel source directory are installed. No other
+directories.
 
     --exclude=cygbuild-no-docdir-install
 

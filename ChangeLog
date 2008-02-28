@@ -1,3 +1,21 @@
+2008-02-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: Add support for new option
+	cygbuild-no-docdir-guess.
+	(CygbuildExitIfEmpty): New.
+	(CygbuildMakefileRunInstallCygwinOptions): Check missing
+	Makefile. Adjust PREFIX for perl installs.
+	(CygbuildMakefileRunInstall): Change 'docdir' from /usr/share/doc/PKG
+	to package specific /usr/share/doc/PKG-VER.
+	(CygbuildConfPerlMain): Read configure.env.options.
+	Display PErl call with --verbose.
+
+	* etc/template/install.tar.options.tmp: Add new options
+	--exclude=cygbuild-no-docdir-guess
+
+	* bin/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES::install.tar.options)
+	Document new option cygbuild-no-docdir-guess
+
 2008-02-27  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildInstallDefaultsPostinstall): Escape
