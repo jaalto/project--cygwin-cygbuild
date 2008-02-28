@@ -37,8 +37,8 @@ Main()
     sharedir=$root/usr/share
     mandirdir=$sharedir/man/man1
 
-    # docdir=$(cd $root/usr/share/doc/[a-z]*[0-9] && pwd)
-    # docpkg=$(cd $root/usr/share/doc/[a-z]*[a-z] && pwd)
+    # docdir=$(cd $root/usr/share/doc/[a-zA-Z]*-*[0-9] && pwd)
+    # docpkg=$(cd $root/usr/share/doc/[a-z]*[a-zA-Z] && pwd)
     # [ "$docdir" ] || return 0
     # [ "$docpkg" ] || return 0
 

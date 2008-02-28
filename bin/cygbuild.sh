@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0228.0907"
+CYGBUILD_VERSION="2008.0228.1620"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6363,7 +6363,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
     $FIND "$instdir" -name perllocal.pod > $retval
 
     if [ ! -s $retval ]; then
-        CygbuildVerb "$id: [NOTE] perllocal.pod not found?"
+        CygbuildVerb "-- [NOTE] perllocal.pod not foundxs"
         return 0
     fi
 
@@ -6444,13 +6444,12 @@ function CygbuildPod2man()
     local package=${file##*/}
     local package=${package%.*}
 
-    local podcenter=$(date "+%Y-%m-%d")
+    local date=$(date "+%Y-%m-%d")
+    local podcenter=$date
 
     local mandir="$instdir/usr/share/man"
     local destdir="$mandir/man$mansect"
     local manpage="$destdir/$package.$mansect"
-
-    local date=$(date "%Y-%m-%d")
 
     mkdir -p $destdir
 
@@ -9125,7 +9124,8 @@ function CygbuildInstallFixDocdirInstall()
     then
 
 	[ ! "$test" ] &&
-	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgdocdir"
+	CygbuildWarn "-- [ERROR] Internal error while relocating" \
+		     ${pkgdocdir#$srcdir/}
 	return 99
     fi
 
@@ -11618,7 +11618,7 @@ function CygbuildCommandMainCheckSpecial()
 	shift
 
 	local mode="source-binary"
-	local pkg mkdir
+	local mkdir
 
 	while :
 	do
@@ -11632,20 +11632,27 @@ function CygbuildCommandMainCheckSpecial()
 		    mkdir="mkdir"
 		    ;;
 		*)
-		    pkg="$1"
 		    break
 		    ;;
 	    esac
 	done
 
-	if [ "$mkdir" ] && [ -e "$pkg" ]; then
-	    CygbuildDie "-- [ERROR] Already exists dir/or file: $pkg"
-	elif [ "$mkdir" ]; then
-	    mkdir "$pkg"  || exit $?
-	    cd "$pkg" 	  || exit $?
-	fi
+	local pkg
 
-	CygbuildCmdDownloadCygwinPackage "$pkg" "$mode"
+	for pkg in "$@"
+	do
+	    CygbuildPushd
+
+	    if [ "$mkdir" ] && [ -e "$pkg" ]; then
+		CygbuildDie "-- [ERROR] Already exists dir/or file: $pkg"
+	    elif [ "$mkdir" ]; then
+		mkdir "$pkg"	|| exit $?
+		cd "$pkg"	|| exit $?
+	    fi
+
+	    CygbuildCmdDownloadCygwinPackage "$pkg" "$mode"
+	    CygbuildPopd
+	done
 	exit $?
     fi
 }
@@ -12084,10 +12091,25 @@ function CygbuildCommandMain()
 		;;
 
 	    import)
+
+		local dir=$CYGBUILD_DIR_CYGPATCH_RELATIVE
+		local install
+
+		#   If there is CYGWIN-PATCHEs, then this is "upgrade"
+		#   Run also install in that case.
+
 		CygbuildCmdMkdirs       &&
-		CygbuildCmdFilesMain    &&
+
+		if [ -d "$dir" ]; then
+		    install="install"
+		    CygbuildPatchApplyMaybe
+		else
+		  CygbuildCmdFilesMain
+		fi			&&
+
 		CygbuildCmdConfMain     &&
-		CygbuildCmdBuildMain
+		CygbuildCmdBuildMain	&&
+		[ ! "$install" ] || CygbuildCmdInstallMain
 		status=$?
 		;;
 
@@ -12137,44 +12159,6 @@ function CygbuildCommandMain()
 		fi
 		;;
 
-	    repackage-all|repackage|repkg)
-
-		CygbuildNoticeGPG
-
-		CygbuildCmdConfMain         &&
-		CygbuildCmdBuildMain        &&
-		CygbuildCmdInstallMain      &&
-		CygbuildCmdInstallCheckMain &&
-		CygbuildStripCheck          &&
-		CygbuildCmdPkgBinaryMain    &&
-		{
-		    CygbuildHelpSourcePackage   &&
-		    CygbuildCmdPkgSourceMain ;
-		}   || :                        &&
-		CygbuildCmdPublishMain
-		status=$?
-		;;
-
-	    repackage-bin|repkgbin)
-		CygbuildNoticeGPG
-
-		CygbuildCmdConfMain         &&
-		CygbuildCmdBuildMain        &&
-		CygbuildCmdInstallMain      &&
-		CygbuildCmdPkgBinaryMain
-		status=$?
-		;;
-
-	    repackage-devel|repkgdev)
-		CygbuildNoticeGPG
-
-		CygbuildCmdConfMain         &&
-		CygbuildCmdBuildMain        &&
-		CygbuildCmdInstallMain      &&
-		CygbuildCmdPkgDevelMain
-		status=$?
-		;;
-
 	    patch)
 		CygbuildPatchApplyMaybe
 		status=$?
@@ -12220,6 +12204,44 @@ function CygbuildCommandMain()
 
 	    readmefix)
 		CygbuildCmdReadmeFixMain
+		status=$?
+		;;
+
+	    repackage-all|repackage|repkg)
+
+		CygbuildNoticeGPG
+
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdInstallCheckMain &&
+		CygbuildStripCheck          &&
+		CygbuildCmdPkgBinaryMain    &&
+		{
+		    CygbuildHelpSourcePackage   &&
+		    CygbuildCmdPkgSourceMain ;
+		}   || :                        &&
+		CygbuildCmdPublishMain
+		status=$?
+		;;
+
+	    repackage-bin|repkgbin)
+		CygbuildNoticeGPG
+
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdPkgBinaryMain
+		status=$?
+		;;
+
+	    repackage-devel|repkgdev)
+		CygbuildNoticeGPG
+
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdPkgDevelMain
 		status=$?
 		;;
 

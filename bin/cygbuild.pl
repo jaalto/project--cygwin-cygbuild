@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0228.0807';
+$VERSION = '2008.0228.1030';
 
 # ..................................................................
 
@@ -1560,13 +1560,13 @@ ignored. Comments must be palaced in separate lines.
 
     # End of file
 
-If this option is defined, the automatic detection of possible
+If following option is defined, the automatic detection of possible
 documentation directory is suppressed. Standard options like
 B<--include=dir> are still obeyed.
 
     --exclude=cygbuild-no-docdir-guess
 
-If this option is defined, only standard COPYING, TODO etc. files
+If following option is defined, only standard COPYING, TODO etc. files
 found from toplevel source directory are installed. No other
 directories.
 

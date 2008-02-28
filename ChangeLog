@@ -8,7 +8,11 @@
 	(CygbuildMakefileRunInstall): Change 'docdir' from /usr/share/doc/PKG
 	to package specific /usr/share/doc/PKG-VER.
 	(CygbuildConfPerlMain): Read configure.env.options.
-	Display PErl call with --verbose.
+	Display Perl call with --verbose.
+	(CygbuildCommandMain): Improve command 'import'.
+	(CygbuildPod2man): Fix call to date(1).
+	(CygbuildCommandMainCheckSpecial): Support multiple packages with
+	command cygsrc.
 
 	* etc/template/install.tar.options.tmp: Add new options
 	--exclude=cygbuild-no-docdir-guess
