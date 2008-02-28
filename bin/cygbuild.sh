@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0228.1803"
+CYGBUILD_VERSION="2008.0228.1812"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8606,7 +8606,6 @@ function CygbuildInstallTaropt2match ()
 
 function CygbuildInstallPackageDocs()
 {
-
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
@@ -9119,9 +9118,8 @@ function CygbuildInstallFixDocdirInstall()
     CygbuildStrToRegexpSafe "$dest1" > $retval   # 1.20+r100 etc.
     local re=$(< $retval)
 
-    local pdir
-    cd $dir/usr/share/doc && ls | $EGREP -v "$re|Cygwin" > $retval
-    [ -s "$retval" ] && pdir=$(< 4retval)
+    local pdir=$(cd $dir/usr/share/doc && ls |
+		 $EGREP -v "$re|Cygwin" > $retval)
 
     [ "$pdir" ] || return 0
 
@@ -10848,13 +10846,13 @@ function CygbuildCmdInstallDirClean ()
 function CygbuildCmdInstallFinishMessage()
 {
     local dir=$instdir
-    local relative=${dir/$srcdir\/}
+    local relative=${dir#$srcdir/}
 
     if [ "$verbose" ]; then
         CygbuildEcho "-- Content of: $relative"
-        $FIND -L ${dir##$(pwd)/} -print
+        $FIND -L $relative -print
     else
-        CygbuildVerb "-- See also: find $relative -print" \
+        CygbuildEcho "-- See also: find $relative" \
              "${test:+(Note: test mode was on)}"
     fi
 }
