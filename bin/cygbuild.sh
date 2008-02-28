@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0228.1734"
+CYGBUILD_VERSION="2008.0228.1803"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -192,6 +192,9 @@ function CygbuildStrToRegexpSafe()
 
     [ "$str" ] || return 1
 
+    str=${str//\[/\\[}
+    str=${str//\]/\\]}
+
     str=${str//./[.]}
     str=${str//+/[+]}
     str=${str//\*/[*]}
@@ -199,9 +202,6 @@ function CygbuildStrToRegexpSafe()
 
     str=${str//\(/[(]}
     str=${str//\)/[)]}
-
-    str=${str//\[/[[]}
-    str=${str//\]/[]]}
 
     echo $str
 }
@@ -8606,6 +8606,7 @@ function CygbuildInstallTaropt2match ()
 
 function CygbuildInstallPackageDocs()
 {
+
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
@@ -8660,9 +8661,6 @@ function CygbuildInstallPackageDocs()
 
         [ ! -f "$file" ]          &&  continue
         [ ! -s "$file" ]          &&  continue  # Zero length
-
-        #   Ignore backups
-        # [[ $file == @(*[~#]|*.bak|*.rej|*.orig|*.tmp) ]]    && continue
 
         name="${file##*/}"
         match=""
@@ -9095,16 +9093,20 @@ function CygbuildInstallFixDocdirInstall()
 
     #	Clean any empty directories
 
-    local tmp
+    $FIND "$dest" -type d > $retval
 
-    while read tmp
-    do
-        if CygbuildIsDirEmpty "$tmp" ; then
-            CygbuildVerb "-- Removing empty directory" \
-                         ${tmp/$pwd\//}
-            $RMDIR "$tmp"
-        fi
-    done < <( $FIND "$dest" -type d)
+    if [ -s $retval ]; then
+        local tmp
+
+	while read tmp
+	do
+	    if CygbuildIsDirEmpty "$tmp" ; then
+		CygbuildVerb "-- Removing empty directory" \
+			     ${tmp/$pwd\//}
+		$RMDIR "$tmp"
+	    fi
+	done < $retval
+    fi
 
     #	The Makefile may install in:
     #
@@ -9117,8 +9119,9 @@ function CygbuildInstallFixDocdirInstall()
     CygbuildStrToRegexpSafe "$dest1" > $retval   # 1.20+r100 etc.
     local re=$(< $retval)
 
-    local pdir=$(cd $dir/usr/share/doc && ls |
-		 $EGREP -v "$re|Cygwin" )
+    local pdir
+    cd $dir/usr/share/doc && ls | $EGREP -v "$re|Cygwin" > $retval
+    [ -s "$retval" ] && pdir=$(< 4retval)
 
     [ "$pdir" ] || return 0
 
