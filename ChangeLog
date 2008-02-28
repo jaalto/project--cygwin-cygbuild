@@ -13,6 +13,7 @@
 	(CygbuildPod2man): Fix call to date(1).
 	(CygbuildCommandMainCheckSpecial): Support multiple packages with
 	command cygsrc.
+	(CygbuildStrToRegexpSafe): Add characters: ()[].
 
 	* etc/template/install.tar.options.tmp: Add new options
 	--exclude=cygbuild-no-docdir-guess
