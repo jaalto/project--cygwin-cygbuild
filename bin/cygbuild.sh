@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.1954"
+CYGBUILD_VERSION="2008.0229.2121"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -697,11 +697,37 @@ function CygbuildBootVariablesGlobalMain()
     #  NOTICE: All this must be space separated, no tabs anywhere.
 
     CYGBUILD_SETUP_HINT_CATEGORY="\
-    Accessibility   Admin       Archive Audio       Base        Comm\
-    Database        Devel       Doc     Editors     Games       Gnome\
-    Graphics        Interpreters Libs   Mail        Math        Mingw\
-    Net             Perl        Python  Publishing  Science     Shells\
-    System          Text        Utils   Web         X11 \
+    Accessibility\
+    Admin\
+    Archive\
+    Audio\
+    Base
+    Database\
+    Devel\
+    Doc\
+    Editors\
+    Games\
+    Gnome\
+    Graphics\
+    Interpreters\
+    KDE\
+    Libs\
+    Mail\
+    Math\
+    Mingw\
+    Misc\
+    Net\
+    Perl\
+    Publishing\
+    Python\
+    Security\
+    Science\
+    Shells\
+    System\
+    Text\
+    Utils\
+    Web\
+    X11\
     "
 
     #  This variable holds bash match expressions for files to exclude
@@ -1054,7 +1080,6 @@ function CygbuildBootFunctionExport()
 
     export -f CygbuildCmdPrepPatch
     export -f CygbuildMakeRunInstallFixPerlMain
-    export -f CygbuildPostinstallWrite
     export -f CygbuildVersionInfo
     export -f CygbuildDetermineReadmeFile
     export -f CygbuildLibInstallEnvironment
@@ -6180,7 +6205,7 @@ function CygbuildPostinstallWriteStanza()
     local file="$SCRIPT_POSTINSTALL_CYGFILE"
     local stanza="#:$type"
 
-    if CygbuildGrepCheck "^$stanza" $file ; then
+    if CygbuildGrepCheck "^[# ]*$stanza" $file ; then
 	 CygbuildWarn "-- [NOTE] Skip, existing stanza found: $type"
 	return 0
     fi

@@ -37,6 +37,8 @@
 	(CygbuildInstallFixInfoInstall): New.
 	(CygbuildInstallFixMain). Use CygbuildInstallFixInfoInstall.
 	(CygbuildInstallPostinstallPartInfo): New.
+	(CygbuildBootVariablesGlobalMain); Update
+	CYGBUILD_SETUP_HINT_CATEGORY according to setup.exe
 
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 
