@@ -29,6 +29,14 @@
 	(CygbuildInstallPackageDocs): Fix error in include and exclude
 	treatment.
 	(CygbuildCmdInstallCheckDocdir): Correct empty file check.
+	(CygbuildPostinstallWriteStanza): New.
+	(CygbuildPostinstallWriteMain): Rewrite logic. Add new input
+	argument STANZA.
+	(CygbuildInstallPostinstallPartEtc): Rename. Was
+	`CygbuildInstallDefaultsPostinstall'.
+	(CygbuildInstallFixInfoInstall): New.
+	(CygbuildInstallFixMain). Use CygbuildInstallFixInfoInstall.
+	(CygbuildInstallPostinstallPartInfo): New.
 
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 

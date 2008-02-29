@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.1610"
+CYGBUILD_VERSION="2008.0229.1954"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6173,10 +6173,27 @@ function CygbuildCmdDownloadUpstream ()
 #
 #######################################################################
 
-function CygbuildPostinstallWrite()
+function CygbuildPostinstallWriteStanza()
+{
+    local type="$1"
+    local str="$2"
+    local file="$SCRIPT_POSTINSTALL_CYGFILE"
+    local stanza="#:$type"
+
+    if CygbuildGrepCheck "^$stanza" $file ; then
+	 CygbuildWarn "-- [NOTE] Skip, existing stanza found: $type"
+	return 0
+    fi
+
+    echo -e "$stanza\n$str" >> $file || return 1
+    CygbuildChmodExec $file
+}
+
+function CygbuildPostinstallWriteMain()
 {
     local id="$0.$FUNCNAME"
-    local str="$1"
+    local type="$1"
+    local str="$2"
     local file="$SCRIPT_POSTINSTALL_CYGFILE"
 
     if ! CygbuildIsTemplateFilesInstalled ; then
@@ -6185,18 +6202,30 @@ function CygbuildPostinstallWrite()
         return 1
     fi
 
-    if [ ! "$str" ]; then
-        echo "$id: [FATAL] input ARG string is empty"
+    if [ ! "$type" ]; then
+        CygbuildWarn "$id: [FATAL] input arg TYPE is empty"
         return 1
-
-    elif [ -f "$file" ]; then
-        CygbuildWarn "-- [WARN] Already exists, won't write to" \
-		     ${file/$srcdir\//}
-
-    else
-        echo "$str" > $file || return 1
-        CygbuildChmodExec $file
     fi
+
+    if [ ! "$str" ]; then
+        CygbuildWarn "$id: [FATAL] input arg STR is empty"
+        return 1
+    fi
+
+    CygbuildVerb "-- Postinstall setup: $type"
+
+    if [ ! -f "$file" ]; then
+	echo "\
+#!/bin/sh
+# This is automatically generated file
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+LC_ALL=C
+
+"	>  $file || return 1
+    fi
+
+    CygbuildPostinstallWriteStanza "$type" "$str"
 }
 
 function CygbuildPreRemoveWrite()
@@ -6328,19 +6357,16 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
         CygbuildEcho "-- Perl install fix: $from"
 
         local commands="\
-#!/bin/sh
-# Append new utility to Perl installation
-# This is automatically generated file
-
 from=\"$from\"
 to=\"$to\"
 cat \"\$from\" >> \"\$to\"\
 "
 
-        CygbuildPostinstallWrite "$commands" || return $?
+        CygbuildPostinstallWriteMain "Perl" "$commands" || return $?
 
     done < $retval
 
+# FIXME: remove
     #	Remove perl directory if there are no files in it
 
 #     local libdir="$instdir/usr/lib"
@@ -9150,7 +9176,31 @@ function CygbuildInstallFixDocdirInstall()
 		 ${dest/$dir\//}
 }
 
-function CygbuildInstallDefaultsPostinstall()
+function CygbuildInstallPostinstallPartInfo()
+{
+    local id="$0.$FUNCNAME"
+    local dest="$DIR_DEFAULTS_GENERAL"
+    local i list
+
+    for i in "$@"
+    do
+	i=${i##*/}	    # Delete path
+	list="$list $i"
+    done
+
+    local commands="\
+(
+    cd /usr/share/info &&
+    for i in $list
+    do
+	install-info --dir-file=./dir --info-file=\$i
+    done
+)"
+
+    CygbuildPostinstallWriteMain "info" "$commands"
+}
+
+function CygbuildInstallPostinstallPartEtc()
 {
     local id="$0.$FUNCNAME"
     local dest="$DIR_DEFAULTS_GENERAL"
@@ -9176,15 +9226,7 @@ function CygbuildInstallDefaultsPostinstall()
     [ "$list" ] || return 0
 
     local commands="\
-#!/bin/sh
-# Arrange initial setup from defaults directory
-# This is automatically generated file
-
-PATH=/bin:/sbin:/usr/bin:/usr/sbin
-LC_ALL=C
-
 fromdir=/etc/defaults
-
 for i in $list
 do
     src=\$fromdir/\$i
@@ -9198,12 +9240,25 @@ do
     fi
 
     install -m 644 \$src \$dest
-done\
-"
+done"
 
-    if ! CygbuildPostinstallWrite "$commands" ; then
-	CygbuildEcho "-- [NOTE] Handle $dest manually"
-    fi
+    CygbuildPostinstallWriteMain "etc" "$commands"
+}
+
+function CygbuildInstallFixInfoInstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$instdir/usr/share/info"
+
+    [ -d "$dir" ] || return 0
+
+    $FIND $instdir/usr/share/ -name "*.info" \
+	> $retval 2> /dev/null
+
+    [ -s $retval ] || return 0		# No info files
+
+    CygbuildInstallPostinstallPartInfo $(< $retval)
 }
 
 function CygbuildInstallFixEtcdirInstall()
@@ -9239,7 +9294,7 @@ function CygbuildInstallFixEtcdirInstall()
     CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
 		 ${DIR_DEFAULTS_GENERAL/$dir\//}
 
-    CygbuildInstallDefaultsPostinstall
+    CygbuildInstallPostinstallPartEtc
 }
 
 function CygbuildInstallFixInterpreterMain()
@@ -9304,6 +9359,7 @@ function CygbuildInstallFixMain()
 {
     CygbuildInstallFixDocdirInstall
     CygbuildInstallFixEtcdirInstall
+    CygbuildInstallFixInfoInstall
     CygbuildInstallFixInterpreterMain
     CygbuildInstallFixPerlPacklist
     CygbuildInstallFixMandir
