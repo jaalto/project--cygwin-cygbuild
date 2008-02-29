@@ -35,7 +35,7 @@ Main()
     root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
     bindir=$root/usr/bin
     sharedir=$root/usr/share
-    mandirdir=$sharedir/man/man1
+    mandir=$sharedir/man/man1
 
     # docdir=$(cd $root/usr/share/doc/[a-zA-Z]*-*[0-9] && pwd)
     # docpkg=$(cd $root/usr/share/doc/[a-z]*[a-zA-Z] && pwd)

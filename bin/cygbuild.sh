@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.0952"
+CYGBUILD_VERSION="2008.0229.1123"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8694,6 +8694,7 @@ function CygbuildInstallPackageDocs()
                 $builddir/changelog        \
                 $builddir/ChangeLog        \
 		$builddir/[Cc]opyright	   \
+		$builddir/[Cc]opying	   \
 		$builddir/[Ll]icense	   \
                 $builddir/*.html           \
                 $builddir/*.pdf            \
