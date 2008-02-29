@@ -26,8 +26,9 @@
 	(CygbuildIsCplusplusPackage): Remove.
 	(CygbuildBootVariablesGlobalMain): Add RPM *.spec to
 	CYGBUILD_INSTALL_IGNORE.
-	(CygbuildInstallPackageDocs): Fix error on include and exclude
+	(CygbuildInstallPackageDocs): Fix error in include and exclude
 	treatment.
+	(CygbuildCmdInstallCheckDocdir): Correct empty file check.
 
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 

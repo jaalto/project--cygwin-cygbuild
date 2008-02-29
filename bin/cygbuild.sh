@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.1443"
+CYGBUILD_VERSION="2008.0229.1610"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -10363,19 +10363,20 @@ function CygbuildCmdInstallCheckDocdir()
     while read file
     do
         [[ "$file" == $ignore ]] && continue
+	[ -h "$file"	       ] && continue   # Ignore symlinks
 
-        size=
+        size=0
         _file=${file/$srcdir\//}
 
-        CygbuildFileSize $file > $retval
-        [ -s $retval ] && size=$(< $retval)
+        CygbuildFileSize $file > $retval.size
+        [ -s $retval.size ] && size=$(< $retval.size)
 
-        if [ "$size" = "0" ] ; then
+        if [ $size = 0 ] ; then
             CygbuildWarn "-- [WARN] empty file $_file"
 
         elif (( $size < $minsize )) ; then
-            CygbuildWarn "-- [WARN] Very small file ($size) $_file"
-            cat $file
+            CygbuildWarn "-- [WARN] Very small file ($size bytes) $_file"
+            head $file
         fi
     done < $retval
 
