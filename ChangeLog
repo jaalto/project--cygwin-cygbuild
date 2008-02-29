@@ -22,6 +22,12 @@
 	(CygbuildFileTypeByExtension): Add Ruby.
 	(CygbuildCygcheckMainOld): Remove.
 	(CygbuildCmdInstallCheckBinFiles): Add Ruby.
+	(CygbuildIsMakefileCplusplus): Remove.
+	(CygbuildIsCplusplusPackage): Remove.
+	(CygbuildBootVariablesGlobalMain): Add RPM *.spec to
+	CYGBUILD_INSTALL_IGNORE.
+	(CygbuildInstallPackageDocs): Fix error on include and exclude
+	treatment.
 
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 

@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.1228"
+CYGBUILD_VERSION="2008.0229.1443"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -727,18 +727,21 @@ function CygbuildBootVariablesGlobalMain()
     *.tmp
     *.TMP
     *.TST
+    *.spec
     *ABOUT-NLS
     *CHANGES-*
     *INSTALL
     *INSTALL.unix
     *INSTALL.unx
     *MANIFEST
+    *PACKAGE
     *README.*bsd*
+    *README.OS2
     *README.hp*
     *README.mingw32
     *README.vms
-    *README.OS2
     *RISC-*
+    *VERSION
     *VMS*
     *[~#]
     "
@@ -2445,7 +2448,7 @@ function CygbuildBuildScriptPath()
 
 function CygbuildTarDirectory()
 {
-    #   Return tar packages top level directory if any
+    #   Return tar package's top level directory if any
 
     local id="$0.$FUNCNAME"
     local file="$1"
@@ -2478,7 +2481,7 @@ function CygbuildTarDirectory()
     #   there will be only one, if top level directory exists.
     #   Skip symbolic links.
 
-    local dirfile=$CYGBUILD_RETVAL.$FUNCNAME.dir
+    local dirfile="$retval.dir"
 
     $AWK  '                             \
         /->/ { next }                   \
@@ -8630,10 +8633,10 @@ function CygbuildInstallPackageDocs()
 
     if [ "$optExtra" ]; then
 
-        CygbuildInstallTaropt2match exclude "$optExtra" > $retval
+        CygbuildInstallTaropt2match exclude $optExtra > $retval
         [ -s $retval ] && matchExclude=$(< $retval)
 
-        CygbuildInstallTaropt2match include "$optExtra" > $retval
+        CygbuildInstallTaropt2match include $optExtra > $retval
         [ -s $retval ] && matchInclude=$(< $retval)
 
         if [[ "$optExtra" == *cygbuild-no-docdir-install* ]]; then
@@ -8644,12 +8647,11 @@ function CygbuildInstallPackageDocs()
             docdirGuess=
         fi
 
-        CygbuildInstallTaropt2type include "$optExtra" > $retval
+        CygbuildInstallTaropt2type include $optExtra > $retval
         [ -s $retval ] && tarOptInclude=$(< $retval)
 
-        CygbuildInstallTaropt2type exclude "$optExtra" > $retval
+        CygbuildInstallTaropt2type exclude $optExtra > $retval
         [ -s $retval ] && tarOptExclude=$(< $retval)
-
     fi
 
     local done name file match
