@@ -1,3 +1,15 @@
+2008-02-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallFinishMessage): Restore
+	old code that used pwd. This is correct in packaging scripts.
+	(CygbuildIsRubyPackage): New.
+	(CygbuildMakefileRunInstallRubyMain): New.
+	(CygbuildCmdBuildMain): Add ruby support.
+	(CygbuildCmdCleanMain): Add ruby support.
+	(CygbuildCmdShadowMain): Add ruby support.
+	(CygbuildCmdConfMain): Add ruby support.
+	(CygbuildConfRubyMain): New.
+
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: Add support for new option

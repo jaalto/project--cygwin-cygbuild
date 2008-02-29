@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0228.1812"
+CYGBUILD_VERSION="2008.0229.0023"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -832,7 +832,8 @@ function CygbuildBootVariablesGlobalMain()
      --ignore-matching-lines=[$]State.*[$] \
     "
 
-    # joe(1) editor leaves DEADJOE files on non-clean exit.
+    #	joe(1) editor leaves DEADJOE files on non-clean exit.
+    #	Ruby uses .config
 
     cygbuild_opt_exclude_tmp_files="\
      --exclude=*.BAK \
@@ -852,6 +853,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=.[~#]* \
      --exclude=.emacs_[0-9]* \
      --exclude=.nfs* \
+     --exclude=.config \
      --exclude=[~#]* \
      --exclude=a.out \
      --exclude=core \
@@ -2782,6 +2784,11 @@ function CygbuildIsPerlPackage()
 function CygbuildIsPythonPackage()
 {
     [ -f "$srcdir/setup.py" ]
+}
+
+function CygbuildIsRubyPackage()
+{
+    [ -f "$srcdir/setup.rb" ]
 }
 
 function CygbuildIsCplusplusPackage()
@@ -6713,6 +6720,34 @@ function CygbuildRunShell()
     eval ${test:+echo} $env "$@"
 }
 
+function CygbuildRunRubySetupCmd()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    CygbuildVerb "-- Running Ruby command: $*"
+
+    CygbuildRunShell ruby setup.rb "$@" > $retval 2>&1
+    local status=$?
+
+    if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
+        cat $retval
+    fi
+
+    return $status
+}
+
+function CygbuildMakefileRunInstallRubyMain()
+{
+    local root="$instdir"
+
+    local pfx=${1:-$root}
+    [ "$1" ] && shift
+
+    CygbuildRunRubySetupCmd \
+	install		    \
+	--prefix=$pfx
+}
+
 function CygbuildRunPythonSetupCmd()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -6939,6 +6974,19 @@ function CygbuildMakefileRunInstall()
             CygbuildMakefileRunInstallPythonMain &&
             CygbuildMakefileRunInstallPythonFix
             status=$?
+        CygbuildPopd
+
+        return $status
+
+    elif CygbuildIsRubyPackage ; then
+
+        CygbuildVerb "-- ... Looks like Ruby package [install]"
+
+        CygbuildPushd
+            cd $builddir || exit 1
+            CygbuildMakefileRunInstallRubyMain
+            status=$?
+
         CygbuildPopd
 
         return $status
@@ -7681,6 +7729,8 @@ function CygbuildCmdShadowMain()
 
             if CygbuildIsPythonPackage ; then
                 CygbuildRunPythonSetupCmd clean
+	    elif CygbuildIsRubyPackage ; then
+		CygbuildRunRubySetupCmd clean
             else
                 make clean distclean
             fi
@@ -8025,6 +8075,19 @@ EOF
     fi
 }
 
+function CygbuildConfRubyMain()
+{
+    local root="$instdir"
+
+    local pfx=${1:-$root}
+    [ "$1" ] && shift
+
+    CygbuildRunRubySetupCmd \
+	config		    \
+	--prefix=$pfx	    \
+	--bindir=/usr/bin
+}
+
 function CygbuildConfPerlMain()
 {
     local id="$0.$FUNCNAME"
@@ -8132,6 +8195,10 @@ function CygbuildCmdConfMain()
             CygbuildConfCC
             status=$?
 
+        elif CygbuildIsRubyPackage ; then
+
+            CygbuildConfRubyMain
+
         elif CygbuildIsMakefileTarget configure ; then
 
             #   ./configure generated "Makefile", so this elif must be
@@ -8210,6 +8277,21 @@ function CygbuildSetLDPATHpython()
                  "LD_RUN_PATH=$LD_RUN_PATH"
 
     fi
+}
+
+function CygbuildCmdBuildRuby()
+{
+    local id="$0.$FUNCNAME"
+    local status=0
+
+    CygbuildPushd
+        cd $builddir                                      &&
+        CygbuildEcho "-- Building: ruby setup.rb setup"   &&
+        CygbuildRunRubySetupCmd setup
+        status=$?
+    CygbuildPopd
+
+    return $status
 }
 
 function CygbuildCmdBuildPython()
@@ -8331,6 +8413,11 @@ function CygbuildCmdBuildMain()
         CygbuildCmdBuildPython
         status=$?
 
+    elif CygbuildIsRubyPackage ; then
+
+        CygbuildCmdBuildRuby
+        status=$?
+
     else
 
         CygbuildCmdBuildStdMakefile
@@ -8412,6 +8499,10 @@ function CygbuildCmdCleanMain()
 
         CygbuildMakefileRunPythonInDir "$srcdir" clean
 
+    elif CygbuildIsRubyPackage ; then
+
+        CygbuildRunRubySetupCmd clean
+
     elif [ ! "$makefile" ]; then
         if [ "$opt" != "nomsg" ]; then
             CygbuildEcho "-- No Makefile found, nothing to clean in $dir"
@@ -8462,6 +8553,9 @@ function CygbuildCmdDistcleanMain
 
     if CygbuildIsPythonPackage ; then
         #   Nothing to do
+        :
+    elif CygbuildIsRubyPackage ; then
+
         :
     else
         CygbuildMakefileRunTarget "distclean" "$dir" "$opt"
@@ -10845,12 +10939,11 @@ function CygbuildCmdInstallDirClean ()
 
 function CygbuildCmdInstallFinishMessage()
 {
-    local dir=$instdir
-    local relative=${dir#$srcdir/}
+    local relative=${instdir#$srcdir/}
 
     if [ "$verbose" ]; then
         CygbuildEcho "-- Content of: $relative"
-        $FIND -L $relative -print
+        $FIND -L ${instdir#$(pwd)/} -print
     else
         CygbuildEcho "-- See also: find $relative" \
              "${test:+(Note: test mode was on)}"
