@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0228.1030';
+$VERSION = '2008.0229.0849';
 
 # ..................................................................
 
@@ -199,10 +199,10 @@ be used to check the binary build:
 
 =over 4
 
-=item B<--bzip2>
+=item B<-b|--bzip2>
 
-Use bzip2 compression instead of default gzip(1). This affects the
-manual pages and the usr/share/doc/*/ content.
+Use bzip2 compression instead of default package compression. This
+affects the manual pages and the usr/share/doc/*/ content.
 
 =item B<-c|--color>
 
@@ -279,31 +279,6 @@ Print program's internal short help.
 
 Print long help (this page).
 
-=item B<--init-pkgdb PATH>
-
-In order for command B<[check-deps]> to be able to determine correct
-dependencies for C<setup.hint> section I<requires:>, an external database
-must be generated. The package database will include directory listings
-from all C<package-N.N-N.tar.bz2> files. This initial creation will take
-VERY LONG time because every installed C<*.bz2> file must be examined. If
-unsure what the PATH argument should be, start B<setup.exe> and see value
-I<Local Package Directory> which stores the downloaded packages.
-
-When the database is available, it makes finding dependencies automatic
-from the C<cygcheck BIN> listing like this:
-
-    D:/cygwin/bin/ls.exe
-      D:\cygwin\bin\cygwin1.dll
-        C:\WINNT\system32\ADVAPI32.DLL
-          C:\WINNT\system32\NTDLL.DLL
-          C:\WINNT\system32\KERNEL32.DLL
-          C:\WINNT\system32\RPCRT4.DLL
-      D:\cygwin\bin\cygintl-3.dll
-        D:\cygwin\bin\cygiconv-2.dll
-
-After the command is run. Program terminates and rest of the commands
-are ignored.
-
 =item B<--install-prefix PREXIX>
 
 Set custom install PREFIX. The value must be path (no leading slash)
@@ -323,21 +298,10 @@ program knows about the special port:
 
     cygbuild --release 1 --install-usrlocal CMD ...
 
-=item B<-m|--nomore-space>
+=item B<-l|--lzma>
 
-No more space (on disk). This option affects the [mkpatch] command when it
-is run. The patch process would start by calling 'make clean' followed by
-'make distclean' before taking a diff between the modified sources and the
-original sources. But trashing an hours worth of compiled C<*.o> files
-would be waste if package were to be rebuilt again. So, the default
-behavior for mkpatch is that it takes a snapshot B<copy> of current
-modified sources andtakes them to /tmp where the 'clean' is done. This way
-the original *.o files are kept intact.
-
-If you do not have the room for a large compilation tree, then notify
-program with option B<--nomore-space> that you do not have the space
-needed to make the copy. In this case the 'make clean' is run on current
-sources.
+Use lzma compression instead of default package compression. This
+affects the manual pages and the usr/share/doc/*/ content.
 
 =item B<-p|--passphrase "PASS PHRASE">
 

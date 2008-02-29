@@ -1,5 +1,8 @@
 2008-02-29  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::OPTIONS): Remove --init-pkgdb and
+	--nomore-space.
+
 	* bin/cygbuild.sh: (CygbuildCmdInstallFinishMessage): Restore
 	old code that used pwd. This is correct in packaging scripts.
 	(CygbuildIsRubyPackage): New.
@@ -9,6 +12,13 @@
 	(CygbuildCmdShadowMain): Add ruby support.
 	(CygbuildCmdConfMain): Add ruby support.
 	(CygbuildConfRubyMain): New.
+	(CygbuildDefineGlobalPackageDatabase): Remove
+	(CygbuildBootVariablesGlobalCacheSet): Remove CYGBUILD_CACHE_PAKAGES.
+	(CygbuildCommandMain): Remove options --init-pkgdb,
+	--nomore-space. Add option --lzma.
+	(CygbuildCompressManualPage): New.
+	(CygbuildBootVariablesGlobalMain): Add lzma, lzop, rzip to
+	cygbuild_opt_exclude_archive_files
 
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 

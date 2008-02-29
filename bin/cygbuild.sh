@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.0023"
+CYGBUILD_VERSION="2008.0229.0916"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -180,7 +180,7 @@ function CygbuildTarOptionCompress()
 
     case "$1" in
         *.tar.gz|*.tgz)   echo "z" ;;
-        *.bz2|*.tbz)      echo "j" ;;
+        *.bz2|*.tbz*)     echo "j" ;;
         *)                return 1 ;;
     esac
 }
@@ -623,7 +623,6 @@ function CygbuildBootVariablesGlobalCacheSet()
     local dir="$1"
 
     CYGBUILD_CACHE_DIR="$dir"					#global-def
-    CYGBUILD_CACHE_PAKAGES="$CYGBUILD_CACHE_DIR/packages"       #global-def
 }
 
 function CygbuildBootVariablesGlobalCacheMain()
@@ -919,10 +918,14 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.[zZ] \
      --exclude=*.arj \
      --exclude=*.bz2 \
+     --exclude=*.lzma \
+     --exclude=*.lzop \
+     --exclude=*.rzip \
      --exclude=*.gz \
      --exclude=*.rar \
      --exclude=*.tar \
      --exclude=*.tbz \
+     --exclude=*.tbz2 \
      --exclude=*.tgz \
      --exclude=*.zip \
      --exclude=*.zoo \
@@ -1901,7 +1904,7 @@ function CygbuildVersionInfo()
     '
         $_  = <>;
         s,.+/,,;
-        s,\.(tar\.(gz|bz2)|zip|t[gb]z)$,,;
+        s,\.(tar\.(gz|bz2|lzma|lzop)|zip|t[gb]z)$,,;
         s,\.orig$,,;
         s,-src$,,;
 
@@ -2060,10 +2063,13 @@ function CygbuildStrRemoveExt()
     local str="$1"
 
     str=${str##*/}          # Remove path
-    str=${str%.tar.bz2}
     str=${str%.tar.gz}
+    str=${str%.tar.bz2}
+    str=${str%.tar.lzma}
+    str=${str%.tar.lzop}
     str=${str%.tgz}
     str=${str%.tbz2}
+    str=${str%.tbz}
     str=${str%-src}
     str=${str%.orig}
 
@@ -2477,9 +2483,8 @@ function CygbuildTarDirectory()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local z
     CygbuildTarOptionCompress $file > $retval
-    [ -s $retval ] && z=$(< $retval)
+    local z=$(< $retval)
 
     $TAR -${z}tvf $file > $retval || return $?
 
@@ -3264,67 +3269,6 @@ function CygbuildFileReadOptionsMaybe()
 #
 #######################################################################
 
-
-function CygbuildDefineGlobalPackageDatabase()
-{
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local fromdir="$1"
-    local todir="$CYGBUILD_CACHE_PAKAGES"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
-    if [ ! "$fromdir" ] || [ ! -d "$fromdir" ] ; then
-        CygbuildDie "\
-In order to build search database for all files, all downloaded
-package-N.N-N.tar.bz2 files must be examined. This will take LOT of
-time in the first time. If you're unsure what this directory is, start
-setup.exe and see value 'Local Package Directory'
-
-[ERROR] Invalid DIRECTORY argument: [$fromdir]"
-    fi
-
-    [ -d "$todir" ] || $MKDIR -p $todir
-
-    CygbuildEcho "-- Building package database to $todir"
-    CygbuildEcho "-- Have a snack or something, this will take SOME time..."
-
-    #   Every installed Cygwin package must be examined and the
-    #   contents of tar files must be oped in order to
-    #   generate the search database. Uncompressing every file is
-    #   time consuming process
-    #
-    #   Every file is listed in separate entry, this makes it
-    #   easy to add incremental updates.
-    #
-    #       todir/foo-1.1-2.lst
-    #       todir/foo-1.1-3.lst     Perhaps user did upgrade
-
-    local path name dest
-
-    $FIND $fromdir -type f -name "*.bz2" > $retval
-
-    [ -s $retval ] || return 0
-
-    while read path
-    do
-        name=${path##*/}        # Delete directories.
-        name=${name%.tar.bz2}   # foo-1.1-2.tar.bz2 => foo-1.1-2
-        dest="$todir/$name.lst"
-
-        #   This file may have already been unpacked. Skip as needed.
-
-        if [ ! -s $dest ]; then
-            CygbuildVerb "-- Processing $path"
-
-            #   Add path name to the beginning of each line
-
-            $TAR -jtvf $path                    \
-               | $SED -e "s,^,$path:,"          \
-               > $todir/$name.lst || exit $?
-        fi
-
-    done < $retval
-}
-
 function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -3872,7 +3816,7 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
     else
         local ext
 
-        for ext in .tar.gz .tgz .tar.bz2 .tbz
+        for ext in .tar.gz .tgz .tar.bz2 .tbz2 .tar.lzma
         do
 
             #  Standard version uses hyphen  : package-NN.NN.tar.gz
@@ -4176,8 +4120,23 @@ function CygbuildHelpSourcePackage()
 
 function CygbuildCompress()
 {
-    if [ "$OPTION_BZIP" ]; then
+    if [ "$OPTION_COMPRESS" = "bzip2" ]; then
         ${BZIP:-"bzip2"} "$@"
+    elif [ "$OPTION_COMPRESS" = "lzma" ]; then
+        ${LZMA:-"lzma"} "$@"
+    else
+        ${GZIP:-"gzip"} "$@"
+    fi
+}
+
+function CygbuildCompressManualPage()
+{
+    # manual command does not support lzma yet
+
+    if [ "$OPTION_COMPRESS" = "bzip2" ]; then
+        ${BZIP:-"bzip2"} "$@"
+#    elif [ "$OPTION_COMPRESS" = "lzma" ]; then
+#        ${LZMA:-"lzma"} "$@"
     else
         ${GZIP:-"gzip"} "$@"
     fi
@@ -5000,12 +4959,13 @@ function CygbuildCmdPublishToDir()
     #  base/doc/
 
     local pwd=$(pwd)
+    local ext=$OPTION_COMPRESS
     local file
 
-    for file in $srcinstdir/$PKG-$VER-*tar.bz2          \
-                $srcinstdir/$PKG-devel-$VER-*tar.bz2    \
-                $srcinstdir/$PKG-doc-$VER-*tar.bz2      \
-                $srcinstdir/$PKG-bin-$VER-*tar.bz2      \
+    for file in $srcinstdir/$PKG-$VER-*tar.$ext         \
+                $srcinstdir/$PKG-devel-$VER-*tar.$ext   \
+                $srcinstdir/$PKG-doc-$VER-*tar.$ext     \
+                $srcinstdir/$PKG-bin-$VER-*tar.$ext     \
                 $DIR_CYGPATCH/setup.hint                \
                 $DIR_CYGPATCH/setup-devel.hint          \
                 $DIR_CYGPATCH/setup-doc.hint            \
@@ -5113,7 +5073,9 @@ function CygbuildCmdPkgExternal()
 
 function CygbuildCmdPkgDevelStandardDoc()
 {
+    local id="$0.$FUNCNAME"
     local retval="$1"
+    local ext=$OPTION_COMPRESS
     RETVAL=
 
     CygbuildPushd
@@ -5130,7 +5092,7 @@ function CygbuildCmdPkgDevelStandardDoc()
             CygbuildWarn "-- devel-doc [WARN] No doc files for $pkgdoc"
         else
 
-            local pkg="$LIBPKG-doc.tar.bz2"
+            local pkg="$LIBPKG-doc.tar.$ext"
             NAME_PKG_LIB_DOC=$pkg                               # global-def
             PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DOC
@@ -5151,6 +5113,7 @@ function CygbuildCmdPkgDevelStandardDoc()
 
 function CygbuildCmdPkgDevelStandardBin()
 {
+    local id="$0.$FUNCNAME"
     local retval="$1"
     RETVAL=
 
@@ -5160,7 +5123,11 @@ function CygbuildCmdPkgDevelStandardBin()
         if [ -s $retval.bin ]; then
 
             local tar="$FILE_BIN_PKG"
-            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+
+	    CygbuildTarOptionCompress $tar > $retval
+	    local z=$(< $retval)
+
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -${z}cf"
 
             CygbuildEcho "-- devel-bin" ${tar/$srcdir\//}
 
@@ -5179,6 +5146,8 @@ function CygbuildCmdPkgDevelStandardBin()
 
 function CygbuildCmdPkgDevelStandardLib()
 {
+    local id="$0.$FUNCNAME"
+    local ext=$OPTION_COMPRESS
     local retval="$1"
     RETVAL=
 
@@ -5206,7 +5175,7 @@ function CygbuildCmdPkgDevelStandardLib()
             local ver
             [ -s $retval.ver ] && ver=$(< $retval.ver)
 
-            local pkg="$LIBPKG$ver.tar.bz2"
+            local pkg="$LIBPKG$ver.tar.$ext"
             NAME_LIB_PKG_MAIN=$pkg                              # global-def
             PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DEV
@@ -5228,6 +5197,8 @@ function CygbuildCmdPkgDevelStandardLib()
 
 function CygbuildCmdPkgDevelStandardDev()
 {
+    local id="$0.$FUNCNAME"
+    local ext=$OPTION_COMPRESS
     local retval="$1"
     RETVAL=
 
@@ -5247,7 +5218,7 @@ function CygbuildCmdPkgDevelStandardDev()
                 "for $pkglib"
         else
 
-            local pkg="$LIBPKG-devel.tar.bz2"
+            local pkg="$LIBPKG-devel.tar.$ext"
             NAME_LIB_PKG_MAIN=$pkg                              # global-def
             PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
             local tar=$PATH_PKG_LIB_LIBRARY
@@ -5272,7 +5243,11 @@ function CygbuildCmdPkgDevelStandardMain()
     local id="$0.$FUNCNAME"
     local status=0
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+
+    CygbuildTarOptionCompress $tar > $retval
+    local z=$(< $retval)
+
+    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -${z}cf"
     local pkgdev pkglib pkgbin pkgdoc
 
     CygbuildPushd
@@ -5834,7 +5809,6 @@ function CygbuildCmdMkpatchMain()
     #   Otherwise applying the patch will fail.
 
     local copydir=$builddir_root/${srcdir##*/}
-
     local file="$SRC_ORIG_PKG"
 
     CygbuildExitNoFile "$file" "$id: [ERROR] Original archive not found $file"
@@ -5896,7 +5870,7 @@ function CygbuildCmdMkpatchMain()
         fi
 
         CygbuildTarOptionCompress "$file" > $retval
-        [ -s $retval ] && z=$(< $retval)
+        local z=$(< $retval)
 
         opt="-${z}xf"
         dummy="PWD is $(pwd)"                  # Used for debugging
@@ -7140,10 +7114,10 @@ function CygbuildExtractTar()
         return 1
     fi
 
-    local expectdir=$package-$ver
-    local z
+    local expectdir="$package-$ver"
+
     CygbuildTarOptionCompress $file > $retval
-    [ -s $retval ] && z=$(< $retval)
+    local z=$(< $retval)
 
     #   Look inside archive to see what directry it contains.
     #   WE need this in case original source does not have
@@ -7613,9 +7587,9 @@ CygbuildCmdDownloadCygwinPackage ()
     then
         CygbuildEcho "-- Good, archive already extracted: $archive"
     else
-        local z
+
         CygbuildTarOptionCompress "$archive" > $retval
-        [ -s $retval ] && z=$(< $retval)
+        local z=$(< $retval)
 
         tar -${z}xf $verbose "$archive"
     fi
@@ -8998,7 +8972,7 @@ function CygbuildInstallExtraManualCompress()
 
         if [ -s $retval ]
         then
-            CygbuildCompress --force --best $(< $retval) || return $?
+            CygbuildCompressManualPage --force --best $(< $retval) || return $?
         fi
 
         $FIND $instdocdir -type l -name "*.[1-9]" > $retval
@@ -11532,8 +11506,8 @@ function CygbuildFilePackageGuessMain()
         local ver="$nameRe[_-]$verRe"
 
         CygbuildFilePackageGuessArchive \
-            "$ver.(tar.gz|tar.bz2|orig.tar.gz|orig.tar.bz2|tgz)" \
-            "(-src.tar.bz2|$nameRe-$verRe-$SCRIPT_RELEASE[.]|[.]sig)" \
+            "$ver.(tar.gz|tar.bz2|tar.lzma|orig.tar.gz|orig.tar.bz2|tgz|tbz)" \
+            "(-src.tar.(bz2|lzma)|$nameRe-$verRe-$SCRIPT_RELEASE[.]|[.]sig)" \
             >  $retval
 
         arr=( $(< $retval) )
@@ -11800,7 +11774,7 @@ function CygbuildCommandMain()
     unset test                      # global-def
 
     OPTION_SPACE="yes"              # global-def
-
+    OPTION_COMPRESS="bz2"	    # global-def
 
     #   On Cygwin upgrades, it may be possible that this proram is not
     #   installed
@@ -11817,8 +11791,8 @@ function CygbuildCommandMain()
 
     getopt \
         -n $id \
-        --long bip2,color,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
-        --option cDd:e:f:gmp:Pr:s:tvVx -- "$@" \
+        --long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
+        --option bcDd:e:f:glp:Pr:s:tvVx -- "$@" \
         > $retval
 
     if [ ! "$?" = "0" ] ; then
@@ -11839,8 +11813,8 @@ function CygbuildCommandMain()
 
 	case $1 in
 
-            --bzip2)
-                OPTION_BZIP="opt-bzip"          # global-def
+            -b|--bzip2)
+                OPTION_COMPRESS="bz2"           # global-def
                 shift 1
                 ;;
 
@@ -11877,7 +11851,7 @@ function CygbuildCommandMain()
 
             -D|--Debug)
                 OPTION_DEBUG_VERIFY="yes"       # global-def
-                trap 1 2 3 15
+		trap 1 2 3 15			# cancel signals
                 shift
                 ;;
 
@@ -11904,12 +11878,6 @@ function CygbuildCommandMain()
                 shift 1
                 ;;
 
-            --init-pkgdb)
-                CygbuildDefineGlobalPackageDatabase "$2"
-                shift 2
-                CygbuildExit 0 "-- Done. Database is up to date (for now)."
-                ;;
-
             --install-prefix)
                 OPTION_PREFIX="$2"              # global-def
                 shift 2
@@ -11925,6 +11893,11 @@ function CygbuildCommandMain()
                 CygbuildDefileInstallVariablesUSRLOCAL
                 ;;
 
+            -l|--lzma)
+                OPTION_COMPRESS="lzma"          # global-def
+                shift 1
+                ;;
+
             -p|--passphrase)
                 if [[ "$2" == -* ]]; then
                     CygbuildDie "$id: [ERROR] -p option needs pass phrase." \
@@ -11933,11 +11906,6 @@ function CygbuildCommandMain()
 
                 OPTION_PASSPHRASE="$2"          # global-def
                 shift 2
-                ;;
-
-            -m|--nomore-space)
-                OPTION_SPACE=""                 # global-def
-                shift
                 ;;
 
             -r|--release)
