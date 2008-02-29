@@ -19,6 +19,9 @@
 	(CygbuildCompressManualPage): New.
 	(CygbuildBootVariablesGlobalMain): Add lzma, lzop, rzip to
 	cygbuild_opt_exclude_archive_files
+	(CygbuildFileTypeByExtension): Add Ruby.
+	(CygbuildCygcheckMainOld): Remove.
+	(CygbuildCmdInstallCheckBinFiles): Add Ruby.
 
 2008-02-28  Jari Aalto  <jari.aalto@cante.net>
 

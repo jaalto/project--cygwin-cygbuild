@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.0916"
+CYGBUILD_VERSION="2008.0229.0952"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1814,32 +1814,6 @@ function CygbuildCygcheckLibraryDepMain()
     fi
 }
 
-function CygbuildCygcheckMainOld() # 2007-12-16 not used
-{
-    local id="$0.$FUNCNAME"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local bin="cygpath"
-
-    if ! CygbuildWhich $bin > /dev/null; then
-        CygbuildWarn "[WARN] $id: Not found in PATH: $bin"
-        return 1
-    fi
-
-    local file path
-
-    for file in "$@"
-    do
-        $bin --windows "$file" > $retval
-
-        if [ -s $retval ]; then
-            path=$(< $retval)
-            /usr/bin/cygcheck "$path" | tee $retval
-
-            CygbuildCygcheckLibraryDepMain "$path" "$retval"
-        fi
-    done
-}
-
 function CygbuildCygcheckMain()
 {
     local id="$0.$FUNCNAME"
@@ -2672,6 +2646,7 @@ function CygbuildFileTypeByExtension()
         *.sh) ret="shell"   ;;
         *.py) ret="python"  ;;
         *.pl) ret="perl"    ;;
+        *.rb) ret="ruby"    ;;
         *) return 1         ;;
     esac
 
@@ -10518,6 +10493,7 @@ function CygbuildCmdInstallCheckBinFiles()
         -o -name "*.sh"     \
         -o -name "*.pl"     \
         -o -name "*.py"     \
+        -o -name "*.rb"     \
     ')'                     \
     -a '(' -path "*python*site-pacages*" ')' -prune \
     -a \! -perm +111 -ls    \
@@ -10603,7 +10579,7 @@ function CygbuildCmdInstallCheckBinFiles()
             fi
         fi
 
-	if [[ "$file" == *.@(py|pl) ]]; then
+	if [[ "$file" == *.@(py|pyc|pl|rb) ]]; then
 	    CygbuildEcho "-- [WARN] Extension found: $_file"
 	    continue
 	fi
@@ -10643,6 +10619,11 @@ function CygbuildCmdInstallCheckBinFiles()
 
         elif [[ "$str" == *python* ]] && [[ ! $depends == *python* ]]  ; then
             CygbuildEcho "-- [ERROR] setup.hint may need Python dependency" \
+                 "for $name"
+            status=1
+
+        elif [[ "$str" == *ruby* ]] && [[ ! $depends == *ruby* ]]  ; then
+            CygbuildEcho "-- [ERROR] setup.hint may need Ruby dependency" \
                  "for $name"
             status=1
 
