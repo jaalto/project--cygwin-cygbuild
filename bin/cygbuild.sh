@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.1123"
+CYGBUILD_VERSION="2008.0229.1228"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -2587,19 +2587,6 @@ function CygbuildIsMakefileTarget()
     CygbuildGrepCheck "^$target:" $file
 }
 
-function CygbuildIsMakefileCplusplus ()
-{
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    CygbuildMakefileName > $retval
-
-    local file
-    [ -s $retval ] && file=$(< $retval)
-
-    [ "$file" ] || return 1
-
-    CygbuildGrepCheck "^[^#]+=[[:space:]]*g[+][+]" "$file"
-}
-
 function CygbuildMakefileRunTarget()
 {
     local id="$0.$FUNCNAME"
@@ -2769,29 +2756,6 @@ function CygbuildIsPythonPackage()
 function CygbuildIsRubyPackage()
 {
     [ -f "$srcdir/setup.rb" ]
-}
-
-function CygbuildIsCplusplusPackage()
-{
-    #   FIXME: This won't be correct for packages which contain
-    #   several different programs that are both C/C++,
-    #   like:
-    #
-    #       root/application-a/C
-    #       root/application-b/C++
-    #       root/application-b/C
-    #
-    #   in this case the first found, would determine that *all*
-    #   would be "C", which is not correct.
-
-    #   Search under src/* etc directories
-
-    for file in *.hh *.cc *.cpp *.cxx */*.hh */*.cc */*.cpp  */*.cxx
-    do
-        [ -f "$file" ] && return 0
-    done
-
-    return 1
 }
 
 function CygbuildIsAutomakePackage()
