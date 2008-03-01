@@ -13,6 +13,7 @@
 	on image files.
 	(CygbuildInstallFixInterpreterMain): Tighten regexp.
 	(CygbuildInstallFixInterpreterPerl): Improce substitution.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Add -E to grep call.
 
 2008-02-29  Jari Aalto  <jari.aalto@cante.net>
 
