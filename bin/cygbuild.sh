@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0301.1401"
+CYGBUILD_VERSION="2008.0301.1427"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -464,9 +464,9 @@ function CygbuildBootVariablesId()
     #######################################################################
 
     #  Be cautious with the PATH. Putting /bin etc. first make finding
-    #  programs faster.
+    #  programs faster. FIXME: Do we really need the $PATH here?
 
-    PATH="/bin:/sbin:/usr/bin:/us/sbin:/usr/local/bin:$PATH"
+    PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH"
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
 
     TEMPDIR=${TEMPDIR%/}  # Remove trailing slash

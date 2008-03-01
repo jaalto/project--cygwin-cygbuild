@@ -4,6 +4,7 @@
 	Fix reading of variable makefile.
 	(CygbuildMakefilePrefixCheck): Improve prefix check.
 	(CygbuildMakefilePrefixIsStandard): Improve prefix check.
+	(CygbuildBootVariablesId): Adjust PATH setting.
 
 2008-02-29  Jari Aalto  <jari.aalto@cante.net>
 
