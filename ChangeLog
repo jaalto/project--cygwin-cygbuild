@@ -5,6 +5,10 @@
 	(CygbuildMakefilePrefixCheck): Improve prefix check.
 	(CygbuildMakefilePrefixIsStandard): Improve prefix check.
 	(CygbuildBootVariablesId): Adjust PATH setting.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Improve postinstall
+	snippet.
+	(CygbuildInstallFixEtcdirInstall): Disregard pre/postinstall
+	directory.
 
 2008-02-29  Jari Aalto  <jari.aalto@cante.net>
 
