@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0229.2121"
+CYGBUILD_VERSION="2008.0301.1401"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6535,7 +6535,9 @@ function CygbuildMakefilePrefixCheck()
 
     if [ ! "$destdir" = "0" ]; then
 
-        local re='^[[:space:]]*(prefix)[[:space:]]*='
+        local re='^[[:space:]]*(prefix)[[:space:]]*[+?]?='
+
+	#   PREFIX ?= /usr/local
 
         $EGREP "$re" $makefile *.mk Makefile* 2> /dev/null
         status=$?
@@ -6784,12 +6786,12 @@ function CygbuildMakefilePrefixIsStandard ()
     [ "$verbose" ] || opt="-q"
     [ "$files"   ] || return 0
 
-    if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]+[+]?=" $files
+    if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]+[+?]?=" $files
     then
 	up="PREFIX"
     fi
 
-    if $EGREP $opt "^[[:space:]]*prefix[[:space:]]+[+]?=" $files
+    if $EGREP $opt "^[[:space:]]*prefix[[:space:]]+[+?]?=" $files
     then
 	lower="prefix"
     fi
@@ -6821,11 +6823,10 @@ function CygbuildMakefileRunInstallCygwinOptions()
     fi
 
     CygbuildMakefileName > $retval
-    local makefile
-    [ -s $retval ] && makefile=$(< $retval)
+    local makefile=$(< $retval)
 
     CygbuildExitIfEmpty "$makefile" \
-	"-- [FATAL] Internal error. \$makefile variable is empty"
+	"$id: [FATAL] Internal error. \$makefile variable is empty"
 
     if [ "$CYGBUILD_MAKEFLAGS" ]; then
         CygbuildEcho "-- Extra make flags: $CYGBUILD_MAKEFLAGS"
@@ -9192,7 +9193,7 @@ function CygbuildInstallFixDocdirInstall()
     then
 
 	[ ! "$test" ] &&
-	CygbuildWarn "-- [ERROR] Internal error while relocating" \
+	CygbuildWarn "$id: [ERROR] Internal error while relocating" \
 		     ${pkgdocdir#$srcdir/}
 	return 99
     fi
@@ -9312,7 +9313,7 @@ function CygbuildInstallFixEtcdirInstall()
 	$TAR   -C  "$dest" -xf - ; }
     then
 	[ ! "$test" ] &&
-	CygbuildWarn "-- [ERROR] Internal error while relocating $pkgetcdir"
+	CygbuildWarn "$id: [ERROR] Internal error while relocating $pkgetcdir"
 	return 99
     fi
 
