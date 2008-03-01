@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0301.1610"
+CYGBUILD_VERSION="2008.0301.1631"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6207,7 +6207,7 @@ function CygbuildPostinstallWriteStanza()
     local stanza="#:$type"
 
     if CygbuildGrepCheck "^[# ]*$stanza" $file ; then
-	 CygbuildWarn "-- [NOTE] Skip, existing stanza found: $type"
+	 CygbuildVerb "-- [NOTE] Skip, existing stanza found: $type"
 	return 0
     fi
 
@@ -9109,18 +9109,23 @@ function CygbuildInstallFixInterpreterPerl ()
     local file="$1"
 
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
-        CygbuildWarn "$id: No such file $file"
+        CygbuildWarn "$id: No such file: $file"
         return 1
     fi
 
-    #  Clean also line:
+    #  Clean also lines:
+    #
+    #	 #!/usr/bin/perl5.8.8
+    #	 #!/usr/bin/perl -*-
     #
     #    eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     #      if 0; # not running under some shell
 
-    $SED -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,' \
-         -e '/.*eval.*exec.*bin\/perl.*/d' \
-         -e '/.*not running under some shell/d' \
+    $SED -e '1s, -[*]*-.*,,'				\
+	 -e '1s,\(#!.*/usr/bin/perl\)\([0-9].*\),\1,'	\
+	 -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,'	\
+	 -e '/.*eval.*exec.*bin\/perl.*/d'		\
+	 -e '/.*not running under some shell/d'		\
          "$file" > "$file.tmp" &&
 
     $MV --force "$file.tmp" "$file"
@@ -9350,7 +9355,7 @@ function CygbuildInstallFixInterpreterMain()
         head -1 "$file" > $retval 2> /dev/null
 
         if $EGREP --quiet "perl" $retval &&
-           ! $EGREP --quiet "/usr/bin/perl([ \t]|$)" $retval
+           ! $EGREP --quiet "/usr/bin/perl[[:space:]]*$" $retval
         then
             CygbuildEcho "-- [NOTE] Fixing suspicious Perl call" \
                  "in $_file: $(cat $retval)"

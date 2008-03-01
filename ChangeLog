@@ -11,6 +11,8 @@
 	directory.
 	(CygbuildCmdInstallCheckDocdir): Remeove head(1); won't work
 	on image files.
+	(CygbuildInstallFixInterpreterMain): Tighten regexp.
+	(CygbuildInstallFixInterpreterPerl): Improce substitution.
 
 2008-02-29  Jari Aalto  <jari.aalto@cante.net>
 
