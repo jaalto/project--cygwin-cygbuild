@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0301.1544"
+CYGBUILD_VERSION="2008.0301.1610"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -757,8 +757,9 @@ function CygbuildBootVariablesGlobalMain()
     *ABOUT-NLS
     *CHANGES-*
     *INSTALL
-    *INSTALL.unix
+    *INSTALL.[Uu]nix
     *INSTALL.unx
+    *INSTALL.[Ww]indows
     *MANIFEST
     *PACKAGE
     *README.*bsd*
@@ -6246,7 +6247,6 @@ function CygbuildPostinstallWriteMain()
 
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LC_ALL=C
-
 "	>  $file || return 1
     fi
 
@@ -6388,7 +6388,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
         local commands="\
 from='$from'
 to='$to'
-grep -q 'EXE_FILES:. +$PKG' || cat \"\$from\" >> \"\$to\"\
+grep -q 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 "
 
         CygbuildPostinstallWriteMain "Perl" "$commands" || return $?
@@ -10469,7 +10469,6 @@ function CygbuildCmdInstallCheckDocdir()
 
         elif (( $size < $minsize )) ; then
             CygbuildWarn "-- [WARN] Very small file ($size bytes) $_file"
-            head $file
         fi
     done < $retval
 

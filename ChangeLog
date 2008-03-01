@@ -9,6 +9,8 @@
 	snippet.
 	(CygbuildInstallFixEtcdirInstall): Disregard pre/postinstall
 	directory.
+	(CygbuildCmdInstallCheckDocdir): Remeove head(1); won't work
+	on image files.
 
 2008-02-29  Jari Aalto  <jari.aalto@cante.net>
 
