@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0302.0107"
+CYGBUILD_VERSION="2008.0302.0126"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1375,10 +1375,11 @@ function CygbuildGrepCheck()
     local regexp="$1"
     shift
 
-    $EGREP --ignore-case            \
+    $EGREP --quiet		    \
+	   --ignore-case            \
            --files-with-matches     \
            --regexp="$regexp"       \
-           "$@" /dev/null           \
+           "$@"                     \
            > /dev/null 2>&1
 }
 
@@ -2618,15 +2619,21 @@ function CygbuildIsMakefileTarget()
 
 function CygbuildIsMakefileCplusplus ()
 {
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    CygbuildMakefileName > $retval
+    #	FIXME: Any better file patterns?
+    #	Consider Makefile.SunOS, Makefile.linux and this is not
+    #	very reliable way to test it.
 
-    local file
-    [ -s $retval ] && file=$(< $retval)
+    CygbuildGrepCheck "^[^#]+=[[:space:]]*[gc][+][+]" \
+	*Makefile makefile *.mk \
+	src/*Makefile src/makefile src/*.mk
+}
 
-    [ "$file" ] || return 1
-
-    CygbuildGrepCheck "^[^#]+=[[:space:]]*g[+][+]" "$file"
+function CygbuildIsMakefileCstandard ()
+{
+    # FIXME: Any better file patterns?
+    CygbuildGrepCheck "^[^#]+=[[:space:]]*(gcc|cc)" \
+	*Makefile makefile *.mk \
+	src/*Makefile src/makefile src/*.mk
 }
 
 function CygbuildIsCplusplusPackage()
@@ -2642,7 +2649,7 @@ function CygbuildIsCplusplusPackage()
     #   in this case the first found, would determine that *all*
     #   would be "C", which is not correct.
 
-    #   Search under src/* etc directories
+    #   Search under any directory
 
     for file in *.hh *.cc *.cpp *.cxx */*.hh */*.cc */*.cpp  */*.cxx
     do

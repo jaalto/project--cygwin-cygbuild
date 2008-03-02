@@ -1,3 +1,10 @@
+2008-03-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildIsMakefileCstandard): New.
+	(CygbuildIsMakefileCstandard): Restore from revno:40a593c
+	(CygbuildIsCplusplusPackage): Restore from revno:40a593c
+
 2008-03-01  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (dir): (CygbuildMakefileRunInstallCygwinOptions):
