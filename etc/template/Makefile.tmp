@@ -70,6 +70,9 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
 
+.cc.o:
+	$(CXX) $(CXXLAGS) -c -o $*.o $<
+
 .asm.o: $(ASM_OBJS)
 	nasm $(ASM_FLAGS) $<
 

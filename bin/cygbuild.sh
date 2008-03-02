@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0302.0126"
+CYGBUILD_VERSION="2008.0302.1932"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -970,8 +970,11 @@ function CygbuildBootVariablesGlobalMain()
 
     #  1) When making snapshot copy of the original sources to elsewhere.
     #  2) when building Cygwin Net Release source and binary packages
+    #
+    #  perllocal.pod  is taken card by the postinstall (appending to the file)
 
     CYGBUILD_TAR_EXCLUDE="\
+     --exclude=perllocal.pod \
      $cygbuild_opt_exclude_dir \
      $cygbuild_opt_exclude_object_files \
      $cygbuild_opt_exclude_tmp_files \
@@ -9798,7 +9801,7 @@ function CygbuildCmdInstallCheckReadme()
 
     if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
         CygbuildWarn "-- [WARN] Tags found: $tags"
-        CygbuildWarn "-- [WARN] edit $origreadme"
+        CygbuildWarn "-- [WARN] edit" ${origreadme#$srcdir/}
         CygbuildWarn "$notes"
         let "status=status + 10"
     fi

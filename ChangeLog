@@ -4,6 +4,8 @@
 	(CygbuildIsMakefileCstandard): New.
 	(CygbuildIsMakefileCstandard): Restore from revno:40a593c
 	(CygbuildIsCplusplusPackage): Restore from revno:40a593c
+	(CygbuildBootVariablesGlobalMain): Exclude perllocal.pod
+	from CYGBUILD_TAR_EXCLUDE
 
 2008-03-01  Jari Aalto  <jari.aalto@cante.net>
 
