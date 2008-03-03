@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1117"
+CYGBUILD_VERSION="2008.0303.1213"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -5502,7 +5502,7 @@ function CygbuildPatchList()
 
     #	Ignore verion controlled directories.
 
-    $FIND $dir				\
+    $FIND -L $dir			\
 	-type d '(' -path "*/.git*"	\
 		    -o -path "*/.bzr*"	\
 		    -o -path "*/.mtn*"	\
@@ -5584,7 +5584,7 @@ function CygbuildPatchPrefixStripCountFromContent()
             do
                 tmp=$((tmp + 1))
 
-                if [[ $part == $PKG-*[0-9]* ]]; then
+                if [[ $part == $PKG-*[0-9]* ]] ; then
                     count=$tmp
                     break;
                 fi
@@ -7928,6 +7928,8 @@ function CygbuildConfDepend()
 
 function CygbuildConfOptionAdjustment()
 {
+    #	 All messages must be printed to STDERR
+
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
@@ -7937,6 +7939,17 @@ function CygbuildConfOptionAdjustment()
 
     if [ ! -f "$conf" ]; then
         return 0
+    fi
+
+    if [ "$verbose" ]; then
+	$AWK '/^ +--wit(hout)?-/ && ! /PACKAGE/ {
+	    print
+	}' $conf > $retval
+
+	if [ -s $retval ] ; then
+	    CygbuildWarn "-- [NOTE] Configure contains additional options:"
+	    $SED 's/^/ /' $retval >&2
+	fi
     fi
 
     local str opt ret
@@ -8051,7 +8064,7 @@ function CygbuildConfCC()
             echo "$opt" |
                 $PERL -ane \
                   "s/\s+/,/g;
-                   print '   ', join( qq(\n  ), sort split ',',$_), qq(\n)"
+                   print '   ', join( qq(\n   ), sort split ',',$_), qq(\n)"
         fi
 
         CygbuildRunShell $conf $opt 2>&1 | tee $retval.log

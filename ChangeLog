@@ -5,6 +5,8 @@
 	(CygbuildMakefilePrefixCheck): Adjust grep to find prefix=
 	(CygbuildCmdFilesWrite): Fix variable name from 'to' to 'todir'.
 	(CygbuildPatchList): Ignore */tmp/* directories.
+	(CygbuildConfOptionAdjustment): Notify about --with and --without
+	options in ./configure.
 
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 
