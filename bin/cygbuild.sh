@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1521"
+CYGBUILD_VERSION="2008.0303.1528"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -625,9 +625,7 @@ function CygbuildBootVariablesGlobalCacheSet()
 
     CYGBUILD_CACHE_DIR="$dir"					#global-def
 
-    if [ ! "$PERL_VERSION" ]; then
-	CygbuildDefineGlobalPerl
-    fi
+    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerl
 
     #	Write Perl installation cache. This is needed to check if
     #	modules are Standard perl or from CPAN.
@@ -635,9 +633,16 @@ function CygbuildBootVariablesGlobalCacheSet()
     local file="$dir/perl-$PERL_VERSION.lst"
     CYGBUILD_CACHE_PERL_INSTALL="$file"
 
-    if [ "$PERL_VERSION" ] && [ ! -f "$file" ] && [ "$CYGCHECK" ]; then
+    if [ "$PERL_VERSION" ] && [ ! -f "$file" ]; then
+	local bin=$(CygbuildWhich cygcheck)
+
 	CygbuildEcho "Wait, initializing Perl cache"
-	$CYGCHECK -l perl > $file
+
+	if [ "$bin" ]; then
+	    $bin -l perl > $file
+	else
+	    CygbuildWarn "-- [WARN] Skip, because cygcheck not in PATH"
+	fi
     fi
 }
 
