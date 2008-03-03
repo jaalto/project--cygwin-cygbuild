@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1412"
+CYGBUILD_VERSION="2008.0303.1521"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -620,9 +620,25 @@ function CygbuildBootVariablesGlobalShareMain()
 
 function CygbuildBootVariablesGlobalCacheSet()
 {
+    local id="$0.$FUNCNAME"
     local dir="$1"
 
     CYGBUILD_CACHE_DIR="$dir"					#global-def
+
+    if [ ! "$PERL_VERSION" ]; then
+	CygbuildDefineGlobalPerl
+    fi
+
+    #	Write Perl installation cache. This is needed to check if
+    #	modules are Standard perl or from CPAN.
+
+    local file="$dir/perl-$PERL_VERSION.lst"
+    CYGBUILD_CACHE_PERL_INSTALL="$file"
+
+    if [ "$PERL_VERSION" ] && [ ! -f "$file" ] && [ "$CYGCHECK" ]; then
+	CygbuildEcho "Wait, initializing Perl cache"
+	$CYGCHECK -l perl > $file
+    fi
 }
 
 function CygbuildBootVariablesGlobalCacheMain()
@@ -1862,15 +1878,15 @@ function CygbuildCygcheckMain()
 	file=${file#$srcdir/}		# Make relative path
 
 	if [[ "$file" == /* ]]; then
-	    #  Change / => \
-	    file=$(cygpath -w $file)
+	    #  Change / => \  FIXME: Is this really needed?
+	    file=$( $CYGPATH -w $file)
 	else
 	    file=${file//\+/\/}
 	fi
 
 	if [ "$verbose" ] ; then
 	    CygbuildEcho "-- Wait, listing depends"
-	    cygcheck "$file" | tee $retval 2> /dev/null
+	    $CYGCHECK "$file" | tee $retval 2> /dev/null
 	fi
 
 	CygbuildCygcheckLibraryDepMain "$file" "$retval"
@@ -3285,6 +3301,20 @@ function CygbuildFileReadOptionsMaybe()
 #
 #######################################################################
 
+function CygbuildDefineGlobalPerl()
+{
+    PERL_VERSION=$(                                     # global-def
+	${PERL:-perl} --version |
+	${AWK:-awk} '
+	    /This is perl/ {
+		ver = $4;
+		sub("v", "", ver);
+		print ver;
+	    }
+	'
+    )
+}
+
 function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -3320,15 +3350,7 @@ function CygbuildDefineGlobalCommands()
     fi
 
     if [ "$PERL" ]; then
-        PERL_VERSION=$(                                     # global-def
-            $PERL --version |
-            ${AWK:-awk} '
-                /This is perl/ {
-                    ver = $4;
-                    sub("v", "", ver);
-                    print ver;
-                }
-            ')
+	CygbuildDefineGlobalPerl
     fi
 
     if [ "$PYTHON" ]; then
@@ -3379,6 +3401,14 @@ function CygbuildDefineGlobalCommands()
     TR=tr                               # global-def
     WGET=wget
     WHICH=which
+
+    CYGCHECK=
+    CygbuildWhich cygcheck > $retval
+    [ -s $retval ] && CYGCHECK=$(< $retval) # global-def
+
+    CYGPATH=
+    CygbuildWhich cygpath > $retval
+    [ -s $retval ] && CYGPATH=$(< $retval) # global-def
 }
 
 function CygbuildIsArchiveScript()
@@ -7863,8 +7893,8 @@ function CygbuildCmdDependMain()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local retval2=$CYGBUILD_RETVAL.$FUNCNAME.tmp
-    local cygcheck=/usr/bin/cygcheck
-    local cygpath=/usr/bin/cygpath
+
+    [ "$CYGCHECK" ] || return 0
 
     CygbuildEcho "-- Reading cygcheck dependencies"
 
@@ -7883,7 +7913,7 @@ function CygbuildCmdDependMain()
 
     for file in $list
     do
-        $cygcheck "$file" >> $retval
+        $CYGCHECK "$file" >> $retval
     done
 
     $CAT $retval
@@ -7904,7 +7934,7 @@ function CygbuildCmdDependMain()
         CygbuildEcho "-- Depend check $file"
 
         found=1
-        $cygcheck -f $file
+        $CYGCHECK -f $file
 
     done < $retval
 

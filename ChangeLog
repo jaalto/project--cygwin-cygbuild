@@ -9,6 +9,10 @@
 	options in ./configure.
 	(CygbuildCmdBuildStdMakefile): move set -x call.
 	(CygbuildInstallFixEtcdirInstall): Add --quiet to egrep.
+	(CygbuildBootVariablesGlobalCacheSet): Add
+	CYGBUILD_CACHE_PERL_INSTALL.
+	(CygbuildDefineGlobalPerl): New.
+	(CygbuildDefineGlobalCommands): Define CYGPATH, CYGCHECK.
 
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 
