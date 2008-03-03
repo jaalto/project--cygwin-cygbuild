@@ -3,6 +3,7 @@
 	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain): Add
 	VERSION file to variable cygbuild_opt_exclude_tmp_files.
 	(CygbuildMakefilePrefixCheck): Adjust grep to find prefix=
+	(CygbuildCmdFilesWrite): Fix variable name from 'to' to 'todir'.
 
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 
