@@ -10,9 +10,14 @@
 	(CygbuildCmdBuildStdMakefile): move set -x call.
 	(CygbuildInstallFixEtcdirInstall): Add --quiet to egrep.
 	(CygbuildBootVariablesGlobalCacheSet): Add
-	CYGBUILD_CACHE_PERL_INSTALL.
+	CYGBUILD_CACHE_PERL_FILES.
 	(CygbuildDefineGlobalPerl): New.
 	(CygbuildDefineGlobalCommands): Define CYGPATH, CYGCHECK.
+	(CygbuildPerlLibraryDependsGuess): New
+	(CygbuildPerlLibraryDependsMain): Rewrite.
+	(CygbuildPerlLibraryDependsCache): New. Use
+	CYGBUILD_CACHE_PERL_FILES.
+	(CygbuildPerlLibraryList): Improve regexp to ignore comment lines.
 
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 

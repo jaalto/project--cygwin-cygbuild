@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1528"
+CYGBUILD_VERSION="2008.0303.1633"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -631,7 +631,7 @@ function CygbuildBootVariablesGlobalCacheSet()
     #	modules are Standard perl or from CPAN.
 
     local file="$dir/perl-$PERL_VERSION.lst"
-    CYGBUILD_CACHE_PERL_INSTALL="$file"
+    CYGBUILD_CACHE_PERL_FILES="$file"				# global-def
 
     if [ "$PERL_VERSION" ] && [ ! -f "$file" ]; then
 	local bin=$(CygbuildWhich cygcheck)
@@ -1297,7 +1297,7 @@ function CygbuildFileSize ()
     )
 }
 
-function CygbuildPerlLibraryDepends()
+function CygbuildPerlLibraryDependsGuess()
 {
     #	Call arguments are library names, like MIME::Base64.
     #	Output's first word is 'Std' or 'CPAN' to identify the module.
@@ -1326,14 +1326,75 @@ function CygbuildPerlLibraryDepends()
     ' "$@"
 }
 
+
+function CygbuildPerlLibraryDependsCache()
+{
+    local cache="$CYGBUILD_CACHE_PERL_FILES"
+
+    #	Call arguments are library names, like MIME::Base64.
+    #	Output's first word is 'Std' or 'CPAN' to identify the module.
+
+    ${PERL:-perl} -e \
+    '
+	$cache = shift @ARGV;
+
+	-f $cache or
+	    die "Invalid perl cache file: $cache => @ARGV";
+
+	open my $FILE, "< $cache" or
+	    die "Cannot open Perl cache: $cache $!";
+
+	$CACHE = join "", <$FILE>;
+	close $FILE;
+
+	#  Remove duplicates
+
+	@hash{@ARGV} = 1;
+
+	for my $module ( sort keys %hash )
+	{
+	    $lib   = $module;
+	    $lib   =~ s,::,/,g;
+	    $type  = "CPAN";
+	    $path  = "";
+
+	    if ( $CACHE =~ m,^(/usr/lib/perl5/.*$lib.*),m )
+	    {
+		$type = "Std";
+		$path = $1;
+	    }
+
+	    printf "%-5s %-20s $path\n", $type, $module;
+	}
+    ' "$cache" "$@"
+}
+
+function CygbuildPerlLibraryDependsMain()
+{
+    local cache="$CYGBUILD_CACHE_PERL_FILES"
+
+    if [ "$cache" ] && [ -s "$cache" ]; then
+	CygbuildPerlLibraryDependsCache "$@"
+    else
+	CygbuildEcho "-- No perl cache, results are pure guesswork..."
+	CygbuildPerlLibraryDependsGuess "$@"
+    fi
+}
+
+
 function CygbuildPerlLibraryList()
 {
     [ "$1" ] || return 0
 
-    #  Ignore $var::Libx
+    #   Ignore $var::Libx
+    #	1. grep: Look into non-comment lines only
+    #	2. grep: return only matched portion.
 
-    $EGREP --only-matching '\<[^$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
-    $SORT --unique
+    ${EGREP:-grep -E} --only-matching \
+	'^[^#]*\<[^$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
+    ${EGREP:-grep -E} --only-matching \
+	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
+    ${SORT:-sort} --unique
 }
 
 function WasLibraryInstallMakefile ()
@@ -10623,7 +10684,7 @@ function CygbuildCmdInstallCheckPerlLibraries()
     [ -s "$retval" ] || return 0
 
     CygbuildEcho "-- Perl Libraries used in" ${file#$srcdir/}
-    CygbuildPerlLibraryDepends $(< $retval)
+    CygbuildPerlLibraryDependsMain $(< $retval)
 }
 
 function CygbuildCmdInstallCheckBinFiles()
