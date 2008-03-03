@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1637"
+CYGBUILD_VERSION="2008.0303.2319"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1380,7 +1380,6 @@ function CygbuildPerlLibraryDependsMain()
 	CygbuildPerlLibraryDependsGuess "$@"
     fi
 }
-
 
 function CygbuildPerlLibraryList()
 {
@@ -2885,6 +2884,16 @@ function CygbuildIsBzrPackage()
     [ -f "$srcdir/.bzr/inventory" ] &&  [ -d "$srcdir/inventory-store" ]
 }
 
+function CygbuildIsDarcsPackage()
+{
+    [ -d "$srcdir/.darcs" ]
+}
+
+function CygbuildIsMonotonePackage()
+{
+    [ -d "$srcdir/.mtn" ]
+}
+
 function CygbuildVersionControlType()
 {
     if CygbuildIsCvsPackage ; then
@@ -2896,7 +2905,11 @@ function CygbuildVersionControlType()
     elif CygbuildIsMercurialPackage ; then
         echo "mercurial"
     elif CygbuildIsBzrPackage ; then
-        echo "brz"
+        echo "bzr"
+    elif CygbuildIsDarcsPackage ; then
+	echo "darcs"
+    elif CygbuildIsMonotonePackage ; then
+	echo "mtn"
     else
         return 1
     fi
@@ -8043,7 +8056,7 @@ function CygbuildConfOptionAdjustment()
 	}' $conf > $retval
 
 	if [ -s $retval ] ; then
-	    CygbuildWarn "-- [NOTE] Configure contains additional options:"
+	    CygbuildWarn "-- [NOTE] Configure supports additional options:"
 	    $SED 's/^/ /' $retval >&2
 	fi
     fi
@@ -9969,8 +9982,8 @@ function CygbuildCmdInstallCheckReadme()
         local version=$VER-${REL:-1}
 
         CygbuildWarn \
-            "-- [WARN] Missing reference $version" \
-            "(Perhaps you didn't run [install] after edit?)" \
+            "-- [WARN] Missing reference $version -" \
+            "Perhaps you didn't run [install] after edit?" \
             "from" ${path#$srcdir/}
 
         if [ "$verbose" ]; then
@@ -10827,6 +10840,20 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
             status=1
 
+        elif [[ "$str" == *Bourne-Again* ]] && [[ ! $depends == *bash* ]]
+	then
+            CygbuildEcho "-- [ERROR] setup.hint may need Bash dependency" \
+                 "for $name"
+            status=1
+
+        elif [[ "$str" == *awk* ]] &&
+	     $AWK 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
+	     [[ ! $depends == *gawk* ]]
+	then
+            CygbuildEcho "-- [ERROR] setup.hint may need Gawk dependency" \
+                 "for $name"
+            status=1
+
         elif [[ "$str" == *perl*   ]] && [[ ! $depends == *perl* ]] ; then
             CygbuildEcho "-- [ERROR] setup.hint may need Perl dependency" \
                  "for $name"
@@ -11131,6 +11158,7 @@ function CygbuildCmdInstallFinishMessage()
              "${test:+(Note: test mode was on)}"
     fi
 }
+
 function CygbuildCmdInstallPatchVerify()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"

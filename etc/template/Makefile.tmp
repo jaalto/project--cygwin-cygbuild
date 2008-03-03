@@ -46,13 +46,13 @@ SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
 DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 
-DEBUG		= -g
-CC		= gcc
-CXX		= g++
-GCCFLAGS	= -Wall
-CFLAGS		= $(CC_EXTRA_FLAGS) $(DEBUG) -O2
-CXXFLAGS	= $(CXX_EXTRA_FLAGS) $(DEBUG) -O2
 LDFLAGS		=
+CC		= gcc
+GCCFLAGS	= -Wall
+DEBUG		= -g
+CFLAGS		= $(CC_EXTRA_FLAGS) $(DEBUG) -O2
+CXX		= g++
+CXXFLAGS	= $(CXX_EXTRA_FLAGS) $(DEBUG) -O2
 
 SRCS		= $(PACKAGE).c
 OBJS		= $(SRCS:.c=.o)
