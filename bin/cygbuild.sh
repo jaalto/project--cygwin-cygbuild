@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.0824"
+CYGBUILD_VERSION="2008.0303.1058"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6587,11 +6587,14 @@ function CygbuildMakefilePrefixCheck()
 
     if [ ! "$destdir" = "0" ]; then
 
-        local re='^[[:space:]]*(prefix)[[:space:]]*[+?]?='
-
 	#   PREFIX ?= /usr/local
+        local re='^[[:space:]]*prefix[[:space:]]*[+?]?='
 
-        $EGREP "$re" $makefile *.mk Makefile* 2> /dev/null
+	#   We must use ls(1), otherwise grep returns status 2 for
+	#   files that it cannot open. If ls result is empty, the NULL
+	#   device is offered to grep.
+
+        $EGREP "$re" /dev/null $(ls $makefile *.mk Makefile* 2> /dev/null)
         status=$?
 
         if [ ! "$OPTION_PREFIX"  ] && [ "$status" = "0" ]; then
