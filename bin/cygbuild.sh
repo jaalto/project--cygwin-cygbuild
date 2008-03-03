@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1213"
+CYGBUILD_VERSION="2008.0303.1304"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -8404,10 +8404,10 @@ function CygbuildCmdBuildStdMakefile()
                 CygbuildShellEnvironenment > $retval
                 [ -s $retval ] && env=$(< $retval)
 
-		[ "$verbose" ] && set -x
-
 		#   Display version information before compiling
 		gcc --version | head -1
+
+		[ "$verbose" ] && set -x
 
                 eval $MAKE -f $makefile                 \
                     AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
