@@ -8,6 +8,7 @@
 	(CygbuildConfOptionAdjustment): Notify about --with and --without
 	options in ./configure.
 	(CygbuildCmdBuildStdMakefile): move set -x call.
+	(CygbuildInstallFixEtcdirInstall): Add --quiet to egrep.
 
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 

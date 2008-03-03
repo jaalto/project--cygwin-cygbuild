@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1304"
+CYGBUILD_VERSION="2008.0303.1412"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9377,11 +9377,11 @@ function CygbuildInstallFixEtcdirInstall()
     #
     #	    .inst/etc/default/<package/
     #
-    #	Check if there is anyting to install
+    #	Check if there is anything to install
 
     local pkgetcdir=$(
-	cd $dir/etc 2> /dev/null &&
-	ls | $EGREP --invert-match 'defaults|(post|pre)install' &&
+	cd "$dir/etc" 2> /dev/null &&
+	ls | $EGREP --invert-match --quiet 'defaults|(post|pre)install' &&
 	pwd
     )
 
