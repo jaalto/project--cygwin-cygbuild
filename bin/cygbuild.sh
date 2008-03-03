@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1633"
+CYGBUILD_VERSION="2008.0303.1637"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1391,9 +1391,9 @@ function CygbuildPerlLibraryList()
     #	2. grep: return only matched portion.
 
     ${EGREP:-grep -E} --only-matching \
-	'^[^#]*\<[^$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
+	'^[^#]*\<[^#$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
     ${EGREP:-grep -E} --only-matching \
-	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
+	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' |
     ${SORT:-sort} --unique
 }
 
