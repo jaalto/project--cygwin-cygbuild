@@ -1,11 +1,18 @@
+2008-03-03  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain): Add
+	VERSION file to variable cygbuild_opt_exclude_tmp_files.
+
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
 	(CygbuildIsMakefileCstandard): New.
 	(CygbuildIsMakefileCstandard): Restore from revno:40a593c
 	(CygbuildIsCplusplusPackage): Restore from revno:40a593c
-	(CygbuildBootVariablesGlobalMain): Exclude perllocal.pod
-	from CYGBUILD_TAR_EXCLUDE
+	(CygbuildBootVariablesGlobalMain): Add perllocal.pod
+	to variable CYGBUILD_TAR_EXCLUDE.
+	(CygbuildCygcheckLibraryDepMain): Add prefix 'depends: '
+	to all messages.
 
 2008-03-01  Jari Aalto  <jari.aalto@cante.net>
 

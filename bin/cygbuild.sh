@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0302.1932"
+CYGBUILD_VERSION="2008.0303.0824"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -887,6 +887,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=a.out \
      --exclude=core \
      --exclude=DEADJOE \
+     --exclude=VERSION \
     "
 
     #  GNU automake and yacc files
@@ -1840,8 +1841,9 @@ function CygbuildCygcheckLibraryDepMain()
         CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
 
-        echo "   DEPENDS SUMMARY:"
-        $SED 's/^ \+//' "$retval.pkglist" | $SORT --unique | $SED 's/^/   /'
+        $SED 's/^ \+//' "$retval.pkglist" |
+	    $SORT --unique |
+	    $SED 's/^/   depends: /'
 
         CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
     fi
@@ -7620,7 +7622,7 @@ CygbuildCmdDownloadCygwinPackage ()
     if [ ! -f "$archive" ]; then
         $wget --no-directories --no-host-directories --timestamping \
             $list ||
-	CygbuildDie "-- [ERROR] Download failed. Incorrect package name?"
+	CygbuildDie "-- [ERROR] Download failed."
     fi
 
     [[ "$mode" == *source* ]] || return 0
@@ -10691,7 +10693,7 @@ function CygbuildCmdInstallCheckBinFiles()
         fi
 
 	if [[ "$file" == *.@(py|pyc|pl|rb) ]]; then
-	    CygbuildEcho "-- [WARN] Extension found: $_file"
+	    CygbuildEcho "-- [WARN] Extension found. $_file"
 	    continue
 	fi
 
@@ -11772,10 +11774,14 @@ function CygbuildCommandMainCheckSpecial()
         esac
     done
 
+    local opt1="(-b|--binary)"
+    local opt2="(-d|--dir)"
+    local opts="( +$opt1)?( +$opt2 +)|( +$opt2)?( +$opt1 +)"
+
     local cmd=$(
 	echo $* |
 	grep --extended-regexp --only-matching --ignore-case \
-	     "cygsrc( +(-b|--binary))?( +(-d|--dir) +)?[a-z][^ ]+"
+	     "cygsrc($opts)?[a-z][^ ]+"
     )
 
     if [ "$cmd" ]; then
