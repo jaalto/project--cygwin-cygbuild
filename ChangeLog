@@ -4,6 +4,7 @@
 	VERSION file to variable cygbuild_opt_exclude_tmp_files.
 	(CygbuildMakefilePrefixCheck): Adjust grep to find prefix=
 	(CygbuildCmdFilesWrite): Fix variable name from 'to' to 'todir'.
+	(CygbuildPatchList): Ignore */tmp/* directories.
 
 2008-03-02  Jari Aalto  <jari.aalto@cante.net>
 

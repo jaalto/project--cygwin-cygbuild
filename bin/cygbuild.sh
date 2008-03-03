@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.1108"
+CYGBUILD_VERSION="2008.0303.1117"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -5508,6 +5508,7 @@ function CygbuildPatchList()
 		    -o -path "*/.mtn*"	\
 		    -o -path "*/.svn*"	\
 		    -o -path "*/CVS*"	\
+		    -o -path "*/tmp/*"	\
 		')'			\
 	    -prune			\
 	    -a ! -name ".git"		\
@@ -5515,6 +5516,7 @@ function CygbuildPatchList()
 	    -a ! -name ".mtn"		\
 	    -a ! -name ".svn"		\
 	    -a ! -name "CVS"		\
+	    -a ! -name "tmp"		\
 	    -o				\
 	    -type f -name "*patch"  2> /dev/null |
 	    $SORT
