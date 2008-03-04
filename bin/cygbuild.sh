@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0304.0747"
+CYGBUILD_VERSION="2008.0304.0810"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1854,17 +1854,14 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
 
 CygbuildCygcheckLibraryDepGrepTraditonal()
 {
+    local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local bin="cygcheck"
 
-    CygbuildWhich $bin > $retval
-
-    if [ ! -s $retval ] ; then
-        CygbuildWarn "$0: $bin not found. Skipped"
-        return 1
+    if [ ! "$CYGCHECK" ]; then
+        CygbuildWarn "$id: cygcheck not available. Skipped"
+	return 1
     fi
 
-    bin=$(< $retval)
     local file
 
     for file in "$@"
@@ -1881,7 +1878,7 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
       fi
 
       # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
-      $bin -f $file | $SED 's/-[0-9].*//'
+      $CYGCHECK -f $file | $SED 's/-[0-9].*//'
 
     done | $SORT --unique
 }
@@ -1951,6 +1948,7 @@ function CygbuildCygcheckMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dummy="$*"			# For debug
     local file
 
     CygbuildCygcheckLibraryDepSource
@@ -1968,7 +1966,7 @@ function CygbuildCygcheckMain()
 
 	if [ "$verbose" ] ; then
 	    CygbuildEcho "-- Wait, listing depends"
-	    $CYGCHECK "$file" | tee $retval 2> /dev/null
+	    $CYGCHECK "$file" # | tee $retval 2> /dev/null
 	fi
 
 	CygbuildCygcheckLibraryDepMain "$file" "$retval"
@@ -3417,6 +3415,14 @@ function CygbuildDefineGlobalCommands()
     local file=$CYGBUILD_CONFIG_PROGRAMS
     local load
 
+    CYGCHECK=
+    CygbuildWhich cygcheck > $retval
+    [ -s $retval ] && CYGCHECK=$(< $retval) # global-def
+
+    CYGPATH=
+    CygbuildWhich cygpath > $retval
+    [ -s $retval ] && CYGPATH=$(< $retval) # global-def
+
     if [ "$file" ] && [ -r $file ]; then
         CygbuildVerb "-- Reading configuration $file"
         if ! source $file ; then
@@ -3497,14 +3503,6 @@ function CygbuildDefineGlobalCommands()
     TR=tr                               # global-def
     WGET=wget
     WHICH=which
-
-    CYGCHECK=
-    CygbuildWhich cygcheck > $retval
-    [ -s $retval ] && CYGCHECK=$(< $retval) # global-def
-
-    CYGPATH=
-    CygbuildWhich cygpath > $retval
-    [ -s $retval ] && CYGPATH=$(< $retval) # global-def
 }
 
 function CygbuildIsArchiveScript()
@@ -9666,11 +9664,10 @@ function CygbuildInstallCygwinPartMain()
     done
 }
 
-function CygbuildCmdInstallCheckInfoFiles()
+function CygbuildCmdInstallCheckTexiFiles()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local dummy=$(pwd)                    # For debug
     local dir="$instdir"
     local infodir="$dir/usr/share/info"
 
@@ -9681,7 +9678,8 @@ function CygbuildCmdInstallCheckInfoFiles()
     local texi
 
     if [ -s $retval ] ; then
-	CygbuildEcho "-- Texi file found"
+	CygbuildEcho "-- Texi files found"
+	$SED 's,^\./,,' $retval
 
 	local file name info
 
@@ -9698,6 +9696,14 @@ function CygbuildCmdInstallCheckInfoFiles()
 
 	done < $retval
     fi
+}
+
+function CygbuildCmdInstallCheckInfoFiles()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dummy=$(pwd)                    # For debug
+    local dir="$instdir"
 
     $FIND -L $dir -name dir -o -name "*.info" > $retval
     [ -s $retval ] && notes=$(< $retval)
@@ -11152,6 +11158,11 @@ function CygbuildCmdInstallCheckMain()
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
+
+    if [ "$verbose" ]; then
+	CygbuildCmdInstallCheckTexiFiles     || stat=$?
+    fi
+
     CygbuildCmdInstallCheckShellFiles        || stat=$?
     CygbuildCmdInstallCheckReadme            || stat=$?
     CygbuildCmdInstallCheckSetupHintMain     || stat=$?

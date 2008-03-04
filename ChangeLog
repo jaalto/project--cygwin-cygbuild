@@ -19,7 +19,11 @@
 	messages.
 	(CygbuildFindDo): New.
 	(CygbuildBootVariablesGlobalMain): Adjust CYGBUILD_FIND_EXCLUDE.
-	(CygbuildCmdInstallCheckInfoFiles): Add *.texi => *.info check.
+	(CygbuildCmdInstallCheckTexiFiles): New.
+	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckTexiFiles'.
+	(CygbuildCygcheckLibraryDepGrepTraditonal): Use variable CYGCHECK
+	(CygbuildDefineGlobalCommands): Move CYGCHECK and CYGPATH to
+	the beginning.
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 
