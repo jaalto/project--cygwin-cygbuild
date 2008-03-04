@@ -5,6 +5,7 @@
 	(TROUBLESHOOTING): Adjust paragraph wording.
 	(Perl and double install is needed): Removed.
 	(Install commands): Remove traces of --init-db option.
+	(MISCELLANEOUS::Use of harlinks): Add new topic.
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles): Add
 	bash and gawk dependency check.

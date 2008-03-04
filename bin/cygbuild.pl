@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0304.0625';
+$VERSION = '2008.0304.0820';
 
 # ..................................................................
 
@@ -2106,6 +2106,12 @@ reasonable permissions after the copying. If that's not done, the user may
 end up having unreadable files. NOTE: C<cp -p> will not work, but C<install
 -m> would. See thread
 <http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html>
+
+=head2 Use of harlinks
+
+Some ported packages may rely on hardlinks. Those are efficient only
+under NTFS and not FAT. Please include note to <package>.README that
+the utility may not be best under FAT file systems.
 
 =head1 AVAILABILITY
 
