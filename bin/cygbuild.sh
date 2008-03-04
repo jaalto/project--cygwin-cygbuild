@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0304.0815"
+CYGBUILD_VERSION="2008.0304.1018"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -4470,6 +4470,15 @@ function CygbuildNoticeGPG()
             CygbuildEcho "-- [INFO] gpg available." \
 		"You should use package signing (-s)"
         fi
+    fi
+}
+
+function CygbuildNoticeDevel()
+{
+    local cmd="$1"
+
+    if [[ "$PACKAGE" == lib* ]]; then
+        CygbuildEcho "-- [WARN] Library should use command: package-$cmd"
     fi
 }
 
@@ -11590,13 +11599,13 @@ function CygbuildCmdPackageBinMain()
 
     CygbuildNoticeMaybe
     CygbuildNoticeGPG
+    CygbuildNoticeDevel "pacakge"
 
     if [ "$strip" ]; then
         CygbuildStripCheck      &&
         CygbuildCmdPkgBinaryMain
     else
         CygbuildCmdPkgBinaryMain
-        status=$?
     fi
 }
 

@@ -29,6 +29,10 @@
 	the beginning.
 	(CygbuildPostinstallWriteMain): Add comment about '#:<stanza>'
 	to postinstall.sh
+	(CygbuildNoticeDevel): New.
+	(CygbuildCmdPackageBinMain): Remove unneeded status variable.
+	Call CygbuildNoticeDevel.
+
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 
