@@ -24,6 +24,8 @@
 	(CygbuildCygcheckLibraryDepGrepTraditonal): Use variable CYGCHECK
 	(CygbuildDefineGlobalCommands): Move CYGCHECK and CYGPATH to
 	the beginning.
+	(CygbuildPostinstallWriteMain): Add comment about '#:<stanza>'
+	to postinstall.sh
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 
