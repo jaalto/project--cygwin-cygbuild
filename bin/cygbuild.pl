@@ -173,7 +173,7 @@ case as simple as running commands:
     $ cygbuild -r 1 install          # The "real" install
     $ find .inst/ -print             # Verify install structure !!
     $ cygbuild -r 1 -v check         # Do install integrity check
-    $ cygbuild -r 1 -v depend        # Check depdencies
+    $ cygbuild -r 1 -v depend        # Check dependencies
     $ cygbuild -r 1 package          # Make Net install binary
     $ cygbuild -r 1 source-package   # Make Net install source
     $ cygbuild -r 1 publish          # Copy files to publish area (if any)
@@ -210,7 +210,7 @@ Activate colors in displayed messages.
 
 =item B<--cygbuiddir DIR>
 
-PATH where all the temporaqry files are kept; object files, taking diffs
+PATH where all the temporary files are kept; object files, taking diffs
 etc. The default value is C<./.build>.
 
 =item B<--cyginstdir DIR>
@@ -230,7 +230,7 @@ enabled.
 
 =item B<-e|--email EMAIL>
 
-Set email address to use with commad B<[readmefix]>. This effectively sets
+Set email address to use with command B<[readmefix]>. This effectively sets
 variable C<CYGBUILD_EMAIL> that is written to 'maintained by' section of
 C<package.README> file.
 
@@ -241,7 +241,7 @@ Script. This changes behavior and command in the following manner:
 
 =over 4
 
-=item commands: B<[all]>, B<[binary-package]> and B<[source-packagage]>
+=item commands: B<[all]>, B<[binary-package]> and B<[source-package]>
 
 Move the generated source package C<package-N.N.tar.bz2> and binary package
 C<package-N.N-src.tar.bz2> to one directory up C<../> instead the default
@@ -279,7 +279,7 @@ Print program's internal short help.
 
 Print long help (this page).
 
-=item B<--install-prefix PREXIX>
+=item B<--install-prefix PREFIX>
 
 Set custom install PREFIX. The value must be path (no leading slash)
 relative to install dir C<./.sinst>. The default is to install using prefix
@@ -346,8 +346,8 @@ build number from date(1) in format YYYYMMDDHHMM
 
 =item B<-s|--sign SIGNKEY>
 
-Gpg key to use for signing. It is best to use the hexadecimal unique key
-id to avoid picking the wrong key from keyring. See C<gpg --list-keys>.
+GPG key to use for signing. It is best to use the hexadecimal unique key
+id to avoid picking the wrong key from key ring. See C<gpg --list-keys>.
 
 =item B<-t|--test>
 
@@ -549,7 +549,7 @@ three categories:
 
 The prefix 'lib' is not added in front of PACKAGE if PACKAGE name already
 starts with string 'lib'. In order to make a library release, there must be
-separate setup hint files for each in dicrectory C<CYGWIN-PATCHES/>.
+separate setup hint files for each in directory C<CYGWIN-PATCHES/>.
 Program will warn if any of these are missing
 
      setup.hint             for the runnable *.dll
@@ -611,7 +611,7 @@ instead of the homepage's name C<gc>, like this:
     --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.bz2
                                     ======
 
-Notice how all released files now correctly inlcude prefix C<libgc6>.
+Notice how all released files now correctly include prefix C<libgc6>.
 
 =item B<source-package>
 
@@ -632,7 +632,7 @@ means that the steps have to be started over. Like this:
 Run commands B<[configure]>, B<[make]>, B<[install]>, B<[check]>,
 B<[package]>, B<[readmefix]>, B<[package]>, B<[source-package]> and
 B<[publish]>. In other words, this command remakes complete Cygwin Net
-release. This is the command to start all from the begining and go to the
+release. This is the command to start all from the beginning and go to the
 finish. This is needed if files C<package.README> or C<setup.hint> is
 changed.
 
@@ -644,7 +644,7 @@ situations where only binary package needs to be remade after corrective
 actions to problems found in installation structure:
 
     eyeball C<.inst/> directory, fix whatever is needed and
-    runn commadn [repackage-bin]
+    run command [repackage-bin]
 
     [repeat] eyeball ./inst ... until looks good.
 
@@ -671,12 +671,12 @@ The command will look for following lines:
 
     Build instructions:
       unpack <PKG>-*-src.tar.bz2
-        if you use setup to install this src package, it will be
+        if you use setup to install this source package, it will be
              unpacked under /usr/src automatically
       cd /usr/src
       ./<PKG>-*.sh all
 
-This lst line will be updated to reflect your name and email address
+This  line will be updated to reflect your name and email address
 (See ENVIRONMENT):
 
     Cygwin port maintained by: <Firstname Lastname>  <Your email here>
@@ -694,7 +694,7 @@ internal build process testing command B<[all]>.
 If environment variable C<CYGBUILD_PUBLISH_BIN> is set, the external
 program is called with 3 mandatory and 2 optional arguments from options
 B<--sign> and B<--passphrase> if those were available. The shell call
-weill be in form:
+will be in form:
 
     $CYGBUILD_PUBLISH_BIN \
         /directory/where/package-N.N/.sinst/
@@ -811,8 +811,8 @@ Same as command B<[all]> but without the B<[finish]> step.
 =item B<cygsrc [-b|--binary] [<--dir|-d>] PACKAGE>
 
 NOTES: 1) This command must be run in an empty directory for it to
-work properly 2) No other rcommand line options are interpreted. This
-is standalone command.
+work properly 2) No other command line options are interpreted. This
+is stand alone command.
 
 Download both Cygwin source and binary net release package. If option
 B<--dir> is given, create directory with name I<PACKAGE>, cd to it and
@@ -823,8 +823,8 @@ This command is primarily used for downloading sources of orphaned
 package in order to prepare ITA (intent to adopt) to Cygwin
 application mailing list.
 
-  1. The content of *-src.tar.bz2 and setup.hist are store
-  2. the *.bzr is unpacked
+  1. The content of *-src.tar.bz2 and setup.hint are store
+  2. the *.bz2 is unpacked
   3. the CYGWIN-PATCHES is extracted from *.patch
   4. the rest of the patches (excluding CYGWIN-PATCHES) is stored
      to *-rest.patch
@@ -845,7 +845,7 @@ patch C<package-VERSION-REL*.patch> and run build command B<[makedirs]>.
 =item B<reshadow>
 
 Regenerate all links. Run this command if a) changes are made to the
-original source by addign or removing files or b) you've moved the sources
+original source by adding or removing files or b) you've moved the sources
 to another directory and the previous links become invalid. Effectively
 runs B<[rmshadow]> and B<[shadow]>. Notice that all compile objects files
 are gone too, so you need to recompile everything.
@@ -947,7 +947,7 @@ number, not in directory C<package-latest/>.
 
 =head2 Packages with non-standard versioning schemes
 
-=head2 Packaging directly from version controll repositories
+=head2 Packaging directly from version control repositories
 
 It is easy to make build snapshots by using symlinks with time based
 version numbers, like C<package-20010123>, which effectively means
@@ -1020,7 +1020,7 @@ examples they are needed for tricky packages.
 
     $ cd /tmp/build/foo-1.1/CYGWIN-PATCHES/
 
-Make sure you README and hint files are edited before proceding to building
+Make sure you README and hint files are edited before preceding to building
 binary and source packages. If any of the extra scripts are needed, remove
 extension C<.tmp> from them to make the scripts active.
 
@@ -1043,7 +1043,7 @@ archive looks correct. Run C<find(1)> to check the directory structure:
 
    $ cd /tmp/build/foo-1.13/
    $ find .inst/ -print
-   $ cygbuils.sh -r 1 -v check      << Run various checks
+   $ cygbuild -r 1 -v check      << Run various checks
 
 Did the manual pages (*.1, *.5, *.8 etc.) got installed correctly under
 C<usr/share/man/manX/>? How about C<*.info> files at C<usr/share/info>? Are
@@ -1052,7 +1052,7 @@ executables under C<usr/bin>? If everything is not in order, then you need
 to study the package's C<Makefile> and fix it to put files in proper
 locations.
 
-Here is shortened listing of a typical library pacakge:
+Here is shortened listing of a typical library package:
 
     usr/lib/libgc.la
     usr/lib/libgc.a
@@ -1209,15 +1209,15 @@ not used.
 
 =item B<build.options>
 
-If this file exsts, it is sourced to read custom flags and other I<make(1)>
+If this file exists, it is sourced to read custom flags and other I<make(1)>
 options. The content of the file should be like this. These are the default
 values
 
   CYGBUILD_CFLAGS="-O2 -g"
-  CYGBUILD_LDFLAGS=""          # set to -no-undefined for libraies
+  CYGBUILD_LDFLAGS=""          # set to -no-undefined for libraries
   CYGBUILD_MAKEFLAGS="CC=gcc CXX=g++"
 
-And they are used in a call to initalise C<make(1)> variables in call like
+And they are used in a call to initialize C<make(1)> variables in call like
 this:
 
   make CFLAGS="$CYGBUILD_CFLAGS"   \
@@ -1239,12 +1239,12 @@ commands:
 
 =item B<configure.env.options>
 
-If this file exsts, it is sourced to read custom environment settings just
+If this file exists, it is sourced to read custom environment settings just
 before C<./configure> is being run.
 
     source configure.env.options
 
-For example to use B<ccache gcc> with autotool packages (thse with
+For example to use B<ccache gcc> with autotool packages (these with
 configure.in, Makefile.am etc) to speed up compilation, there is example
 script C<CYGWIN-PATCHES/compiler.sh.tmp> which you can take into use by
 removing the C<.tmp> extension. After put this line to the file. Notice
@@ -1257,11 +1257,11 @@ execution the B<PATH> variable will include also C<CYGWIN-PATCHES/>.
 
 =item B<configure.options>
 
-If this file exsts, all options in this file are appended to the default
+If this file exists, all options in this file are appended to the default
 Cygwin options set during call to C<./configure>. Comments may be added to
 preceding lines with a hash-mark. An example:
 
-    # Include these optoions during configure:
+    # Include these options during configure:
     --disable-static        # Do not use static libraries
     --enable-tempstore
     --enable-threadsafe
@@ -1269,10 +1269,10 @@ preceding lines with a hash-mark. An example:
 
 =item B<configure.sh>
 
-In case the package does not include a standard GNU C<./configure> script
-at alla, a custom script C<CYGWIN-PATCHES/configure.sh> can guide all
-configure steps. If there is nothing to configure, leave this script out.
-For the custom program:
+In case the package does not include a standard GNU C<./configure>
+script, a custom script C<CYGWIN-PATCHES/configure.sh> can guide all
+configure steps. If there is nothing to configure, leave this script
+out. For the custom program:
 
    1. chdir has been done to a source directory package-N.N/
    2. Script receives one argument: absolute path to install root
@@ -1297,7 +1297,7 @@ switches, which you can incorporate:
 
 By default the C<[patch]> command excludes files that it thinks do not
 belong there, but in many case package generate other extra files that
-should be escluded too. In this file it is possible to supply extra options
+should be excluded too. In this file it is possible to supply extra options
 to C<diff(1)> while comparing the original source directory against the
 current package directory. The options to diff must be listed one line at a
 time. Comments can start with hash-character.
@@ -1311,18 +1311,18 @@ time. Comments can start with hash-character.
 
 There a re couple of options that affect cygbuild itself. If following
 option is found, then no automatic guessing what files might have been
-auto-generated, is done. This is effectively a prseudo option that
+auto-generated, is done. This is effectively a pseudo option that
 says "turn off internal check":
 
     --exclude=cygbuild-ignore-autochecks
 
-To completely suppress all default cygbuild exclude optionslike those
+To completely suppress all default cygbuild exclude options like those
 of C<*.~, *# *.orig> and other files), start the file with use this
 line:
 
     --exclude=cygbuild-ignore-all-defaults
 
-B<Warning:> due to shell epansions in the program, it is not possible
+B<Warning:> due to shell expansions in the program, it is not possible
 to use wildcards with short option names, like this:
 
     -x *.tmp
@@ -1333,7 +1333,7 @@ Please use the long option notation instead:
 
 =item B<diff-before.sh>
 
-When the original source has beed unpacked, it may include files that
+When the original source has been unpacked, it may include files that
 prevent taking clean diff. IT could happen that the source package
 mistakenly included compiled object files or included dangling symlinks to
 the original authors files. This is the chance to "straighten up" things
@@ -1356,7 +1356,7 @@ C<diff(1)> options. Program must return standard shell status 0 on success
 and non-zero on failure.
 
 An example is presented below. For GNU C<diff(1)>, don't forget to add the
-final C<[ "$?" = "1" ]> statemtement, which converts the GNU diff ok exit
+final C<[ "$?" = "1" ]> statement, which converts the GNU diff ok exit
 status 1 to a standard shell ok exit status 0. GNU diff returns
 unconventionally 1 on success and N > 1 on error.
 
@@ -1400,7 +1400,7 @@ to use install(1) and Makefile variables. Those could be set externally and
 controllable manner.
 
 Examine the Makefile and its installation rules and write a script to mimic
-same steps. When custom sript is called:
+same steps. When custom script is called:
 
   1. chdir has been done to source root package-N.N/
   2. it receives one argument: relative root of
@@ -1504,14 +1504,14 @@ The B<[install]> command runs series of install phases. In the first, The
 Cygwin documentation for package directory C</usr/share/doc/foo-1.12> is
 populated from files in the original package. Those of INSTALL, COPYRIGHT
 and README are copied. Then any C<doc/> directory if it is included. The
-default rules exclude most common files MANIFESt, *.bak, *.rej etc. and
+default rules exclude most common files MANIFEST, *.bak, *.rej etc. and
 version control subdirectories.
 
 In this file it is possible to supply extra tar options to exclude more
 files not to be included. Perhaps package's C<doc/> directory contains
-subdirectories that are targetted to software developers porting the
+subdirectories that are targeted to software developers porting the
 software etc. The format of file is presented below. Empty lines are
-ignored. Comments must be palaced in separate lines.
+ignored. Comments must be placed in separate lines.
 
     # install.tar.options -- exclude these files from documentation
 
@@ -1530,7 +1530,7 @@ B<--include=dir> are still obeyed.
     --exclude=cygbuild-no-docdir-guess
 
 If following option is defined, only standard COPYING, TODO etc. files
-found from toplevel source directory are installed. No other
+found from top-level source directory are installed. No other
 directories.
 
     --exclude=cygbuild-no-docdir-install
@@ -1538,7 +1538,7 @@ directories.
 =item B<manualpage.1.pod>
 
 In case package does not include manual page or pages for certain binaries,
-this file can be used as a template for manaul pages. The format is Perl's
+this file can be used as a template for manual pages. The format is Perl's
 plain old documentation (pod) and the file itself is self explanatory. Just
 fill in the text and rename the file according to binaries that are
 documented. The page number is automatically read from file name:
@@ -1566,7 +1566,7 @@ running C<perldoc perlpod> or visit http://perldoc.perl.org/perlpod.html
 If a single standard binary packaging command B<[package]> or library
 packaging command B<[package-devel]> methods are not suitable, it is
 possible to write a custom script. There may be need for separating files
-into different tar.bz2 files etc. When custom sript is called:
+into different tar.bz2 files etc. When custom script is called:
 
   1. chdir has been done to installation directory
      CYGWIN-PATCHES/.inst/
@@ -1593,20 +1593,18 @@ patch must be set explicitly in script.
 
 =item B<prepare.sh>
 
-A custom script to run when package is prepared. command B<[all]> and
-B<[prepare]> run the script. This is the chaneg to manually arrange
-everything in order before the B<[configure]> and B<[make]>.
+A custom script to run when package is prepared. Commands B<[all]> and
+B<[prepare]> run the script. The purpose is to arrange everything to
+be ready for the B<[configure]> and B<[make]> commands.
 
 Normally command B<[clean]> would be run along with the standard
 preparations. The purpose of the clean is to make sure the source package
-did not mistankenly include precompiled files. If it did, that would later
+did not mistakenly include compiled files. If it did, that would later
 prevent 'make' command to do nothing. Doing clean, makes it all pristine.
-Sometimes, you may not want to allow clean to happen after source unpack,
-so this is the chance to guide the process as needed.
 
 =item B<preremove.sh>
 
-Copy this fil as C<.inst/etc/preremove/foo.sh>. It will be called just
+Copy this file as C<.inst/etc/preremove/foo.sh>. It will be called just
 before the package is uninstalled (setup.exe uninstalls the old version
 before installing the upgraded version).
 
@@ -1626,7 +1624,7 @@ refer to the latest installed directory of
 C</usr/share/doc/package-version>.
 
 An example. Content of C<preremove-manifest.lst> lists the target file that
-containst the site wide setup:
+contains the site wide setup:
 
     /etc/foo.conf
 
@@ -1650,7 +1648,7 @@ simply read:
 
     $PKGDOCDIR/examples/foo.conf
 
-The special tag C<#PKGDOCDIR> is just a shorthad pointer to the latest
+The special tag C<#PKGDOCDIR> is just a shorthand pointer to the latest
 documentation directory. If these two files do not differ, the
 <preremove.sh> can safely delete C</etc/foo.conf> and let the
 C<postinstall.sh> to install new file from upstream source that is
@@ -1714,7 +1712,7 @@ releases):
 At first sight this may look complex, but with this structure you can
 manage several packages easily. For each package, reserve a separate
 directory where you do your work: C<foo/>, C<bar/>, C<quux/> etc. Download
-orignal packages to these directories and upack the sources. Let's examine
+original packages to these directories and unpack the sources. Let's examine
 package C<foo>
 
     $ cd /usr/src/cygwin-build/foo
@@ -1771,13 +1769,13 @@ publish area with command:
 NOTE: This section is highly experimental and the program has not yet been
 tested well. (FIXME)
 
-As Cywin is improved, the main library file C<cygwin1.dll> may change and
+As Cygwin is improved, the main library file C<cygwin1.dll> may change and
 periodically all packages must be rebuilt so that they link to the latest
 function calls. In this case you have to rebuild every package you
 maintain. Instead of going to every directory and typing the relevant
 "cygbuild clean conf make install ..", there is a helper script that
 automates the task. If you use the standard build layout as described in
-previous topic, you can use rebuild sript to do the steps. Is is also a
+previous topic, you can use rebuild script to do the steps. Is is also a
 good chance to verify that the package build process is repeatable:
 
     $ cygbuild-rebuild.sh -d /usr/src/cygwin-build -i 1 2>&1 | tee build.log
@@ -1794,12 +1792,12 @@ broken package.
 
 In addition to I<cygbuild> being a builder program, it can be used as a
 library that can be sourced to any bash program. This makes it possible to
-selectively use functions in it. The library feature is anabled by setting
+selectively use functions in it. The library feature is enabled by setting
 variable C<CYGBUILD_LIB> before C<source> command. When invoked this way,
 the I<cygbuild's> C<Main()> function in not invoked and options or
 commands are bypassed.
 
-B<WARNING:> All the functions are namespace clean and contain prefix
+B<WARNING:> All the functions are name space clean and contain prefix
 B<Cygbuild*>, but many global variables are defined that do not
 include the prefix: C<$instdir>, C<$builddir> etc.
 
@@ -1838,7 +1836,7 @@ To get access to full power of the functions, these steps are needed:
 
 =head2 Using preremove.sh and postinstall.sh for upgrading /etc files
 
-The /etc directory is meant for configuraton files for programs. The first
+The /etc directory is meant for configuration files for programs. The first
 installation typically copies the package's default setup file there but
 subsequent installations won't overwrite existing files in order to
 preserve user's modifications. If new version of the package includes new
@@ -1863,7 +1861,7 @@ Also, it is a good idea to have a file C</etc/preremove/foo-manifest.lst>,
 which lists every file that was created by the I<postinstall.sh> script,
 and which will be removed on I<preremove.sh> if untouched by the user.
 Someday, C<cygcheck -c> might parse the manifest lists to help diagnose if
-postinstalls have not completed.
+postinstall has not completed.
 
 =head2 Music file formats *.mp3, *.ogg etc.
 
@@ -1871,12 +1869,12 @@ It is allowed to include any music related code if MP3 related code is not
 compiled in (cf.
  http://permalink.gmane.org/gmane.os.cygwin.applications/11360 )
 
-As long as Cygwin is released on this US based server, the general rules
-are that it is permissable to include and not include in Cywgwin are
+As long as Cygwin is released on US based server, the general rules
+are that it is permissible to include and not include in Cygwin are
 basically the same as for the Fedora project
 <http://fedoraproject.org/wiki/ForbiddenItems>:
 
-  * If it is proprietary, it cannot be included in Fedora^WCygwin.
+  * If it is proprietary, it cannot be included in Cygwin.
   * If it is legally encumbered, it cannot be included in Cygwin.
   * If it violates US Federal law, it cannot be included in Cygwin.
 
@@ -1918,7 +1916,7 @@ repeat command B<[all]>.
 
 =head2 Command [check] cannot find files
 
-The full error reads smething like this:
+The full error reads something like this:
 
     cygbuild.pl.CygcheckDepsCheckMain: Nothing to do, no *.exe *.dll found in /usr/src/build/package/package-5.07/.inst
 
@@ -1950,7 +1948,7 @@ Following warning while making a binary package is displayed:
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:1:<PKG>
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack <PKG>-VER-REL-src.tar.bz2
 
-The warning means, that file C<CYGWIN-PATCHES/package.README> lookd
+The warning means, that file C<CYGWIN-PATCHES/package.README> looked
 like a template. Edit C<package.README> file and leave all <PKG>, <VER>
 and <REL> tags alone. Then run command B<[readmefix]> which will substitute
 proper values for these tags.
@@ -1970,7 +1968,7 @@ diff(1) listing:
     $ egrep -n -i 'files.*differ' /usr/src/foo-N.N/.sinst/foo-*.patch
 
 Add problematic file patterns file F<CYGWIN-PATCHES/diff.options> or
-in diffifcult cases write custom C<CYGWIN-PATCHES/diff.sh> script. See
+in difficult cases write custom C<CYGWIN-PATCHES/diff.sh> script. See
 section "Optional external scripts" for more information.
 
 =head1 ENVIRONMENT
@@ -2007,7 +2005,7 @@ Temporary values can be given from /bin/bash prompt like this:
 Temporary files are created to C</tmp/cygbuild.tmp.*>. They are removed at
 the end of program.
 
-Command B<[files]> creates temlate files under C<./CYGWIN-PATCHES>.
+Command B<[files]> creates template files under C<./CYGWIN-PATCHES>.
 Default templates are located in directory
 C</usr/share/cygbuild/template>. Developer's own templates can
 be placed in directory C</etc/cygbuild/template>. These overwrite those in
@@ -2027,7 +2025,7 @@ http://cygwin.com/setup.html and also available at
 Consult list of packages from  before intent to port [ITP]: See
 /etc/setup/installed.db or http://cygwin.com/packages/
 
-Filesystem Hierarchy Standard at <http://www.pathname.com/fhs/>
+File system Hierarchy Standard at <http://www.pathname.com/fhs/>
 
 =head1 BUGS
 
@@ -2107,9 +2105,9 @@ end up having unreadable files. NOTE: C<cp -p> will not work, but C<install
 -m> would.
 (Cf. <http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html>).
 
-=head2 Use of hardlinks
+=head2 Use of hard links
 
-Some ported packages may rely on hardlinks. Those are efficient only
+Some ported packages may rely on hard links. Those are efficient only
 under NTFS and not FAT. Please include note to <package>.README that
 the utility may not be best under FAT file systems.
 
