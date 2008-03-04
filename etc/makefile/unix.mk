@@ -25,7 +25,7 @@
 .PHONY: install-make-etc-dir install-etc install-man
 .PHONY: install-bin install-bin-symlink install-unix
 .PHONY: clean-temp-files clean-temp-dirs clean-temp-realclean
-.PHONY: help-makefile help
+.PHONY: help help-dev help-devel
 .PHONY: release-world list-world
 .PHONY: manifest manifest-check
 
@@ -65,7 +65,7 @@ install-bin-pl:
 
 install-bin: install-bin-sh install-bin-pl
 
-# Rule: install-bin-symlink - Install from current location using symlinks
+# Rule: install-bin-symlink - [maintenance] Install from current location using symlinks
 # Install perl module to different directory
 install-bin-symlink:
 	$(INSTALL_BIN) -d $(BINDIR) $(SHAREDIR)/lib
@@ -82,7 +82,7 @@ install-bin-symlink:
 	    ln -sf $$file $$to;						\
 	done;
 
-# Rule: install-unix - Install files. Run rule 'doc' first
+# Rule: install-unix - Standard install (copy files).
 install-unix: install-man install-bin
 
 clean-temp-files:
@@ -96,28 +96,24 @@ clean-temp-files:
 	    rm -f $$file;						\
 	done;
 
-# Rule: clean-temp-dirs - Remove directories that can be generated
+# Rule: clean-temp-dirs - [maintenance] Remove directories that can be generated
 clean-temp-dirs:
 	-rm -rf .inst/ .sinst/ .build/
 
-# Rule: clean-temp-realclean - Remove files and directories that can be generated
+# Rule: clean-temp-realclean - [maintenance] Remove files and directories that can be generated
 clean-temp-realclean: clean-temp-files clean-temp-dirs
 
-# Rule: help - Display make target summary
-help-makefile:
-	@egrep -ie '# +Rule:' $(MAKEFILE) | sed -e 's/.*Rule://' | sort
-
-help:
-	@egrep -ie '# +Rule:' $(MAKEFILE) $(MAKE_INCLUDEDIR)/*.mk \
+help-dev:
+	@egrep -ie '# +Rule:' $(MAKEFILE) $(MAKE_INCLUDEDIR)/*.mk 	\
+		2> /dev/null						\
 	    | sed -e 's/.*Rule://' | sort;
 
-#	@for file in $(MAKEFILE) $(MAKE_INCLUDEDIR)/*.mk;	\
-#	do							       \
-#	    egrep -e '# +Rule:' $$file | sed -e 's/.*Rule://' | sort;	\
-#	done;
+help-devel: help-dev
 
+help:
+	@$(MAKE) help-dev | grep -v 'maintenance'
 
-# Rule: release-world - [maintenance] Make a world release
+# xRule: release-world - [maintenance] Make a world release
 release-world:
 	@rm -rf $(RELEASEDIR)/
 	@$(INSTALL_BIN) -d $(RELEASEDIR)
@@ -127,16 +123,16 @@ release-world:
 	@echo Reading installed friles from $(RELEASE_FILE_PATH)
 	@tar -ztvf $(RELEASE_FILE_PATH)
 
-# Rule: list-world - [maintenance] List content of world release.
+# xRule: list-world - [maintenance] List content of world release.
 list-world:
 	$(TAR) -ztvf $(TAR_FILE_WORLD_LS)
 
-# Rule: manifest: Make list of files in this project into file MANIFEST
-# Rule: manifest: files matching regexps in MANIFEST.SKIP are skipped.
+# Rule: manifest: [maintenance] Make list of files in this project into file MANIFEST
+# Rule: manifest: [maintenance] files matching regexps in MANIFEST.SKIP are skipped.
 manifest:
 	$(PERL) -MExtUtils::Manifest=mkmanifest -e 'mkmanifest()'
 
-# Rule: manifest-check: checks if MANIFEST files really do exist.
+# Rule: manifest-check: [maintenance] checks if MANIFEST files really do exist.
 manifest-check:
 	perl -MExtUtils::Manifest=manicheck -e \
 	     'exit 1 if manicheck()'

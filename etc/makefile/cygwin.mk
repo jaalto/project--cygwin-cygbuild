@@ -51,7 +51,7 @@ TAR_FILE_CYGWIN	 = $(RELEASE_FILE_PATH)/$(PACKAGEVER)-$(RELEASE)
 
 # ######################################################### &targets ###
 
-# Rule: release-cygwin - [maintenance] Make a Cygwin Net releases. Call: make RELEASE=1 ...
+# xRule: release-cygwin - [maintenance] Make a Cygwin Net releases. Call: make RELEASE=1 ...
 release-cygwin: release-cygwin-bin release-cygwin-source
 
 release-cygwin-bin-check:
@@ -60,29 +60,29 @@ release-cygwin-bin-check:
 	    false; \
 	fi
 
-# Rule: release-cygwin-bin-fix - [maintenance] Make 'install' 'readmefix'
+# xRule: release-cygwin-bin-fix - [maintenance] Make 'install' 'readmefix'
 release-cygwin-bin-fix: release-cygwin-bin-check
 	@cd $(RELEASEDIR) &&					    \
 	$(CYGBUILDBIN) -r $(RELEASE) -x makedirs reshadow install package readmefix
 
-# Rule: release-cygwin-bin-only - [maintenance] Make 'install' and 'package'
+# xRule: release-cygwin-bin-only - [maintenance] Make 'install' and 'package'
 release-cygwin-bin-only: release-cygwin-bin-check
 	@cd $(RELEASEDIR) &&					    \
 	$(CYGBUILDBIN) -r $(RELEASE) -x makedirs install package
 
-# Rule: release-cygwin-bin - [maintenance] Make everything for binary package
+# xRule: release-cygwin-bin - [maintenance] Make everything for binary package
 release-cygwin-bin: release-cygwin-bin-fix release-cygwin-bin-only
 	@ls $(TAR_FILE_CYGWIN).tar.bz2
 	tar -jtvf $(TAR_FILE_CYGWIN).tar.bz2
 
-# Rule: release-cygwin-source - [maintenance] Make everything for source package
+# xRule: release-cygwin-source - [maintenance] Make everything for source package
 release-cygwin-source:
 	cd $(RELEASEDIR) &&					    \
 	$(CYGBUILDBIN) -r $(RELEASE) makedirs source-package
 	ls -l $(TAR_FILE_CYGWIN)*.tar.bz2
 	@echo Run 'make publish-cygwin' if all looks good
 
-# Rule: release-cygwin-source-verify - [maintenance] Verify source package
+# xRule: release-cygwin-source-verify - [maintenance] Verify source package
 release-cygwin-source-verify:
 	cd $(RELEASEDIR) &&					    \
 	$(CYGBUILDBIN) -r $(RELEASE) mkdirs source-package-verify
@@ -91,7 +91,7 @@ release-cygwin-source-verify:
 # the modified setup.ini, from which the last entry can be copy/pasted
 # to the original setup.ini
 #
-# Rule: cygwin-setup-ini-update - [maintenance] Update setup.ini
+# xRule: cygwin-setup-ini-update - [maintenance] Update setup.ini
 cygwin-setup-ini-update:
 	@ini=$(CYGWIN_SETUP_INI);				    \
 	tar=$(TAR_FILE_CYGWIN).tar.bz2;				    \
@@ -109,12 +109,12 @@ cygwin-setup-ini-update:
 # target 'kit' to the Web server publishing are from where they are
 # available.
 #
-# Rule: publish-cygwin - [maintenance] Publish Cygwin net release
+# xRule: publish-cygwin - [maintenance] Publish Cygwin net release
 publish-cygwin:
 	cd $(RELEASEDIR) && \
 	$(CYGBUILD) -r $(RELEASE) publish
 
-# Rule: list-cygwin: - [maintenance] List content of latest Cygwin Net release.
+# xRule: list-cygwin: - [maintenance] List content of latest Cygwin Net release.
 list-cygwin:
 	$(TAR) -jtvf $(TAR_FILE_CYGWIN).tar.bz2
 

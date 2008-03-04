@@ -62,17 +62,17 @@ all:	doc
 # Rule: clean - Remove unnecessary files
 clean: clean-temp-files
 
-# Rule: distclean - Remove files that can be generated
+# Rule: distclean - [maintenance] Remove files that can be generated
 distclean: clean
 	@-rm -rf $(DOCDIR)
 
-# Rule: realclean - Clean everything that is not needed
+# Rule: realclean - [maintenance] Clean everything that is not needed
 realclean: distclean
 
 test:
 	@echo "Nothing to test. Try and report bugs to <$(EMAIL)>"
 
-# Rule: doc - Generate or update documentation
+# Rule: doc - [maintenance] Generate or update documentation
 # "docs" is infact synonym for target "doc"
 docs: doc
 
@@ -86,11 +86,11 @@ doc-readme:
 	t2html.pl --title "cygbuild README" \
 	    --as-is --simple README > doc/README.html
 
-# Rule: install-etc-dir-template - Create /etc directory
+# Rule: install-etc-dir-template - [maintenance] Create /etc directory
 install-etc-dir-template:
 	$(INSTALL_BIN) -d $(ETCDIR_TMPL) $(ETCDIR_TMPL_USER)
 
-# Rule: install-etc-main - Install configuration files
+# Rule: install-etc-main - [maintenance] Install configuration files
 install-etc-main: install-etc-dir-template
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
@@ -100,7 +100,7 @@ install-etc-main: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc-main-symlink - Install symlinks to configuration dir
+# Rule: install-etc-main-symlink - [maintenance] Install symlinks to configuration dir
 install-etc-main-symlink: install-etc-dir-template
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
@@ -109,7 +109,7 @@ install-etc-main-symlink: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc-template - Install configuration files to
+# Rule: install-etc-template - [maintenance] Install configuration files to
 install-etc-template: install-etc-dir-template
 	-rm -f	$(ETCDIR_TMPL)/*
 	@for file in $(OBJS_ETC_TMPL);					\
@@ -120,7 +120,7 @@ install-etc-template: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc-template-symlink - Install symlinks to configuration dir
+# Rule: install-etc-template-symlink - [maintenance] Install templates using symlinks
 install-etc-template-symlink: install-etc-dir-template
 	-rm -f	$(ETCDIR_TMPL)/*
 	@for file in $(OBJS_ETC_TMPL);					\
@@ -130,10 +130,10 @@ install-etc-template-symlink: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc - Synonym for target [install-etc-template]
+# Rule: install-etc - [maintenance] Install /etc directory
 install-etc: install-etc-main install-etc-template
 
-# Rule: install-in-place - After CVS checkout, install the package using symlinks
+# Rule: install-in-place - After VCS checkout, install the package using symlinks
 install-in-place: install-etc-template-symlink install-etc-main-symlink \
 	install-bin-symlink install-man
 
@@ -146,7 +146,7 @@ install: install-unix install-etc
 
 release: kit
 
-# Rule: kit - [maintenance] Make a World and Cygwin binary release kits
+# xRule: kit - [maintenance] Make a World and Cygwin binary release kits
 kit: release-world release-cygwin
 
 # #################################################### &dependencies ###

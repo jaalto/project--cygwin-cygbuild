@@ -43,16 +43,16 @@ sf-uload-no-root:
 	    return 1;							    \
 	fi
 
-# Rule: sf-upload-doc - [Maintenence] Sourceforge; Upload documentation
+# xRule: sf-upload-doc - [Maintenence] Sourceforge; Upload documentation
 sf-upload-doc: sf-uload-no-root doc
 	scp index.html $(SOURCEFORGE_SSH_DIR)/htdocs
 	scp doc/*.html $(SOURCEFORGE_SSH_DIR)/htdocs/doc
 
-# Rule: sf-upload-cygwin-setup-ini - [Maintenence] Sourceforge; Upload setup.ini
+# xRule: sf-upload-cygwin-setup-ini - [Maintenence] Sourceforge; Upload setup.ini
 sf-upload-cygwin-setup-ini: sf-uload-no-root
 	scp $(CYGETC_DIR)/setup.ini $(CYGETC_UPLOAD_DIR)/htdocs
 
-# Rule: sf-upload-cygwin-release - [Maintenence] Sourceforge; Upload cygbuild Net release
+# xRule: sf-upload-cygwin-release - [Maintenence] Sourceforge; Upload cygbuild Net release
 sf-upload-cygwin-release: sf-uload-no-root
 	@echo -e "If this fails, SCP file manually and run:\n"	     \
 	     "	 ssh $(SOURCEFORGE_LOGIN); newgrp <project> \n"	     \
@@ -65,7 +65,7 @@ sf-upload-release-check:
 	    false;							\
 	fi
 
-# Rule: sf-upload-release - [Maintenence] Sourceforge; Upload documentation
+# xRule: sf-upload-release - [Maintenence] Sourceforge; Upload documentation
 sf-upload-release: sf-upload-release-check
 	@echo "-- run command --"
 	@echo $(FTP)			    \

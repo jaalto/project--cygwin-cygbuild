@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0304.0830';
+$VERSION = '2008.0304.1239';
 
 # ..................................................................
 
@@ -2022,8 +2022,8 @@ http://cygwin.com/setup.html and also available at
 
   cvs -d :pserver:anoncvs@sources.redhat.com:/cvs/cygwin-apps checkout packaging/templates
 
-Consult list of packages from  before intent to port [ITP]: See
-/etc/setup/installed.db or http://cygwin.com/packages/
+Consult list of packages before intent to port [ITP]: See file
+/etc/setup/installed.db or oage <http://cygwin.com/packages/>.
 
 File system Hierarchy Standard at <http://www.pathname.com/fhs/>
 
