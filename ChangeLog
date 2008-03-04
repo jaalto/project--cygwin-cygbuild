@@ -1,10 +1,17 @@
 2008-03-04  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::LIBRARY USAGE): Remove initial
+	boot call.
+	(TROUBLESHOOTING): Adjust paragraph wording.
+	(Perl and double install is needed): Removed.
+	(Install commands): Remove traces of --init-db option.
+
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles): Add
 	bash and gawk dependency check.
 	(CygbuildIsDarcsPackage): New.
 	(CygbuildIsMonotonePackage): New.
 	(CygbuildVersionControlType): Add Monotone, Darcs detection.
+	(CygbuildMain): Under CYGBUILD_LIB, boot few variables.
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 

@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0303.2319"
+CYGBUILD_VERSION="2008.0304.0555"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -12639,8 +12639,13 @@ function CygbuildMain()
     #       source $(/usr/bin/which cygbuild)
     #       ... call functions
 
-    if [ ! "$CYGBUILD_LIB" ]; then
+    if [ "$CYGBUILD_LIB" ]; then
 
+	CygbuildBootVariablesCache
+	CygbuildBootVariablesGlobalMain
+	CygbuildDefineGlobalCommands
+
+    else
         if [[ $# -gt 0 ]]; then
             CygbuildCommandMain "$@"
             CygbuildFileCleanTemp
@@ -12656,8 +12661,6 @@ function Test ()
     DIR_CYGPATCH=CYGWIN-PATCHES
     CYGBUILD_RETVAL="/tmp/Cygbuild.tmp"
     PERL=perl
-
-#    CygbuildDefineGlobalCommands
 
     local tmp=$1
     # tmp=annoyance-filter-R1.0d
