@@ -6,6 +6,8 @@
 	(Perl and double install is needed): Removed.
 	(Install commands): Remove traces of --init-db option.
 	(MISCELLANEOUS::Use of hardlinks): Add new topic.
+	(MISCELLANEOUS::setup.hint should list all dependencies): Add new
+	topic.
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles): Add
 	bash and gawk dependency check.

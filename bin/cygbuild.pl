@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0304.0823';
+$VERSION = '2008.0304.0830';
 
 # ..................................................................
 
@@ -2104,14 +2104,25 @@ permissions. The C<postinstall> script must be accompanied with C<touch(1)>
 to create the new file before copying unto it or a call to C<chmod> to set
 reasonable permissions after the copying. If that's not done, the user may
 end up having unreadable files. NOTE: C<cp -p> will not work, but C<install
--m> would. See thread
-<http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html>
+-m> would.
+(Cf. <http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html>).
 
 =head2 Use of hardlinks
 
 Some ported packages may rely on hardlinks. Those are efficient only
 under NTFS and not FAT. Please include note to <package>.README that
 the utility may not be best under FAT file systems.
+
+=head2 setup.hint should list all dependencies
+
+The I<requires:> line is not only an indication of what to pull in,
+but also what the package actually uses. These dependences are also
+used to find the order of postinstall scripts (so, if package has any
+postinstall scripts with C<#!/bin/sh>, the scripts may not work
+because the bash postinstall script was not run). So include all
+direct dependences in the I<requires:> line, even if they are in
+B<Base> category.
+(Cf. <http://cygwin.com/ml/cygwin-apps/2008-03/msg00070.html>).
 
 =head1 AVAILABILITY
 
