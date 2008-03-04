@@ -17,6 +17,9 @@
 	Funtion was unused due to file name bug in for-loop.
 	(CygbuildCmdInstallCheckPerlFile): Use relative filenames in
 	messages.
+	(CygbuildFindDo): New.
+	(CygbuildBootVariablesGlobalMain): Adjust CYGBUILD_FIND_EXCLUDE.
+	(CygbuildCmdInstallCheckInfoFiles): Add *.texi => *.info check.
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 

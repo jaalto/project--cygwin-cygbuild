@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0304.0651"
+CYGBUILD_VERSION="2008.0304.0747"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1080,11 +1080,6 @@ function CygbuildBootVariablesGlobalMain()
     "
 
     CYGBUILD_FIND_EXCLUDE="\
-     -name .build \
-     -name .inst \
-     -name .sinst \
-     -name debian \
-     -name tmp \
      -name *[#~]* \
      -name *.bak \
      -name *.orig \
@@ -1466,6 +1461,28 @@ function CygbuildGrepCheck()
            --regexp="$regexp"       \
            "$@"                     \
            > /dev/null 2>&1
+}
+
+function CygbuildFindDo()
+{
+    local dirs="$1"
+    shift
+
+    $FIND -L $dirs			\
+	-type d '('		        \
+	    -name ".inst"	        \
+	    -o -name ".sinst"	        \
+	    -o -name ".build"	        \
+	    -o -name "debian"	        \
+	    -o -name "CYGWIN-PATCHES"	\
+	    ')'			        \
+	-prune			        \
+	-a ! -name ".inst"              \
+	-a ! -name ".sinst"             \
+	-a ! -name ".build"             \
+	-a ! -name "debian"             \
+	-a ! -name "CYGWIN-PATCHES"     \
+	"$@"
 }
 
 function CygbuildChmodDo()
@@ -9654,9 +9671,38 @@ function CygbuildCmdInstallCheckInfoFiles()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy=$(pwd)                    # For debug
-    local dir=$instdir
+    local dir="$instdir"
+    local infodir="$dir/usr/share/info"
 
-    #   If there is *.infi, then there must be postinstall
+    #  *.texi files should be converted into *.info
+
+    CygbuildFindDo . -o -name "*.texi" > $retval
+
+    local texi
+
+    if [ -s $retval ] ; then
+	CygbuildEcho "-- Texi file found"
+
+	local file name info
+
+	while read file
+	do
+	    name=${file##*/}
+	    name=${name%.texi}
+	    info="$infodir/$name.info"
+
+	    if [ ! -f "$info" ]; then
+		CygbuildEcho "-- [NOTE] Texi, but no info file" \
+		    ${info#$srcdir/}
+	    fi
+
+	done < $retval
+    fi
+
+    $FIND -L $dir -name dir -o -name "*.info" > $retval
+    [ -s $retval ] && notes=$(< $retval)
+
+    #   If there are *.info files, then there must be postinstall
     #   script to call install-info.
 
     local notes
