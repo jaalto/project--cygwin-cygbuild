@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0304.0555"
+CYGBUILD_VERSION="2008.0304.0651"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9711,6 +9711,7 @@ function CygbuildCmdInstallCheckPerlFile ()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
+    local _file=${file#$srcdir/}
 
     if [ ! "$PYTHON" ]; then
         return 1
@@ -9774,15 +9775,21 @@ function CygbuildCmdInstallCheckPerlFile ()
 
     fi
 
+    if $EGREP '^[^#]*\<cp[[:space:]]+-l\>' $file ; then
+        CygbuildEcho "-- [NOTE] Hardlink copying only efficient under NTFS"\
+	    $_file
+    fi
+
     if CygbuildGrepCheck '^=pod' $file ; then
-        CygbuildEcho "-- [INFO] found embeded POD from $file"
+        CygbuildEcho "-- [INFO] POD section in $file"
     else
 
         if CygbuildGrepCheck '^=cut' $file ; then
             #  Sometimes developers do not write well formed POD.
-            CygbuildEcho "-- [NOTE] =pod tag is missing, but POD found: $file"
+            CygbuildEcho "-- [NOTE] =pod tag is missing, but POD found:" \
+		$_file
         else
-            CygbuildEcho "-- [INFO] No embedded POD found from $file"
+            CygbuildEcho "-- [INFO] No embedded POD found from $_file"
         fi
     fi
 }
@@ -9802,12 +9809,17 @@ function CygbuildCmdInstallCheckShellFiles ()
     #   Not all Perl files are installed with extension .pl
     #   Many will drop the *.{pl,py,sh} extension during install.
 
-    file $dir/bin/* $dir/sbin/* 2> /dev/null |
+    file $dir/bin/* $dir/sbin/* 2> /dev/null > $retval
+
+    [ -s $retval ] || return 0
+
+    local file rest
+
     while read file rest
     do
-        [ -f $file ] || continue
+        file=${file%:}		    # Remove trailing colon from file(1)
 
-        file=${file%:}
+        [ -f $file ] || continue
 
         if [ -h $file ]; then
 
@@ -9835,7 +9847,7 @@ function CygbuildCmdInstallCheckShellFiles ()
             CygbuildCmdInstallCheckPythonFile "$file"
         fi
 
-    done
+    done < $retval
 }
 
 function CygbuildCmdInstallCheckTempFiles()

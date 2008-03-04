@@ -12,6 +12,11 @@
 	(CygbuildIsMonotonePackage): New.
 	(CygbuildVersionControlType): Add Monotone, Darcs detection.
 	(CygbuildMain): Under CYGBUILD_LIB, boot few variables.
+	(CygbuildCmdInstallCheckPerlFile): Add cp -l check.
+	(CygbuildCmdInstallCheckShellFiles): Activate function.
+	Funtion was unused due to file name bug in for-loop.
+	(CygbuildCmdInstallCheckPerlFile): Use relative filenames in
+	messages.
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 
