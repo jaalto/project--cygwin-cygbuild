@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0229.0849';
+$VERSION = '2008.0304.0625';
 
 # ..................................................................
 
@@ -502,8 +502,7 @@ developer's binary packaging.
 
 Check that all dependencies are listed in C<package.README> and
 C<setup.hint>. It is highly recommended that you use this command with
-verbose option B<--verbose>. Before correct dependencies can be found, the
-package database has been created. See option B<--init-pkgdb>.
+verbose option B<--verbose>.
 
 =item B<postinstall>
 
@@ -1814,14 +1813,9 @@ To get access to full power of the functions, these steps are needed:
 
     CYGBUILD_LIB=1 source $CYGBUILD
 
-    #   Prepare the library's internal variables, like defining where
-    #   RM, CP, PERL and AWK commands are.
-
-    CygbuildDefineGlobalCommands
-
-    #   And more preparations provided that the current directory's PWD,
-    #   is inside some/path/foo-1.13. If not, then please skip
-    #   this part completely.
+    #   Provided that the current directory's PWD is inside
+    #   some/path/foo-1.13. If not, then please skip this part
+    #   completely.
 
     local tdir=$(pwd)
     local -a array=( $(CygbuildSrcDirLocation $tdir) )
@@ -1886,12 +1880,12 @@ basically the same as for the Fedora project
   * If it is legally encumbered, it cannot be included in Cygwin.
   * If it violates US Federal law, it cannot be included in Cygwin.
 
-This is different from SUSE and Debian. SUSE is located in another country
-may even pay royalties. Debian has a different legal point of view than Red
-Hat (see debian-legal list maiing list
-http://lists.debian.org/debian-legal/2005/07/msg00081.html ). Due to
+This is different from SUSE and Debian. SUSE is located in another
+country may even pay royalties. Debian has a different legal point of
+view than Red Hat
+(cf. <http://lists.debian.org/debian-legal/2005/07/msg00081.html>). Due to
 Cygwin's presence on a Red Hat server, the project is bound to Red Hat
-rules for now.
+rules.
 
 =head1 TROUBLESHOOTING
 
@@ -1928,58 +1922,56 @@ The full error reads smething like this:
 
     cygbuild.pl.CygcheckDepsCheckMain: Nothing to do, no *.exe *.dll found in /usr/src/build/package/package-5.07/.inst
 
-You tried to run command B<[check]>, but you had not ran commands B<[conf]>
-B<[make]> and B<[install]>. The install copies files under C<.inst/>
+Command B<[check]> was ran, but commands B<[conf]> B<[make]> and
+B<[install]> were not. The B<[install]> phase copies files under C<.inst/>
 directory where the B<[check]> command expects them.
 
 =head2 Problem with command [install]
 
-You try to build a package and following error is displayed:
+Following error is displayed:
 
     $ cygbuild -v -r 1 package
 
     [ERROR] no package-0.5/.inst/usr/share/doc/Cygwin.
     Did forget to run 'files' before 'install'?
 
-The install check did not find anything inside
+The check did not find anything inside
 C<.inst/usr/share/doc/Cygwin> which is mandatory directory for Cygwin
 binary packages. Check that directory C<package-N.N/CYGWIN-PATCHES/>
-includes files C<package.README> and C<setup.hint> which you must manually
-edit. These files can be initially created with command B<[files]>.
+includes files C<package.README> and C<setup.hint>. These files can be
+initially created with command B<[files]>.
 
-=head2 Command [package] gives warnings
+=head2 Command [package] displays warnings
 
-You get following warning while making a binary package:
+Following warning while making a binary package is displayed:
 
     -- Wait, reading and preparing variables based on current directory
     -- Hm, no *.exe or *.dll files, skipping strip.
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:1:<PKG>
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack <PKG>-VER-REL-src.tar.bz2
 
-The warning means, that file C<CYGWIN-PATCHES/package.README> was not
-modified before command B<[install]> was run. Edit C<package.README> file
-and leave all <PKG> <VER> <REL> tags alone. Then run B<[package]> followed
-by command B<[readmefix]> which is able to fix these tags automatically.
+The warning means, that file C<CYGWIN-PATCHES/package.README> lookd
+like a template. Edit C<package.README> file and leave all <PKG>, <VER>
+and <REL> tags alone. Then run command B<[readmefix]> which will substitute
+proper values for these tags.
 
 =head2 While making source package, the mkpatch step dies with an error
 
-Program uses predefined set of ignore rules to exclude binary files from
-the difference comparison, but there is always a possibility that the
-package you compiled generated files that are unknown. In those cases,
-examine the diff output carefully, since the program will tell you:
+Program uses predefined set of ignore rules to exclude binary files
+from the difference comparison. There is always a possibility that the
+package you compiled generated binary files that are unknown. In those
+cases, examine the diff output carefully hinted by message:
 
     [ERROR] Making a patch failed, check /usr/src/foo-N.N/.sinst/foo-*.patch
 
-Now run this command to determine the problematic files in the diff(1)
-listing:
+Run following command to determine the problematic files in the
+diff(1) listing:
 
     $ egrep -n -i 'files.*differ' /usr/src/foo-N.N/.sinst/foo-*.patch
 
-To include more files to be excluded, send mail to maintainer if the files
-are general enough to be detected as binary files. If files' extensions are
-specific to the current package build add these to file F<diff.options> or
+Add problematic file patterns file F<CYGWIN-PATCHES/diff.options> or
 in diffifcult cases write custom C<CYGWIN-PATCHES/diff.sh> script. See
-section "Optional external scripts" for more.
+section "Optional external scripts" for more information.
 
 =head1 ENVIRONMENT
 
@@ -2013,21 +2005,19 @@ Temporary values can be given from /bin/bash prompt like this:
 =head1 FILES
 
 Temporary files are created to C</tmp/cygbuild.tmp.*>. They are removed at
-the end of program except on interrupt.
+the end of program.
 
-Several files are created under C<./CYGWIN-PATCHES> after command
-B<[files]>. Default template files are in C</usr/share/cygbuild/template>.
-No user files should be placed there because directory is emptied on new
-cygbuild installs. User files placed in C</etc/cygbuild/template> overwrite
-those in C</usr/share/cygbuild/template>.
-
-The results of B<--init-pkgdb> are stored under C</var/cache/cygbuild>.
+Command B<[files]> creates temlate files under C<./CYGWIN-PATCHES>.
+Default templates are located in directory
+C</usr/share/cygbuild/template>. Developer's own templates can
+be placed in directory C</etc/cygbuild/template>. These overwrite those in
+C</usr/share/cygbuild/template>.
 
 =head1 STANDARDS
 
 Cygwin Package Contributor's Guide' at http://cygwin.com/setup.html .
 Remember to compile libraries using B<-Wl,--enable-auto-image-base>
-(cf. 2005-12-19 http://cygwin.com/ml/cygwin-apps/2005-12/msg00101.html ).
+Cf. 2005-12-19 <http://cygwin.com/ml/cygwin-apps/2005-12/msg00101.html>.
 
 A generic Bourne Shell build script can be found at page
 http://cygwin.com/setup.html and also available at
@@ -2045,43 +2035,23 @@ Filesystem Hierarchy Standard at <http://www.pathname.com/fhs/>
 
 The application does not check the sanity of the command line
 arguments. For example running commands in wrong order. It makes no
-sense trying to make a binary I<package> before the program has been
-even built or installed.
+sense trying to make a binary I<package> before the package has been
+built or installed.
 
-   cygbuild -r 1 package make install
+   cygbuild -r 1 package conf make install
 
 The commands are always executed in listed order.
 
-=head2 Perl and double install is needed
-
-If the archive you're porting is a perl module or program, the
-B<[install]> command unfortunately must be run twice. This is needed,
-because in the first time, program writes
-C<CYGWIN-PATCHES/postinstall.sh> file that handles announcing the
-program to
-C</usr/lib/perl5/5.8.2/cygwin-thread-multi-64int/perllocal.pod>.
-
-The next time the B<[install]> is run, you will see this message,
-because the file was already generated and program will not overwrite
-existing postinstall:
-
-    [WARN] Already exists, won't write to /usr/src/build/try/package-N.N/CYGWIN-PATCHES/postinstall.sh
-
-Ignore it, and check the contents of C<.inst/> directory. After the
-seconf B<[install]> you should find the correct postinstall:
-
-    .inst/etc/postinstall
-    .inst/etc/postinstall/program.sh
-
 =head2 Other archive formats like *.zip are not recognized
 
-This porting tool only handles C<*.tar.gz> or C<*.tar.bz2> artchives. To
-port e.g. a C<*.zip> archive, you need to manually convert it to recognized
-format:
+This porting tool only handles C<*.tar.gz>, C<*.tar.bz2>,
+C<*.tar.lzma> archives. To port e.g. a C<*.zip> archive, you need to
+manually convert it to recognized format:
 
-    unzip foo-1.1.zip
-    tar cvf foo-1.1.tar.gz foo-1.1/
-    ... Now proceed normally as you would port the package
+    unzip foo-N.N.zip
+    tar -cvf foo-1.1.tar.gz foo-N.N/
+    ... Now proceed normally
+    cd foo-N.N/
     cygbuild -r 1 mkdirs files conf make install
 
 =head2 Reporting bugs
@@ -2090,37 +2060,39 @@ If you ran into a bug, run script in debug mode and send complete
 output listing to the maintainer. Provide also an URL link to the
 source package that you tried to build.
 
-    $ pwd; ls -la . ..                       >  ~/tmp/error.log
+    $ echo http://example.com/source      >  ~/tmp/error.log
+    $ pwd; ls -la . ..                    >> ~/tmp/error.log
     $ bash -x cygbuild [options] CMD ...  >> ~/tmp/error.log 2>&1
 
 =head2 Slow program startup
 
-You may notice that the startup is a little slow. This is unavoidable due
-to way the program determines what many global variables need to be
+You may notice that the startup is a little slow. This is due to way
+the program determining what many global variables need to be
 available at runtime. The method of checking environment is not
-particularly smart (due to bash-scripting limitations in general; it has no
-read function that could return multiple values), so this leads to calling
-same checks of version and release numbers multiple times.
+particularly efficient (due to bash-scripting limitations in general).
+E.g. same checks of version and release numbers are called multiple
+times.
 
 =head1 MISCELLANEOUS
 
 =head2 Makefiles and compiling libraries
 
 To compile libraries for Cygwin, the C<LDFLAGS> should include option
-C<-no-undefined>. If there is C<Makefile(.in|.am)> you can regenerate the
-Makefiles with
+C<-no-undefined>. If there is C<Makefile(.in|.am)>, after patching
+them manually, you can regenerate the Makefiles with
 
     $ autoreconf --install --force --verbose
 
 =head2 yacc or lex file compiling notes
 
-Sometimes the C<*.y> file won't compile. See thread "ftpcmd.y -- syntax
-error" at http://lists.gnu.org/archive/html/help-bison/2004-04/msg00015.html
+Sometimes the C<*.y> file won't compile. See thread "ftpcmd.y --
+syntax error" at
+<http://lists.gnu.org/archive/html/help-bison/2004-04/msg00015.html>.
 
     bison -y ftpcmd.y
     ftpcmd.y:185.17: syntax error, unexpected "="
 
-    ...There are 85 occurrences of "<tab>=<tab>{" in ftpcmd.y (in the
+    ...There are occurrences of "<tab>=<tab>{" in ftpcmd.y (in the
     wu-ftpd 2.6.2 source release). Changing all of these to "<tab>{"
     fixes the problem -- and doesn't cause problems for Berkeley yacc,
     or for earlier versions of bison.
@@ -2133,7 +2105,7 @@ to create the new file before copying unto it or a call to C<chmod> to set
 reasonable permissions after the copying. If that's not done, the user may
 end up having unreadable files. NOTE: C<cp -p> will not work, but C<install
 -m> would. See thread
-http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html
+<http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html>
 
 =head1 AVAILABILITY
 
