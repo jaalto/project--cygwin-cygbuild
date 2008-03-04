@@ -32,7 +32,8 @@
 	(CygbuildNoticeDevel): New.
 	(CygbuildCmdPackageBinMain): Remove unneeded status variable.
 	Call CygbuildNoticeDevel.
-
+	(CygbuildMakefilePrefixIsStandard): Chnage + to * in regext.
+	This finds prefix=value.
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
 

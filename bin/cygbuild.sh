@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0304.1018"
+CYGBUILD_VERSION="2008.0304.1940"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6977,12 +6977,12 @@ function CygbuildMakefilePrefixIsStandard ()
     [ "$verbose" ] || opt="-q"
     [ "$files"   ] || return 0
 
-    if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]+[+?]?=" $files
+    if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]*[+?]?=" $files
     then
 	up="PREFIX"
     fi
 
-    if $EGREP $opt "^[[:space:]]*prefix[[:space:]]+[+?]?=" $files
+    if $EGREP $opt "^[[:space:]]*prefix[[:space:]]*[+?]?=" $files
     then
 	lower="prefix"
     fi
