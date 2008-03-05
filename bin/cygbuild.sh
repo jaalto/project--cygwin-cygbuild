@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0840"
+CYGBUILD_VERSION="2008.0305.0841"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1207,7 +1207,7 @@ function CygbuildFileConvertLF ()
     fi
 
 #    awk '{ printf "%s\r\n", $0}' "$file" > "$retval" &&
-    $SED 's/$/\r/' "$file" &&
+    sed 's/$/\r/' "$file" &&
     mv "$retval" "$file"
 
 }
@@ -1652,7 +1652,7 @@ function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
     # D:\cygwin\bin\cygintl-8.dll
     #   D:\cygwin\bin\cygiconv-2.dll
 
-    $SED 's/ \+/- /' "$file" > $retval  # convert leading spaces to "-"
+    sed 's/ \+/- /' "$file" > $retval  # convert leading spaces to "-"
 
     [ -s $retval ] || return 1
 
@@ -1844,7 +1844,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
     ' liblist="$list" $cache > $retval.tmp
 
     if [ -s $retval.tmp ]; then
-        $SED 's/^/   /' $retval.tmp >&2
+        sed 's/^/   /' $retval.tmp >&2
         awk '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
     fi
 
@@ -1877,7 +1877,7 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
       fi
 
       # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
-      $CYGCHECK -f $file | $SED 's/-[0-9].*//'
+      $CYGCHECK -f $file | sed 's/-[0-9].*//'
 
     done | $SORT --unique
 }
@@ -1935,9 +1935,9 @@ function CygbuildCygcheckLibraryDepMain()
         CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
 
-        $SED 's/^ \+//' "$retval.pkglist" |
+        sed 's/^ \+//' "$retval.pkglist" |
 	    $SORT --unique |
-	    $SED 's/^/   depends: /'
+	    sed 's/^/   depends: /'
 
         CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
     fi
@@ -3036,7 +3036,7 @@ function CygbuildDependsList()
     if [ ! -f "$file" ]; then
         return 1
     else
-        $SED -ne 's/requires:[ \t]*//p' $file
+        sed -ne 's/requires:[ \t]*//p' $file
     fi
 }
 
@@ -3470,7 +3470,6 @@ function CygbuildDefineGlobalCommands()
     MKDIR=mkdir                         # global-def
     PATCH=patch                         # global-def
     RMDIR=rmdir                         # global-def
-    SED=sed                             # global-def
     SORT=sort                           # global-def
     TAR=tar                             # global-def
     TR=tr                               # global-def
@@ -5282,7 +5281,7 @@ function CygbuildCmdPkgDevelStandardLib()
             # Find out version number
             # usr/bin/cygfontconfig-1.dll => 1
 
-            local pkg=$(echo $PKG |$SED 's/lib//')
+            local pkg=$(echo $PKG |sed 's/lib//')
 
             $EGREP "$pkg.*dll" $retval.lib |
                 $EGREP --only-matching --regexp="-[0-9]+" |
@@ -6824,7 +6823,7 @@ function CygbuildMakefileRunInstallPythonFix()
     rmlist=$(find $instdir -type f -name "*.pyc")
 
     if [ "$rmlist" ]; then
-        list=$(echo "$rmlist" | $SED 's/\.pyc/.py/g' )
+        list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
         rm $rmlist
         CygbuildEcho "-- Recompiling python files [may take a while...]"
         CygbuildPythonCompileFiles $list
@@ -8047,7 +8046,7 @@ function CygbuildConfOptionAdjustment()
 
 	if [ -s $retval ] ; then
 	    CygbuildWarn "-- [NOTE] Configure supports additional options:"
-	    $SED 's/^/ /' $retval >&2
+	    sed 's/^/ /' $retval >&2
 	fi
     fi
 
@@ -9085,7 +9084,7 @@ function CygbuildInstallExtraManual()
                 --section="$nbr"                                    \
                 --release="dummy123"                                \
                 --center="User Contributed Documentation" $file |   \
-                $SED -e 's/dummy123//g'                             \
+                sed -e 's/dummy123//g'                             \
                      -e "s/$name/$program/ig"                       \
                 > $manpage  ||                                      \
                 return $?
@@ -9286,7 +9285,7 @@ function CygbuildInstallFixInterpreterPerl ()
     #    eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     #      if 0; # not running under some shell
 
-    $SED -e '1s, -[*]*-.*,,'				\
+    sed -e '1s, -[*]*-.*,,'				\
 	 -e '1s,\(#!.*/usr/bin/perl\)\([0-9].*\),\1,'	\
 	 -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,'	\
 	 -e '/.*eval.*exec.*bin\/perl.*/d'		\
@@ -9314,7 +9313,7 @@ function CygbuildInstallFixInterpreterPython()
         return 1
     fi
 
-    $SED -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$file.tmp" &&
+    sed -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$file.tmp" &&
 
     if [ -s "$file.tmp" ] &&
 	CygbuildFileCmpDiffer "$file" "$file.tmp"
@@ -9435,7 +9434,7 @@ function CygbuildInstallPostinstallPartEtc()
     done < <(
 	cd $dest &&
 	find . |
-	    $SED \
+	    sed \
 	    -e 's,^\./,,' \
 	    -e 's,^\.$,,' \
 	)
@@ -9574,7 +9573,7 @@ function CygbuildInstallFixPerlPacklist()
 
         CygbuildVerb "-- Adjusting $_file"
 
-        $SED 's/.*.inst//' "$file" > "$file.tmp" &&
+        sed 's/.*.inst//' "$file" > "$file.tmp" &&
         mv "$file.tmp" "$file"
     done
 }
@@ -9671,7 +9670,7 @@ function CygbuildCmdInstallCheckTexiFiles()
 
     if [ -s $retval ] ; then
 	CygbuildEcho "-- Texi files found"
-	$SED 's,^\./,,' $retval
+	sed 's,^\./,,' $retval
 
 	local file name info
 
@@ -9742,7 +9741,7 @@ function CygbuildCmdInstallCheckPythonFile ()
 
     if [[ $binpath != *@($pypath|/usr/bin/env python) ]]; then
         CygbuildWarn "-- [WARN] $name uses wrong python path, fixing it."
-        $SED -e "s,^#!.*,#!$pypath," "$file" > "$newfile" &&
+        sed -e "s,^#!.*,#!$pypath," "$file" > "$newfile" &&
         CygbuildRun cp "$newfile" "$file"
     fi
 }
@@ -9809,7 +9808,7 @@ function CygbuildCmdInstallCheckPerlFile ()
     elif [[ $binpath == +($plpath) ]]; then
 
         CygbuildWarn "-- [WARN] $name uses wrong perl path, fixing it."
-        $SED -e "s,^#!.*,#!$plpath," "$file" > "$newfile" &&
+        sed -e "s,^#!.*,#!$plpath," "$file" > "$newfile" &&
         CygbuildRun cp "$newfile" "$file"
 
     fi
@@ -9934,7 +9933,7 @@ function CygbuildCmdInstallCheckMakefiles()
 
     if [ -s "$retval" ]; then
         CygbuildEcho "-- [NOTE] Possibly linked by using static libraries"
-        cat $retval | $SED "s,^$srcdir/,,"
+        cat $retval | sed "s,^$srcdir/,,"
     fi
 }
 
@@ -11113,14 +11112,14 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         then
             CygbuildEcho "-- [WARN] Trailing whitespaces found in $file"
             cat --show-nonprinting --show-tabs --show-ends $retval |
-            $SED 's/^/     /'
+            sed 's/^/     /'
         fi
 
         if $EGREP --line-number --ignore-case \
            'copyright.*YYYY|your +name|[<]firstname' $file > $retval
         then
             CygbuildEcho "-- [WARN] Possible unfilled template line in $file"
-            $SED 's/^/     /' $retval
+            sed 's/^/     /' $retval
         fi
     done
 }
