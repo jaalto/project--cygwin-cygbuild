@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0848"
+CYGBUILD_VERSION="2008.0305.0849"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1879,7 +1879,7 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
       # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
       $CYGCHECK -f $file | sed 's/-[0-9].*//'
 
-    done | $SORT --unique
+    done | sort --unique
 }
 
 CygbuildCygcheckLibraryDepGrepPgkNamesMain()
@@ -1936,7 +1936,7 @@ function CygbuildCygcheckLibraryDepMain()
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
 
         sed 's/^ \+//' "$retval.pkglist" |
-	    $SORT --unique |
+	    sort --unique |
 	    sed 's/^/   depends: /'
 
         CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
@@ -3464,7 +3464,6 @@ function CygbuildDefineGlobalCommands()
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
     GPG=gpg                             # global-def
-    SORT=sort                           # global-def
     WGET=wget				# global-def
 }
 
@@ -7390,7 +7389,7 @@ function CygbuildPatchListDisplay()
 
     if [ -s "$file" ]; then
         CygbuildEcho "-- [INFO] Applied local patches"
-        $SORT --unique $file
+        sort --unique $file
     fi
 }
 
@@ -7444,7 +7443,7 @@ function CygbuildPatchCheck()
 	    if [ -s "$retval.dir" ]; then
 		$GREP --invert-match --fixed-strings \
 		    --file=$retval.dir  $retval | $SORT
-		$SORT $retval.dir
+		sort $retval.dir
 	    else
 		cat $retval
 	    fi
@@ -8722,7 +8721,7 @@ function CygbuildInstallPackageInfo()
         -a ! -name ".sinst"                                     \
         -a ! -name ".build"                                     \
         -o -type f '(' -name "*.info" -o -name "*.info-*" ')'   \
-        | $SORT \
+        | sort \
         > $retval
 
     local dest="$DIR_INFO"
