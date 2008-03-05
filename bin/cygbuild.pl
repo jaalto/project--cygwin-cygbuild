@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0305.1049';
+$VERSION = '2008.0305.1051';
 
 # ..................................................................
 
@@ -113,7 +113,7 @@ cygbuild - Cygwin source and binary package build script
 
 =head1 SYNOPSIS
 
-    cygbuild [options] -r RELEASE CMD [CMD ...]
+    cygbuild [options] [-r RELEASE] CMD [CMD ...]
 
 =head1 QUICK OVERVIEW
 

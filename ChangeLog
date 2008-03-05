@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Present import
 	command.
+	(SYNOPSIS): Add brackets around -r. Not mandatory any more.
 
 	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands):
 	Define GPG, WGET conditionally.
