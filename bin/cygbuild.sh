@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0847"
+CYGBUILD_VERSION="2008.0305.0848"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1188,7 +1188,7 @@ function CygbuildFileConvertCRLF ()
 	return 1
     fi
 
-    $TR -d '\015' < "$file" > "$retval" &&
+    tr -d '\015' < "$file" > "$retval" &&
     mv "$retval" "$file"
 }
 
@@ -1755,7 +1755,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
 
     echo "cygwin" > $retval.collect
 
-    $TR '\n' ',' < $file > $retval
+    tr '\n' ',' < $file > $retval
 
     [ -s $retval ] || return 1
 
@@ -3465,7 +3465,6 @@ function CygbuildDefineGlobalCommands()
     GREP="grep --binary-files=without-match" # global-def
     GPG=gpg                             # global-def
     SORT=sort                           # global-def
-    TR=tr                               # global-def
     WGET=wget				# global-def
     WHICH=which				# global-def
 }
@@ -7307,10 +7306,10 @@ function CygbuildExtractTar()
             #   Windows cannot rename such directory because it would be the
             #   same.
 
-            echo $dir | $TR 'A-Z' 'a-z' > $retval
+            echo $dir | tr 'A-Z' 'a-z' > $retval
             local name1=$(< $retval)
 
-            echo $$expectdir | $TR 'A-Z' 'a-z' > $retval
+            echo $$expectdir | tr 'A-Z' 'a-z' > $retval
             local name2=$(< $retval)
 
             if [ "$name2" = "$name1" ]; then
@@ -11904,7 +11903,7 @@ function CygbuildFileReleaseGuess()
         #  package-N.N-RELEASE.tar.bz2
 
         echo "${arr[*]}"                      \
-             | $TR ' ' '\n'                   \
+             | tr ' ' '\n'                   \
              | $EGREP --regexp='\.orig.|-src' \
              > $retval
 
