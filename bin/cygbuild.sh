@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0836"
+CYGBUILD_VERSION="2008.0305.0838"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1848,7 +1848,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
         awk '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
     fi
 
-    [ -s $retval.collect ] && $CAT $retval.collect
+    [ -s $retval.collect ] && cat $retval.collect
 }
 
 CygbuildCygcheckLibraryDepGrepTraditonal()
@@ -3461,7 +3461,6 @@ function CygbuildDefineGlobalCommands()
     BASH=/bin/bash                      # global-def
     BASHX="$BASH -x"                    # global-def
     BZIP=bzip2                          # global-def
-    CAT=cat                             # global-def
     CP=cp                               # global-def
     DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
@@ -4516,7 +4515,7 @@ function CygbuildGPGverify()
         elif [ "$quiet" ]; then
             $EGREP --ignore-case "(Good|bad).*signature" $tmp
         else
-            $CAT $tmp
+            cat $tmp
         fi
 
     done
@@ -5431,7 +5430,7 @@ function CygbuildCmdPkgDevelStandardMain()
                     $retval.man.all > $retval.man.others
             else
                 CygbuildWarn "-- [WARN] No manual pages executables"
-                $CAT $retval.bin
+                cat $retval.bin
                 $CP $retval.man.all $retval.man.others
             fi
         fi
@@ -6449,7 +6448,7 @@ function CygbuildMakefileCheck()
 
         if [ -s $retval ]; then
             CygbuildWarn "-- [WARN] Linux -lc found. Make it read -lcygwin"
-            $CAT $retval
+            cat $retval
 
             #   With autoconf files, editing Makefile does no good.
             #   because next round of [conf] will wipe it. The changes
@@ -7990,7 +7989,7 @@ function CygbuildCmdDependMain()
         $CYGCHECK "$file" >> $retval
     done
 
-    $CAT $retval
+    cat $retval
 
     local found
 
@@ -9741,7 +9740,7 @@ function CygbuildCmdInstallCheckPythonFile ()
         CygbuildWarn \
             "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
         echo "#!$pypath" > "$newfile" &&
-        $CAT "$file" >> "$newfile"    &&
+        cat "$file" >> "$newfile"    &&
         CygbuildRun mv "$newfile" "$file"
     fi
 
@@ -9808,7 +9807,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         CygbuildWarn \
             "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
         echo "#!$plpath" > "$newfile" &&
-        $CAT "$file" >> "$newfile"    &&
+        cat "$file" >> "$newfile"    &&
         CygbuildRun mv "$newfile" "$file"
 
     elif [[ $binpath == +($plpath) ]]; then
@@ -10557,7 +10556,7 @@ function CygbuildCmdInstallCheckManualPages()
 
     if [ -s $retval.debian ]; then
         CygbuildEcho "-- [INFO] If manpage is from Debian, it may need editing"
-        $CAT $retval.debian
+        cat $retval.debian
     fi
 
     #  Check incorrect locations
@@ -10798,7 +10797,7 @@ function CygbuildCmdInstallCheckBinFiles()
     if [ -s $retval ]; then
         CygbuildEcho "-- [WARN] Hm, Some executables may have" \
                      "missing permission +x"
-        $CAT $retval
+        cat $retval
         # status=1
     fi
 
@@ -11055,7 +11054,7 @@ function CygbuildCmdInstallCheckLineEndings()
     else
         # --files-with-matches = ... The scanning will stop on the first match.
 
-        if  head $DIR_CYGPATCH/* 2> /dev/null | $CAT -v \
+        if  head $DIR_CYGPATCH/* 2> /dev/null | cat -v \
             | $EGREP --files-with-matches "\^M" \
               > /dev/null 2>&1
         then
@@ -11117,7 +11116,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         if $EGREP --line-number '[[:space:]]$' $file > $retval
         then
             CygbuildEcho "-- [WARN] Trailing whitespaces found in $file"
-            $CAT --show-nonprinting --show-tabs --show-ends $retval |
+            cat --show-nonprinting --show-tabs --show-ends $retval |
             $SED 's/^/     /'
         fi
 
@@ -11358,7 +11357,7 @@ function CygbuildCmdScriptRunMain()
             if [ -d "$dir" ]; then
                 CygbuildEcho "-- [DEBUG] Content of info 'dir'"
                 find "$dir" -print
-                $CAT "$dir/dir"
+                cat "$dir/dir"
             fi
         fi
     fi
