@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1503"
+CYGBUILD_VERSION="2008.0305.1618"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -589,12 +589,10 @@ function CygbuildBootVariablesGlobalCachePerl()
     local file="$dir/perl-$PERL_VERSION.lst"
     CYGBUILD_CACHE_PERL_FILES=					# global-def
 
-    if [ -f "$file" ]; then
+    if [ -s "$file" ]; then
 	CYGBUILD_CACHE_PERL_FILES="$file"			# global-def
     else
-	[ "$CYGCHECK" ] &&
-        CygbuildVerb "-- [WARN] No Perl cache. Please generate" \
-	    "with: cygcheck -l perl > $file"
+        CygbuildVerb "-- [WARN] No Perl cache avalable."
     fi
 }
 
@@ -1380,7 +1378,7 @@ function CygbuildPerlLibraryDependsMain()
     if [ "$cache" ] && [ -s "$cache" ]; then
 	CygbuildPerlLibraryDependsCache "$@"
     else
-	CygbuildEcho "-- No perl cache, results are pure guesswork..."
+	CygbuildWarn "-- No perl cache, results are pure guesswork..."
 	CygbuildPerlLibraryDependsGuess "$@"
     fi
 }
@@ -9666,12 +9664,15 @@ function CygbuildCmdInstallCheckPerlFile ()
     newfile=$retval.fix.$name
     local warn err
 
-    CygbuildVerb "-- Checking perl -cw $name"
-
     #  Check that program is well formed
 
     perl -cw $file > $retval 2>&1
+
+    [ -s "$retval" ] || return 0
+
     local notes=$(< $retval)
+
+    CygbuildVerb "-- Checking perl -cw $name"
 
     if [[ "$notes" == *@INC* ]]; then
 
@@ -9690,7 +9691,9 @@ function CygbuildCmdInstallCheckPerlFile ()
 
     fi
 
-    [ "$warn" ] && CygbuildWarn "$notes"
+    if [ "$warn" ]; then
+	CygbuildWarn "$notes"
+    fi
 
     if [[ "$notes" == *syntax*OK*  ]]; then
         # All is fine
@@ -9700,31 +9703,33 @@ function CygbuildCmdInstallCheckPerlFile ()
         return 1
     fi
 
-    local binpath
-    $EGREP '^#!/' $file  | head -1 > $retval
-    [ -s $retval ] && binpath=$(< $retval)
-
+    head -1 "$file" > $retval
+    local binpath=$(< $retval)
     local plpath="$PERL_PATH"
 
-    if [ ! "$binpath" ]; then
+    if ! echo $binpath | $EGREP --quiet '^#![[:space:]]*/' ; then
 
         CygbuildWarn \
-            "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
+            "-- [NOTE] $name incorrect or missing bang-slash line, fixing it"
+	cat $retval
+
+	#   Replace first line.
+
         echo "#!$plpath" > "$newfile" &&
-        cat "$file" >> "$newfile"    &&
+        tail --lines=+2 "$file" >> "$newfile" &&
         CygbuildRun mv "$newfile" "$file"
 
-    elif [[ $binpath == +($plpath) ]]; then
+    elif [[ ! $binpath == *$plpath* ]]; then
 
         CygbuildWarn "-- [WARN] $name uses wrong perl path, fixing it."
         sed -e "s,^#!.*,#!$plpath," "$file" > "$newfile" &&
-        CygbuildRun cp "$newfile" "$file"
+        CygbuildRun mv "$newfile" "$file"
 
     fi
 
     if $EGREP '^[^#]*\<cp[[:space:]]+-l\>' $file ; then
-        CygbuildEcho "-- [NOTE] Hardlink copying only efficient under NTFS"\
-	    $_file
+        CygbuildEcho "-- [NOTE] cp -l detected;" \
+	    "only efficient under NTFS: $_file"
     fi
 
     if CygbuildGrepCheck '^=pod' $file ; then
@@ -10667,6 +10672,7 @@ function CygbuildCmdInstallCheckPerlLibraries()
 
     if [ -s "$deps" ]; then
 	CygbuildEcho "-- Perl Libraries used in" ${file#$srcdir/}
+	cat $deps
     fi
 }
 

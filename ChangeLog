@@ -70,6 +70,9 @@
 	installed.db check.
 	(CygbuildCmdInstallCheckPerlLibraries): Display message only
 	if depends found.
+	(CygbuildCmdInstallCheckPerlFile): Display message only
+	if perl notes found. Replace bang-slash line in better way
+	by using tail command.
 
 	[ commit: 21c6baa ]
 
@@ -101,6 +104,19 @@
 	($(DOCDIR)/cygbuild-rebuild.1): Update location to
 	doc/cygbuild-rebuild.pod.
 	(install-in-place): Remove target `install-etc-main-symlink'.
+	(FROM_ETC_DATA): New.
+	(OBJS_ETC_DATA): New.
+	(ETCDIR_DATA): New.
+	(install-etc-dir-template): Add data/
+	(install-etc-dir-structure): Renamed. Was `install-etc-dir-template'.
+	(install-etc): Add `install-etc-data'.
+	(install-in-place): Remove `install-man'.
+	(install-template-symlinks): Renamed. Was `install-etc-template-symlink'.
+	(install-share-data): Renamed. Was `install-etc-data'.
+	(install-share-template): Renamed. Was `install-etc-template'.
+	(install-share): Renamed. Was `install-etc'.
+	(install-data-symlinks): New.
+	(install-dir-structure): Renamed. Was `install-etc-dir-structure'.
 
 	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterPerl): Improve
 	perl replace code. Display message only if something was done.
