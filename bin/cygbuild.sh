@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1647"
+CYGBUILD_VERSION="2008.0305.1656"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3375,6 +3375,12 @@ function CygbuildDefineGlobalCommands()
     BASHX="/bin/bash -x"			    # global-def
     GREP="grep --binary-files=without-match"	    # global-def
     EGREP="$GREP --extended-regexp"		    # global-def
+
+    #	Official location under Cygwin. Used to check proper shebang line
+    #	Under Debian, this is /bin/perl
+
+    PERLBIN=/usr/bin/perl			    # global-def
+    PYTHONBIN=/usr/bin/python			    # global-def
 
     # ............................................ optional features ...
 
@@ -9177,6 +9183,7 @@ function CygbuildInstallFixInterpreterPerl ()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local bin="$PERLBIN"
     local file="$1"
     local _file=${file#$srcdir/}
 
@@ -9193,11 +9200,11 @@ function CygbuildInstallFixInterpreterPerl ()
     #    eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
     #      if 0; # not running under some shell
 
-    sed -e '1s, -[*]*-.*,,'				\
-	 -e '1s,\(#!.*/usr/bin/perl\)\([0-9].*\),\1,'	\
-	 -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,'	\
-	 -e '/.*eval.*exec.*bin\/perl.*/d'		\
-	 -e '/.*not running under some shell/d'		\
+    sed -e "1s, -[*]*-.*,,"				\
+	 -e "1s,\(#!.*$bin\)\([0-9].*\),\1,"		\
+	 -e "1s,#!.* \(.*\),#!$bin \1,"			\
+	 -e "/.*eval.*exec.*bin\/perl.*/d"		\
+	 -e "/.*not running under some shell/d"		\
 	 "$file" > "$retval"
 
     if [ -s "$retval" ] &&
@@ -9213,6 +9220,7 @@ function CygbuildInstallFixInterpreterPython()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local bin="$PYTHONBIN"
     local file="$1"
 
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
@@ -9220,7 +9228,7 @@ function CygbuildInstallFixInterpreterPython()
         return 1
     fi
 
-    sed -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$retval" &&
+    sed -e "1s,#!.* \(.*\),#!$bin \1," "$file" > "$retval" &&
 
     if [ -s "$retval" ] &&
 	CygbuildFileCmpDiffer "$file" "$retval"
@@ -9429,6 +9437,8 @@ function CygbuildInstallFixInterpreterMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local plbin="$PERLBIN"
+    local pybin="$PYTHONBIN"
 
     local file
 
@@ -9441,7 +9451,7 @@ function CygbuildInstallFixInterpreterMain()
         head -1 "$file" > $retval 2> /dev/null
 
         if $EGREP --quiet "perl" $retval &&
-           ! $EGREP --quiet "/usr/bin/perl[[:space:]]*$" $retval
+           ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
         then
             CygbuildVerb "-- [NOTE] Suspicious Perl call" \
 		"in $_file: $(cat $retval)"
@@ -9449,7 +9459,7 @@ function CygbuildInstallFixInterpreterMain()
             CygbuildInstallFixInterpreterPerl "$file"
 
         elif $EGREP --quiet "python" $retval &&
-           ! $EGREP --quiet "/usr/bin/python([[:space:]]|$)" $retval
+           ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
         then
             CygbuildEcho "-- [NOTE] Suspicious Python call" \
                  "in $_file: $(cat $retval)"
@@ -10810,6 +10820,8 @@ function CygbuildCmdInstallCheckBinFiles()
         [ -s $retval ] && str=$(< $retval)
 
         local name=${file##*.inst}
+	local plbin="$PERLBIN"
+	local pybin="$PYTHONBIN"
 
         if [[ "$str" == *Linux* ]]; then
             CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
@@ -10838,7 +10850,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             head -1 "$file" > $retval.1st
 
-            if ! $EGREP --quiet "/usr/bin/perl([ \t]|$)" $retval.1st
+            if ! $EGREP --quiet "$plbin([ \t]|$)" $retval.1st
             then
                 CygbuildEcho "-- [WARN] possibly wrong Perl call" \
                      "in $_file: $(cat $retval.1st)"
@@ -10860,7 +10872,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             head -1 "$file" > $retval.1st
 
-            if ! $EGREP --quiet "/usr/bin/python([ \t]|$)" $retval.1st
+            if ! $EGREP --quiet "$pybin([ \t]|$)" $retval.1st
             then
                 CygbuildEcho "-- [WARN] possibly wrong Python call" \
                      "in $_file: $(cat $retval.1st)"
