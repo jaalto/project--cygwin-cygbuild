@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0819"
+CYGBUILD_VERSION="2008.0305.0822"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1189,7 +1189,7 @@ function CygbuildFileConvertCRLF ()
     fi
 
     $TR -d '\015' < "$file" > "$retval" &&
-    $MV "$retval" "$file"
+    mv "$retval" "$file"
 }
 
 function CygbuildFileConvertLF ()
@@ -1208,7 +1208,7 @@ function CygbuildFileConvertLF ()
 
 #    $AWK '{ printf "%s\r\n", $0}' "$file" > "$retval" &&
     $SED 's/$/\r/' "$file" &&
-    $MV "$retval" "$file"
+    mv "$retval" "$file"
 
 }
 
@@ -1238,7 +1238,7 @@ function CygbuildFileCmpReplaceIfDiffer ()
        CygbuildFileCmpDiffer "$from" "$to"
     then
 	CygbuildVerb "$msg"
-        $MV "$from" "$to"
+        mv "$from" "$to"
     fi
 }
 
@@ -1434,7 +1434,7 @@ function CygbuildFileDeleteLine ()
 
     if [ "$regexp" ] && [ -e "$file" ]; then
         $EGREP --invert-match --regexp="$regexp" $file > $tmp &&
-        $MV $tmp $file
+        mv $tmp $file
     fi
 }
 
@@ -3135,7 +3135,7 @@ function CygbuildMoveToTempDir()
 
     CygbuildPushd
         cd $dir &&
-        $MV $(ls | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
+        mv $(ls | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
     CygbuildPopd
 
     echo $temp
@@ -4960,7 +4960,7 @@ CygbuildCmdReadmeFixFile ()
         return 1
     fi
 
-    $MV "$out" "$readme"   &&
+    mv "$out" "$readme"   &&
     $RM -f "$readme.bak"
 }
 
@@ -5013,7 +5013,7 @@ function CygbuildCmdPublishSetupFix()
             to=$dir/setup.hint
 
             if [ -f "$file" ]; then
-                $MV "$file" "$to"
+                mv "$file" "$to"
             fi
 
             if [ ! -f "$to" ]; then
@@ -5458,7 +5458,7 @@ function CygbuildCmdPkgDevelStandardMain()
 
         if [ -s $retval.doc ]; then
             #   If there is doc package, then exclude those files
-            $MV $retval.bin $retval.bin.tmp
+            mv $retval.bin $retval.bin.tmp
 
             $EGREP --invert-match --file=$retval.doc \
                 $retval.bin.tmp > $retval.bin
@@ -5881,7 +5881,7 @@ function CygbuildPatchApplyMaybe()
                 $GREP --invert-match --fixed-strings "$name" \
                         "$statfile" > $retval
 
-                $MV "$retval" "$statfile"
+                mv "$retval" "$statfile"
             fi
 
             if  [ -f $statfile ] && [ ! -s $statfile ]; then
@@ -6019,7 +6019,7 @@ function CygbuildCmdMkpatchMain()
         }
 
         #   Rename by moving:  foo-1.12-orig
-        $MV "$dir" "$origpkgdir" || return $?
+        mv "$dir" "$origpkgdir" || return $?
 
         cd "$srcdir" || exit 1
 
@@ -6153,7 +6153,7 @@ function CygbuildCmdMkpatchMain()
                     CygbuildVerb "-- Fixing patch (Debian .orig)"
 
                     sed 's,^\(+++ .*\).orig\(.*\),\1\2,' $out > $out.tmp &&
-                    $MV "$out.tmp" "$out"
+                    mv "$out.tmp" "$out"
                 fi
 
                 CygbuildVerb "-- Removing" ${origpkgdir/$srcdir\/}
@@ -6794,7 +6794,7 @@ function CygbuildMakefileRunInstallPythonFix()
     if [ -d $root/bin/lib/python* ]; then
         #  .inst/usr/bin/lib/python2.4/site-packages/foo/...
 
-        $MV $verbose "$root/bin/lib" "$root/" ||
+        mv $verbose "$root/bin/lib" "$root/" ||
             CygbuildDie "$id: mv error"
 
         # [ -d "$root/bin" ] && $RMDIR "$root/bin"
@@ -6809,7 +6809,7 @@ function CygbuildMakefileRunInstallPythonFix()
         dest=$dir/../..
 
         if [ -d "$dir" ]; then
-            $MV $verbose "$dir/" "$dest/" ||
+            mv $verbose "$dir/" "$dest/" ||
                CygbuildDie "$id: mv error"
         fi
     done
@@ -6824,7 +6824,7 @@ function CygbuildMakefileRunInstallPythonFix()
 
         $INSTALL_SCRIPT $INSTALL_BIN_MODES -d $instdir
 
-        $MV $verbose "$dir" "$dest" ||
+        mv $verbose "$dir" "$dest" ||
             CygbuildDie "$id: mv error"
     done
 
@@ -7342,7 +7342,7 @@ function CygbuildExtractTar()
                 CygbuildEcho "-- Interesting, unpack dir $dir => $name2 - Skipped"
             else
                 CygbuildEcho "-- Renaming unpack dir: mv $dir $expectdir"
-                $MV "$dir" "$expectdir" || return $?
+                mv "$dir" "$expectdir" || return $?
             fi
 
         fi
@@ -9249,7 +9249,7 @@ function CygbuildInstallFixMandir()
 
     for item in $mandir/*
     do
-      $MV "$item" "$manroot"
+      mv "$item" "$manroot"
     done
 
     $RMDIR "$dir/usr/man"
@@ -9315,7 +9315,7 @@ function CygbuildInstallFixInterpreterPerl ()
     then
 	CygbuildEcho "-- [NOTE] Fixing Perl call line"
 	[ "$verbose" ] && diff "$file" "$file.tmp"
-	$MV --force "$file.tmp" "$file"
+	mv --force "$file.tmp" "$file"
     else
 	$RM --force "$file.tmp"
     fi
@@ -9338,7 +9338,7 @@ function CygbuildInstallFixInterpreterPython()
     then
 	CygbuildEcho "-- [NOTE] Fixing Python call line"
 	[ "$verbose" ] && diff "$file" "$file.tmp"
-	$MV --force "$file.tmp" "$file"
+	mv --force "$file.tmp" "$file"
     else
 	$RM --force "$file.tmp"
     fi
@@ -9592,7 +9592,7 @@ function CygbuildInstallFixPerlPacklist()
         CygbuildVerb "-- Adjusting $_file"
 
         $SED 's/.*.inst//' "$file" > "$file.tmp" &&
-        $MV "$file.tmp" "$file"
+        mv "$file.tmp" "$file"
     done
 }
 
@@ -9757,7 +9757,7 @@ function CygbuildCmdInstallCheckPythonFile ()
             "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
         echo "#!$PYTHON" > "$newfile" &&
         $CAT "$file" >> "$newfile"    &&
-        CygbuildRun $MV "$newfile" "$file"
+        CygbuildRun mv "$newfile" "$file"
     fi
 
     if [[ $binpath != *@($PYTHON|/usr/bin/env python) ]]; then
@@ -9826,7 +9826,7 @@ function CygbuildCmdInstallCheckPerlFile ()
             "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
         echo "#!$PERL" > "$newfile" &&
         $CAT "$file" >> "$newfile"    &&
-        CygbuildRun $MV "$newfile" "$file"
+        CygbuildRun mv "$newfile" "$file"
 
     elif [[ $binpath == +($PERL) ]]; then
 
@@ -11558,7 +11558,7 @@ function CygbuildCmdFilesWrite()
                 $CP $verbose "$file" "$todir" || return $?
 
 		if [[ "$name" == $unpack ]] && [ ! -f "$dest" ]; then
-		    $MV "$todir/$name" "$dest" || return $?
+		    mv "$todir/$name" "$dest" || return $?
 		fi
             fi
         done
