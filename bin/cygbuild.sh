@@ -8293,7 +8293,7 @@ function CygbuildCmdConfMain()
     CygbuildEcho "== Configure command"
 
     if ! CygbuildIsBuilddirOk ; then
-        CygbuildEcho "-- Hm, no shadow yet. Running it now."
+        CygbuildVerb "-- Hm, no shadow yet. Running it now."
         CygbuildCmdShadowDelete
         CygbuildCmdShadowMain || return $?
     fi
@@ -11210,8 +11210,8 @@ function CygbuildCmdInstallFinishMessage()
         CygbuildEcho "-- Content of: $relative"
         find -L ${instdir#$(pwd)/} -print
     else
-        CygbuildEcho "-- See also: find $relative" \
-             "${test:+(Note: test mode was on)}"
+	[ ! "$test" ] &&
+        CygbuildEcho "-- See also: find $relative -print | sort"
     fi
 }
 
