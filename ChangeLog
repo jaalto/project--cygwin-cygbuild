@@ -1,3 +1,10 @@
+2008-03-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterPerl): Improve
+	perl replace code. Display message only if something was done.
+	(CygbuildInstallFixInterpreterMain): Move message to function
+	`CygbuildInstallFixInterpreterPerl'.
+
 2008-03-04  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.pl: (HELP::LIBRARY USAGE): Remove initial

@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0304.1940"
+CYGBUILD_VERSION="2008.0305.0151"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -6672,9 +6672,6 @@ function CygbuildMakeRunInstallFixPerlMain()
     local retval=$CYGBUILD_RETVAL.$FUNCNAM
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-#    CygbuildPerlModuleLocation  > $retval
-#    local module=$(< $retval)
-
     if [ "$module" ]; then
         CygbuildMakeRunInstallFixPerlPostinstall "$module"
     fi
@@ -9326,9 +9323,17 @@ function CygbuildInstallFixInterpreterPerl ()
 	 -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,'	\
 	 -e '/.*eval.*exec.*bin\/perl.*/d'		\
 	 -e '/.*not running under some shell/d'		\
-         "$file" > "$file.tmp" &&
+	 "$file" > "$file.tmp"				&&
 
-    $MV --force "$file.tmp" "$file"
+    if [ -s "$file.tmp" ] &&
+       CygbuildFileCmpDiffer "$file" "$file.tmp"
+    then
+	CygbuildEcho "-- [NOTE] Fixing Perl call line"
+	[ "$verbose" ] && diff "$file" "$file.tmp"
+	$MV --force "$file.tmp" "$file"
+    else
+	$RM --force "$file.tmp"
+    fi
 }
 
 function CygbuildInstallFixInterpreterPython()
@@ -9342,7 +9347,16 @@ function CygbuildInstallFixInterpreterPython()
     fi
 
     $SED -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$file.tmp" &&
-    $MV --force "$file.tmp" "$file"
+
+    if [ -s "$file.tmp" ] &&
+	CygbuildFileCmpDiffer "$file" "$file.tmp"
+    then
+	CygbuildEcho "-- [NOTE] Fixing Python call line"
+	[ "$verbose" ] && diff "$file" "$file.tmp"
+	$MV --force "$file.tmp" "$file"
+    else
+	$RM --force "$file.tmp"
+    fi
 }
 
 function CygbuildInstallFixDocdirInstall()
@@ -9557,15 +9571,15 @@ function CygbuildInstallFixInterpreterMain()
         if $EGREP --quiet "perl" $retval &&
            ! $EGREP --quiet "/usr/bin/perl[[:space:]]*$" $retval
         then
-            CygbuildEcho "-- [NOTE] Fixing suspicious Perl call" \
-                 "in $_file: $(cat $retval)"
+            CygbuildVerb "-- [NOTE] Suspicious Perl call" \
+		"in $_file: $(cat $retval)"
 
             CygbuildInstallFixInterpreterPerl "$file"
 
         elif $EGREP --quiet "python" $retval &&
-           ! $EGREP --quiet "/usr/bin/python([ \t]|$)" $retval
+           ! $EGREP --quiet "/usr/bin/python([[:space:]]|$)" $retval
         then
-            CygbuildEcho "-- [NOTE] Fixing wrong Python call" \
+            CygbuildEcho "-- [NOTE] Suspicious Python call" \
                  "in $_file: $(cat $retval)"
 
             CygbuildInstallFixInterpreterPython "$file"
