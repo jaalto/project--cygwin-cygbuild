@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0838"
+CYGBUILD_VERSION="2008.0305.0839"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3461,7 +3461,6 @@ function CygbuildDefineGlobalCommands()
     BASH=/bin/bash                      # global-def
     BASHX="$BASH -x"                    # global-def
     BZIP=bzip2                          # global-def
-    CP=cp                               # global-def
     DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
@@ -4927,7 +4926,7 @@ CygbuildCmdReadmeFixFile ()
 
     local out=$readme.tmp
 
-    $CP "$readme" "$readme.bak"  || return $?
+    cp "$readme" "$readme.bak"  || return $?
 
     local debug=${OPTION_DEBUG:-0}
 
@@ -5048,7 +5047,7 @@ function CygbuildCmdPublishSignature()
 
         if [ "$?" = "0" ]; then
             echo "ok."
-            $CP $verbose "$sigfile" "$dest"
+            cp $verbose "$sigfile" "$dest"
         else
             echo "FAILED! Signature not published."
         fi
@@ -5110,7 +5109,7 @@ function CygbuildCmdPublishToDir()
 
         CygbuildEcho "-- ${file##*/}"
 
-        $CP $verbose "$file" "$to" || return 1
+        cp $verbose "$file" "$to" || return 1
         CygbuildCmdPublishSignature "$file" "$to"
 
     done
@@ -5431,7 +5430,7 @@ function CygbuildCmdPkgDevelStandardMain()
             else
                 CygbuildWarn "-- [WARN] No manual pages executables"
                 cat $retval.bin
-                $CP $retval.man.all $retval.man.others
+                cp $retval.man.all $retval.man.others
             fi
         fi
 
@@ -6211,8 +6210,8 @@ function CygbuildCmdPkgSourceStandard()
 
     local script="$srcinstdir/$name"
 
-    $CP -f "$orig" "$srcinstdir/$SRC_ORIG_PKG_NAME"  || return $?
-    $CP "$BUILD_SCRIPT" "$script"                    || return $?
+    cp -f "$orig" "$srcinstdir/$SRC_ORIG_PKG_NAME"  || return $?
+    cp "$BUILD_SCRIPT" "$script"                    || return $?
 
     [ "$$signkey" ] && CygbuildGPGsignFiles "$signkey" "$passphrase" "$script"
 
@@ -9747,7 +9746,7 @@ function CygbuildCmdInstallCheckPythonFile ()
     if [[ $binpath != *@($pypath|/usr/bin/env python) ]]; then
         CygbuildWarn "-- [WARN] $name uses wrong python path, fixing it."
         $SED -e "s,^#!.*,#!$pypath," "$file" > "$newfile" &&
-        CygbuildRun $CP "$newfile" "$file"
+        CygbuildRun cp "$newfile" "$file"
     fi
 }
 
@@ -9814,7 +9813,7 @@ function CygbuildCmdInstallCheckPerlFile ()
 
         CygbuildWarn "-- [WARN] $name uses wrong perl path, fixing it."
         $SED -e "s,^#!.*,#!$plpath," "$file" > "$newfile" &&
-        CygbuildRun $CP "$newfile" "$file"
+        CygbuildRun cp "$newfile" "$file"
 
     fi
 
@@ -11510,7 +11509,7 @@ function CygbuildCmdFilesWrite()
         if [ -f "$dest" ]; then
             CygbuildVerb "-- Skip, already exists $dest"
         else
-            $CP $verbose "$from" "$dest" || return $?
+            cp $verbose "$from" "$dest" || return $?
         fi
     done
 
@@ -11537,7 +11536,7 @@ function CygbuildCmdFilesWrite()
                 #  Template file is already there.
                 :
             else
-                $CP $verbose "$file" "$todir" || return $?
+                cp $verbose "$file" "$todir" || return $?
 
 		if [[ "$name" == $unpack ]] && [ ! -f "$dest" ]; then
 		    mv "$todir/$name" "$dest" || return $?
