@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1801"
+CYGBUILD_VERSION="2008.0305.1830"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -5513,7 +5513,9 @@ function CygbuildPatchApplyRun()
 function CygbuildPatchList()
 {
     local id="$0.$FUNCNAME"
-    local dir="$DIR_CYGPATCH"
+    local dir=${1:-$DIR_CYGPATCH}
+
+    [ "$dir" ] || return 0
 
     #	Ignore verion controlled directories.
 
@@ -5534,7 +5536,7 @@ function CygbuildPatchList()
 	    -a ! -name "tmp"		\
 	    -o				\
 	    -type f -name "*patch"  2> /dev/null |
-	    $SORT
+	    sort
 }
 
 function CygbuildPatchPrefixStripCountFromContent()
@@ -6272,7 +6274,7 @@ function CygbuildPostinstallWriteStanza()
     local stanza="#:$type"
 
     if CygbuildGrepCheck "^[# ]*$stanza" $file ; then
-	 CygbuildVerb "-- [NOTE] Skip, existing stanza found: $type"
+	 CygbuildVerb "-- Skip, existing stanza found: $type"
 	return 0
     fi
 
@@ -7367,7 +7369,7 @@ function CygbuildPatchCheck()
 
 	    if [ -s "$retval.dir" ]; then
 		$GREP --invert-match --fixed-strings \
-		    --file=$retval.dir  $retval | $SORT
+		    --file=$retval.dir  $retval | sort
 		sort $retval.dir
 	    else
 		cat $retval

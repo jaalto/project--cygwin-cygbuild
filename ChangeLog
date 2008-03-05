@@ -86,6 +86,8 @@
 	only under verbose. Detect and fix multiple shebang lines.
 	(CygbuildCmdInstallCheckPerlFile): Ignore warnigns from Perl base.
 	Display perl warnings only under verbose.
+	(CygbuildPatchList): Correct refactor leak SORT.
+	(CygbuildPatchCheck): Correct refactor leak SORT.
 
 	[ commit: 21c6baa ]
 
