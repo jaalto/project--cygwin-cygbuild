@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1830"
+CYGBUILD_VERSION="2008.0305.2222"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -621,7 +621,7 @@ function CygbuildBootVariablesGlobalShareDir()
     local dir="$1"
 
     CygbuildExitIfNoDir "$dir" \
-	CygbuildDie "$id: [ERROR] Internal error. No DIR argument"
+        CygbuildDie "$id: [ERROR] Internal error. No DIR argument"
 
     CygbuildBootVariablesGlobalShareSet "$dir"
     CygbuildBootVariablesGlobalCacheSet "$dir/data"
@@ -705,7 +705,8 @@ function CygbuildBootVariablesGlobalMain()
     #######################################################################
 
     CygbuildBootVariablesGlobalEtcMain
-    CygbuildBootVariablesGlobalShareMain
+
+    CygbuildIsGbsCompat || CygbuildBootVariablesGlobalShareMain
 
     #  Like: <file>.$CYGBUILD_SIGN_EXT
     CYGBUILD_GPG_SIGN_EXT=.sig
@@ -11592,7 +11593,7 @@ function CygbuildCmdAllMain()
     #       IF command A succeeds, then run B. In either
     #       case always return true
 
-    CygbuildCmdGPGVerifyMain Yn     &&
+    CygbuildCmdGPGVerifyMain        &&
     CygbuildCmdPrepMain             &&
     CygbuildCmdShadowMain           &&
     CygbuildCmdConfMain             &&

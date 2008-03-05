@@ -1,3 +1,8 @@
+2008-03-06  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdAllMain): Remove interactive
+	step if signatures failed.
+
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
 	* README: (Dependencies): Remove.
@@ -88,6 +93,8 @@
 	Display perl warnings only under verbose.
 	(CygbuildPatchList): Correct refactor leak SORT.
 	(CygbuildPatchCheck): Correct refactor leak SORT.
+	(CygbuildBootVariablesGlobalMain): Do not call
+	`CygbuildBootVariablesGlobalShareMain' when running GBS.
 
 	[ commit: 21c6baa ]
 
