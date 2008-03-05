@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0824"
+CYGBUILD_VERSION="2008.0305.0828"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -328,7 +328,7 @@ function CygbuildMsgFilter()
     export topic error error fatal warn info msg note external end
 
     local str=$(
-        ${PERL:-perl} -ane '
+        perl -ane '
             exit 0 unless /\S/;
 
             eval "\$$_ = q($ENV{$_});" for
@@ -624,7 +624,7 @@ function CygbuildBootVariablesGlobalCacheSet()
 
     CYGBUILD_CACHE_DIR="$dir"					#global-def
 
-    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerl
+    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerlVersion
 
     #	Write Perl installation cache. This is needed to check if
     #	modules are Standard perl or from CPAN.
@@ -1296,7 +1296,7 @@ function CygbuildPerlLibraryDependsGuess()
     #	Call arguments are library names, like MIME::Base64.
     #	Output's first word is 'Std' or 'CPAN' to identify the module.
 
-    ${PERL:-perl} -e \
+    perl -e \
     '
 	for my $module ( @ARGV )
 	{
@@ -1328,7 +1328,7 @@ function CygbuildPerlLibraryDependsCache()
     #	Call arguments are library names, like MIME::Base64.
     #	Output's first word is 'Std' or 'CPAN' to identify the module.
 
-    ${PERL:-perl} -e \
+    perl -e \
     '
 	$cache = shift @ARGV;
 
@@ -1443,7 +1443,7 @@ function CygbuildFileDaysOld ()
     local file="$1"
 
     if [ -f "$file" ]; then
-        echo -n $file | ${PERL:-perl} -ane "print -M"
+        echo -n $file | perl -ane "print -M"
     else
         return 1
     fi
@@ -2004,7 +2004,7 @@ function CygbuildVersionInfo()
     #       /usr/src/build/neon/foo-NN.NN/.build/tmp/verify
     #
 
-    echo -n "$str" | ${PERL:-perl} -e \
+    echo -n "$str" | perl -e \
     '
         $_  = <>;
         s,.+/,,;
@@ -3024,7 +3024,7 @@ function CygbuildIsDestdirSupported()
 
     local debug=${OPTION_DEBUG:-0}
 
-    $PERL -e "require qq($module);  SetDebug($debug); \
+    perl -e "require qq($module);  SetDebug($debug); \
               MakefileDestdirSupport(qq($srcdir), qq(-exit));"
 }
 function CygbuildDependsList()
@@ -3396,10 +3396,10 @@ function CygbuildFileReadOptionsMaybe()
 #
 #######################################################################
 
-function CygbuildDefineGlobalPerl()
+function CygbuildDefineGlobalPerlVersion()
 {
     PERL_VERSION=$(                                     # global-def
-	${PERL:-perl} --version |
+	perl --version |
 	awk '
 	    /This is perl/ {
 		ver = $4;
@@ -3423,14 +3423,6 @@ function CygbuildDefineGlobalCommands()
     [ -s $retval ] && CYGPATH=$(< $retval) # global-def
     local tmp
 
-
-    CygbuildPathBinFast perl > $retval
-    [ -s $retval ] && tmp=$(< $retval)
-
-    if [ "$tmp" ]; then
-	PERL="$tmp"                                     # global-def
-    fi
-
     CygbuildPathBinFast python > $retval
     [ -s $retval ] && tmp=$(< $retval)
 
@@ -3438,9 +3430,7 @@ function CygbuildDefineGlobalCommands()
 	PYTHON="$tmp"                                   # global-def
     fi
 
-    if [ "$PERL" ]; then
-	CygbuildDefineGlobalPerl
-    fi
+    CygbuildDefineGlobalPerlVersion
 
     if [ "$PYTHON" ]; then
 
@@ -4203,7 +4193,7 @@ function CygbuildHelpLong()
     fi
 
     if [ "$lib" ]; then
-        ${PERL:-"perl"} $lib help
+        perl $lib help
         [ "$exit" ] && exit $exit
     else
         CygbuildHelpShort $exit
@@ -4940,7 +4930,7 @@ CygbuildCmdReadmeFixFile ()
 
     local debug=${OPTION_DEBUG:-0}
 
-    $PERL -e "require qq($module);  SetDebug($debug);              \
+    perl -e "require qq($module);  SetDebug($debug);              \
       ReadmeFix(qq($readme), qq($FULLPKG), qq($FILE_BIN_PKG));"    \
       > $out
 
@@ -6349,7 +6339,7 @@ function CygbuildCmdDownloadUpstream ()
 
     CygbuildPushd
         cd $TOPDIR || exit 1
-        $PERL $bin ${OPTION_DEBUG+--debug=3} --verbose \
+        perl $bin ${OPTION_DEBUG+--debug=3} --verbose \
                    --config $conffile --Tag $PKG --new
         status=$?
     CygbuildPopd
@@ -8174,7 +8164,7 @@ function CygbuildConfCC()
             #   to format the option listing
 
             echo "$opt" |
-                $PERL -ane \
+                perl -ane \
                   "s/\s+/,/g;
                    print '   ', join( qq(\n   ), sort split ',',$_), qq(\n)"
         fi
@@ -8200,7 +8190,7 @@ function CygbuildConfPerlCheck()
 {
     local id="$0.$FUNCNAME"
 
-    $PERL -e "use ExtUtils::MakeMaker 6.10"  # at least 6.10 works ok
+    perl -e "use ExtUtils::MakeMaker 6.10"  # at least 6.10 works ok
 
     local status
     status=$?
@@ -8269,7 +8259,7 @@ function CygbuildConfPerlMain()
 
 	    [ "$verbose" ] && set -x
 
-            $PERL Makefile.PL           \
+            perl Makefile.PL           \
                   INSTALLDIRS=vendor    \
                   $userOptExtra
 	)
@@ -8608,7 +8598,7 @@ function CygbuildCmdDependCheckMain()
     #   1. Load library MODULE
     #   2. Call function with parameters.
 
-    $PERL -e "require qq($module); SetDebug($debug); \
+    perl -e "require qq($module); SetDebug($debug); \
         CygcheckDepsCheckMain( qq($instdir), qq($destdir) );"
 }
 
@@ -9782,7 +9772,7 @@ function CygbuildCmdInstallCheckPerlFile ()
 
     #  Check that program is well formed
 
-    $PERL -cw $file > $retval 2>&1
+    perl -cw $file > $retval 2>&1
     local notes=$(< $retval)
 
     if [[ "$notes" == *@INC* ]]; then
