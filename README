@@ -1,16 +1,15 @@
 Cygbuild - A porting tool for making Cygwin net releases
 --------------------------------------------------------
 
-Cygbuild is something like Debian dh_make(1) .deb or rpm(1) .rpm maker
-utility, but for Win32 Cygwin platform. It automates package
-maintenenance so that with few commands, it is possible to convert a
-software package into a installable Cygwin package.
+Cygbuild is something like Debian dh_make(1) .deb or rpm(1)
+.rpm maker utility. It automates package maintenenance so that
+with few commands, it is possible to convert a software package
+into a installable Cygwin source and binary packages.
 
+    bin/            The programs
     doc/            Documentation
-    etc/etc         Files installed in /etc/cygbuild/
-    etc/makefile    Project maintenence dir. Install makefiles
-    etc/template    Files installed in /usr/share/cygbuild/
-    bin/            The "program"
+    etc/makefile    Project maintenence dir. The install makefiles.
+    etc/template    Files installed to /usr/share/cygbuild/
 
 Important files
 

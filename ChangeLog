@@ -1,11 +1,22 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
+	* README: (Install instructions): Mention /usr/local and
+	prefix= setting.
+	(Version control information): Add new topic.
+
+	* INSTALL: Adjust short description.
+
+	* Makefile: (install-etc-main-symlink): disable installing
+	/etc/cygbuild/programs.conf. No longer used.
+
 	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterPerl): Improve
 	perl replace code. Display message only if something was done.
 	(CygbuildInstallFixInterpreterMain): Move message to function
 	`CygbuildInstallFixInterpreterPerl'.
 	(CygbuildDefineGlobalCommands): Disable loading configuration
 	file.
+	(CygbuildBootVariablesGlobalEtcSet): Remove
+	CYGBUILD_CONFIG_PROGRAMS (/etc/programs.conf).
 
 2008-03-04  Jari Aalto  <jari.aalto@cante.net>
 
