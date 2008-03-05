@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1618"
+CYGBUILD_VERSION="2008.0305.1625"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -10671,7 +10671,7 @@ function CygbuildCmdInstallCheckPerlLibraries()
     CygbuildPerlLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
-	CygbuildEcho "-- Perl Libraries used in" ${file#$srcdir/}
+	CygbuildEcho "-- Approx. possible Perl Libries in" ${file#$srcdir/}
 	cat $deps
     fi
 }

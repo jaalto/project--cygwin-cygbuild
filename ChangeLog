@@ -73,6 +73,8 @@
 	(CygbuildCmdInstallCheckPerlFile): Display message only
 	if perl notes found. Replace bang-slash line in better way
 	by using tail command.
+	(CygbuildCmdInstallCheckPerlLibraries): Adjust displayed
+	message.
 
 	[ commit: 21c6baa ]
 
