@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1332"
+CYGBUILD_VERSION="2008.0305.1408"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -603,7 +603,11 @@ function CygbuildBootVariablesGlobalLibSet()
 
     CYGBUILD_PERL_MODULE_NAME="cygbuild.pl"			#global-def
     local tmp="$dir/$CYGBUILD_PERL_MODULE_NAME"                 #global-def
-    [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE="$tmp"		#global-def
+
+    if [ -f "$tmp" ]; then
+	CYGBUILD_STATIC_PERL_MODULE="$tmp"			#global-def
+	CygbuildVerb "-- [WARN] Not found $tmp"
+    fi
 }
 
 function CygbuildBootVariablesGlobalShareDir()
@@ -2461,53 +2465,6 @@ function CygbuildPathAbsolute()
     fi
 }
 
-function CygbuildCommandPath()
-{
-    local id="$0.$FUNCNAME"
-    local cmd="$1"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
-    #  Find out where is the absolute location of CMD
-    #  a) type: cygbuild.sh is /cygdrive/...
-    #  b) type: ls is hashed (/bin/ls)
-
-    if [[ "$cmd" == */* ]]; then
-        CygbuildPathAbsolute $cmd > $retval &&
-        cmd=$(< $cmd)
-    else
-        local saved="$IFS"
-        local IFS=" "
-
-            #   type is bash built-in command. It's better than which(1)
-            #   because it finds also aliases and functions.
-            #
-            #   NOTE: not using option -p, because it's better to see
-            #   error message.
-
-            if type $cmd > $retval ; then
-                set -- $(< $retval)
-            fi
-
-        IFS="$saved"
-
-        local path=$3
-
-        if [ "$path" = "hashed" ]; then
-            path=$4
-        fi
-
-        path=${path%)}      # Remove possible parentheses
-        path=${path#(}
-        cmd=$path
-    fi
-
-    if [ "$cmd" ]; then
-        echo $cmd
-    else
-        return 1
-    fi
-}
-
 function CygbuildScriptPathAbsolute()
 {
     local id="$0.$FUNCNAME"
@@ -3008,9 +2965,6 @@ function CygbuildIsDestdirSupported()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
-
-#    CygbuildPerlModuleLocation  > $retval
-#    local module=$(< $retval)
 
     if [ ! "$module" ]; then
         echo "$id: Perl module was not found"
@@ -4184,15 +4138,12 @@ function CygbuildHelpLong()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local exit="$1"
 
+    [ ! "$CYGBUILD_STATIC_PERL_MODULE" ] &&
     CygbuildBootVariablesGlobalShareMain
+
     local lib="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ ! "$lib" ]; then
-        CygbuildCommandPath cygbuild.pl > $retval &&
-        lib=$(< $retval)
-    fi
-
-    if [ "$lib" ]; then
+    if [ "$lib" ] && [ -d "$lib" ]; then
         perl $lib help
         [ "$exit" ] && exit $exit
     else
@@ -4210,16 +4161,10 @@ function CygbuildHelpSourcePackage()
 
     [ "$lib" ] && [ -f "$lib" ] && return 0
 
-    local bin
-    CygbuildCommandPath cygbuild.pl > $retval &&
-    bin=$(< $retval)
-
-    if [ ! "$bin" ]; then
-        CygbuildEcho "-- [WARN] Not attempting to make a source package." \
-             "Full cygbuild suite is needed" \
-             "($CYGBUILD_HOMEPAGE_URL)."
-        return 1
-    fi
+    CygbuildEcho "-- [WARN] Not attempting to make a source package." \
+	 "Full project is needed" \
+	 "<$CYGBUILD_HOMEPAGE_URL>."
+    return 1
 }
 
 #######################################################################
@@ -4800,49 +4745,6 @@ function CygbuildCmdGPGVerifyMain()
 #
 #######################################################################
 
-function CygbuildPerlModuleLocation()
-{
-    local id="$0.$FUNCNAME"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
-    #   Find out if we can use cygbuild.pl module
-    #   Return 1) Perl interpreter and 2) module path
-
-    local name="$CYGBUILD_PERL_MODULE_NAME"
-    local module="$CYGBUILD_STATIC_PERL_MODULE"
-
-    if [ ! "$module" ]; then
-        if CygbuildCommandPath $name > $retval
-	then
-            module=$(< $retval)
-	    CYGBUILD_STATIC_PERL_MODULE="$module"	    # global-def
-        fi
-    fi
-
-    if [ ! "$module" ] && [[ "$0" == */* ]] ; then
-	#  Check if it's in same location as where the
-	#  program is run (unpacked sources; VCS checkout)
-
-	local path=${0%/*}
-	local path="$path/bin"
-	local lib="$path/$CYGBUILD_PERL_MODULE_NAME"
-
-	if [ -f "$lib" ]; then
-            module="$lib"
-	    CYGBUILD_STATIC_PERL_MODULE="$module"	    # global-def
-	fi
-    fi
-
-    if [ "$module" ]; then
-        echo $module
-    else
-        CygbuildIsSourceProgram ||
-        CygbuildWarn "$id: [ERROR] file not found: [$name] [$module]" \
-             "Have you installed $CYGBUILD_HOMEPAGE_URL ?"
-        return 1
-    fi
-}
-
 function CygbuildCmdAutotool()
 {
     local id="$0.$FUNCNAME"
@@ -4853,6 +4755,7 @@ function CygbuildCmdAutotool()
     CygbuildPushd
         cd $srcdir &&
         /usr/bin/autoreconf --install --force --verbose
+# FIXME: unused code
 #        cd $TOPDIR &&
 #        if [ -f "$PV/INSTALL" ] ; then \
 #                unpack ${src_orig_pkg} ${PV}/INSTALL ; \
@@ -4905,13 +4808,12 @@ CygbuildCmdReadmeFixFile ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local readme="$1"
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
 
     CygbuildExitIfNoDir "$srcdir" "$id: [FATAL] Not exists $srcdir"
 
-    local module="$CYGBUILD_STATIC_PERL_MODULE"
-
     if [ ! "$module" ]; then
-        echo "$id: [FATAL] Perl module was not found"
+        CygbuildWarn "$id: [FATAL] Perl module was not found"
         return 1                # Error is already displayed
     fi
 
@@ -6640,9 +6542,9 @@ function CygbuildMakeRunInstallFixPerlMain()
     local retval=$CYGBUILD_RETVAL.$FUNCNAM
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ "$module" ]; then
-        CygbuildMakeRunInstallFixPerlPostinstall "$module"
-    fi
+    [ "$module" ] || return 0
+
+    CygbuildMakeRunInstallFixPerlPostinstall "$module"
 }
 
 function CygbuildMakefilePrefixCheck()
@@ -8576,12 +8478,7 @@ function CygbuildCmdDependCheckMain()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-#    CygbuildPerlModuleLocation  > $retval
-#    local module=$(< $retval)
-
-    if [ ! "$module" ]; then
-        return 1
-    fi
+    [ ! "$module" ] || return 1
 
     local destdir=$DIR_CYGPATCH
     local file=$destdir/setup.hint

@@ -53,6 +53,16 @@
 	(CygbuildCmdInstallCheckCygpatchDirectory): Correct refactored FIND.
 	(CygbuildCmdInstallCheckSetupHintDependExists): Under Linux, do not
 	check the install database.
+	(CygbuildHelpLong): Remove unneeded *.pl check.
+	(CygbuildHelpSourcePackage): Remove unneeded *.pl check.
+	(CygbuildPerlModuleLocation): Remove unneeded *.pl check.
+	(CygbuildCmdDependCheckMain): Remove unneeded *.pl check.
+	(CygbuildMakeRunInstallFixPerlMain): Streamline code.
+	(CygbuildIsDestdirSupported): Remove unneeded *.pl check.
+	(CygbuildCommandPath): Remove. Not used any more.
+	(CygbuildPerlModuleLocation): Remove. Not used any more.
+	(CygbuildBootVariablesGlobalLibSet): Display warning if *.pl
+	not found.
 
 	[ commit: 21c6baa ]
 
