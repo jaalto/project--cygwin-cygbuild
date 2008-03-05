@@ -1,4 +1,4 @@
-x#!/bin/bash
+#!/bin/bash
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0842"
+CYGBUILD_VERSION="2008.0305.0844"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3460,11 +3460,9 @@ function CygbuildDefineGlobalCommands()
 
     BASH=/bin/bash                      # global-def
     BASHX="$BASH -x"                    # global-def
-    BZIP=bzip2                          # global-def
     DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
-    GZIP=gzip                           # global-def
     GPG=gpg                             # global-def
     MAKE=make                           # global-def
     PATCH=patch                         # global-def
@@ -4231,11 +4229,11 @@ function CygbuildHelpSourcePackage()
 function CygbuildCompress()
 {
     if [ "$OPTION_COMPRESS" = "bzip2" ]; then
-        ${BZIP:-"bzip2"} "$@"
+        bzip2 "$@"
     elif [ "$OPTION_COMPRESS" = "lzma" ]; then
-        ${LZMA:-"lzma"} "$@"
+        lzma "$@"
     else
-        ${GZIP:-"gzip"} "$@"
+        gzip "$@"
     fi
 }
 
@@ -4244,11 +4242,11 @@ function CygbuildCompressManualPage()
     # manual command does not support lzma yet
 
     if [ "$OPTION_COMPRESS" = "bzip2" ]; then
-        ${BZIP:-"bzip2"} "$@"
+        bzip2 "$@"
 #    elif [ "$OPTION_COMPRESS" = "lzma" ]; then
-#        ${LZMA:-"lzma"} "$@"
+#        lzma "$@"
     else
-        ${GZIP:-"gzip"} "$@"
+        gzip "$@"
     fi
 }
 
@@ -10527,7 +10525,7 @@ function CygbuildCmdInstallCheckManualPages()
 	    gzip --test --verbose "$file"  > $retval.test 2>&1
 	    itest=$?
 	elif [[ "$file" == *.bz2 ]]; then
-	    bgzip2 --test --verbose "$file"  > $retval.test 2>&1
+	    bzip2 --test --verbose "$file"  > $retval.test 2>&1
 	    itest=$?
 	fi
 
