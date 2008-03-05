@@ -68,6 +68,8 @@
 	(CygbuildCmdInstallCheckDocdir): Ignore image files.
 	(CygbuildCmdInstallCheckSetupHintDependExists): Correct
 	installed.db check.
+	(CygbuildCmdInstallCheckPerlLibraries): Display message only
+	if depends found.
 
 	[ commit: 21c6baa ]
 
