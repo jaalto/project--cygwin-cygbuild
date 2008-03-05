@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0151"
+CYGBUILD_VERSION="2008.0305.0211"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3413,7 +3413,6 @@ function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file=$CYGBUILD_CONFIG_PROGRAMS
-    local load
 
     CYGCHECK=
     CygbuildWhich cygcheck > $retval
@@ -3423,7 +3422,11 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhich cygpath > $retval
     [ -s $retval ] && CYGPATH=$(< $retval) # global-def
 
-    if [ "$file" ] && [ -r $file ]; then
+    #  FIXME: Code disabled. Remove loading conf file
+
+    local load
+
+    if [ "" ] && [ "$file" ] && [ -r $file ]; then
         CygbuildVerb "-- Reading configuration $file"
         if ! source $file ; then
             CygbuildDie "$id: [ERROR] Syntax error in $file"

@@ -4,6 +4,8 @@
 	perl replace code. Display message only if something was done.
 	(CygbuildInstallFixInterpreterMain): Move message to function
 	`CygbuildInstallFixInterpreterPerl'.
+	(CygbuildDefineGlobalCommands): Disable loading configuration
+	file.
 
 2008-03-04  Jari Aalto  <jari.aalto@cante.net>
 
