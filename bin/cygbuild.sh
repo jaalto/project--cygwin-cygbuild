@@ -2819,7 +2819,7 @@ function CygbuildFileTypeByFile()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local notes
 
-    $FILE $file > $retval
+    file $file > $retval
     [ -s $retval ] && notes=$(< $retval)
 
     if [[ "$notes" == *perl*  ]]; then
@@ -3464,7 +3464,6 @@ function CygbuildDefineGlobalCommands()
     DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
-    FILE=file                           # global-def
     GZIP=gzip                           # global-def
     GPG=gpg                             # global-def
     LN=ln                               # global-def
@@ -10885,7 +10884,7 @@ function CygbuildCmdInstallCheckBinFiles()
         #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
         #   stripped
 
-        $FILE "$file" > $retval
+        file "$file" > $retval
         [ -s $retval ] && str=$(< $retval)
 
         local name=${file##*.inst}
@@ -11394,7 +11393,7 @@ function CygbuildCmdStripMain()
     do
         type=""
 
-        $FILE $file > $retval
+        file $file > $retval
         [ -s $retval ] && type=$(< $retval)
 
         #  Otherwise strip would say "File format not recognized"
@@ -11464,7 +11463,7 @@ function CygbuildStripCheck()
 
     elif [[ "$*"  == *Not*x86* ]]; then
         CygbuildEcho "-- [ERROR] $file is not valid executable"
-        $FILE $file
+        file $file
         return 0
 
     else
