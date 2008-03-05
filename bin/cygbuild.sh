@@ -587,7 +587,7 @@ function CygbuildBootVariablesGlobalCachePerl()
 	CYGBUILD_CACHE_PERL_FILES="$file"			# global-def
     else
 	[ "$CYGCHECK" ] &&
-        CygbuildVerb "-- [WARN] No Perl cache. Please generate"
+        CygbuildVerb "-- [WARN] No Perl cache. Please generate" \
 	    "with: cygcheck -l perl > $file"
     fi
 }
@@ -625,7 +625,7 @@ function CygbuildBootVariablesGlobalShareMain()
     local dir=/usr/share/cygbuild
 
     if [ -d "$dir" ]; then
-	CygbuildBootVariablesGlobalShareaDir "$dir"
+	CygbuildBootVariablesGlobalShareDir "$dir"
 	return 0
     fi
 
@@ -644,7 +644,7 @@ function CygbuildBootVariablesGlobalShareMain()
 
     dir="$tmp/etc"
 
-    CygbuildBootVariablesGlobalShareaDir "$tmp"
+    CygbuildBootVariablesGlobalShareDir "$tmp"
 }
 
 function CygbuildBootVariablesGlobalCacheMain()
