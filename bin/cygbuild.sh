@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1800"
+CYGBUILD_VERSION="2008.0305.1801"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -12712,13 +12712,6 @@ function TestRegression ()
     Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
     exit;
 }
-
-# set -x
-# verbose=1
-# EGREP="grep -E"
-# SORT=sort
-# CygbuildCmdInstallCheckPerlLibraries /usr/src/build/build/swaks/swaks-0+20061116.0.orig/.inst/usr/bin/swaks
-# exit 1
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
