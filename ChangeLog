@@ -82,6 +82,8 @@
 	(CygbuildInstallFixInterpreterMain): Use PERLBIN PYTHONBIN.
 	(CygbuildCmdInstallCheckBinFiles): Use PERLBIN PYTHONBIN.
 	(CygbuildInstallFixInterpreterPython): Use PYTHONBIN.
+	(CygbuildInstallFixInterpreterPerl): Display diff message
+	only under verbose.
 
 	[ commit: 21c6baa ]
 
