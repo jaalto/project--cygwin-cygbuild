@@ -47,6 +47,8 @@
 	(CygbuildBootVariablesGlobalShareDir): New.
 	(CygbuildExitIfNoDir); Renamed. Was CygbuildExitNoDir.
 	(CygbuildExitIfNoFile); Renamed. Was CygbuildExitNoFile.
+	(CygbuildBootVariablesGlobalShareMain): Correct variable dir
+	at the end of function.
 
 	[ commit: 21c6baa ]
 

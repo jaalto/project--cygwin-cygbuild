@@ -644,7 +644,7 @@ function CygbuildBootVariablesGlobalShareMain()
 
     dir="$tmp/etc"
 
-    CygbuildBootVariablesGlobalShareDir "$tmp"
+    CygbuildBootVariablesGlobalShareDir "$dir"
 }
 
 function CygbuildBootVariablesGlobalCacheMain()
