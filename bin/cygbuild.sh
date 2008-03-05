@@ -3127,7 +3127,7 @@ function CygbuildMoveToTempDir()
         rm -rf "$temp"
     fi
 
-    $MKDIR $temp || return 1
+    mkdir $temp || return 1
 
     #   Move everything else, but the directory itself and
     #   the build script, that does not belong to the original
@@ -3233,7 +3233,7 @@ function CygbuildTreeSymlinkCopy()
     fi
 
     if [ ! -d "$to" ]; then
-        $MKDIR -p "$to" || exit 1
+        mkdir -p "$to" || exit 1
     fi
 
     #   cp -lr might do the same as 'lndir'. 'lndir' is widely
@@ -3329,7 +3329,7 @@ function CygbuildTreeSymlinkCopy()
             elif [ -d "$item" ]; then
 
                 if [ ! -d "$dest" ]; then
-                    $MKDIR -p "$dest"            || exit 1
+                    mkdir -p "$dest"            || exit 1
                     $LNDIR "$current/$item" "$dest"
                 fi
 
@@ -3467,7 +3467,6 @@ function CygbuildDefineGlobalCommands()
     GZIP=gzip                           # global-def
     GPG=gpg                             # global-def
     MAKE=make                           # global-def
-    MKDIR=mkdir                         # global-def
     PATCH=patch                         # global-def
     RMDIR=rmdir                         # global-def
     SORT=sort                           # global-def
@@ -5066,7 +5065,7 @@ function CygbuildCmdPublishToDir()
     CygbuildEcho "-- Publishing to $dest"
 
     if [ ! -d "$dest" ]; then
-        $MKDIR $verbose -p "$dest" || return 1
+        mkdir $verbose -p "$dest" || return 1
     fi
 
     #  For library packages, the hierarchy is
@@ -5100,7 +5099,7 @@ function CygbuildCmdPublishToDir()
         esac
 
         if [ ! -d "$to" ]; then
-             $MKDIR $verbose -p "$to" || return 1
+             mkdir $verbose -p "$to" || return 1
         fi
 
         CygbuildEcho "-- ${file##*/}"
@@ -5975,7 +5974,7 @@ function CygbuildCmdMkpatchMain()
             cd=$dir
 
             [ -d "$dir" ] && rm -rf "$dir"
-            $MKDIR "$dir" || return $?
+            mkdir "$dir" || return $?
 
         else
             if [ -d "$dir" ]; then
@@ -6027,7 +6026,7 @@ function CygbuildCmdMkpatchMain()
                 rm -rf "$cursrcdir" || exit 1
             fi
 
-            $MKDIR -p "$cursrcdir" || exit 1
+            mkdir -p "$cursrcdir" || exit 1
 
             dummy="PWD is $(pwd)"           # Used for debugging
 
@@ -7219,7 +7218,7 @@ function CygbuildCmdMkdirs()
                 continue
             fi
 
-            if ! CygbuildRun $MKDIR $verbose -p "$dir" ; then
+            if ! CygbuildRun mkdir $verbose -p "$dir" ; then
                 status=$?
                 break
             fi
@@ -7287,7 +7286,7 @@ function CygbuildExtractTar()
 
         CygbuildEcho "-- Hm,  archive does not have good subdirectory, so" \
              "creating dir $expectdir and unpacking there"
-        $MKDIR "$expectdir" || return $?
+        mkdir "$expectdir" || return $?
 
         local status=0
 
@@ -7366,7 +7365,7 @@ function CygbuildExtractWithScript()
                 CygbuildEcho "-- [!!] Download done. Symlinking $dir => $to" \
                      "in $(pwd)"
                 ln -s "$dir" "$to" || CygbuildDie "-- [FATAL] symlink failed"
-                $MKDIR -p "$srcdir" || CygbuildDie "-- [FATAL] mkdir failed"
+                mkdir -p "$srcdir" || CygbuildDie "-- [FATAL] mkdir failed"
             fi
         fi
     }
@@ -9506,7 +9505,7 @@ function CygbuildInstallFixEtcdirInstall()
 
     if ! ${test+echo} $TAR  -C  "$pkgetcdir" -cf - . | {
 	rm    -rf "$pkgetcdir" &&
-	$MKDIR -p  "$dest"      &&
+	mkdir -p  "$dest"      &&
 	$TAR   -C  "$dest" -xf - ; }
     then
 	[ ! "$test" ] &&
@@ -11266,7 +11265,7 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptInstall" ]; then
 
-            $MKDIR -p $verbose "$dir"
+            mkdir -p $verbose "$dir"
 
             CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall/$srcdir\//}" \
