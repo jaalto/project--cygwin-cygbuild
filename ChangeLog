@@ -1,12 +1,26 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
-	REFACTORING: Convert all $LS, $MV etc variabales into
-	regular calls in series of commit: 0a6b221..6cc78b6
-	(CygbuildBootVariablesGlobalCacheSet): Move message.
-	Clear CYGBUILD_CACHE_PERL_FILES if no cache can be set.
+	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands):
+	Define GPG, WGET conditionally.
+	(CygbuildGPGavailableCheck): Change from negative tests
+	to positive tests.
+	(CygbuildCmdDownloadCygwinPackage): Rewrite WGET test.
+	(CygbuildCommandMain): Move `CygbuildDefineGlobalCommands'
+	here from CygbuildCommandMain().
+	(CygbuildCmdDownloadCygwinPackage): Rewite wget test.
+
+	[ commit: 21c6baa ]
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalCacheSet): Move
+	message. Clear CYGBUILD_CACHE_PERL_FILES if no cache can be set.
 	(CygbuildPerlLibraryDependsCache): Check cache variable.
 
-	[ Commit: 0a6b221 below ]
+	[ commit: 0a6b221..6cc78b6 ]
+
+	* bin/cygbuild.sh: REFACTORING: Convert all $LS, $MV etc.
+	variables into regular calls in series of commits.
+
+	[ up to commit: 0a6b221 ]
 
 	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Remove key id
 	and use $GPGKEY variable in example.

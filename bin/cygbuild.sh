@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0854"
+CYGBUILD_VERSION="2008.0305.0911"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3416,6 +3416,11 @@ function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
+    BASH=/bin/bash                      # global-def
+    BASHX="$BASH -x"                    # global-def
+    EGREP="grep --binary-files=without-match --extended-regexp" # global-def
+    GREP="grep --binary-files=without-match" # global-def
+
     CYGCHECK=
     CygbuildWhich cygcheck > $retval
     [ -s $retval ] && CYGCHECK=$(< $retval) # global-def
@@ -3457,15 +3462,16 @@ function CygbuildDefineGlobalCommands()
     local tmp=/usr/lib/python$minor
 
     if [ -d $tmp ]; then
-	PYTHON_LIBDIR=$tmp/config   # global-def
+	PYTHON_LIBDIR=$tmp/config		    # global-def
     fi
 
-    BASH=/bin/bash                      # global-def
-    BASHX="$BASH -x"                    # global-def
-    EGREP="grep --binary-files=without-match --extended-regexp" # global-def
-    GREP="grep --binary-files=without-match" # global-def
-    GPG=gpg                             # global-def
-    WGET=wget				# global-def
+    GPG=					    # global-def
+    CygbuildPathBinFast gpg > $retval
+    [ -s $retval ] && GPG=$(< $retval)
+
+    WGET=					    # global-def
+    CygbuildPathBinFast wget > $retval
+    [ -s $retval ] && WGET=$(< $retval)
 }
 
 function CygbuildIsArchiveScript()
@@ -4421,9 +4427,11 @@ function CygbuildDetermineDocDir()
 
 function CygbuildGPGavailableCheck()
 {
-    if [ ! "$GPG" ] || [ ! -x "$GPG" ]; then
-        return 1
+    if [ "$GPG" ] && [ -x "$GPG" ]; then
+        return 0
     fi
+
+    return 1
 }
 
 function CygbuildNoticeGPG()
@@ -7615,6 +7623,7 @@ CygbuildCmdDownloadCygwinPackage ()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local url="$CYGBUILD_SRCPKG_URL"
+    local wget="$WGET"
     local pkg="$1"
     local mode=${2:-"source-binary"}		# Download both
 
@@ -7622,6 +7631,10 @@ CygbuildCmdDownloadCygwinPackage ()
         CygbuildDie "$id: [FATAL] command needs PACKAGE name"
     elif [[ "$pkg" == -* ]]; then
         CygbuildDie "$id: [FATAL] suspicious package name: $pkg"
+    fi
+
+    if [ ! "$wget" ]; then
+        CygbuildDie "$id: [FATAL] wget not in PATH"
     fi
 
     CygbuildEcho "-- Download Cygwin package: $pkg"
@@ -7640,12 +7653,6 @@ CygbuildCmdDownloadCygwinPackage ()
     else
         CygbuildEcho "-- [ERROR] Missing source PACKAGE name" >&2
         return 1
-    fi
-
-    local wget=$(CygbuildWhich wget)
-
-    if [ ! "$wget" ] || [ ! -f "$wget" ]; then
-        CygbuildDie "-- [FATAL] wget not in PATH"
     fi
 
     CygbuildFileDaysOld "$cache" > $retval &&
@@ -12023,7 +12030,6 @@ function CygbuildCommandMain()
 
     CygbuildProgramVersion '' "$*"
     CygbuildDefineGlobalScript
-    CygbuildBootVariablesCache
     CygbuildBootVariablesGlobalMain
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -12035,7 +12041,6 @@ function CygbuildCommandMain()
         shift
     fi
 
-    CygbuildDefineGlobalCommands
     CygbuildDefileInstallVariables
 
     # ................................................. read options ...
@@ -12674,6 +12679,9 @@ function CygbuildMain()
     CygbuildBootVariablesGlobalColors
     CygbuildBootVariablesId
     CygbuildBootVariablesGlobalCacheMain
+    CygbuildDefineGlobalCommands
+    CygbuildBootVariablesCache
+
     CygbuildCommandMainCheckSpecial "$@"
     CygbuildBootFunctionExport
 
@@ -12687,9 +12695,7 @@ function CygbuildMain()
 
     if [ "$CYGBUILD_LIB" ]; then
 
-	CygbuildBootVariablesCache
 	CygbuildBootVariablesGlobalMain
-	CygbuildDefineGlobalCommands
 
     else
         if [[ $# -gt 0 ]]; then
