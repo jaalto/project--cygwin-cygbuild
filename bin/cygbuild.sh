@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1638"
+CYGBUILD_VERSION="2008.0305.1641"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9212,6 +9212,7 @@ function CygbuildInstallFixInterpreterPerl ()
 function CygbuildInstallFixInterpreterPython()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
 
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
@@ -9219,16 +9220,14 @@ function CygbuildInstallFixInterpreterPython()
         return 1
     fi
 
-    sed -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$file.tmp" &&
+    sed -e '1s,#!.* \(.*\),#!/usr/bin/python \1,' "$file" > "$retval" &&
 
-    if [ -s "$file.tmp" ] &&
-	CygbuildFileCmpDiffer "$file" "$file.tmp"
+    if [ -s "$retval" ] &&
+	CygbuildFileCmpDiffer "$file" "$retval"
     then
 	CygbuildEcho "-- [NOTE] Fixing Python call line"
-	[ "$verbose" ] && diff "$file" "$file.tmp"
-	mv --force "$file.tmp" "$file"
-    else
-	rm --force "$file.tmp"
+	[ "$verbose" ] && diff "$file" "$retval"
+	mv --force "$retval" "$file"
     fi
 }
 
