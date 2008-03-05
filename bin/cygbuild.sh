@@ -3124,7 +3124,7 @@ function CygbuildMoveToTempDir()
     local temp=$dir/$dest
 
     if [ -d "$temp" ]; then
-        $RM -rf "$temp"
+        rm -rf "$temp"
     fi
 
     $MKDIR $temp || return 1
@@ -3290,7 +3290,7 @@ function CygbuildTreeSymlinkCopy()
 		    done="yes"
 		fi
 
-		$RM -f $verbose "$file"
+		rm -f $verbose "$file"
 	    done < $retval
 	fi
 
@@ -3469,7 +3469,6 @@ function CygbuildDefineGlobalCommands()
     MAKE=make                           # global-def
     MKDIR=mkdir                         # global-def
     PATCH=patch                         # global-def
-    RM=rm                               # global-def
     RMDIR=rmdir                         # global-def
     SED=sed                             # global-def
     SORT=sort                           # global-def
@@ -4305,7 +4304,7 @@ function CygbuildFileCleanNow()
         fi
 
         if [ -f "$file" ]; then
-            $RM $verbose -f "$file"
+            rm $verbose -f "$file"
         fi
     done
 }
@@ -4317,7 +4316,7 @@ function CygbuildFileCleanTemp()
     if [ "$CYGBUILD_RETVAL" ]; then
         #  cygbuild.sh.tmp.3496.CygbuildTarDirectory.dir
         #  => cygbuild.sh.tmp.[0-9]*.*
-        $RM -f ${CYGBUILD_RETVAL%.*}.[0-9]* 2> /dev/null
+        rm -f ${CYGBUILD_RETVAL%.*}.[0-9]* 2> /dev/null
     fi
 }
 
@@ -4548,7 +4547,7 @@ function CygbuildGPGsignFiles()
 
         sigfile=$file$sigext
 
-        [ -f "$sigfile" ] && $RM -f "$sigfile" 2> /dev/null
+        [ -f "$sigfile" ] && rm -f "$sigfile" 2> /dev/null
 
         name=${file##*/}
 
@@ -4945,7 +4944,7 @@ CygbuildCmdReadmeFixFile ()
     fi
 
     mv "$out" "$readme"   &&
-    $RM -f "$readme.bak"
+    rm -f "$readme.bak"
 }
 
 function CygbuildCmdReadmeFixMain()
@@ -5029,7 +5028,7 @@ function CygbuildCmdPublishSignature()
     #   Remove destination signature file, it is always becomes invalid
     #   in publish phase. The new one will be copied there.
 
-    [ -f "$sigfiledest" ] && $RM -f "$sigfiledest"
+    [ -f "$sigfiledest" ] && rm -f "$sigfiledest"
 
     if [ -f "$sigfile" ] && CygbuildGPGavailableCheck ; then
 
@@ -5533,7 +5532,7 @@ CygbuildPackageSourceDirClean()
 
     if [[ $srcinstdir == *.sinst* ]]; then
         CygbuildPushd
-            cd "$srcinstdir" && $RM -f $PKG*-src*
+            cd "$srcinstdir" && rm -f $PKG*-src*
             status=$?
         CygbuildPopd
     fi
@@ -5869,7 +5868,7 @@ function CygbuildPatchApplyMaybe()
             fi
 
             if  [ -f $statfile ] && [ ! -s $statfile ]; then
-                $RM -f "$statfile"  # Remove empty file
+                rm -f "$statfile"  # Remove empty file
             fi
 
         else
@@ -5976,17 +5975,17 @@ function CygbuildCmdMkpatchMain()
             dir="abcxyz"
             cd=$dir
 
-            [ -d "$dir" ] && $RM -rf "$dir"
+            [ -d "$dir" ] && rm -rf "$dir"
             $MKDIR "$dir" || return $?
 
         else
             if [ -d "$dir" ]; then
-                $RM -rf "$dir" || exit 1
+                rm -rf "$dir" || exit 1
             fi
         fi
 
         if [ -d "$origpkgdir" ]; then
-            $RM -rf "$origpkgdir" || exit 1
+            rm -rf "$origpkgdir" || exit 1
         fi
 
         CygbuildTarOptionCompress "$file" > $retval
@@ -6026,7 +6025,7 @@ function CygbuildCmdMkpatchMain()
             CygbuildEcho "-- Wait, taking a snapshot (may take a while)..."
 
             if [ -d "$cursrcdir" ]; then
-                $RM -rf "$cursrcdir" || exit 1
+                rm -rf "$cursrcdir" || exit 1
             fi
 
             $MKDIR -p "$cursrcdir" || exit 1
@@ -6143,12 +6142,12 @@ function CygbuildCmdMkpatchMain()
                 CygbuildVerb "-- Removing" ${origpkgdir/$srcdir\/}
 
                 if [ ! "$debug" ]; then
-                    $RM -rf "$origpkgdir" "$cleandir"
+                    rm -rf "$origpkgdir" "$cleandir"
                 fi
 
                 #   Signature is no longer valid, remove it.
                 sigfile=$out$sigext
-                [ -f "$sigfile" ] && $RM -f "$sigfile"
+                [ -f "$sigfile" ] && rm -f "$sigfile"
 
                 CygbuildGPGsignFiles "$signkey" "$passphrase" "$out"
 
@@ -6238,7 +6237,7 @@ function CygbuildCmdPkgSourceStandard()
             CygbuildWarn "-- [NOTE] Deleting old releases from" \
                          ${srcinstdir/$srcdir\/}
 
-            $RM $verbose $(< $retval) || exit $?
+            rm $verbose $(< $retval) || exit $?
         fi
 
         #   Do not include binary package. Neither *src packages.
@@ -6530,7 +6529,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
 
         install -D -m 644 "$file" "$storedir/$PKG.pod" || return $?
 
-	$RM "$file" || return $?
+	rm "$file" || return $?
 
         CygbuildEcho "-- Perl install fix: $from"
 
@@ -6561,7 +6560,7 @@ grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 #     done <  <(find "$libdir/perl5" -type f)
 
 #     if [  "$file" ]; then
-# 	$RM -rf "$libdir/perl5"
+# 	rm -rf "$libdir/perl5"
 # 	CygbuildIsDirEmpty "$libdir" && $RMDIR "$libdir"
 #    fi
 
@@ -7045,7 +7044,7 @@ function CygbuildMakefileRunInstallFixInfo()
             CygbuildEcho "-- [WARN] removing $file, so you need $name"
         fi
 
-        $RM $file
+        rm $file
     done < $retval
 }
 
@@ -7826,7 +7825,7 @@ function CygbuildCmdShadowDelete()
         CygbuildVerb "-- Nothing to do. No directory found: $srcdir"
     else
         if [[ $builddir == *$builddir_relative ]]; then
-            $RM -rf $builddir/*
+            rm -rf $builddir/*
         else
             CygbuildDie "-- [FATAL] Something is wrong, this doesn't look" \
                    "like builddir [$builddir]. Aborted."
@@ -8614,7 +8613,7 @@ function CygbuildCleanConfig ()
 {
     # Clean configuration files
 
-    $RM -f config.status config.log
+    rm -f config.status config.log
 }
 
 function CygbuildCmdCleanMain()
@@ -8669,7 +8668,7 @@ function CygbuildCmdCleanMain()
 
                 while read file
                 do
-                    $RM $verbose "$file"
+                    rm $verbose "$file"
                 done < $retval ;
 
             }
@@ -8759,7 +8758,7 @@ function CygbuildInstallPackageInfo()
     file="$DIR_INFO/dir"
 
     if [ -f "$file" ] ; then
-        $RM "$file"   || return 1
+        rm "$file"   || return 1
     fi
 }
 
@@ -9107,7 +9106,7 @@ function CygbuildInstallExtraManual()
 
         if [ "$podcopy" ]; then
             #  This was generated and installed, so remove it
-            $RM $podcopy
+            rm $podcopy
         fi
     done
 }
@@ -9162,10 +9161,10 @@ function CygbuildInstallExtraManualCompress()
 
                     if [ "$path" ] && [ -f "$path.gz" ]; then
                         ln -sf $verbose "$path.gz" "$name.gz" || exit 1
-                        $RM "$name"
+                        rm "$name"
                     elif [ "$path" ] && [ -f "$path.bz2" ]; then
                         ln -sf $verbose "$path.bz2" "$name.bz2" || exit 1
-                        $RM "$name"
+                        rm "$name"
                     fi
                 CygbuildPopd
 
@@ -9301,7 +9300,7 @@ function CygbuildInstallFixInterpreterPerl ()
 	[ "$verbose" ] && diff "$file" "$file.tmp"
 	mv --force "$file.tmp" "$file"
     else
-	$RM --force "$file.tmp"
+	rm --force "$file.tmp"
     fi
 }
 
@@ -9324,7 +9323,7 @@ function CygbuildInstallFixInterpreterPython()
 	[ "$verbose" ] && diff "$file" "$file.tmp"
 	mv --force "$file.tmp" "$file"
     else
-	$RM --force "$file.tmp"
+	rm --force "$file.tmp"
     fi
 }
 
@@ -9381,7 +9380,7 @@ function CygbuildInstallFixDocdirInstall()
 
     if ! ${test+echo} $TAR -C "$pkgdocdir" -cf - . | {
 	 $TAR -C "$dest" -xf -  &&
-	 $RM -rf "$pkgdocdir" ; }
+	 rm -rf "$pkgdocdir" ; }
     then
 
 	[ ! "$test" ] &&
@@ -9507,7 +9506,7 @@ function CygbuildInstallFixEtcdirInstall()
     local dest="$DIR_DEFAULTS_GENERAL/etc"
 
     if ! ${test+echo} $TAR  -C  "$pkgetcdir" -cf - . | {
-	$RM    -rf "$pkgetcdir" &&
+	rm    -rf "$pkgetcdir" &&
 	$MKDIR -p  "$dest"      &&
 	$TAR   -C  "$dest" -xf - ; }
     then
@@ -11190,7 +11189,7 @@ function CygbuildCmdInstallDirClean ()
 
 	    CygbuildVerb "-- Emptying" ${dir/$srcdir\/}
 
-	    $RM -rf $dir/*
+	    rm -rf $dir/*
 
 	    if [ "$?" != "0" ]; then
 		CygbuildDie "-- [ERROR] Is some other terminal/window" \
@@ -11682,7 +11681,7 @@ function CygbuildCmdFinishMain()
             cd "$TOPDIR"                 #  Can't remove, if we're inside it
         fi
 
-        $RM -rf "$objdir"
+        rm -rf "$objdir"
         status=$?
 
         if [ -d "$objdir" ]; then
