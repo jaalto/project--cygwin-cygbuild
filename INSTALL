@@ -3,76 +3,37 @@ Cygbuild - A porting tool for making Cygwin net releases
 
 Install instructions
 
-    Running in place
-
-        It is not mandatory to install anything. If you add the the
-        package's bin/ directory to PATH, the program will search
-        template files near the unpacked directories for template
-        files.
-
     Cygwin binary package install
 
-        If you received cygbuild in standard Cygwin binary archive format,
-        it is installed by unpacking it at root directory:
+        If you received cygbuild in standard Cygwin binary archive
+        format, it is installed by unpacking it at root directory:
 
             tar -C / -jxf <name-of-package.tar.bz2>
 
-    Installing from a version control checkout:
+    Running in place
+
+        It is not mandatory to install anything after unpack or
+        version control checkout. The program will search needed
+        files, provided that a) it is called by absolute name:
+
+	    #  (b)uild alias
+	    alias b="/path/to/cygbuild.sh --color -s $GPGKEY -r"
+	    b <command and option ...>
+
+	or b) package's bin/ directory is added to environment
+        variable PATH.
+
+    Standard install from a version control checkout
 
         Details how to check out the project can ve found from project
-        page. After checkout, various development commands can be
-        listed with:
+        page and README. From listing:
 
             make help
 
-        The command `install-in-place' does not copy the files to but uses
-        symbolic links that refer to current checkout location. The
-	/usr/local is the default install without "prefix" parameter
-	to make call:
+        There is command 'install-in-place' which uses symbolic links
+        to current checkout location. The /usr/local is the default
+        install location:
 
             make [prefix=/usr/local] install-in-place
-
-        After that, you only need to update the project from time to time
-        from version control repository. After each checkout or update, you
-        can update the templete files to their latest versions with:
-
-            make install-etc
-
-Version control information
-
-    Latest development code is available at
-
-	git clone http://git.cante.net/repo/cygbuild.git
-	cd cygbuild
-	git checkout -b master origin/devel
-
-    Infrequently released stable is available at
-
-	git clone git://git.savannah.nongnu.org/cygbuild.git
-	cd cygbuild
-
-    To receive updates (to either one above)
-
-	git pull
-
-Dependencies
-
-        The aplication consists of set of programs that use intepreted
-        languages. The dependencies are:
-
-	o   Bash                            3.x
-        o   Perl                            5.004+
-        o   GNU compiler collection         any version
-	o   GNU binutils
-        o   GNU awk, make, grep, tar...     any version
-        o   GNU diffutils                   any version
-        o   patchutils                      any version
-        o   Wget                            any version
-        o   Python                          any version
-        o   Standard programs: ls, etc.     any version
-
-        It is possible to setup a Cygwin cross compiling environment
-        in Free OS. See document "Cygwin/X Contributor's Guide" at
-        <http://x.cygwin.com/docs/cg/prog-build-cross.html>
 
 End of file

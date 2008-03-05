@@ -29,4 +29,41 @@ Project contacts
     Source code repository
       See freshmeat page
 
+Version control information
+
+    Latest development code is available at
+
+	git clone http://git.cante.net/repo/cygbuild.git
+	cd cygbuild
+	git checkout -b master origin/devel
+
+    Infrequently released stable is available at
+
+	git clone git://git.savannah.nongnu.org/cygbuild.git
+	cd cygbuild
+
+    To receive updates (to either one above)
+
+	git pull
+
+Dependencies
+
+        The aplication consists of set of programs that use intepreted
+        languages. The dependencies are:
+
+	o   Bash                            3.x
+        o   Perl                            5.004+
+        o   GNU compiler collection         any version
+	o   GNU binutils
+        o   GNU awk, make, grep, tar...     any version
+        o   GNU diffutils                   any version
+        o   patchutils                      any version
+        o   Wget                            any version
+        o   Python                          any version
+        o   Standard programs: ls, etc.     any version
+
+        It is possible to setup a Cygwin cross compiling environment
+        in Free OS. See document "Cygwin/X Contributor's Guide" at
+        <http://x.cygwin.com/docs/cg/prog-build-cross.html>
+
 End of file
