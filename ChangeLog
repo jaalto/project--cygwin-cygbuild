@@ -49,6 +49,7 @@
 	(CygbuildExitIfNoFile); Renamed. Was CygbuildExitNoFile.
 	(CygbuildBootVariablesGlobalShareMain): Correct variable dir
 	at the end of function.
+	(CygbuildProgramVersion): Use ## prefix in non-color mode too.
 
 	[ commit: 21c6baa ]
 
