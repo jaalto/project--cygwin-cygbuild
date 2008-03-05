@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0841"
+CYGBUILD_VERSION="2008.0305.0842"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3468,7 +3468,6 @@ function CygbuildDefineGlobalCommands()
     GPG=gpg                             # global-def
     MAKE=make                           # global-def
     PATCH=patch                         # global-def
-    RMDIR=rmdir                         # global-def
     SORT=sort                           # global-def
     TAR=tar                             # global-def
     TR=tr                               # global-def
@@ -6559,7 +6558,7 @@ grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 
 #     if [  "$file" ]; then
 # 	rm -rf "$libdir/perl5"
-# 	CygbuildIsDirEmpty "$libdir" && $RMDIR "$libdir"
+# 	CygbuildIsDirEmpty "$libdir" && rmdir "$libdir"
 #    fi
 
 }
@@ -6778,7 +6777,7 @@ function CygbuildMakefileRunInstallPythonFix()
         mv $verbose "$root/bin/lib" "$root/" ||
             CygbuildDie "$id: mv error"
 
-        # [ -d "$root/bin" ] && $RMDIR "$root/bin"
+        # [ -d "$root/bin" ] && rmdir "$root/bin"
     fi
 
     #   Move /usr/share/bin to /usr/bin
@@ -9233,7 +9232,7 @@ function CygbuildInstallFixMandir()
       mv "$item" "$manroot"
     done
 
-    $RMDIR "$dir/usr/man"
+    rmdir "$dir/usr/man"
 }
 
 function CygbuildInstallFixPermissions()
@@ -9353,7 +9352,7 @@ function CygbuildInstallFixDocdirInstall()
 	    if CygbuildIsDirEmpty "$tmp" ; then
 		CygbuildVerb "-- Removing empty directory" \
 			     ${tmp/$pwd\//}
-		$RMDIR "$tmp"
+		rmdir "$tmp"
 	    fi
 	done < $retval
     fi
