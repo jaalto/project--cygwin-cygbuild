@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1748"
+CYGBUILD_VERSION="2008.0305.1800"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9232,7 +9232,7 @@ function CygbuildInstallFixInterpreterPerl ()
 	    {
 		print
 	    }
-	' max=$max "$file" $file > $retval.awk &&
+	' max=$max "$file" > $retval.awk &&
 	mv --force $retval.awk "$file"
     fi
 
