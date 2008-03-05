@@ -42,18 +42,22 @@ SH		= bin/$(PACKAGE).sh \
 
 FROM_ETC_MAIN	 = etc/etc
 FROM_ETC_TMPL	 = etc/template
+FROM_ETC_DATA	 = etc/data
 ETCDIR_TMPL	 = $(SHAREDIR)/template
+ETCDIR_DATA	 = $(SHAREDIR)/data
 ETCDIR_TMPL_USER = $(ETCDIR)/template
 
 SRCS		= $(PL) $(SH)
 OBJS		= $(SRCS) Makefile README ChangeLog
-OBJS_ETC_TMPL	= `find $(FROM_ETC_TMPL) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
 OBJS_ETC_MAIN	= `find $(FROM_ETC_MAIN) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
+OBJS_ETC_TMPL	= `find $(FROM_ETC_TMPL) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
+OBJS_ETC_DATA	= `find $(FROM_ETC_DATA) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
 
 # ######################################################### &targets ###
 
 .PHONY: all clean distclean realclean test doc
-.PHONY: install-etc-template install-etc-template-symlink install
+.PHONY: install-dir-structure
+.PHONY: install-share-template install-template-symlinks install
 
 # Rule: all - Make and compile all.
 all:	doc
@@ -86,13 +90,13 @@ doc-readme:
 	t2html.pl --title "cygbuild README" \
 	    --as-is --simple README > doc/README.html
 
-# Rule: install-etc-dir-template - [maintenance] Create /etc directory
-install-etc-dir-template:
-	# install-etc-dir-template
-	$(INSTALL_BIN) -d $(ETCDIR_TMPL) $(ETCDIR_TMPL_USER)
+# Rule: install-dir-structure - [maintenance] Create /etc directory
+install-dir-structure:
+	# install-dir-structure
+	$(INSTALL_BIN) -d $(ETCDIR_TMPL) $(ETCDIR_DATA) $(ETCDIR_TMPL_USER)
 
 # Rule: install-etc-main - [maintenance] Install configuration files
-install-etc-main: install-etc-dir-template
+install-etc-main: install-dir-structure
 	# install-etc-main
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
@@ -104,7 +108,7 @@ install-etc-main: install-etc-dir-template
 
 # Rule: install-etc-main-symlink - [maintenance] Install symlinks to configuration dir
 # FIXME: remove. 2008-03-03 no longer used.
-install-etc-main-symlink: install-etc-dir-template
+install-etc-main-symlink: install-dir-structure
 	# install-etc-main-symlink
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
@@ -113,9 +117,9 @@ install-etc-main-symlink: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc-template - [maintenance] Install configuration files to
-install-etc-template: install-etc-dir-template
-	# install-etc-template
+# Rule: install-share-template - [maintenance] Install template configuration files
+install-share-template: install-dir-structure
+	# install-share-template
 	-rm -f	$(ETCDIR_TMPL)/*
 	@for file in $(OBJS_ETC_TMPL);					\
 	do								\
@@ -125,9 +129,21 @@ install-etc-template: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc-template-symlink - [maintenance] Install templates using symlinks
-install-etc-template-symlink: install-etc-dir-template
-	# install-etc-template-symlink
+# Rule: install-share-data - [maintenance] Install data configuration files
+install-share-data: install-dir-structure
+	# install-share-data
+	-rm -f	$(ETCDIR_DATA)/*
+	@for file in $(OBJS_ETC_DATA);					\
+	do								\
+	    if [ -f $$file ]; then					\
+		echo $(INSTALL_DATA) $$file $(ETCDIR_DATA);		\
+		$(INSTALL_DATA) $$file $(ETCDIR_DATA);			\
+	    fi;								\
+	done
+
+# Rule: install-template-symlinks - [maintenance] Install templates using symlinks
+install-template-symlinks: install-dir-structure
+	# install-template-symlinks
 	-rm -f	$(ETCDIR_TMPL)/*
 	@for file in $(OBJS_ETC_TMPL);					\
 	do								\
@@ -136,15 +152,27 @@ install-etc-template-symlink: install-etc-dir-template
 	    fi;								\
 	done
 
-# Rule: install-etc - [maintenance] Install /etc directory
-install-etc: install-etc-template
+# Rule: install-data-symlinks - [maintenance] Install data using symlinks
+install-data-symlinks: install-dir-structure
+	# install-data-symlinks
+	-rm -f	$(ETCDIR_DATA)/*
+	@for file in $(OBJS_ETC_DATA);					\
+	do								\
+	    if [ -f $$file ]; then					\
+		ln -vsf `pwd`/$$file $(ETCDIR_DATA)/`basename $$file`;	\
+	    fi;								\
+	done
+
+# Rule: install-etc - [maintenance] Install /etc directories
+install-share: install-share-data install-share-template
 
 # Rule: install-in-place - Install from current dir using symlinks
-install-in-place: install-etc-template-symlink \
-	install-bin-symlink install-man
+install-in-place: install-data-symlinks		\
+		install-template-symlinks	\
+		install-bin-symlink
 
 # Rule: install - install everything to system directories
-install: install-unix install-etc
+install: install-unix install-share
 
 # ######################################################### &release ###
 
