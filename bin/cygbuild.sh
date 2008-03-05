@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0927"
+CYGBUILD_VERSION="2008.0305.0947"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -150,8 +150,6 @@ function CygbuildPathBinFast()
     local bin="$1"
     local try="${2%/}"      # Delete trailing slash
 
-    local dir
-
     #   If it's not in these directories, then just use
     #   plain "cmd" and let bash search whole PATH
 
@@ -166,7 +164,7 @@ function CygbuildPathBinFast()
     elif [ "$try" ] && [ -x $try/$bin ]; then
         echo $try/$bin
     else
-        echo $bin
+        return 1
     fi
 }
 
@@ -177,6 +175,8 @@ function CygbuildTarOptionCompress()
     #   Return correct packaging command based on the filename
     #   .tar.gz or .tgz     => "z" option
     #   .bz2                => "j" option
+
+    # FIXME: lzma
 
     case "$1" in
         *.tar.gz|*.tgz)   echo "z" ;;
@@ -218,7 +218,7 @@ function CygbuildMatchRegexp()
     fi
 }
 
-function CygbuildMatchRemoveWord()
+function CygbuildMatchPatternRemoveWord()
 {
     local pattern="$1"
     shift
@@ -235,22 +235,7 @@ function CygbuildMatchRemoveWord()
     echo $new
 }
 
-function CygbuildIsEmpty()
-{
-    CygbuildMatchRegexp '^[ \t]*$' "$1"
-}
-
-function CygbuildIsNumber()
-{
-    CygbuildMatchRegexp '^[0-9]+$' "$1"
-}
-
-function CygbuildIsNumberLike()
-{
-    CygbuildMatchRegexp '[0-9]' "$1"
-}
-
-function CygbuildMatchBashPatternList()
+function CygbuildMatchPatternList()
 {
     local str="$1"
 
@@ -276,6 +261,21 @@ function CygbuildMatchBashPatternList()
     set +o noglob
 
     return $ret
+}
+
+function CygbuildIsEmpty()
+{
+    CygbuildMatchRegexp '^[ \t]*$' "$1"
+}
+
+function CygbuildIsNumber()
+{
+    CygbuildMatchRegexp '^[0-9]+$' "$1"
+}
+
+function CygbuildIsNumberLike()
+{
+    CygbuildMatchRegexp '[0-9]' "$1"
 }
 
 #######################################################################
@@ -486,13 +486,15 @@ function CygbuildBootVariablesId()
     #       local val=$(< $retval)
 
     CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$"
+    local retval="$CYGBUILD_RETVAL"
 
-    CYGBUILD_PROG_NAME=${0##*/}
+    CYGBUILD_PROG_NAME=${0##*/}				# delete path
 
     if [[ "$0" == */* ]]; then
 	CYGBUILD_PROG_PATH=$(cd ${0%/*} && pwd)
     else
-	CYGBUILD_PROG_PATH="$(pwd)"
+	CygbuildWhich "$CYGBUILD_PROG_NAME" > $retval
+	CYGBUILD_PROG_PATH=$(< $retval)
     fi
 
     CYGBUILD_PROG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
@@ -6996,7 +6998,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
 
 	[ "$verbose" ] && set -x
 
-        make -f $makefile $test        \
+	make -f $makefile $test		\
              DESTDIR=$instdir           \
              DOCDIR=$docdir             \
              $pfx                       \
@@ -8885,7 +8887,7 @@ function CygbuildInstallPackageDocs()
         name="${file##*/}"
         match=""
 
-        CygbuildMatchBashPatternList \
+        CygbuildMatchPatternList \
             "$file" "$CYGBUILD_INSTALL_IGNORE" && continue
 
         if [[ "$matchExclude"  &&  "$name" == $matchExclude ]]; then
@@ -11537,7 +11539,6 @@ function CygbuildCmdFilesMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
     local templatedir="$CYGBUILD_TEMPLATE_DIR_MAIN"
 
     if [ ! "$templatedir" ] || [ ! -d "$templatedir" ]; then

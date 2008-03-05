@@ -9,6 +9,12 @@
 	here from CygbuildCommandMain().
 	(CygbuildCmdDownloadCygwinPackage): Rewite wget test.
 	(CygbuildDefineGlobalCommands): Remove variable BASH.
+	(CygbuildPathBinFast): Fix serious error. Return 1 if
+	path is not found.
+	(CygbuildMatchPatternList): Renamed. Was
+	`CygbuildMatchBashPatternList'.
+	(CygbuildBootVariablesId): Set CYGBUILD_PROG_PATH by searching
+	PATH as last resort.
 
 	[ commit: 21c6baa ]
 
