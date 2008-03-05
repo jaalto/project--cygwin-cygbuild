@@ -1,4 +1,4 @@
-#!/bin/bash
+x#!/bin/bash
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
@@ -1414,7 +1414,7 @@ function WasLibraryInstall ()
     WasLibraryInstallMakefile && return 0
 
     if [ -d .inst ]; then
-        $FIND .inst -type f     \
+        find .inst -type f     \
             -name "*.a"         \
             -o -name "*.la"     \
             -o -name "*.dll*"   \
@@ -1467,7 +1467,7 @@ function CygbuildFindDo()
     local dirs="$1"
     shift
 
-    $FIND -L $dirs			\
+    find -L $dirs			\
 	-type d '('		        \
 	    -name ".inst"	        \
 	    -o -name ".sinst"	        \
@@ -1628,7 +1628,7 @@ CygbuildCygcheckLibraryDepSource ()
     #
     #  execvp("/bin/diff")
 
-    if $FIND "$builddir" -name "*.c" -o -name "*.cc" |
+    if find "$builddir" -name "*.c" -o -name "*.cc" |
        $EGREP "^[^/]*exec[a-z]* *\("
     then
         CygbuildWarn "-- [WARN] External shell call detected." \
@@ -3156,7 +3156,7 @@ function CygbuildFilesExecutable()
 
 #    set -o noglob
 
-        $FIND -L $dir           \
+        find -L $dir           \
         -type f                 \
         '('                     \
             -name "*.exe"       \
@@ -3267,7 +3267,7 @@ function CygbuildTreeSymlinkCopy()
         #   Remove all *.exe files before shadowing (they should be generated
         #   anyway.
 
-        $FIND . \
+        find . \
             -type d '(' -name ".inst" -o -name ".sinst" -o -name ".build" ')' \
             -prune                              \
             -a ! -name ".inst"                  \
@@ -4476,7 +4476,7 @@ function CygbuildSignCleanAllMaybe()
     #   If signing option is not on, clean old sign files.
 
     if [ ! "$OPTION_SIGN" ]; then
-        if $FIND $dir -name "*.$sigext" > $retval ; then
+        if find $dir -name "*.$sigext" > $retval ; then
             CygbuildFileCleanNow                \
                 "-- Removing old *.$sigext files"
                 "$(< $retval)"
@@ -4664,7 +4664,7 @@ function CygbuildGPGsignMain()
     set -o noglob
 
         local files
-        $FIND $srcinstdir                   \
+        find $srcinstdir                   \
             -type f                         \
             '(' -name "$PKG-$VER-$REL*"     \
                 -a \! -name "*$sigext"      \
@@ -4778,7 +4778,7 @@ function CygbuildCmdGPGVerifyMain()
         list="$(< $retval)"
     else
         dir=$srcinstdir
-        $FIND $dir -name "$PKG*$sigext" > $retval
+        find $dir -name "$PKG*$sigext" > $retval
         list="$(< $retval)"
     fi
 
@@ -5217,7 +5217,7 @@ function CygbuildCmdPkgDevelStandardDoc()
 
         #  Exclude README, FAQ, ChangeLog, Licence etc.
 
-        $FIND usr/share/doc -type f ! -path "*Cygwin*" |
+        find usr/share/doc -type f ! -path "*Cygwin*" |
             $EGREP -v '[A-Z][A-Z]'  |
             $EGREP -vi 'change|license' \
             > $retval.doc
@@ -5288,7 +5288,7 @@ function CygbuildCmdPkgDevelStandardLib()
     CygbuildPushd
         cd $instdir || exit 1
 
-        $FIND usr               \
+        find usr               \
             -name "*.dll"       \
             > $retval.lib
 
@@ -5342,7 +5342,7 @@ function CygbuildCmdPkgDevelStandardDev()
         cat $retval.bin $retval.man.bin $retval.lib $retval.doc \
             > $retval.already.packaged
 
-        $FIND . -type f > $retval.find
+        find . -type f > $retval.find
 
         $EGREP --invert-match --file=$retval.already.packaged \
                $retval.find > $retval.dev
@@ -5396,7 +5396,7 @@ function CygbuildCmdPkgDevelStandardMain()
               $retval.doc $retval.bin $retval.lib
 
         #  Find all executables. Exclude library config like xxx-config
-        $FIND usr \
+        find usr \
              '(' \
                 -path "*/bin/*" \
                 -o -path "*/var/*" \
@@ -5411,7 +5411,7 @@ function CygbuildCmdPkgDevelStandardMain()
 
         # .................................................. manuals ...
 
-        $FIND usr/share/man -type f > $retval.man.all 2> /dev/null
+        find usr/share/man -type f > $retval.man.all 2> /dev/null
 
         if [ -s $retval.bin ]; then
 
@@ -5431,7 +5431,7 @@ function CygbuildCmdPkgDevelStandardMain()
             )
 
             if [ "$manregexp" ]; then
-                $FIND usr/share/man                     \
+                find usr/share/man                     \
                     -regextype posix-egrep              \
                     -regex ".*($manregexp)[.][0-9].*"   \
                     -type f                             \
@@ -5451,7 +5451,7 @@ function CygbuildCmdPkgDevelStandardMain()
         CygbuildCmdPkgDevelStandardDoc "$retval"
         pkgdoc=$RETVAL
 
-        $FIND etc/ usr/share/{doc,locale,emacs,info} \
+        find etc/ usr/share/{doc,locale,emacs,info} \
             -type f \
             >> $retval.bin \
             2> /dev/null
@@ -5620,7 +5620,7 @@ function CygbuildPatchList()
 
     #	Ignore verion controlled directories.
 
-    $FIND -L $dir			\
+    find -L $dir			\
 	-type d '(' -path "*/.git*"	\
 		    -o -path "*/.bzr*"	\
 		    -o -path "*/.mtn*"	\
@@ -6512,7 +6512,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
     #
     #  and upon unpack it would replace the existing file. Tackle that.
 
-    $FIND "$instdir" -name perllocal.pod > $retval
+    find "$instdir" -name perllocal.pod > $retval
 
     if [ ! -s $retval ]; then
         CygbuildVerb "-- [NOTE] perllocal.pod not foundxs"
@@ -7047,7 +7047,7 @@ function CygbuildMakefileRunInstallFixInfo()
     #       .inst/usr/share/info/package.info
     #       .inst/usr/share/info/dir
 
-    if ! $FIND $instdir -name dir > $retval; then
+    if ! find $instdir -name dir > $retval; then
         return
     fi
 
@@ -7985,7 +7985,7 @@ function CygbuildCmdDependMain()
     CygbuildEcho "-- Reading cygcheck dependencies"
 
     local list
-    $FIND $instdir -name "*.exe" -o -name "*.dll" > $retval
+    find $instdir -name "*.exe" -o -name "*.dll" > $retval
     [ -s $retval ] && list=$(< $retval)
 
     if [ ! "$list" ]; then
@@ -8675,7 +8675,7 @@ function CygbuildCmdCleanMain()
 
                 set -o noglob    # Do not expand $CYGBUILD_FIND_OBJS; "*.exe"
 
-                    $FIND . \
+                    find . \
                         -type f '(' $CYGBUILD_FIND_OBJS ')' \
                         > $retval
 
@@ -8741,7 +8741,7 @@ function CygbuildInstallPackageInfo()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    $FIND $srcdir                                               \
+    find $srcdir                                               \
         -type d '(' -name ".inst"                               \
                     -o -name ".sinst"                           \
                     -o -name ".build" ')' -prune                \
@@ -9026,7 +9026,7 @@ function CygbuildInstallPackageDocs()
 
     CygbuildVerb "-- Adjusting permissions in" ${dest/$srcdir\/}
 
-    $FIND "$dest" -print > $retval
+    find "$dest" -print > $retval
 
     local mode644 mode755
 
@@ -9144,7 +9144,7 @@ function CygbuildInstallExtraManualCompress()
                      ${instdocdir/$srcdir\//}
     else
 
-        $FIND $instdocdir -type f \
+        find $instdocdir -type f \
             '(' \
             ! -name "*gz" -a ! -name "*.bz2"  \
             ')' \
@@ -9155,7 +9155,7 @@ function CygbuildInstallExtraManualCompress()
             CygbuildCompressManualPage --force --best $(< $retval) || return $?
         fi
 
-        $FIND $instdocdir -type l -name "*.[1-9]" > $retval
+        find $instdocdir -type l -name "*.[1-9]" > $retval
 
         if [ -s $retval ]
         then
@@ -9260,7 +9260,7 @@ function CygbuildInstallFixPermissions()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    $FIND "$instdir" -type f > $retval
+    find "$instdir" -type f > $retval
     [ -s $retval ] || return 0
 
     local file exeList readList
@@ -9362,7 +9362,7 @@ function CygbuildInstallFixDocdirInstall()
 
     #	Clean any empty directories
 
-    $FIND "$dest" -type d > $retval
+    find "$dest" -type d > $retval
 
     if [ -s $retval ]; then
         local tmp
@@ -9451,7 +9451,7 @@ function CygbuildInstallPostinstallPartEtc()
 	list="$list $i"
     done < <(
 	cd $dest &&
-	$FIND . |
+	find . |
 	    $SED \
 	    -e 's,^\./,,' \
 	    -e 's,^\.$,,' \
@@ -9488,7 +9488,7 @@ function CygbuildInstallFixInfoInstall()
 
     [ -d "$dir" ] || return 0
 
-    $FIND $instdir/usr/share/ -name "*.info" \
+    find $instdir/usr/share/ -name "*.info" \
 	> $retval 2> /dev/null
 
     [ -s $retval ] || return 0		# No info files
@@ -9714,7 +9714,7 @@ function CygbuildCmdInstallCheckInfoFiles()
     local dummy=$(pwd)                    # For debug
     local dir="$instdir"
 
-    $FIND -L $dir -name dir -o -name "*.info" > $retval
+    find -L $dir -name dir -o -name "*.info" > $retval
     [ -s $retval ] && notes=$(< $retval)
 
     #   If there are *.info files, then there must be postinstall
@@ -9722,7 +9722,7 @@ function CygbuildCmdInstallCheckInfoFiles()
 
     local notes
 
-    $FIND -L $dir -name dir -o -name "*.info" > $retval
+    find -L $dir -name dir -o -name "*.info" > $retval
     [ -s $retval ] && notes=$(< $retval)
 
     if [ "$notes" ]; then
@@ -9919,7 +9919,7 @@ function CygbuildCmdInstallCheckTempFiles()
     local ignore="$CYGBUILD_IGNORE_ZERO_LENGTH"
     local done file ret
 
-    $FIND -L $dir -type f            \
+    find -L $dir -type f            \
         '(' -size 0 -name "*[#~]*" ')' \
         > $retval
 
@@ -9945,7 +9945,7 @@ function CygbuildCmdInstallCheckMakefiles()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local done file ret
 
-    $FIND -L "$builddir" -type f    \
+    find -L "$builddir" -type f    \
         '(' -name Makefile          \
             -o -name makefile       \
             -o -name GNUMakefile    \
@@ -9969,7 +9969,7 @@ function CygbuildCmdInstallCheckReadme()
     local readme="$PKG*.README"
     local status=0
 
-    $FIND -L $dir -name "$readme"  > $retval
+    find -L $dir -name "$readme"  > $retval
 
     if [ ! -s $retval ]; then
         CygbuildWarn "-- [WARN] File is missing: $readme"
@@ -10345,7 +10345,7 @@ function CygbuildCmdInstallCheckSetupHintMain()
     fi
 
     #   -L = Follow symbolic links
-    $FIND -L $dir -name "$file"  > $retval 2> /dev/null
+    find -L $dir -name "$file"  > $retval 2> /dev/null
 
     if [ ! -s $retval ]; then
         CygbuildWarn "-- [ERROR] missing: $file"
@@ -10376,7 +10376,7 @@ function CygbuildCmdInstallCheckDirEmpty()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir
 
-    $FIND "$instdir" -type d > $retval
+    find "$instdir" -type d > $retval
     [ -s "$retval" ] || return 0
 
     while read dir
@@ -10441,7 +10441,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
     if [ -d $instdir/etc ]; then
 
-        $FIND "$instdir/etc" \
+        find "$instdir/etc" \
             ! -path "*/postinstall*" \
             -a ! -path "*/preremove*" \
             -a ! -path "*/app-defaults*" \
@@ -10528,7 +10528,7 @@ function CygbuildCmdInstallCheckManualPages()
         return 0
     fi
 
-    $FIND -L $dir                   \
+    find -L $dir                   \
         -type f                     \
         '('                         \
             -path    "*/man/*"      \
@@ -10653,7 +10653,7 @@ function CygbuildCmdInstallCheckPkgDocdir()
     local dir="$instdir"
     local cygdoc="$DIR_DOC_GENERAL"
 
-    $FIND -L $dir                        \
+    find -L $dir                        \
         -type f                          \
         '(' -path   "*/$pfx/doc/*"   ')' \
         > $retval
@@ -10691,7 +10691,7 @@ function CygbuildCmdInstallCheckDocdir()
 	return 0
     fi
 
-    $FIND -L "$dir"                     \
+    find -L "$dir"                     \
         -type f                         \
         '(' -path   "*$PKG*"   ')'      \
         > $retval
@@ -10733,7 +10733,7 @@ function CygbuildCmdInstallCheckSymlinks()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
-    $FIND $dir -ls | $EGREP --regexp='-> +/' > $retval || return 0
+    find $dir -ls | $EGREP --regexp='-> +/' > $retval || return 0
 
     local status=0
     local path link i j
@@ -10799,7 +10799,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
     #  All exe files must have +x permission
 
-    $FIND -L $dir           \
+    find -L $dir           \
     '(' -name \*.sh         \
         -o -name \*.exe     \
         -o -name "*.dll"    \
@@ -10834,7 +10834,7 @@ function CygbuildCmdInstallCheckBinFiles()
     #   FIXME: Currently every file in /bin is supposed to be executable
     #   This may not be always true?
 
-    $FIND -L $dir -type f       \
+    find -L $dir -type f       \
         \(                      \
            -path "*/bin/*"      \
            -o -path "*/sbin/*"  \
@@ -10990,7 +10990,7 @@ function CygbuildCmdInstallCheckLibFiles()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    $FIND -L $dir -type f           \
+    find -L $dir -type f           \
         '(' -name "*.a"             \
             -o -name "*.la"         \
             -o -name "*.dll" ')'    \
@@ -11031,11 +11031,11 @@ function CygbuildCmdInstallCheckLibFiles()
 
     done
 
-    $FIND -L $dir -type f '(' -name "*.info" -o -name "*.info-[0-9]" ')' \
+    find -L $dir -type f '(' -name "*.info" -o -name "*.info-[0-9]" ')' \
         > $retval
     local info=$(< $retval)
 
-    $FIND  -L $dir -type f -path "*/man/*"  > $retval
+    find  -L $dir -type f -path "*/man/*"  > $retval
     local man=$(< $retval)
 
     if [[ ! "$info"  &&  ! "$man" ]]; then
@@ -11093,7 +11093,7 @@ function CygbuildCmdInstallCheckSymlinkExe()
     # Subject: All maintainers: repackage symlinks to executables
     # See http://permalink.gmane.org/gmane.os.cygwin.applications/14466
 
-    $FIND $instdir -type l -name '*.exe' > $retval
+    find $instdir -type l -name '*.exe' > $retval
 
     if [ -s $retval ]; then
         CygbuildEcho "-- [ERROR] Symlinks must not end to .exe."
@@ -11230,7 +11230,7 @@ function CygbuildCmdInstallFinishMessage()
 
     if [ "$verbose" ]; then
         CygbuildEcho "-- Content of: $relative"
-        $FIND -L ${instdir#$(pwd)/} -print
+        find -L ${instdir#$(pwd)/} -print
     else
         CygbuildEcho "-- See also: find $relative" \
              "${test:+(Note: test mode was on)}"
@@ -11374,7 +11374,7 @@ function CygbuildCmdScriptRunMain()
 
             if [ -d "$dir" ]; then
                 CygbuildEcho "-- [DEBUG] Content of info 'dir'"
-                $FIND "$dir" -print
+                find "$dir" -print
                 $CAT "$dir/dir"
             fi
         fi
@@ -11442,7 +11442,7 @@ function CygbuildStripCheck()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file
 
-    $FIND $instdir \
+    find $instdir \
         -type f '(' -name "*.exe" -o -name "*dll" ')' \
         | head -1 \
         > $retval
@@ -11451,7 +11451,7 @@ function CygbuildStripCheck()
 
     if [ ! "$file" ]; then
 
-        $FIND $instdir -type f -name "*.a" -o -name "*.la" > $retval
+        find $instdir -type f -name "*.a" -o -name "*.la" > $retval
         [ -s $retval ] && file=$(< $retval)
 
         if [ ! "$file" ]; then
