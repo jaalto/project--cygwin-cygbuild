@@ -629,8 +629,12 @@ function CygbuildBootVariablesGlobalCacheSet()
 	    CygbuildEcho "Wait, initializing Perl cache"
 	    $bin -l perl > $file
 	else
+	    # FIXME: Supply platform independent Perl cache with
+	    # the program.
+
 	    CYGBUILD_CACHE_PERL_FILES=				# global-def
-	    CygbuildWarn "-- [WARN] Skip, because cygcheck not in PATH"
+	    CygbuildVerb "-- [WARN] Perl cache setup skipped," \
+		"because cygcheck not in PATH"
 	fi
     fi
 }
@@ -7198,7 +7202,7 @@ function CygbuildCmdMkdirs()
     local id="$0.$FUNCNAME"
     local verbose="$1"
 
-    CygbuildEcho "-- Making Cygwin directories under $srcdir"
+    CygbuildVerb "-- Making Cygwin directories under $srcdir"
     local status=0
     local dir
 
@@ -8282,7 +8286,6 @@ function CygbuildCmdConfAutomake()
 function CygbuildCmdConfMain()
 {
     local id="$0.$FUNCNAME"
-    local perlconf="$srcdir/Makefile.PL"
     local script="$SCRIPT_CONFIGURE_CYGFILE"
     local dummy=$(pwd)      # For debugger
     local status=0
@@ -8313,11 +8316,15 @@ function CygbuildCmdConfMain()
             $script $instdir | CygbuildMsgFilter
             status=$?
 
-        elif [ -f "$perlconf" ]; then
+        elif CygbuildIsPerlPackage ; then
 
             CygbuildConfPerlCheck &&
             CygbuildConfPerlMain
             status=$?
+
+        elif CygbuildIsPythonPackage ; then
+
+	    CygbuildVerb "-- Python package, nothing to configure"
 
         elif [ -f configure ]; then
 
@@ -9615,7 +9622,8 @@ function CygbuildInstallCygwinPartMain()
     file=$(< $retval)
 
     if [ ! "$file" ]; then
-        CygbuildDie "-- [FATAL] Can't find Cygwin specific README file"
+        CygbuildDie "-- [FATAL] Can't find Cygwin specific README file" \
+	    "Please run command [files]"
     fi
 
     #   NOTE: the *.README file does not include RELEASE, just VERSION.
@@ -12284,7 +12292,7 @@ function CygbuildCommandMain()
     if [ ! "$package" ]; then
 
         if ! CygbuildFilePackageGuessMain > $retval ; then
-            echo "$id: [FATAL] $? CygbuildFilePackageGuessMain()"   \
+            echo "$id: [FATAL] $? CygbuildFilePackageGuessMain"     \
                  " call error $?"                                   \
                  "Please debug and check content of $retval"        \
                  "Is filesystem full?"
@@ -12448,20 +12456,21 @@ function CygbuildCommandMain()
 		local dir=$CYGBUILD_DIR_CYGPATCH_RELATIVE
 		local install
 
-		#   If there is CYGWIN-PATCHEs, then this is "upgrade"
+		#   If there is CYGWIN-PATCHES, then this is "upgrade"
 		#   Run also install in that case.
-
-		CygbuildCmdMkdirs       &&
 
 		if [ -d "$dir" ]; then
 		    install="install"
+    		    CygbuildCmdMkdirs
 		    CygbuildPatchApplyMaybe
 		else
-		  CygbuildCmdFilesMain
-		fi			&&
+  		  CygbuildCmdMkdirs
+		  CygbuildCmdFilesMain  
+		fi			  &&
 
-		CygbuildCmdConfMain     &&
-		CygbuildCmdBuildMain	&&
+		CygbuildCmdReadmeFixMain  &&
+		CygbuildCmdConfMain       &&
+		CygbuildCmdBuildMain	  &&
 		[ ! "$install" ] || CygbuildCmdInstallMain
 		status=$?
 		;;

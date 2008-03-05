@@ -15,6 +15,14 @@
 	`CygbuildMatchBashPatternList'.
 	(CygbuildBootVariablesId): Set CYGBUILD_PROG_PATH by searching
 	PATH as last resort.
+	(CygbuildCmdConfMain): Use CygbuildIsPerlPackage.
+	Add Python handling.
+	(CygbuildInstallCygwinPartMain): Improve error message.
+	(CygbuildBootVariablesGlobalCacheSet): Display message only
+	if verbose mode is on.
+	(CygbuildCmdMkdirs): Display message only
+	if verbose mode is on.
+	(CygbuildCommandMain::import): Add readmefix and move mkdir command.
 
 	[ commit: 21c6baa ]
 
