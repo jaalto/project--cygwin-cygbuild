@@ -83,7 +83,7 @@
 	(CygbuildCmdInstallCheckBinFiles): Use PERLBIN PYTHONBIN.
 	(CygbuildInstallFixInterpreterPython): Use PYTHONBIN.
 	(CygbuildInstallFixInterpreterPerl): Display diff message
-	only under verbose.
+	only under verbose. Detect and fix multiple shebang lines.
 
 	[ commit: 21c6baa ]
 
