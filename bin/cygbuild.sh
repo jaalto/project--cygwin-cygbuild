@@ -3464,7 +3464,6 @@ function CygbuildDefineGlobalCommands()
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
     GPG=gpg                             # global-def
-    PATCH=patch                         # global-def
     SORT=sort                           # global-def
     TAR=tar                             # global-def
     TR=tr                               # global-def
@@ -5582,7 +5581,7 @@ function CygbuildPatchApplyRun()
 	else
 	    CygbuildEcho "-- Patching with ${patch#$srcdir/}"
 	fi
-        ${test:+echo} $PATCH $patchopt $opt "$@" < $patch
+        ${test:+echo} patch $patchopt $opt "$@" < $patch
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
              "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
