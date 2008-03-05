@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1006"
+CYGBUILD_VERSION="2008.0305.1304"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -404,17 +404,17 @@ function CygbuildDie()
     CygbuildExit 1 "$@"
 }
 
-function CygbuildExitNoDir()
+function CygbuildExitIfNoDir()
 {
     local dir="$1"
     shift
 
-    if [ ! -d "$dir" ]; then
+    if [ ! "$dir" ] || [ ! -d "$dir" ]; then
         CygbuildDie "$@"
     fi
 }
 
-function CygbuildExitNoFile()
+function CygbuildExitIfNoFile()
 {
     local file="$1"
     shift
@@ -545,9 +545,8 @@ function CygbuildBootVariablesGlobalEtcMain()
     #
     #  ROOT
     #  |
-    #  +-bin
-    #  +-etc/etc
-    #  +-etc/template
+    #  +-bin/
+    #  +-etc/template/
 
     tmp=${tmp%/*}  # One directory up (from bin/)
     tmp="$tmp/etc/etc"
@@ -559,7 +558,7 @@ function CygbuildBootVariablesGlobalEtcMain()
         :
     else
         #  This is fatal only when trying to build sources
-        CygbuildDie "[FATAL] $id: c:No ETC directory found"
+        CygbuildDie "[FATAL] $id: No ETC directory found"
     fi
 }
 
@@ -571,6 +570,33 @@ function CygbuildBootVariablesGlobalShareSet()
     CYGBUILD_TEMPLATE_DIR_MAIN="$CYGBUILD_SHARE_DIR/template"	#global-def
 }
 
+function CygbuildBootVariablesGlobalCachePerl()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerlVersion
+
+    #	Set Perl package content cache. This is needed to check if
+    #	modules are Standard perl or from CPAN.
+
+    local file="$dir/perl-$PERL_VERSION.lst"
+    CYGBUILD_CACHE_PERL_FILES=					# global-def
+
+    if [ -f "$file" ]; then
+	CYGBUILD_CACHE_PERL_FILES="$file"			# global-def
+    else
+	[ "$CYGCHECK" ] &&
+        CygbuildVerb "-- [WARN] No Perl cache. Please generate"
+	    "with: cygcheck -l perl > $file"
+    fi
+}
+
+function CygbuildBootVariablesGlobalCacheSet()
+{
+    CygbuildBootVariablesGlobalCachePerl "$1"
+}
+
 function CygbuildBootVariablesGlobalLibSet()
 {
     local dir="$1"
@@ -580,18 +606,31 @@ function CygbuildBootVariablesGlobalLibSet()
     [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE="$tmp"		#global-def
 }
 
+function CygbuildBootVariablesGlobalShareDir()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    CygbuildExitIfNoDir "$dir" \
+	CygbuildDie "$id: [ERROR] Internal error. No DIR argument"
+
+    CygbuildBootVariablesGlobalShareSet "$dir"
+    CygbuildBootVariablesGlobalCacheSet "$dir/data"
+    CygbuildBootVariablesGlobalLibSet   "$dir/lib"
+}
+
 function CygbuildBootVariablesGlobalShareMain()
 {
     local id="$0.$FUNCNAME"
     local dir=/usr/share/cygbuild
 
     if [ -d "$dir" ]; then
-	CygbuildBootVariablesGlobalShareSet $dir
-	CygbuildBootVariablesGlobalLibSet "$dir/lib"
+	CygbuildBootVariablesGlobalShareaDir "$dir"
 	return 0
     fi
 
-    #   from current location?
+    #   Not installed site wide but run-in-place. Determine paths
+    #	relative to the program location.
 
     local tmp="$CYGBUILD_PROG_PATH"
 
@@ -603,55 +642,19 @@ function CygbuildBootVariablesGlobalShareMain()
 
     [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: c:No directory found at $tmp"
 
-    CygbuildBootVariablesGlobalShareSet "$tmp/etc"
-    CygbuildBootVariablesGlobalLibSet   "$tmp/bin"
-}
+    dir="$tmp/etc"
 
-function CygbuildBootVariablesGlobalCacheSet()
-{
-    local id="$0.$FUNCNAME"
-    local dir="$1"
-
-    CYGBUILD_CACHE_DIR="$dir"					#global-def
-
-    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerlVersion
-
-    #	Write Perl installation cache. This is needed to check if
-    #	modules are Standard perl or from CPAN.
-
-    local file="$dir/perl-$PERL_VERSION.lst"
-    CYGBUILD_CACHE_PERL_FILES="$file"				# global-def
-
-    if [ "$PERL_VERSION" ] && [ ! -f "$file" ]; then
-	local bin=$(CygbuildWhich cygcheck)
-
-	if [ "$bin" ]; then
-	    CygbuildEcho "Wait, initializing Perl cache"
-	    $bin -l perl > $file
-	else
-	    # FIXME: Supply platform independent Perl cache with
-	    # the program.
-
-	    CYGBUILD_CACHE_PERL_FILES=				# global-def
-	    CygbuildVerb "-- [WARN] Perl cache setup skipped," \
-		"because cygcheck not in PATH"
-	fi
-    fi
+    CygbuildBootVariablesGlobalShareaDir "$tmp"
 }
 
 function CygbuildBootVariablesGlobalCacheMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.cache"
+    local path=$CYGBUILD_PROG_PATH
     local dir=/var/cache/cygbuild
 
-    if [ ! -d "$dir" ]; then
-	CygbuildVerb "-- [WARN] Using temp. No directory found: $dir"
-	dir="$retval";
-	CygbuildRun ${MKDIR:-mkdir} "$dir" || exit 1
-    fi
-
-    CygbuildBootVariablesGlobalCacheSet "$dir"
+    CYGBUILD_CACHE_DIR="$dir"					#global-def
 }
 
 function CygbuildBootVariablesGlobalColors()
@@ -3000,7 +3003,7 @@ function CygbuildIsDestdirSupported()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] variable '$srcdir'" \
+    CygbuildExitIfNoDir "$srcdir" "$id: [FATAL] variable '$srcdir'" \
               "not defined [$srcdir]."
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -3222,7 +3225,7 @@ function CygbuildTreeSymlinkCopy()
     local from="$1"
     local to="$2"
 
-    CygbuildExitNoDir "$from" "$id: [ERROR] parameter failure 'from' $from"
+    CygbuildExitIfNoDir "$from" "$id: [ERROR] parameter failure 'from' $from"
 
     if [ ! "$to" ]; then
         CygbuildDie "$to" "$id: [ERROR] parameter 'to' is empty"
@@ -3985,7 +3988,7 @@ function CygbuildDefineGlobalSrcOrig()
         fi
     fi
 
-    CygbuildExitNoFile "$SRC_ORIG_PKG" \
+    CygbuildExitIfNoFile "$SRC_ORIG_PKG" \
         "$id: [FATAL] SRC_ORIG_PKG ../$PKG-$VER.tar.gz not found." \
         "Perhaps you have to make a symbolic link from original" \
         "to that file? See manual for details."
@@ -4343,7 +4346,7 @@ function CygbuildCygDirCheck()
 
     # Make sure there is a README at /usr/share/doc/Cygwin/
 
-    CygbuildExitNoDir "$DIR_DOC_CYGWIN"  "$id: [ERROR] no $DIR_DOC_CYGWIN" \
+    CygbuildExitIfNoDir "$DIR_DOC_CYGWIN"  "$id: [ERROR] no $DIR_DOC_CYGWIN" \
               "Did forget to run [files] before [install]?"
 
     local readme
@@ -4392,7 +4395,7 @@ function CygbuildDetermineDocDir()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="${1%/}"      # delete trailing slash
 
-    CygbuildExitNoDir \
+    CygbuildExitIfNoDir \
         "$dir" "$id: [FATAL] Call parameter DIR does not exist [$dir]"
 
     local ret=""
@@ -4903,7 +4906,7 @@ CygbuildCmdReadmeFixFile ()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local readme="$1"
 
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] Not exists $srcdir"
+    CygbuildExitIfNoDir "$srcdir" "$id: [FATAL] Not exists $srcdir"
 
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
@@ -5056,7 +5059,7 @@ function CygbuildCmdPublishToDir()
 
     dest=${dest%/}  # Delete possible trailing slash
 
-    CygbuildExitNoDir \
+    CygbuildExitIfNoDir \
         $dest "$id: [ERROR] No dir $dest. Define CYGBUILD_PUBLISH_DIR"
 
     dest="$dest/$PKG"
@@ -5488,7 +5491,7 @@ function CygbuildCmdPkgBinaryStandard()
 
     CygbuildEcho "== Making package [binary]" ${pkg/$srcdir\/}
 
-    CygbuildExitNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
+    CygbuildExitIfNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
               "Did you forget to run [mkdirs]?"
 
     CygbuildFileCleanNow "" $pkg $pkg$sigext
@@ -5927,7 +5930,7 @@ function CygbuildCmdMkpatchMain()
     local copydir=$builddir_root/${srcdir##*/}
     local file="$SRC_ORIG_PKG"
 
-    CygbuildExitNoFile "$file" "$id: [ERROR] Original archive not found $file"
+    CygbuildExitIfNoFile "$file" "$id: [ERROR] Original archive not found $file"
 
     CygbuildFileReadOptionsMaybe "$EXTRA_DIFF_OPTIONS_PATCH" > $retval
     local extraDiffOpt=$(< $retval)
@@ -6162,7 +6165,7 @@ function CygbuildCmdPkgSourceStandard()
     local signkey="$OPTION_SIGN"
     local passphrase="$OPTION_PASSPHRASE"
 
-    CygbuildExitNoDir "$srcinstdir" \
+    CygbuildExitIfNoDir "$srcinstdir" \
         "$id: [FATAL] No directory $srcinstdir. Try running [mkdirs]"
 
     if ! CygbuildDefineGlobalSrcOrig ; then
@@ -6171,7 +6174,7 @@ function CygbuildCmdPkgSourceStandard()
 
     dummy="$id BUILD_SCRIPT=$BUILD_SCRIPT"      #  For debug only
 
-    CygbuildExitNoFile "$BUILD_SCRIPT" \
+    CygbuildExitIfNoFile "$BUILD_SCRIPT" \
         "$id: [ERROR] Can't locate build script [$BUILD_SCRIPT]"
 
     local orig="$SRC_ORIG_PKG"
@@ -7510,8 +7513,8 @@ function CygbuildPatchFindGeneratedFiles()
     local dir="$2"
     local optextra="$3"
 
-    CygbuildExitNoDir "$origdir" "$id: [ERROR] parameter failure 'origdir' $origdir"
-    CygbuildExitNoDir "$dir" "$id: [ERROR] parameter failure 'dir' $dir"
+    CygbuildExitIfNoDir "$origdir" "$id: [ERROR] parameter failure 'origdir' $origdir"
+    CygbuildExitIfNoDir "$dir" "$id: [ERROR] parameter failure 'dir' $dir"
 
     #   Many packages do not 'clean' the files correctly and there may
     #   be left files that were generated by ./configure. Compare
@@ -8455,7 +8458,7 @@ function CygbuildCmdBuildStdMakefile()
     local optfile="$EXTRA_BUILD_OPTIONS"
     local status=0
 
-    CygbuildExitNoDir "$builddir" "$id: builddir not found: $builddir"
+    CygbuildExitIfNoDir "$builddir" "$id: builddir not found: $builddir"
 
     CygbuildPushd
 
@@ -8623,7 +8626,7 @@ function CygbuildCmdCleanMain()
 
     CygbuildEcho "-- Running 'make clean' (or equiv.) in" ${dir/$srcdir\/}
 
-    CygbuildExitNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
+    CygbuildExitIfNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $dir > $retval
@@ -11237,7 +11240,7 @@ function CygbuildCmdInstallMain()
 
     CygbuildEcho "== Install command"
 
-    CygbuildExitNoDir $builddir \
+    CygbuildExitIfNoDir $builddir \
               "$id: [ERROR] No builddir $builddir." \
 	      "Did you run [mkdirs] and [shadow]?"
 
@@ -11318,7 +11321,7 @@ function CygbuildCmdInstallMain()
 
         dummy="$srcdir"             # For debug only
 
-        CygbuildExitNoDir "$srcdir" "$id: [ERROR] srcdir not found"
+        CygbuildExitIfNoDir "$srcdir" "$id: [ERROR] srcdir not found"
 
         dummy="END OF $id"
 
@@ -11375,7 +11378,7 @@ function CygbuildCmdStripMain()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
-    CygbuildExitNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
+    CygbuildExitIfNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
 
     CygbuildEcho "== Strip command"
 
@@ -12465,7 +12468,7 @@ function CygbuildCommandMain()
 		    CygbuildPatchApplyMaybe
 		else
   		  CygbuildCmdMkdirs
-		  CygbuildCmdFilesMain  
+		  CygbuildCmdFilesMain
 		fi			  &&
 
 		CygbuildCmdReadmeFixMain  &&

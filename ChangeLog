@@ -1,7 +1,17 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Present import
-	command.
+	* README: (Dependencies): Remove.
+
+	* doc/README.txt: (Information for developers): Delete obsolete
+	Sourceforge information. Document commit message convention.
+	(Dependencies): Moved from top level REAME here.
+
+	* doc/cygbuild-rebuild.pod: Move location from bin/
+
+	* etc/data/etc/data/perl-5.8.8.lst: New file.
+
+	* etc/lib/cygbuild.pl: Move location from bin/
+	(HELP::QUICK OVERVIEW): Present import command.
 	(SYNOPSIS): Add brackets around -r. Not mandatory any more.
 
 	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands):
@@ -30,6 +40,13 @@
 	(CygbuildCmdConfMain): Display message inly under verbose mode.
 	(CygbuildCmdInstallFinishMessage): Suggest sort. Handle test mode
 	differently.
+	(CygbuildBootVariablesGlobalCacheSet): Whole new logic. Remove
+	dependency to 'cygcheck -l perl'.
+	(CygbuildBootVariablesGlobalCachePerl): New.
+	(CygbuildBootVariablesGlobalLibSet): Set perl cache.
+	(CygbuildBootVariablesGlobalShareDir): New.
+	(CygbuildExitIfNoDir); Renamed. Was CygbuildExitNoDir.
+	(CygbuildExitIfNoFile); Renamed. Was CygbuildExitNoFile.
 
 	[ commit: 21c6baa ]
 
@@ -57,6 +74,9 @@
 
 	* Makefile: (install-etc-main-symlink): disable installing
 	/etc/cygbuild/programs.conf. No longer used.
+	(PL): Update location to etc/lib
+	($(DOCDIR)/cygbuild-rebuild.1): Update location to
+	doc/cygbuild-rebuild.pod.
 
 	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterPerl): Improve
 	perl replace code. Display message only if something was done.

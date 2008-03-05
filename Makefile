@@ -34,7 +34,7 @@ include $(MAKE_INCLUDEDIR)/unix.mk
 include $(MAKE_INCLUDEDIR)/cygwin.mk
 include $(MAKE_INCLUDEDIR)/net-sf.mk
 
-PL		= bin/$(PACKAGE).pl
+PL		= etc/lib/$(PACKAGE).pl
 SH		= bin/$(PACKAGE).sh \
 		  bin/$(PACKAGE)-rebuild.sh
 
@@ -172,7 +172,7 @@ $(DOCDIR)/$(PACKAGE).txt: $(PL) install-docdir
 	perl ./$< help > $(DOCDIR)/$(PACKAGE).txt
 	@-rm -f *.x~~ pod*.tmp
 
-$(DOCDIR)/cygbuild-rebuild.1: bin/cygbuild-rebuild.pod install-docdir
+$(DOCDIR)/cygbuild-rebuild.1: doc/cygbuild-rebuild.pod install-docdir
 	name=`echo $< | sed -e 's/.*\///; s/.pod//'`; pod2man $< > $(DOCDIR)/$$name.1
 	@-rm -f *.x~~ pod*.tmp
 
