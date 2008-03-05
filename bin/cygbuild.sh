@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0844"
+CYGBUILD_VERSION="2008.0305.0846"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -2787,7 +2787,7 @@ function CygbuildMakefileRunTarget()
         cd $dir  || exit 1
 
         if CygbuildIsMakefileTarget $target ; then
-            $MAKE -f $makefile $target
+            make -f $makefile $target
         elif [ "$verbose" ]; then
             CygbuildWarn "-- [NOTE] No target '$target' in" \
 		         ${makefile#$srcdir/}
@@ -3464,7 +3464,6 @@ function CygbuildDefineGlobalCommands()
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
     GPG=gpg                             # global-def
-    MAKE=make                           # global-def
     PATCH=patch                         # global-def
     SORT=sort                           # global-def
     TAR=tar                             # global-def
@@ -7000,7 +6999,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
 
 	[ "$verbose" ] && set -x
 
-        $MAKE -f $makefile $test        \
+        make -f $makefile $test        \
              DESTDIR=$instdir           \
              DOCDIR=$docdir             \
              $pfx                       \
@@ -8015,7 +8014,7 @@ function CygbuildConfDepend()
 
     CygbuildEcho "-- Running 'make depend'. Ignore possible error message."
 
-    $MAKE depend
+    make depend
 
     return  # return ok status
 }
@@ -8339,7 +8338,7 @@ function CygbuildCmdConfMain()
             CygbuildEcho "-- Running: make configure" \
                          "(auto detected; no ./configure)"
 
-            $MAKE configure
+            make configure
             status=$?
 
             #  If that generated the script, we must run it
@@ -8503,7 +8502,7 @@ function CygbuildCmdBuildStdMakefile()
 
 		[ "$verbose" ] && set -x
 
-                eval $MAKE -f $makefile                 \
+                eval make -f $makefile                 \
                     AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
                     $env                                \
                     $CYGBUILD_MAKEFLAGS
@@ -8600,7 +8599,7 @@ function CygbuildCmdTestMain()
 
     CygbuildPushd
         cd $builddir || CygbuildDie "$id: [builddir] error"
-        $MAKE test 2>&1 | tee $PKGLOG
+        make test 2>&1 | tee $PKGLOG
     CygbuildPopd
 }
 
@@ -8644,7 +8643,7 @@ function CygbuildCmdCleanMain()
 
             cd $dir  || exit 1
 
-            $MAKE -f $makefile clean ||
+            make -f $makefile clean ||
             {
                 CygbuildVerb "-- [NOTE] Hm, running recursive" \
                              "rm *.o *.exe *.dll instead"
