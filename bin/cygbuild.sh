@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1304"
+CYGBUILD_VERSION="2008.0305.1332"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -11939,14 +11939,16 @@ function CygbuildProgramVersion()
     local code="$1"
     local str="$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
 
+    local tag="##"
+
     if [ "$code" ] ; then
         echo $str
         exit $code
     else
         if [[ "$*" == *@( -C|--color)* ]]; then
-            echo -e "$CYGBUILD_COLOR_BLACK1## $str$CYGBUILD_COLOR_RESET"
+            echo -e "$CYGBUILD_COLOR_BLACK1$tag $str$CYGBUILD_COLOR_RESET"
         else
-            echo "-- $str"
+            echo "$tag $str"
         fi
     fi
 }

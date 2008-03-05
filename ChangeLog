@@ -47,6 +47,7 @@
 	(CygbuildBootVariablesGlobalShareDir): New.
 	(CygbuildExitIfNoDir); Renamed. Was CygbuildExitNoDir.
 	(CygbuildExitIfNoFile); Renamed. Was CygbuildExitNoFile.
+	(CygbuildProgramVersion): Use ## prefix in non-color mode too.
 
 	[ commit: 21c6baa ]
 
