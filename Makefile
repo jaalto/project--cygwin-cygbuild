@@ -13,7 +13,7 @@
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #	General Public License for more details.
 #
-#       You should have received a copy of the GNU General Public License
+#	You should have received a copy of the GNU General Public License
 #	along with program. If not, write to the Free Software
 #	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #	02110-1301, USA.
@@ -101,6 +101,7 @@ install-etc-main: install-etc-dir-template
 	done
 
 # Rule: install-etc-main-symlink - [maintenance] Install symlinks to configuration dir
+# FIXME: remove. 2008-03-03 no longer used.
 install-etc-main-symlink: install-etc-dir-template
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
@@ -131,9 +132,9 @@ install-etc-template-symlink: install-etc-dir-template
 	done
 
 # Rule: install-etc - [maintenance] Install /etc directory
-install-etc: install-etc-main install-etc-template
+install-etc: install-etc-template
 
-# Rule: install-in-place - After VCS checkout, install the package using symlinks
+# Rule: install-in-place - Install from current dir using symlinks
 install-in-place: install-etc-template-symlink install-etc-main-symlink \
 	install-bin-symlink install-man
 
