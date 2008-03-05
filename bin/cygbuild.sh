@@ -3466,7 +3466,6 @@ function CygbuildDefineGlobalCommands()
     GPG=gpg                             # global-def
     SORT=sort                           # global-def
     WGET=wget				# global-def
-    WHICH=which				# global-def
 }
 
 function CygbuildIsArchiveScript()
