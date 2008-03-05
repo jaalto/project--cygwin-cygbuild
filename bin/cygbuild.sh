@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1733"
+CYGBUILD_VERSION="2008.0305.1748"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9704,14 +9704,17 @@ function CygbuildCmdInstallCheckPerlFile ()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
     local _file=${file#$srcdir/}
-
     local name=${file##*/}
-    newfile=$retval.fix.$name
-    local warn err
 
-    #  Check that program is well formed
+    #	Check that program is well formed
 
     perl -cw $file > $retval 2>&1
+
+    #	Not interested in warning from Perl base system
+    #	    Constant subroutine main::DEBUG redefined at /usr/lib/perl5/5.8/constant.pm line 103.
+
+    grep --invert-match 'at /usr/lib/perl[0-9]/' $retval > $retval.tmp &&
+    mv --force $retval.tmp $retval
 
     [ -s "$retval" ] || return 0
 
@@ -9724,20 +9727,17 @@ function CygbuildCmdInstallCheckPerlFile ()
         #  Cannot locate Time/ParseDate.pm in @INC ...
         CygbuildWarn \
             "-- [WARN] $name: requires external Perl libraries (CPAN)"
-        warn="yes"
+
+	CygbuildWarn "$notes"
 
     elif [[ "$notes" == *\ line\ * ]]; then
 
         #  Example: Unquoted string "imsort" may clash with future
         #           reserved word at foo.pl line 143.
-        CygbuildWarn \
+        CygbuildVerb \
             "-- [WARN] $name: report compile warnings to upstream author"
-        warn="yes"
 
-    fi
-
-    if [ "$warn" ]; then
-	CygbuildWarn "$notes"
+        CygbuildVerb "$notes"
     fi
 
     if [[ "$notes" == *syntax*OK*  ]]; then
@@ -9750,7 +9750,9 @@ function CygbuildCmdInstallCheckPerlFile ()
 
     head -1 "$file" > $retval
     local binpath=$(< $retval)
+
     local plpath="$PERL_PATH"
+    local newfile=$retval.fix.$name
 
     if ! echo $binpath | $EGREP --quiet '^#![[:space:]]*/' ; then
 
