@@ -77,21 +77,55 @@ Project Description
         Yaakov Selkowitz's <http://cygwinports.sunsite.dk/> for more
         information.
 
+Dependencies
+
+        The aplication consists of set of programs that use intepreted
+        languages. The dependencies are:
+
+	o   Bash                            3.x
+        o   Perl                            5.004+
+        o   GNU compiler collection         any version
+	o   GNU binutils
+        o   GNU awk, make, grep, tar...     any version
+        o   GNU diffutils                   any version
+        o   patchutils                      any version
+        o   Wget                            any version
+        o   Python                          any version
+        o   Standard programs: ls, etc.     any version
+
+        It is possible to setup a Cygwin cross compiling environment
+        in Free OS. See document "Cygwin/X Contributor's Guide" at
+        <http://x.cygwin.com/docs/cg/prog-build-cross.html>
+
 Information for developers
+
+	FIXME: 2008-03-02 This information is not complete
 
     Policy for documenting changes
 
         All changes are documented using Emacs editor and standard
         package *add-log.el*, which provides command `C-x' `4' `a' to
-        record a change to file at point. Emacs will pick up the main
+        record a change at point. Emacs will pick up the main
         `ChangeLog' file and open an entry there. An example:
 
             * Makefile: (TOP LEVEL): Added new variable $USER
 
-        Since all changes are recorded to this file, a copy from
-        Changelog can be pasted when making a commit.
+        All version control commit message have following convention,
+	where the first line is short and informative description. It
+	starts with a filename chaged followed by colon. Longer
+	description, separated by empty line, may follow (but not
+	required). And example:
+
+	    <filename>: <one line change description>
+
+	    <longer description, if needed. a copy from
+	    Changelog can be pasted when making a commit>
 
     Makefiles
+
+	To see all make targets, run command:
+
+	    make help-dev
 
         The make files are in separate directory `etc/makefile' from
         where they are included to main `Makefile'. File are:
@@ -103,7 +137,7 @@ Information for developers
             cygwin.mk       Cygwin specific targets (making Net releases)
             net*.mk         Network connection targets
 
-    To convert Cygbuild into installable Cygwin binary package
+    To convert into installable Cygwin binary package
 
         First, make world release. It is a preliminary preparation step:
 
@@ -121,28 +155,6 @@ Information for developers
         There is also command 'make publish-cygwin'. See RELEASEDIR
         variable in etc/makefile/* for more information.
 
-    Releasing cygbuild package
-
-        Made packages are found under directory `.build/' from where
-        files can be uploaded:
-
-            make USER=username sf-upload-release
-
-        Log in to project page, select [Admin] page and button to
-        [File Releases]. Follow the page's instructions and use button
-        [add release]. The release name is YYYY.MMDD.HHMM.
-
-        Select "File Type" to "i386; .exe; 32-bit Windows". To upload
-        documentation, use following make target:
-
-            make USER=<SF_LOGINNAME> sf-upload-doc
-
-        To make package available for Cygwin setup.exe installer:
-
-            make cygwin-setup-ini-update
-            make USER=<SF_LOGINNAME> sf-upload-cygwin-setup-ini
-            make USER=<SF_LOGINNAME> sf-upload-cygwin-release
-
     Source packages
 
         See make target `release-cygwin-source'.
@@ -159,5 +171,7 @@ Information for developers
         In order to convert text files (README) into HTML, free
         program *t2html.pl* is needed. See
         http://perl-text2html.sourceforge.net/
+
+	    make doc doc-readme
 
 End of file
