@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0954"
+CYGBUILD_VERSION="2008.0305.1006"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3408,7 +3408,7 @@ function CygbuildDefineGlobalCommands()
 
     BASHX="/bin/bash -x"			    # global-def
     GREP="grep --binary-files=without-match"	    # global-def
-    EGREP="$EGREP --extended-regexp"		    # global-def
+    EGREP="$GREP --extended-regexp"		    # global-def
 
     # ............................................ optional features ...
 
