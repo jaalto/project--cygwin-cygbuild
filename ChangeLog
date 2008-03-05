@@ -66,6 +66,8 @@
 	(CygbuildBootVariablesId): Remove PATH setting. Trust user.
 	New variable CYGBUILD_PROG_LIBPATH.
 	(CygbuildCmdInstallCheckDocdir): Ignore image files.
+	(CygbuildCmdInstallCheckSetupHintDependExists): Correct
+	installed.db check.
 
 	[ commit: 21c6baa ]
 

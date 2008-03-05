@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1459"
+CYGBUILD_VERSION="2008.0305.1501"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -10160,7 +10160,7 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     local database="/etc/setup/installed.db"
     local path=${1:-/dev/null}
 
-    if [ ! -d "$database" ] ; then
+    if [ ! -s "$database" ] ; then
 	CygbuildVerb "-- [NOTE] Not exists: $database"
 	return 0
     fi
