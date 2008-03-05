@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0947"
+CYGBUILD_VERSION="2008.0305.0954"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -2422,7 +2422,7 @@ function CygbuildPathAbsolute()
     local p="$1"
 
     if [ "$p" ] && [ -d "$p" ]; then
-        p=$(cd $p; pwd)
+        p=$(cd $p && pwd)
 
     elif [[ "$p" == /*  &&  -f "$p" ]]; then
         # Nothing to do, it is absolute already
@@ -2522,7 +2522,7 @@ function CygbuildScriptPathAbsolute()
         ret=$(< $retval)
 
         if [ ! "$ret" ]; then
-            CYGBUILD_STATIC_ABSOLUTE_SCRIPT_PATH=($bin $ret)
+	    CYGBUILD_STATIC_ABSOLUTE_SCRIPT_PATH=($bin $ret)	# global-def
         fi
     fi
 
@@ -2536,9 +2536,10 @@ function CygbuildScriptPathAbsolute()
 function CygbuildBuildScriptPath()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    #   Note, that source packages includes script-VERSION-RELEASE.sh
-    #   not just script.sh, so $0 cannot always be used directly.
+    #   Source packages includes script-VERSION-RELEASE.sh
+    #   and not just script.sh, so $0 cannot always be used directly.
 
     local name="$0"
 
@@ -2558,7 +2559,6 @@ function CygbuildBuildScriptPath()
     else
         name=${name##*/}
 
-        local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildScriptPathAbsolute $name > $retval
         [ -s $retval ] && echo $(< $retval)
 
@@ -4808,7 +4808,7 @@ function CygbuildPerlModuleLocation()
         if CygbuildCommandPath $name > $retval
 	then
             module=$(< $retval)
-            CYGBUILD_STATIC_PERL_MODULE="$module"
+	    CYGBUILD_STATIC_PERL_MODULE="$module"	    # global-def
         fi
     fi
 
@@ -4822,7 +4822,7 @@ function CygbuildPerlModuleLocation()
 
 	if [ -f "$lib" ]; then
             module="$lib"
-            CYGBUILD_STATIC_PERL_MODULE="$module"
+	    CYGBUILD_STATIC_PERL_MODULE="$module"	    # global-def
 	fi
     fi
 
