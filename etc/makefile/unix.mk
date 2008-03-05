@@ -13,7 +13,7 @@
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #	General Public License for more details.
 #
-#       You should have received a copy of the GNU General Public License
+#	You should have received a copy of the GNU General Public License
 #	along with program. If not, write to the Free Software
 #	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #	02110-1301, USA.
@@ -30,18 +30,22 @@
 .PHONY: manifest manifest-check
 
 install-make-etc-dir:
+	# install-make-etc-dir
 	$(INSTALL_BIN) -d $(ETCDIR)
 
 install-etc: install-make-etc-dir
+	# install-etc
 	@for file in $(OBJS_ETC);					\
 	do								\
 	    $(INSTALL_DATA) $$file $(ETCDIR);				\
 	done
 
 install-man-dir:
+	# install-man-dir
 	$(INSTALL_BIN) -d $(MANDIR)
 
 install-man: doc install-man-dir
+	# install-man
 	@for file in `ls $(DOCDIR)/*.1 $(DOCDIR)/man/*.1 2> /dev/null`; \
 	do								\
 	    echo "Installing $$file => $(MANDIR)";			\
@@ -49,6 +53,7 @@ install-man: doc install-man-dir
 	done;
 
 install-bin-sh:
+	# install-bin-sh
 	$(INSTALL_BIN) -d $(BINDIR)
 	@for file in $(SH);						\
 	do								\
@@ -57,6 +62,7 @@ install-bin-sh:
 	done;
 
 install-bin-pl:
+	# install-bin-pl
 	$(INSTALL_BIN) -d $(SHAREDIR)/lib
 	@for file in $(PL);						\
 	do								\
@@ -68,6 +74,7 @@ install-bin: install-bin-sh install-bin-pl
 # Rule: install-bin-symlink - [maintenance] Install from current location using symlinks
 # Install perl module to different directory
 install-bin-symlink:
+	# install-bin-symlink
 	$(INSTALL_BIN) -d $(BINDIR) $(SHAREDIR)/lib
 	@for file in  $(SRCS);						\
 	do								\
@@ -86,6 +93,7 @@ install-bin-symlink:
 install-unix: install-man install-bin
 
 clean-temp-files:
+	# clean-temp-files
 	-for file in `find . -type f					\
 	    '('								\
 		-name "*[~#]"						\
@@ -104,7 +112,7 @@ clean-temp-dirs:
 clean-temp-realclean: clean-temp-files clean-temp-dirs
 
 help-dev:
-	@egrep -ie '# +Rule:' $(MAKEFILE) $(MAKE_INCLUDEDIR)/*.mk 	\
+	@egrep -ie '# +Rule:' $(MAKEFILE) $(MAKE_INCLUDEDIR)/*.mk	\
 		2> /dev/null						\
 	    | sed -e 's/.*Rule://' | sort;
 
@@ -115,6 +123,7 @@ help:
 
 # xRule: release-world - [maintenance] Make a world release
 release-world:
+	# release-world
 	@rm -rf $(RELEASEDIR)/
 	@$(INSTALL_BIN) -d $(RELEASEDIR)
 	@$(TAR) $(TAR_OPT_NO) -zcf - . | ( cd $(RELEASEDIR); tar -zxf - )
@@ -130,10 +139,12 @@ list-world:
 # Rule: manifest: [maintenance] Make list of files in this project into file MANIFEST
 # Rule: manifest: [maintenance] files matching regexps in MANIFEST.SKIP are skipped.
 manifest:
+	# manifest
 	$(PERL) -MExtUtils::Manifest=mkmanifest -e 'mkmanifest()'
 
 # Rule: manifest-check: [maintenance] checks if MANIFEST files really do exist.
 manifest-check:
+	# manifest-check
 	perl -MExtUtils::Manifest=manicheck -e \
 	     'exit 1 if manicheck()'
 

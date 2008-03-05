@@ -63,6 +63,7 @@
 	(CygbuildPerlModuleLocation): Remove. Not used any more.
 	(CygbuildBootVariablesGlobalLibSet): Display warning if *.pl
 	not found.
+	(CygbuildBootVariablesId): Remove PATH setting. Trust user.
 
 	[ commit: 21c6baa ]
 
@@ -93,6 +94,7 @@
 	(PL): Update location to etc/lib
 	($(DOCDIR)/cygbuild-rebuild.1): Update location to
 	doc/cygbuild-rebuild.pod.
+	(install-in-place): Remove target `install-etc-main-symlink'.
 
 	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterPerl): Improve
 	perl replace code. Display message only if something was done.

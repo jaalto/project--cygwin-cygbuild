@@ -88,10 +88,12 @@ doc-readme:
 
 # Rule: install-etc-dir-template - [maintenance] Create /etc directory
 install-etc-dir-template:
+	# install-etc-dir-template
 	$(INSTALL_BIN) -d $(ETCDIR_TMPL) $(ETCDIR_TMPL_USER)
 
 # Rule: install-etc-main - [maintenance] Install configuration files
 install-etc-main: install-etc-dir-template
+	# install-etc-main
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
 	    if [ -f $$file ]; then					\
@@ -103,6 +105,7 @@ install-etc-main: install-etc-dir-template
 # Rule: install-etc-main-symlink - [maintenance] Install symlinks to configuration dir
 # FIXME: remove. 2008-03-03 no longer used.
 install-etc-main-symlink: install-etc-dir-template
+	# install-etc-main-symlink
 	@for file in $(OBJS_ETC_MAIN);					\
 	do								\
 	    if [ -f $$file ]; then					\
@@ -112,6 +115,7 @@ install-etc-main-symlink: install-etc-dir-template
 
 # Rule: install-etc-template - [maintenance] Install configuration files to
 install-etc-template: install-etc-dir-template
+	# install-etc-template
 	-rm -f	$(ETCDIR_TMPL)/*
 	@for file in $(OBJS_ETC_TMPL);					\
 	do								\
@@ -123,6 +127,7 @@ install-etc-template: install-etc-dir-template
 
 # Rule: install-etc-template-symlink - [maintenance] Install templates using symlinks
 install-etc-template-symlink: install-etc-dir-template
+	# install-etc-template-symlink
 	-rm -f	$(ETCDIR_TMPL)/*
 	@for file in $(OBJS_ETC_TMPL);					\
 	do								\
@@ -135,7 +140,7 @@ install-etc-template-symlink: install-etc-dir-template
 install-etc: install-etc-template
 
 # Rule: install-in-place - Install from current dir using symlinks
-install-in-place: install-etc-template-symlink install-etc-main-symlink \
+install-in-place: install-etc-template-symlink \
 	install-bin-symlink install-man
 
 # Rule: install - install everything to system directories
