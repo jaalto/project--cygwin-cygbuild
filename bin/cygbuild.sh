@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1413"
+CYGBUILD_VERSION="2008.0305.1424"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -453,15 +453,10 @@ function CygbuildBootVariablesId()
     CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}
     CYGBUILD_PUBLISH_DIR=${CYGBUILD_PUBLISH_DIR:-"/usr/src/cygwin-packages"}
 
-    #	Private: program startup and name
-
-    #	Be cautious with the PATH. Putting /bin etc. first make finding
-    #	programs faster.
-
-    PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH"
-
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
     TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
+
+    #	Private: program startup and name
 
     CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
 
