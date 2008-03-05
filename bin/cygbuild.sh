@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1625"
+CYGBUILD_VERSION="2008.0305.1638"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9176,7 +9176,9 @@ function CygbuildInstallFixPermissions()
 function CygbuildInstallFixInterpreterPerl ()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
+    local _file=${file#$srcdir/}
 
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
         CygbuildWarn "$id: No such file: $file"
@@ -9196,16 +9198,14 @@ function CygbuildInstallFixInterpreterPerl ()
 	 -e '1s,#!.* \(.*\),#!/usr/bin/perl \1,'	\
 	 -e '/.*eval.*exec.*bin\/perl.*/d'		\
 	 -e '/.*not running under some shell/d'		\
-	 "$file" > "$file.tmp"				&&
+	 "$file" > "$retval"
 
-    if [ -s "$file.tmp" ] &&
-       CygbuildFileCmpDiffer "$file" "$file.tmp"
+    if [ -s "$retval" ] &&
+       CygbuildFileCmpDiffer "$file" "$retval"
     then
-	CygbuildEcho "-- [NOTE] Fixing Perl call line"
-	[ "$verbose" ] && diff "$file" "$file.tmp"
-	mv --force "$file.tmp" "$file"
-    else
-	rm --force "$file.tmp"
+	CygbuildEcho "-- [NOTE] Fixing Perl call line in $_file"
+	diff "$file" "$retval"
+	mv --force "$retval" "$file"
     fi
 }
 
