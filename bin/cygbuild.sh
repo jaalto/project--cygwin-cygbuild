@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1644"
+CYGBUILD_VERSION="2008.0305.1647"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -9472,11 +9472,11 @@ function CygbuildInstallFixPerlPacklist()
     do
         [ -f "$file" ] || continue
 
-        #  Remove the "...path/to/.inst" portion
-
         local _file=${file/$srcdir\/}       # relative path
 
         CygbuildVerb "-- Adjusting $_file"
+
+        #  Remove the "path/to/.inst" portion
 
         sed 's/.*.inst//' "$file" > "$retval" &&
         mv --force "$retval" "$file"
