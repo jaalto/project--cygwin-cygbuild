@@ -3471,14 +3471,11 @@ function CygbuildDefineGlobalCommands()
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
     FILE=file                           # global-def
-    FIND=find                           # global-def
     GZIP=gzip                           # global-def
     GPG=gpg                             # global-def
     LN=ln                               # global-def
-    LS=ls                               # global-def
     MAKE=make                           # global-def
     MKDIR=mkdir                         # global-def
-    MV=mv                               # global-def
     PATCH=patch                         # global-def
     RM=rm                               # global-def
     RMDIR=rmdir                         # global-def
