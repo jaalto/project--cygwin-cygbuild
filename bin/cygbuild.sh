@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0211"
+CYGBUILD_VERSION="2008.0305.0215"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -530,7 +530,6 @@ function CygbuildBootVariablesGlobalEtcSet()
     local dir="$1"
 
     CYGBUILD_ETC_DIR="$dir"					#global-def
-    CYGBUILD_CONFIG_PROGRAMS="$CYGBUILD_ETC_DIR/programs.conf"	#global-def
     CYGBUILD_TEMPLATE_DIR_USER="$CYGBUILD_ETC_DIR/template"	#global-def
     CYGBUILD_CONFIG_MAIN="$CYGBUILD_ETC_DIR/cygbuild.conf"	#global-def
 }
@@ -3412,7 +3411,6 @@ function CygbuildDefineGlobalPerl()
 function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local file=$CYGBUILD_CONFIG_PROGRAMS
 
     CYGCHECK=
     CygbuildWhich cygcheck > $retval
@@ -3421,37 +3419,21 @@ function CygbuildDefineGlobalCommands()
     CYGPATH=
     CygbuildWhich cygpath > $retval
     [ -s $retval ] && CYGPATH=$(< $retval) # global-def
-
-    #  FIXME: Code disabled. Remove loading conf file
-
-    local load
-
-    if [ "" ] && [ "$file" ] && [ -r $file ]; then
-        CygbuildVerb "-- Reading configuration $file"
-        if ! source $file ; then
-            CygbuildDie "$id: [ERROR] Syntax error in $file"
-        fi
-        load="loaded"
-    fi
-
     local tmp
 
-    if [ ! "$load" ]; then
 
-        CygbuildPathBinFast perl > $retval
-        [ -s $retval ] && tmp=$(< $retval)
+    CygbuildPathBinFast perl > $retval
+    [ -s $retval ] && tmp=$(< $retval)
 
-        if [ "$tmp" ]; then
-            PERL="$tmp"                                     # global-def
-        fi
+    if [ "$tmp" ]; then
+	PERL="$tmp"                                     # global-def
+    fi
 
-        CygbuildPathBinFast python > $retval
-        [ -s $retval ] && tmp=$(< $retval)
+    CygbuildPathBinFast python > $retval
+    [ -s $retval ] && tmp=$(< $retval)
 
-        if [ "$tmp" ]; then
-            PYTHON="$tmp"                                   # global-def
-        fi
-
+    if [ "$tmp" ]; then
+	PYTHON="$tmp"                                   # global-def
     fi
 
     if [ "$PERL" ]; then
@@ -3476,8 +3458,6 @@ function CygbuildDefineGlobalCommands()
             PYTHON_LIBDIR=$tmp/config   # global-def
         fi
     fi
-
-    [ "$load" ] && return 0
 
     AWK=awk                             # global-def
     BASH=/bin/bash                      # global-def
@@ -3504,8 +3484,8 @@ function CygbuildDefineGlobalCommands()
     SORT=sort                           # global-def
     TAR=tar                             # global-def
     TR=tr                               # global-def
-    WGET=wget
-    WHICH=which
+    WGET=wget				# global-def
+    WHICH=which				# global-def
 }
 
 function CygbuildIsArchiveScript()
