@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0822"
+CYGBUILD_VERSION="2008.0305.0824"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -1206,7 +1206,7 @@ function CygbuildFileConvertLF ()
 	return 1
     fi
 
-#    $AWK '{ printf "%s\r\n", $0}' "$file" > "$retval" &&
+#    awk '{ printf "%s\r\n", $0}' "$file" > "$retval" &&
     $SED 's/$/\r/' "$file" &&
     mv "$retval" "$file"
 
@@ -1519,7 +1519,7 @@ CygbuildObjDumpLibraryDepList ()  # Unused 2007-12-20
     #   DO NOT USE THIS FUNCTION
 
     objdump -p "$file" |
-        ${AWK:-"awk"} '
+        awk '
             /KERNEL32|cygwin1.dll/ {
                 next;
             }
@@ -1564,7 +1564,7 @@ CygbuildCygcheckLibraryDepListFull ()
     #                    $(NF)
 
     $bin -v "$file" |
-        ${AWK:-awk} -F\\ '
+        awk -F\\ '
             / +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
                 str = $(NF);
                 sub(" .*", "", str);
@@ -1591,7 +1591,7 @@ CygbuildCygcheckLibraryDepList ()
     #   D:\cygwin\bin\cygfreetype-6.dll
     #     D:\cygwin\bin\cygz.dll
 
-    $AWK -F\\ \
+    awk -F\\ \
     '
         ! /cygwin.*dll/ {
             next;
@@ -1762,7 +1762,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
     local list=$(< $retval)
 
     local lib list
-    $AWK -F: \
+    awk -F: \
     '
         function setup(val, name, space, i, len) {
             len = split(liblist, arr, ",");
@@ -1845,7 +1845,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
 
     if [ -s $retval.tmp ]; then
         $SED 's/^/   /' $retval.tmp >&2
-        $AWK '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
+        awk '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
     fi
 
     [ -s $retval.collect ] && $CAT $retval.collect
@@ -2610,7 +2610,7 @@ function CygbuildTarDirectory()
 
     local dirfile="$retval.dir"
 
-    $AWK  '                             \
+    awk  '                             \
         /->/ { next }                   \
         {                               \
             path = $(NF);               \
@@ -3080,7 +3080,7 @@ function CygbuildGetOneDir()
 
     #   AWK get all entries that include "/" and then deleted trailing "/"
 
-    ls -F $from | $AWK  '/\/$/ && ! /tmp/ {        \
+    ls -F $from | awk  '/\/$/ && ! /tmp/ {        \
         sub("/$", "");                              \
         print;                                      \
         exit;                                       \
@@ -3350,7 +3350,7 @@ function CygbuildFileReadOptionsFromFile()
     #   Ignore empty lines and comment lines. Read all others
     #   as one BIG line.
 
-    $AWK \
+    awk \
     '
         {
             gsub("[ \t]+#.*","");
@@ -3400,7 +3400,7 @@ function CygbuildDefineGlobalPerl()
 {
     PERL_VERSION=$(                                     # global-def
 	${PERL:-perl} --version |
-	${AWK:-awk} '
+	awk '
 	    /This is perl/ {
 		ver = $4;
 		sub("v", "", ver);
@@ -3446,7 +3446,7 @@ function CygbuildDefineGlobalCommands()
 
         PYTHON_VERSION=$(                                   # global-def
             $PYTHON -V 2>&1 |
-            ${AWK:-awk} '{print $2}' )
+            awk '{print $2}' )
 
         local minor=$PYTHON_VERSION                         # global-def
 
@@ -3461,7 +3461,6 @@ function CygbuildDefineGlobalCommands()
         fi
     fi
 
-    AWK=awk                             # global-def
     BASH=/bin/bash                      # global-def
     BASHX="$BASH -x"                    # global-def
     BZIP=bzip2                          # global-def
@@ -4894,7 +4893,7 @@ function CygbuildReadmeReleaseMatchCheck()
     # where 0.4.0-test5-1 => "0.4.0-test5" "1"
 
     local -a arr=( $(
-        $AWK ' /^--.*version / {
+        awk ' /^--.*version / {
             gsub("^.*version[ \t]+[-_.a-zA-Z]*","");
             ver = $1;
             i = split(ver, arr, /-/);
@@ -5415,7 +5414,7 @@ function CygbuildCmdPkgDevelStandardMain()
             # Include manual pages fro executables
 
             local manregexp=$(
-                $AWK '
+                awk '
                 {
                     gsub(".*/", "");
                     sub("[.](pl|py|exe|sh)$", "");
@@ -5554,7 +5553,7 @@ CygbuildPackageSourceDirClean()
 
 function CygbuildPatchLs ()
 {
-    $AWK ' /^\+\+\+ / {print $2}' ${1:-/dev/null}
+    awk ' /^\+\+\+ / {print $2}' ${1:-/dev/null}
 }
 
 function CygbuildPatchApplyRun()
@@ -5648,7 +5647,7 @@ function CygbuildPatchPrefixStripCountFromContent()
     #
     #   => up till 'foo'
 
-    if ! $AWK ' /^\+\+\+ / {
+    if ! awk ' /^\+\+\+ / {
 		    ok = 1
 		    print $2
 		    exit
@@ -6482,7 +6481,7 @@ function CygbuildPerlPodModule()
     local file="$1"
 
     if [ "$file" ]; then
-        $AWK -F"<" '
+        awk -F"<" '
         {
             module=$3;
             gsub("[|].*", "", module);
@@ -7457,7 +7456,7 @@ function CygbuildPatchCheck()
 
         if [ "$verbose" ]; then
             CygbuildEcho "-- content of $_file"
-            $AWK '/^\+\+\+ / { print "   " $2}' $file > $retval
+            awk '/^\+\+\+ / { print "   " $2}' $file > $retval
 
 	    #  Arrange listing a little. Subdirectories last.
 	    #    foo-2.5/CYGWIN-PATCHES/foo.README
@@ -7560,7 +7559,7 @@ function CygbuildPatchFindGeneratedFiles()
 
     local ret file
 
-    $AWK '/Only in.*\.[ch]/ {print $4}' $retval > $retval2
+    awk '/Only in.*\.[ch]/ {print $4}' $retval > $retval2
 
     while read file
     do
@@ -7577,7 +7576,7 @@ function CygbuildPatchFindGeneratedFiles()
     local dummy="Forget *.in automake generated files"
     local name try
 
-     $AWK \
+     awk \
         '
             /Only in.*/ {
                 path=$3;
@@ -8055,7 +8054,7 @@ function CygbuildConfOptionAdjustment()
     fi
 
     if [ "$verbose" ]; then
-	$AWK '/^ +--wit(hout)?-/ && ! /PACKAGE/ {
+	awk '/^ +--wit(hout)?-/ && ! /PACKAGE/ {
 	    print
 	}' $conf > $retval
 
@@ -9205,7 +9204,7 @@ function CygbuildInstallExtraBinFiles
     do
         _file=${item##*/}
         dest="/usr/bin"         # default location
-        tmp=$( $AWK '/cyginstdir:/ { print $(NF)}' "$item" )
+        tmp=$( awk '/cyginstdir:/ { print $(NF)}' "$item" )
 
         [ "$tmp" ] && dest=${tmp%/} # Change destination
 
@@ -9884,7 +9883,7 @@ function CygbuildCmdInstallCheckShellFiles ()
             local link=$(
                 cd ${file%/*} &&
                 ls -l ${file##*/} |
-                $AWK '{printf("-> %s\n", $(NF)) }'
+                awk '{printf("-> %s\n", $(NF)) }'
             )
 
             CygbuildEcho "-- [NOTE] symbolic link:" \
@@ -10073,7 +10072,7 @@ function CygbuildCmdInstallCheckSetupHintQuotes()
 {
     local path=${1:-/dev/null}
 
-    $AWK '
+    awk '
 	BEGIN {
 	    endquote = -1;
 	}
@@ -10136,7 +10135,7 @@ function CygbuildCmdInstallCheckSetupHintFieldNames()
 
     #   Check required fields
 
-    $AWK '
+    awk '
         BEGIN {
             hash["sdesc"]    = 0;
             hash["ldesc"]    = 0;
@@ -10231,7 +10230,7 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
     #	Ignore compression utilities, whose name is same as the compression
     #	extension.
 
-    $AWK '/^ldesc:/ && ! /compress|archive/ {
+    awk '/^ldesc:/ && ! /compress|archive/ {
             line = tolower($0);
             name = tolower(name);
 
@@ -10250,7 +10249,7 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
     #  The ldesc: itself is already in double quotes, so there must be
     #  no extra quotes inside. This is fatal error.
 
-    $AWK '/^ldesc:/,/^category:/ {
+    awk '/^ldesc:/,/^category:/ {
 
             gsub("ldesc: *\"","");
 
@@ -10276,7 +10275,7 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     local database="/etc/setup/installed.db"
     local lib
 
-    $AWK  '/^requires:/ { sub("requires:", ""); print}' $path > $retval
+    awk  '/^requires:/ { sub("requires:", ""); print}' $path > $retval
 
     for lib in $(< $retval)
     do
@@ -10311,7 +10310,7 @@ function CygbuildCmdInstallCheckSetupHintCategory()
 
     if [ "$package" ]; then
 
-        $AWK '/^category:/ {
+        awk '/^category:/ {
                 if ( match($0, name) > 0 )
                 {
                     exit 0;
@@ -10917,7 +10916,7 @@ function CygbuildCmdInstallCheckBinFiles()
             status=1
 
         elif [[ "$str" == *awk* ]] &&
-	     $AWK 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
+	     awk 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
 	     [[ ! $depends == *gawk* ]]
 	then
             CygbuildEcho "-- [ERROR] setup.hint may need Gawk dependency" \
@@ -11751,7 +11750,7 @@ function CygbuildFilePackageGuessArchive()
     local regexp="$1"
     local ignore="$2"
 
-    ls | $AWK  \
+    ls | awk  \
     '
      $0 ~ regexp  {
         if (length(ignore)>1  &&  match($0, ignore) > 1)
