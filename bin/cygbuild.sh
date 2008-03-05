@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0849"
+CYGBUILD_VERSION="2008.0305.0850"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3460,7 +3460,6 @@ function CygbuildDefineGlobalCommands()
 
     BASH=/bin/bash                      # global-def
     BASHX="$BASH -x"                    # global-def
-    DIFF=diff                           # global-def
     EGREP="grep --binary-files=without-match --extended-regexp" # global-def
     GREP="grep --binary-files=without-match" # global-def
     GPG=gpg                             # global-def
@@ -6091,7 +6090,7 @@ function CygbuildCmdMkpatchMain()
             local dummy="out: $out"      # For debugging
 
             TZ=UTC0 \
-                $DIFF $diffopt $exclude $extraDiffOpt \
+                diff $diffopt $exclude $extraDiffOpt \
                 "$difforig" "$diffsrc" \
                 > $out
 
@@ -7526,7 +7525,7 @@ function CygbuildPatchFindGeneratedFiles()
     #  At this point, assume that any .h or .c file is generated
     #  if it is not in the original package.
 
-    $DIFF $exclude --brief -r $origdir $dir > $retval
+    diff $exclude --brief -r $origdir $dir > $retval
     local status=$?    # For debug, the diff(1) status code
 
     if [ "$status" = "2" ]; then
