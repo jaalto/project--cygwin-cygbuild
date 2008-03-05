@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0839"
+CYGBUILD_VERSION="2008.0305.0840"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3323,7 +3323,7 @@ function CygbuildTreeSymlinkCopy()
             if [ -f "$item" ]; then
 
                 if  [ ! -f "$dest" ]; then
-                    $LN -s "$current/$item"  "$dest" || exit 1
+                    ln -s "$current/$item"  "$dest" || exit 1
                 fi
 
             elif [ -d "$item" ]; then
@@ -3466,7 +3466,6 @@ function CygbuildDefineGlobalCommands()
     GREP="grep --binary-files=without-match" # global-def
     GZIP=gzip                           # global-def
     GPG=gpg                             # global-def
-    LN=ln                               # global-def
     MAKE=make                           # global-def
     MKDIR=mkdir                         # global-def
     PATCH=patch                         # global-def
@@ -7368,7 +7367,7 @@ function CygbuildExtractWithScript()
             if [ "$dir" ]; then
                 CygbuildEcho "-- [!!] Download done. Symlinking $dir => $to" \
                      "in $(pwd)"
-                $LN -s "$dir" "$to" || CygbuildDie "-- [FATAL] symlink failed"
+                ln -s "$dir" "$to" || CygbuildDie "-- [FATAL] symlink failed"
                 $MKDIR -p "$srcdir" || CygbuildDie "-- [FATAL] mkdir failed"
             fi
         fi
@@ -9162,10 +9161,10 @@ function CygbuildInstallExtraManualCompress()
                     path=$(< $retval)
 
                     if [ "$path" ] && [ -f "$path.gz" ]; then
-                        $LN -sf $verbose "$path.gz" "$name.gz" || exit 1
+                        ln -sf $verbose "$path.gz" "$name.gz" || exit 1
                         $RM "$name"
                     elif [ "$path" ] && [ -f "$path.bz2" ]; then
-                        $LN -sf $verbose "$path.bz2" "$name.bz2" || exit 1
+                        ln -sf $verbose "$path.bz2" "$name.bz2" || exit 1
                         $RM "$name"
                     fi
                 CygbuildPopd
