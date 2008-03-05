@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0305.0753';
+$VERSION = '2008.0305.1049';
 
 # ..................................................................
 
@@ -120,10 +120,10 @@ cygbuild - Cygwin source and binary package build script
 The "big picture" of the porting directories used are as follows:
 
   ROOT/package
-       <downloaded original upstream package(s): package-1.2.3.tar.gz>
+       <original upstream package source(s): package-1.2.3.tar.gz>
        |
        +- package-1.2.3/
-          <*.tar.gz unpacked>
+          <upstream *.tar.gz unpacked>
           <All cygbuild commands must be given in *this* directory>
           |
           +- .build/
@@ -134,19 +134,20 @@ The "big picture" of the porting directories used are as follows:
           |  |  <contains only symlinks and object *.o etc. files>
           |  |
           |  +- package-1.2.3-orig/
-          |     <Used for taking a diff>
+          |     <Used during taking a diff for Cygwin source package>
           |
           +- .inst/
           |  <The "make install" target directory>
           |
           +- .sinst/
-              <diffs, signatures, binary and source packages>
+              <diffs, signatures, binary and source packages appear here>
 
-B<CASE A)> to build Cygwin Net Release from a package that includes a standard
-C<./configure> script, the quick path for porting would be in the fortunate
-case as simple as running commands:
+B<CASE A)> to build Cygwin Net Release from a package that includes a
+standard C<./configure> script, the quick path for porting would be in
+the fortunate case:
 
-    $ mkdir -p /tmp/build && rm /tmp/build/*
+    $ mkdir -p /tmp/build
+    $ rm /tmp/build/*
     $ cd /tmp/build
     $ mv /download/path/package-N.N.tar.gz .
     $ tar -zxvf package-N.N.tar.gz
@@ -158,32 +159,35 @@ case as simple as running commands:
     ... If this is the first port ever, it is better to run commands
     ... individually to see possible problems.
     ...
-
     ... If you have GPG key, you can add options -s "SignerKeyID"
     ... -p "pass phrase" to commands 'package', 'source-package' and
-    ... 'publish'.
+    ... 'publish'. Option -r marks "release 1".
 
     $ cygbuild -r 1 makedirs
     $ cygbuild -r 1 files
     $ cygbuild -r 1 shadow           # [optional]
     $ cygbuild -r 1 configure
     $ cygbuild -r 1 make
-    $ cygbuild -r 1 strip            # [optional]
     $ cygbuild -r 1 -v -t install    # "verbose test mode" first
     $ cygbuild -r 1 install          # The "real" install
-    $ find .inst/ -print             # Verify install structure !!
+    $ find .inst/ -print             # Verify install structure
     $ cygbuild -r 1 -v check         # Do install integrity check
     $ cygbuild -r 1 -v depend        # Check dependencies
     $ cygbuild -r 1 package          # Make Net install binary
     $ cygbuild -r 1 source-package   # Make Net install source
     $ cygbuild -r 1 publish          # Copy files to publish area (if any)
 
-To make this easier, a (b)uild alias will help. The option B<-r> is
-mandatory almost for all commands:
+There is also shortcut 'import', which runs steps up to 'make'
 
-    $ alias b="cygbuild --color -s $GPGKEY -r"
-    $ b 1 mkdirs files conf make
-    $ b 1 -v -t install                    # verbose and test mode on
+    $ cygbuild -r 1 import
+    ...  Package is configured. Did it succeed? *Try* install first
+    $ cygbuild -r 1 -v -t install
+    ...  If ok, continue just like in the example above
+
+To make this easier, an alias will help.
+
+    $ alias cb="cygbuild --color -s $GPGKEY"
+    $ cb import
     ...
 
 B<CASE B)> If the downloaded Cygwin source release package is
@@ -192,8 +196,9 @@ be used to check the binary build:
 
     $ mkdir -p /tmp/build
     $ rm -rf /tmp/build/*
-    $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-    $ cd /tmp/build  &&  ./*.sh --color --verbose all
+    $ tar -C /tmp/build -xf package-N.N-RELEASE-src.tar.bz2
+    $ cd /tmp/build
+    $ ./*.sh --color --verbose all
 
 =head1 OPTIONS
 

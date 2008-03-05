@@ -16,9 +16,8 @@ Install instructions
         version control checkout. The program will search needed
         files, provided that a) it is called by absolute name:
 
-	    #  (b)uild alias
-	    alias b="/path/to/cygbuild.sh --color -s $GPGKEY -r"
-	    b <command and option ...>
+	    alias cb="/path/to/cygbuild.sh --color -s $GPGKEY"
+	    cb <command and option ...>
 
 	or b) package's bin/ directory is added to environment
         variable PATH.

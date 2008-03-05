@@ -1,5 +1,8 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Present import
+	command.
+
 	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands):
 	Define GPG, WGET conditionally.
 	(CygbuildGPGavailableCheck): Change from negative tests
