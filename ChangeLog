@@ -1,5 +1,10 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
+	REFACTORING: Convert all $LS, $MV etc variabales into
+	regular calls in series of commit.s
+
+	[ Commit: 0a6b221 below ]
+
 	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Remove key id
 	and use $GPGKEY variable in example.
 

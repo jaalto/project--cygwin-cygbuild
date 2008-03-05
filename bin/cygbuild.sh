@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0808"
+CYGBUILD_VERSION="2008.0305.0819"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -2661,7 +2661,7 @@ function CygbuildMakefileName()
         elif [ -h "$path" ]; then
             CygbuildWarn "-- [ERROR] inconsistent links." \
                  "Perhaps sources moved. Run [reshadow]."
-            $LS -l --all "$path"
+            ls -l --all "$path"
             break
         fi
     done
@@ -3054,7 +3054,7 @@ function CygbuildSourceDownloadScript()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    if $LS *$SCRIPT_SOURCE_GET_BASE > $retval 2> /dev/null ; then
+    if ls *$SCRIPT_SOURCE_GET_BASE > $retval 2> /dev/null ; then
         local -a arr=( $(< $retval))
 
         local len=${#arr[*]}
@@ -3080,7 +3080,7 @@ function CygbuildGetOneDir()
 
     #   AWK get all entries that include "/" and then deleted trailing "/"
 
-    $LS -F $from | $AWK  '/\/$/ && ! /tmp/ {        \
+    ls -F $from | $AWK  '/\/$/ && ! /tmp/ {        \
         sub("/$", "");                              \
         print;                                      \
         exit;                                       \
@@ -3135,7 +3135,7 @@ function CygbuildMoveToTempDir()
 
     CygbuildPushd
         cd $dir &&
-        $MV $($LS | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
+        $MV $(ls | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
     CygbuildPopd
 
     echo $temp
@@ -3182,7 +3182,7 @@ function CygbuildFileConvertToUnix()
         return 1
     fi
 
-    $LS "$@" > $retval 2> /dev/null
+    ls "$@" > $retval 2> /dev/null
 
     [ -s $retval ] || return 2
 
@@ -3964,7 +3964,7 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
 
                 elif [ -h $try ]; then
                     CygbuildWarn "-- [WARN] Dangling symlink found: $TOPDIR"
-                    $LS -l $try
+                    ls -l $try
                 fi
 
             done
@@ -4364,7 +4364,7 @@ function CygbuildCygDirCheck()
               "Did forget to run [files] before [install]?"
 
     local readme
-    $LS $DIR_DOC_CYGWIN/*.README > $retval 2> /dev/null &&
+    ls $DIR_DOC_CYGWIN/*.README > $retval 2> /dev/null &&
     readme=$(< $retval)
 
     if [ ! "$readme" ]; then
@@ -4419,7 +4419,7 @@ function CygbuildDetermineDocDir()
     #   There must be trailing slash, because DIR may be a symlink and
     #   the content is important.
 
-    if $LS -F $dir/ |
+    if ls -F $dir/ |
        $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
     then
         while read try
@@ -7615,7 +7615,7 @@ function CygbuildPatchFindGeneratedFiles()
 
     local dummy="Forget executables"
 
-    if $LS *.exe > $retval 2> /dev/null ; then
+    if ls *.exe > $retval 2> /dev/null ; then
         while read file
         do
             name=${file%.exe}
@@ -10383,7 +10383,7 @@ function CygbuildCmdInstallCheckDirEmpty()
     do
         [ "$dir" = "$instdir" ] && continue
 
-        if ! $LS -A "$dir" | $EGREP --quiet '[a-zA-Z0-9]' ; then
+        if ! ls -A "$dir" | $EGREP --quiet '[a-zA-Z0-9]' ; then
             CygbuildWarn "-- [WARN] empty directory" ${dir/$srcdir\//}
         fi
 
@@ -10412,11 +10412,11 @@ function CygbuildCmdInstallCheckDirStructure()
 
 	[ -d "$tmp" ] || continue
 
-	if $LS -F $tmp | $EGREP --quiet --invert-match '/' ; then
+	if ls -F $tmp | $EGREP --quiet --invert-match '/' ; then
             error=1
 	    CygbuildWarn "-- [ERROR] Files in toplevel dir" \
 			 ${tmp/$srcdir\/}
-	    $LS -F $tmp
+	    ls -F $tmp
 	fi
     done
 
@@ -10875,7 +10875,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [[ "$file" != *X11* ]]; then
 
-            $LS -l $file > $retval
+            ls -l $file > $retval
             [ -s $retval ] && str=$(< $retval)
 
             if [ "$str" ]; then
@@ -11754,7 +11754,7 @@ function CygbuildFilePackageGuessArchive()
     local regexp="$1"
     local ignore="$2"
 
-    $LS | $AWK  \
+    ls | $AWK  \
     '
      $0 ~ regexp  {
         if (length(ignore)>1  &&  match($0, ignore) > 1)
@@ -11915,7 +11915,7 @@ function CygbuildFileReleaseGuess()
 
     local -a arr
 
-    $LS 2> /dev/null \
+    ls 2> /dev/null \
         | $EGREP '[-_][0-9]+(-src\.tar|\.orig\.tar|\.patch)' \
         > $retval
 
