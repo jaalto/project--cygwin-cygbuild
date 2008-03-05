@@ -11093,7 +11093,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
     local file
 
-    FIND $dir \
+    find $dir \
     -type d '(' -name ".bzr" \
                 -o -name ".git" \
                 -o -name ".svn" \

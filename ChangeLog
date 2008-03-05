@@ -50,6 +50,7 @@
 	(CygbuildBootVariablesGlobalShareMain): Correct variable dir
 	at the end of function.
 	(CygbuildProgramVersion): Use ## prefix in non-color mode too.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Correct refactored FIND.
 
 	[ commit: 21c6baa ]
 
