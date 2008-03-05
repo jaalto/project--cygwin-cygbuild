@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0828"
+CYGBUILD_VERSION="2008.0305.0834"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -3423,32 +3423,39 @@ function CygbuildDefineGlobalCommands()
     [ -s $retval ] && CYGPATH=$(< $retval) # global-def
     local tmp
 
+    CygbuildPathBinFast perl > $retval
+    [ -s $retval ] && tmp=$(< $retval)
+
+    if [ ! "$tmp" ]; then
+	CygbuildDie "-- [FATAL] perl not found in PATH"
+    fi
+
+    PERL_PATH="$tmp"
+    CygbuildDefineGlobalPerlVersion
+
     CygbuildPathBinFast python > $retval
     [ -s $retval ] && tmp=$(< $retval)
 
-    if [ "$tmp" ]; then
-	PYTHON="$tmp"                                   # global-def
+    if [ ! "$tmp" ]; then
+	CygbuildDie "-- [FATAL] python not found in PATH"
     fi
 
-    CygbuildDefineGlobalPerlVersion
+    PYTHON_PATH="$tmp"                              # global-def
 
-    if [ "$PYTHON" ]; then
+    PYTHON_VERSION=$(                               # global-def
+	python -V 2>&1 |
+	awk '{print $2}' )
 
-        PYTHON_VERSION=$(                                   # global-def
-            $PYTHON -V 2>&1 |
-            awk '{print $2}' )
+    local minor=$PYTHON_VERSION                     # global-def
 
-        local minor=$PYTHON_VERSION                         # global-def
+    if [[ "$minor" == *.*.* ]]; then                # 2.5.1
+	minor=${minor%.*}
+    fi
 
-        if [[ "$minor" == *.*.* ]]; then                    # 2.5.1
-            minor=${minor%.*}
-        fi
+    local tmp=/usr/lib/python$minor
 
-        local tmp=/usr/lib/python$minor
-
-        if [ -d $tmp ]; then
-            PYTHON_LIBDIR=$tmp/config   # global-def
-        fi
+    if [ -d $tmp ]; then
+	PYTHON_LIBDIR=$tmp/config   # global-def
     fi
 
     BASH=/bin/bash                      # global-def
@@ -6741,7 +6748,7 @@ function CygbuildPythonCompileFiles()
     #   sys.platform  will return: win32, cygwin, darwin, linux
     #   and os.name will indicate 'posix' as needed.
 
-    $PYTHON -c '
+    python -c '
 import os, sys, py_compile
 verbose = sys.argv[1]
 
@@ -6764,7 +6771,7 @@ function CygbuildPythonCompileDir()
     #   See "Compiling Python Code" by Fredrik Lundh
     #   http://effbot.org/zone/python-compile.htm
 
-    $PYTHON -c '
+    python -c '
 import os, sys, compileall
 dir = sys.argv[1]
 compileall.compile_dir(dir, force=1)
@@ -6882,7 +6889,7 @@ function CygbuildRunPythonSetupCmd()
 
     CygbuildVerb "-- Running Python command: $*"
 
-    CygbuildRunShell $PYTHON setup.py "$@" > $retval 2>&1
+    CygbuildRunShell python setup.py "$@" > $retval 2>&1
     local status=$?
 
     if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
@@ -8397,7 +8404,7 @@ function CygbuildSetLDPATHpython()
     local try="$PYTHON_LIBDIR"
 
     if  [ ! "$try" ]; then
-        CygbuildWarn "-- [WARN] $PYTHON library dir /usr/lib not defined"
+        CygbuildWarn "-- [WARN] python library dir /usr/lib not defined"
     elif [ -d "$try" ]; then
 
         if [ "$LD_LIBRARY_PATH" ]; then
@@ -9727,11 +9734,8 @@ function CygbuildCmdInstallCheckPythonFile ()
     local id="$0.$FUNCNAME"
     local file="$1"
 
-    if [ ! "$PYTHON" ]; then
-        return 1
-    fi
-
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local pypath="$PYTHON_PATH"
     local name=${file##*/}
     local newfile=$retval.fix.$name
 
@@ -9741,14 +9745,14 @@ function CygbuildCmdInstallCheckPythonFile ()
     if [ ! "$binpath" ]; then
         CygbuildWarn \
             "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
-        echo "#!$PYTHON" > "$newfile" &&
+        echo "#!$pypath" > "$newfile" &&
         $CAT "$file" >> "$newfile"    &&
         CygbuildRun mv "$newfile" "$file"
     fi
 
-    if [[ $binpath != *@($PYTHON|/usr/bin/env python) ]]; then
+    if [[ $binpath != *@($pypath|/usr/bin/env python) ]]; then
         CygbuildWarn "-- [WARN] $name uses wrong python path, fixing it."
-        $SED -e "s,^#!.*,#!$PYTHON," "$file" > "$newfile" &&
+        $SED -e "s,^#!.*,#!$pypath," "$file" > "$newfile" &&
         CygbuildRun $CP "$newfile" "$file"
     fi
 }
@@ -9759,10 +9763,6 @@ function CygbuildCmdInstallCheckPerlFile ()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
     local _file=${file#$srcdir/}
-
-    if [ ! "$PYTHON" ]; then
-        return 1
-    fi
 
     local name=${file##*/}
     newfile=$retval.fix.$name
