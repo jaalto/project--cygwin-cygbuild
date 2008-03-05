@@ -76,6 +76,8 @@
 	(CygbuildCmdInstallCheckPerlLibraries): Adjust displayed
 	message.
 	(CygbuildInstallFixInterpreterPerl): Use variable retval.
+	(CygbuildInstallFixInterpreterPython): Use variable retval.
+	(CygbuildInstallFixPerlPacklist): Use variable retval.
 
 	[ commit: 21c6baa ]
 
