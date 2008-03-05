@@ -64,6 +64,7 @@
 	(CygbuildBootVariablesGlobalLibSet): Display warning if *.pl
 	not found.
 	(CygbuildBootVariablesId): Remove PATH setting. Trust user.
+	New variable CYGBUILD_PROG_LIBPATH.
 
 	[ commit: 21c6baa ]
 

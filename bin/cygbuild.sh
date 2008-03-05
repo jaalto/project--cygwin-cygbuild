@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.1424"
+CYGBUILD_VERSION="2008.0305.1435"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -450,17 +450,16 @@ function CygbuildBootVariablesId()
     #      $CYGBUILD_PUBLISH_DIR. Separate subdirectories are created for
     #      each published package before copying files.
 
-    CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}
+    CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}	    # global-def
     CYGBUILD_PUBLISH_DIR=${CYGBUILD_PUBLISH_DIR:-"/usr/src/cygwin-packages"}
 
-    TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
+    TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}		    # global-def
     TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
 
     #	Private: program startup and name
 
-    CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
-
-    CYGBUILD_DIR_CYGPATCH_RELATIVE="CYGWIN-PATCHES"  # global-def
+    CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"	    # global-def
+    CYGBUILD_DIR_CYGPATCH_RELATIVE="CYGWIN-PATCHES"	    # global-def
 
     #  Function return values are stored to files, because bash cannot call
     #  function with parameters in running shell environment. The only way to
@@ -483,13 +482,25 @@ function CygbuildBootVariablesId()
     CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$"
     local retval="$CYGBUILD_RETVAL"
 
-    CYGBUILD_PROG_NAME=${0##*/}				# delete path
+    CYGBUILD_PROG_NAME=${0##*/}				    # global-def
 
     if [[ "$0" == */* ]]; then
-	CYGBUILD_PROG_PATH=$(cd ${0%/*} && pwd)
+	CYGBUILD_PROG_PATH=$(cd ${0%/*} && pwd)		    # global-def
     else
 	CygbuildWhich "$CYGBUILD_PROG_NAME" > $retval
 	CYGBUILD_PROG_PATH=$(< $retval)
+    fi
+
+    local path="$CYGBUILD_PROG_PATH"
+
+    #	Depends how program is installed.
+
+    CYGBUILD_PROG_LIBPATH=				    # global-def
+
+    if [[ "$path" == /usr/local* ]]; then
+	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
+    elif [[ "$path" == /usr/bin* ]]; then
+	CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
     fi
 
     CYGBUILD_PROG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
@@ -622,15 +633,15 @@ function CygbuildBootVariablesGlobalShareDir()
 function CygbuildBootVariablesGlobalShareMain()
 {
     local id="$0.$FUNCNAME"
-    local dir=/usr/share/cygbuild
+    local dir="$CYGBUILD_PROG_LIBPATH"
 
     if [ -d "$dir" ]; then
 	CygbuildBootVariablesGlobalShareDir "$dir"
 	return 0
     fi
 
-    #   Not installed site wide but run-in-place. Determine paths
-    #	relative to the program location.
+    #   Not installed site wide but probably run-in-place. Determine
+    #	paths relative to the program location.
 
     local tmp="$CYGBUILD_PROG_PATH"
 
