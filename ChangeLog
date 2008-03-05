@@ -8,6 +8,7 @@
 	(CygbuildCommandMain): Move `CygbuildDefineGlobalCommands'
 	here from CygbuildCommandMain().
 	(CygbuildCmdDownloadCygwinPackage): Rewite wget test.
+	(CygbuildDefineGlobalCommands): Remove variable BASH.
 
 	[ commit: 21c6baa ]
 

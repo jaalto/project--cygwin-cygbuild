@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0911"
+CYGBUILD_VERSION="2008.0305.0927"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -214,7 +214,7 @@ function CygbuildMatchRegexp()
     if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
         [[ $2 =~ $1 ]]
     else
-        echo "$2" | $EGREP -q "$1"
+        echo "$2" | $EGREP --quiet "$1"
     fi
 }
 
@@ -440,11 +440,7 @@ function CygbuildExitIfEmpty()
 
 function CygbuildBootVariablesId()
 {
-    #######################################################################
-    #
-    #       Public ENVIRONMENT VARIABLES: User settings
-    #
-    #######################################################################
+    #	Public ENVIRONMENT VARIABLES: User settings
 
     #   These variables are used only when command [publish] is run.
     #   The ready bin and source packages are either:
@@ -457,23 +453,19 @@ function CygbuildBootVariablesId()
     CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}
     CYGBUILD_PUBLISH_DIR=${CYGBUILD_PUBLISH_DIR:-"/usr/src/cygwin-packages"}
 
-    #######################################################################
-    #
-    #       Private: program startup and name
-    #
-    #######################################################################
+    #	Private: program startup and name
 
-    #  Be cautious with the PATH. Putting /bin etc. first make finding
-    #  programs faster. FIXME: Do we really need the $PATH here?
+    #	Be cautious with the PATH. Putting /bin etc. first make finding
+    #	programs faster.
 
     PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH"
-    TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
 
+    TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
     TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
 
     CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"
 
-    CYGBUILD_DIR_CYGPATCH_RELATIVE=CYGWIN-PATCHES  # global-def
+    CYGBUILD_DIR_CYGPATCH_RELATIVE="CYGWIN-PATCHES"  # global-def
 
     #  Function return values are stored to files, because bash cannot call
     #  function with parameters in running shell environment. The only way to
@@ -508,11 +500,7 @@ function CygbuildBootVariablesId()
 
 function CygbuildBootVariablesCache()
 {
-    #######################################################################
-    #
-    #       Private: CACHE VARIABLES; remember last function call values
-    #
-    #######################################################################
+    #	Private: CACHE VARIABLES; remember last function call values
 
     # path to module cygbuild.pl
     declare -a CYGBUILD_STATIC_PERL_MODULE
@@ -3400,7 +3388,7 @@ function CygbuildFileReadOptionsMaybe()
 
 function CygbuildDefineGlobalPerlVersion()
 {
-    PERL_VERSION=$(                                     # global-def
+    PERL_VERSION=$(                                 # global-def
 	perl --version |
 	awk '
 	    /This is perl/ {
@@ -3416,19 +3404,30 @@ function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    BASH=/bin/bash                      # global-def
-    BASHX="$BASH -x"                    # global-def
-    EGREP="grep --binary-files=without-match --extended-regexp" # global-def
-    GREP="grep --binary-files=without-match" # global-def
+    BASHX="/bin/bash -x"			    # global-def
+    GREP="grep --binary-files=without-match"	    # global-def
+    EGREP="$EGREP --extended-regexp"		    # global-def
+
+    # ............................................ optional features ...
 
     CYGCHECK=
     CygbuildWhich cygcheck > $retval
-    [ -s $retval ] && CYGCHECK=$(< $retval) # global-def
+    [ -s $retval ] && CYGCHECK=$(< $retval)	    # global-def
 
     CYGPATH=
     CygbuildWhich cygpath > $retval
-    [ -s $retval ] && CYGPATH=$(< $retval) # global-def
+    [ -s $retval ] && CYGPATH=$(< $retval)	    # global-def
     local tmp
+
+    GPG=					    # global-def
+    CygbuildPathBinFast gpg > $retval
+    [ -s $retval ] && GPG=$(< $retval)
+
+    WGET=					    # global-def
+    CygbuildPathBinFast wget > $retval
+    [ -s $retval ] && WGET=$(< $retval)
+
+    # ......................................................... perl ...
 
     CygbuildPathBinFast perl > $retval
     [ -s $retval ] && tmp=$(< $retval)
@@ -3440,6 +3439,8 @@ function CygbuildDefineGlobalCommands()
     PERL_PATH="$tmp"
     CygbuildDefineGlobalPerlVersion
 
+    # ....................................................... python ...
+
     CygbuildPathBinFast python > $retval
     [ -s $retval ] && tmp=$(< $retval)
 
@@ -3447,7 +3448,7 @@ function CygbuildDefineGlobalCommands()
 	CygbuildDie "-- [FATAL] python not found in PATH"
     fi
 
-    PYTHON_PATH="$tmp"                              # global-def
+    PYTHON_PATH="$tmp"				    # global-def
 
     PYTHON_VERSION=$(                               # global-def
 	python -V 2>&1 |
@@ -3464,14 +3465,6 @@ function CygbuildDefineGlobalCommands()
     if [ -d $tmp ]; then
 	PYTHON_LIBDIR=$tmp/config		    # global-def
     fi
-
-    GPG=					    # global-def
-    CygbuildPathBinFast gpg > $retval
-    [ -s $retval ] && GPG=$(< $retval)
-
-    WGET=					    # global-def
-    CygbuildPathBinFast wget > $retval
-    [ -s $retval ] && WGET=$(< $retval)
 }
 
 function CygbuildIsArchiveScript()
@@ -12676,8 +12669,8 @@ function CygbuildMain()
     #  Run a quick option check before we call all initialization
     #  function that are slow. Also export library functions.
 
-    CygbuildBootVariablesGlobalColors
     CygbuildBootVariablesId
+    CygbuildBootVariablesGlobalColors
     CygbuildBootVariablesGlobalCacheMain
     CygbuildDefineGlobalCommands
     CygbuildBootVariablesCache
