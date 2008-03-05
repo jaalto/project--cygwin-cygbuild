@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0846"
+CYGBUILD_VERSION="2008.0305.0847"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -2590,7 +2590,7 @@ function CygbuildTarDirectory()
     CygbuildTarOptionCompress $file > $retval
     local z=$(< $retval)
 
-    $TAR -${z}tvf $file > $retval || return $?
+    tar -${z}tvf $file > $retval || return $?
 
     if [ ! -s $retval ]; then
         CygbuildWarn "$id: [ERROR] Can't read content of $file"
@@ -3465,7 +3465,6 @@ function CygbuildDefineGlobalCommands()
     GREP="grep --binary-files=without-match" # global-def
     GPG=gpg                             # global-def
     SORT=sort                           # global-def
-    TAR=tar                             # global-def
     TR=tr                               # global-def
     WGET=wget				# global-def
     WHICH=which				# global-def
@@ -5209,7 +5208,7 @@ function CygbuildCmdPkgDevelStandardDoc()
 
             CygbuildEcho "-- devel-doc" ${tar/$srcdir\//}
 
-            $TAR $taropt $tar $(< $retval.doc) ||
+            tar $taropt $tar $(< $retval.doc) ||
             {
                 status=$?
                 CygbuildPopd
@@ -5241,7 +5240,7 @@ function CygbuildCmdPkgDevelStandardBin()
 
             CygbuildEcho "-- devel-bin" ${tar/$srcdir\//}
 
-            $TAR $taropt $tar \
+            tar $taropt $tar \
             $(< $retval.bin) $(< $retval.man.bin) ||
             {
                 status=$?
@@ -5292,7 +5291,7 @@ function CygbuildCmdPkgDevelStandardLib()
 
             CygbuildEcho "-- devel-lib" ${tar/$srcdir\//}
 
-            $TAR $taropt $tar \
+            tar $taropt $tar \
             $(< $retval.lib) ||
             {
                 status=$?
@@ -5335,7 +5334,7 @@ function CygbuildCmdPkgDevelStandardDev()
 
             CygbuildEcho "-- devel-dev" ${tar/$srcdir\//}
 
-            $TAR $taropt $tar \
+            tar $taropt $tar \
             $(< $retval.dev) ||
             {
                 status=$?
@@ -5491,7 +5490,7 @@ function CygbuildCmdPkgBinaryStandard()
 
     CygbuildPushd
         cd $instdir || exit 1
-        $TAR $taropt $pkg *    # must be "*", not "." => would cause ./path/..
+        tar $taropt $pkg *    # must be "*", not "." => would cause ./path/..
         status=$?
     CygbuildPopd
 
@@ -5987,10 +5986,10 @@ function CygbuildCmdMkpatchMain()
         opt="-${z}xf"
         dummy="PWD is $(pwd)"                  # Used for debugging
 
-        $TAR -C "$cd" $opt "$file"     ||
+        tar -C "$cd" $opt "$file"     ||
         {
             status=$?
-            echo "$id: [ERROR] $TAR $opt $file"
+            echo "$id: [ERROR] tar $opt $file"
             return $status
         }
 
@@ -6026,9 +6025,9 @@ function CygbuildCmdMkpatchMain()
             dummy="PWD is $(pwd)"           # Used for debugging
 
 
-            $TAR $CYGBUILD_TAR_EXCLUDE \
+            tar $CYGBUILD_TAR_EXCLUDE \
                 --create --file=- . \
-                | ( cd "$cursrcdir" && $TAR --extract --file=- ) \
+                | ( cd "$cursrcdir" && tar --extract --file=- ) \
                 || exit 1
 
             CygbuildEcho "-- Wait, undoing local patches" \
@@ -6237,7 +6236,7 @@ function CygbuildCmdPkgSourceStandard()
 
         local pkg="$FILE_SRC_PKG"
 
-        $TAR $taropt $FILE_SRC_PKG \
+        tar $taropt $FILE_SRC_PKG \
              $(ls $PKG*  | $EGREP -v "$pkg|-src\.tar|$VER-[0-9]+\.tar")
 
         status=$?
@@ -7285,7 +7284,7 @@ function CygbuildExtractTar()
 
         local status=0
 
-        $TAR -C "$expectdir" $opt "$file"  ||
+        tar -C "$expectdir" $opt "$file"  ||
         {
             status=$?
             CygbuildPopd
@@ -7299,7 +7298,7 @@ function CygbuildExtractTar()
                 "-- [ERROR] Cannot unpack, existing directory found: $dir"
         fi
 
-        $TAR $opt $file || return $?
+        tar $opt $file || return $?
 
         if [ "$dir" != "$expectdir" ]; then
 
@@ -8977,12 +8976,12 @@ function CygbuildInstallPackageDocs()
 
 	    if [ "$tarOptInclude" ] || [ "$dir" ] || [ "$extradir" ]
 	    then
-		$TAR $optExclude $tarOptExclude $verbose \
+		tar $optExclude $tarOptExclude $verbose \
 		    --create --dereference --file=- \
 		    ${dir:+"."} \
 		    $extradir \
 		    $tarOptInclude \
-		| ( $TAR -C "$dest" $taropt --file=- )
+		| ( tar -C "$dest" $taropt --file=- )
 
 		status=$?
 	    fi
@@ -9371,8 +9370,8 @@ function CygbuildInstallFixDocdirInstall()
 
     pkgdocdir="$dir/usr/share/doc/$pdir"
 
-    if ! ${test+echo} $TAR -C "$pkgdocdir" -cf - . | {
-	 $TAR -C "$dest" -xf -  &&
+    if ! ${test+echo} tar -C "$pkgdocdir" -cf - . | {
+	 tar -C "$dest" -xf -  &&
 	 rm -rf "$pkgdocdir" ; }
     then
 
@@ -9498,10 +9497,10 @@ function CygbuildInstallFixEtcdirInstall()
 
     local dest="$DIR_DEFAULTS_GENERAL/etc"
 
-    if ! ${test+echo} $TAR  -C  "$pkgetcdir" -cf - . | {
+    if ! ${test+echo} tar  -C  "$pkgetcdir" -cf - . | {
 	rm    -rf "$pkgetcdir" &&
 	mkdir -p  "$dest"      &&
-	$TAR   -C  "$dest" -xf - ; }
+	tar   -C  "$dest" -xf - ; }
     then
 	[ ! "$test" ] &&
 	CygbuildWarn "$id: [ERROR] Internal error while relocating $pkgetcdir"
