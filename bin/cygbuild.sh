@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0834"
+CYGBUILD_VERSION="2008.0305.0836"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -4812,11 +4812,6 @@ function CygbuildPerlModuleLocation()
 
     #   Find out if we can use cygbuild.pl module
     #   Return 1) Perl interpreter and 2) module path
-
-    if [ ! "$PERL" ]; then
-        CygbuildWarn "$id: [ERROR] perl is not in PATH."
-        return 1
-    fi
 
     local name="$CYGBUILD_PERL_MODULE_NAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
@@ -9806,18 +9801,20 @@ function CygbuildCmdInstallCheckPerlFile ()
     $EGREP '^#!/' $file  | head -1 > $retval
     [ -s $retval ] && binpath=$(< $retval)
 
+    local plpath="$PERL_PATH"
+
     if [ ! "$binpath" ]; then
 
         CygbuildWarn \
             "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
-        echo "#!$PERL" > "$newfile" &&
+        echo "#!$plpath" > "$newfile" &&
         $CAT "$file" >> "$newfile"    &&
         CygbuildRun mv "$newfile" "$file"
 
-    elif [[ $binpath == +($PERL) ]]; then
+    elif [[ $binpath == +($plpath) ]]; then
 
         CygbuildWarn "-- [WARN] $name uses wrong perl path, fixing it."
-        $SED -e "s,^#!.*,#!$PERL," "$file" > "$newfile" &&
+        $SED -e "s,^#!.*,#!$plpath," "$file" > "$newfile" &&
         CygbuildRun $CP "$newfile" "$file"
 
     fi
