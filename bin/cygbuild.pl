@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0305.1051';
+$VERSION = '2008.0305.1106';
 
 # ..................................................................
 
@@ -186,7 +186,7 @@ There is also shortcut 'import', which runs steps up to 'make'
 
 To make this easier, an alias will help.
 
-    $ alias cb="cygbuild --color -s $GPGKEY"
+    $ alias cb="cygbuild --color --sign $GPGKEY"
     $ cb import
     ...
 

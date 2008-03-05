@@ -35,7 +35,7 @@
 
 		<li><a href="#packages_with_no_version_number">Packages with no version number</a></li>
 		<li><a href="#packages_with_nonstandard_versioning_schemes">Packages with non-standard versioning schemes</a></li>
-		<li><a href="#packaging_directly_from_version_controll_repositories">Packaging directly from version controll repositories</a></li>
+		<li><a href="#packaging_directly_from_version_control_repositories">Packaging directly from version control repositories</a></li>
 	</ul>
 
 	<li><a href="#making_cygwin_net_releases">MAKING CYGWIN NET RELEASES</a></li>
@@ -71,7 +71,7 @@
 		<li><a href="#problem_with_command__all_">Problem with command [all]</a></li>
 		<li><a href="#command__check__cannot_find_files">Command [check] cannot find files</a></li>
 		<li><a href="#problem_with_command__install_">Problem with command [install]</a></li>
-		<li><a href="#command__package__gives_warnings">Command [package] gives warnings</a></li>
+		<li><a href="#command__package__displays_warnings">Command [package] displays warnings</a></li>
 		<li><a href="#while_making_source_package__the_mkpatch_step_dies_with_an_error">While making source package, the mkpatch step dies with an error</a></li>
 	</ul>
 
@@ -82,7 +82,6 @@
 	<ul>
 
 		<li><a href="#commands_must_be_ordered">Commands must be ordered</a></li>
-		<li><a href="#perl_and_double_install_is_needed">Perl and double install is needed</a></li>
 		<li><a href="#other_archive_formats_like___zip_are_not_recognized">Other archive formats like *.zip are not recognized</a></li>
 		<li><a href="#reporting_bugs">Reporting bugs</a></li>
 		<li><a href="#slow_program_startup">Slow program startup</a></li>
@@ -94,6 +93,8 @@
 		<li><a href="#makefiles_and_compiling_libraries">Makefiles and compiling libraries</a></li>
 		<li><a href="#yacc_or_lex_file_compiling_notes">yacc or lex file compiling notes</a></li>
 		<li><a href="#cygwin_postinstall_script_conventions">Cygwin postinstall script conventions</a></li>
+		<li><a href="#use_of_hard_links">Use of hard links</a></li>
+		<li><a href="#setup_hint_should_list_all_dependencies">setup.hint should list all dependencies</a></li>
 	</ul>
 
 	<li><a href="#availability">AVAILABILITY</a></li>
@@ -114,7 +115,7 @@
 <hr />
 <h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
-    cygbuild [options] -r RELEASE CMD [CMD ...]</pre>
+    cygbuild [options] [-r RELEASE] CMD [CMD ...]</pre>
 <p>
 </p>
 <hr />
@@ -122,10 +123,10 @@
 <p>The ``big picture'' of the porting directories used are as follows:</p>
 <pre>
   ROOT/package
-       &lt;downloaded original upstream package(s): package-1.2.3.tar.gz&gt;
+       &lt;original upstream package source(s): package-1.2.3.tar.gz&gt;
        |
        +- package-1.2.3/
-          &lt;*.tar.gz unpacked&gt;
+          &lt;upstream *.tar.gz unpacked&gt;
           &lt;All cygbuild commands must be given in *this* directory&gt;
           |
           +- .build/
@@ -136,18 +137,19 @@
           |  |  &lt;contains only symlinks and object *.o etc. files&gt;
           |  |
           |  +- package-1.2.3-orig/
-          |     &lt;Used for taking a diff&gt;
+          |     &lt;Used during taking a diff for Cygwin source package&gt;
           |
           +- .inst/
           |  &lt;The &quot;make install&quot; target directory&gt;
           |
           +- .sinst/
-              &lt;diffs, signatures, binary and source packages&gt;</pre>
-<p><strong>CASE A)</strong> to build Cygwin Net Release from a package that includes a standard
-<code>./configure</code> script, the quick path for porting would be in the fortunate
-case as simple as running commands:</p>
+              &lt;diffs, signatures, binary and source packages appear here&gt;</pre>
+<p><strong>CASE A)</strong> to build Cygwin Net Release from a package that includes a
+standard <code>./configure</code> script, the quick path for porting would be in
+the fortunate case:</p>
 <pre>
-    $ mkdir -p /tmp/build &amp;&amp; rm /tmp/build/*
+    $ mkdir -p /tmp/build
+    $ rm /tmp/build/*
     $ cd /tmp/build
     $ mv /download/path/package-N.N.tar.gz .
     $ tar -zxvf package-N.N.tar.gz</pre>
@@ -158,32 +160,34 @@ case as simple as running commands:</p>
 <pre>
     ... If this is the first port ever, it is better to run commands
     ... individually to see possible problems.
-    ...</pre>
-<pre>
+    ...
     ... If you have GPG key, you can add options -s &quot;SignerKeyID&quot;
     ... -p &quot;pass phrase&quot; to commands 'package', 'source-package' and
-    ... 'publish'.</pre>
+    ... 'publish'. Option -r marks &quot;release 1&quot;.</pre>
 <pre>
     $ cygbuild -r 1 makedirs
     $ cygbuild -r 1 files
     $ cygbuild -r 1 shadow           # [optional]
     $ cygbuild -r 1 configure
     $ cygbuild -r 1 make
-    $ cygbuild -r 1 strip            # [optional]
     $ cygbuild -r 1 -v -t install    # &quot;verbose test mode&quot; first
     $ cygbuild -r 1 install          # The &quot;real&quot; install
-    $ find .inst/ -print             # Verify install structure !!
+    $ find .inst/ -print             # Verify install structure
     $ cygbuild -r 1 -v check         # Do install integrity check
-    $ cygbuild -r 1 -v depend        # Check depdencies
+    $ cygbuild -r 1 -v depend        # Check dependencies
     $ cygbuild -r 1 package          # Make Net install binary
     $ cygbuild -r 1 source-package   # Make Net install source
     $ cygbuild -r 1 publish          # Copy files to publish area (if any)</pre>
-<p>To make this easier, a (b)uild alias will help. The option <strong>-r</strong> is
-mandatory almost for all commands:</p>
+<p>There is also shortcut 'import', which runs steps up to 'make'</p>
 <pre>
-    $ alias b=&quot;cygbuild -s F701D4B3 -r&quot;    # Save this in ~/.bashrc
-    $ b 1 mkdirs files conf make
-    $ b 1 -v -t install                    # verbose and test mode on
+    $ cygbuild -r 1 import
+    ...  Package is configured. Did it succeed? *Try* install first
+    $ cygbuild -r 1 -v -t install
+    ...  If ok, continue just like in the example above</pre>
+<p>To make this easier, an alias will help.</p>
+<pre>
+    $ alias cb=&quot;cygbuild --color --sign $GPGKEY&quot;
+    $ cb import
     ...</pre>
 <p><strong>CASE B)</strong> If the downloaded Cygwin source release package is
 controlled by cygbuild, then commands <strong>[all]</strong> and <strong>[almostall]</strong> can
@@ -191,18 +195,19 @@ be used to check the binary build:</p>
 <pre>
     $ mkdir -p /tmp/build
     $ rm -rf /tmp/build/*
-    $ tar -C /tmp/build -zxvf package-N.N-RELEASE-src.tar.gz
-    $ cd /tmp/build  &amp;&amp;  ./*.sh --color --verbose all</pre>
+    $ tar -C /tmp/build -xf package-N.N-RELEASE-src.tar.bz2
+    $ cd /tmp/build
+    $ ./*.sh --color --verbose all</pre>
 <p>
 </p>
 <hr />
 <h1><a name="options">OPTIONS</a></h1>
 <dl>
-<dt><strong><a name="item__2d_2dbzip2"><strong>--bzip2</strong></a></strong>
+<dt><strong><a name="item__2db_7c_2d_2dbzip2"><strong>-b|--bzip2</strong></a></strong>
 
 <dd>
-<p>Use bzip2 compression instead of default gzip(1). This affects the
-manual pages and the usr/share/doc/*/ content.</p>
+<p>Use bzip2 compression instead of default package compression. This
+affects the manual pages and the usr/share/doc/*/ content.</p>
 </dd>
 </li>
 <dt><strong><a name="item__2dc_7c_2d_2dcolor"><strong>-c|--color</strong></a></strong>
@@ -214,7 +219,7 @@ manual pages and the usr/share/doc/*/ content.</p>
 <dt><strong><a name="item__2d_2dcygbuiddir_dir"><strong>--cygbuiddir DIR</strong></a></strong>
 
 <dd>
-<p>PATH where all the temporaqry files are kept; object files, taking diffs
+<p>PATH where all the temporary files are kept; object files, taking diffs
 etc. The default value is <code>./.build</code>.</p>
 </dd>
 </li>
@@ -242,7 +247,7 @@ enabled.</p>
 <dt><strong><a name="item__2de_7c_2d_2demail_email"><strong>-e|--email EMAIL</strong></a></strong>
 
 <dd>
-<p>Set email address to use with commad <strong>[readmefix]</strong>. This effectively sets
+<p>Set email address to use with command <strong>[readmefix]</strong>. This effectively sets
 variable <code>CYGBUILD_EMAIL</code> that is written to 'maintained by' section of
 <code>package.README</code> file.</p>
 </dd>
@@ -254,7 +259,7 @@ variable <code>CYGBUILD_EMAIL</code> that is written to 'maintained by' section 
 Script. This changes behavior and command in the following manner:</p>
 </dd>
 <dl>
-<dt><strong><a name="item_commands_3a__5ball_5d_2c__5bbinary_2dpackage_5d_an">commands: <strong>[all]</strong>, <strong>[binary-package]</strong> and <strong>[source-packagage]</strong></a></strong>
+<dt><strong><a name="item_commands_3a__5ball_5d_2c__5bbinary_2dpackage_5d_an">commands: <strong>[all]</strong>, <strong>[binary-package]</strong> and <strong>[source-package]</strong></a></strong>
 
 <dd>
 <p>Move the generated source package <code>package-N.N.tar.bz2</code> and binary package
@@ -302,38 +307,7 @@ binary package results are being checked. An example:</p>
 <p>Print long help (this page).</p>
 </dd>
 </li>
-<dt><strong><a name="item__2d_2dinit_2dpkgdb_path"><strong>--init-pkgdb PATH</strong></a></strong>
-
-<dd>
-<p>In order for command <strong>[check-deps]</strong> to be able to determine correct
-dependencies for <code>setup.hint</code> section <em>requires:</em>, an external database
-must be generated. The package database will include directory listings
-from all <code>package-N.N-N.tar.bz2</code> files. This initial creation will take
-VERY LONG time because every installed <code>*.bz2</code> file must be examined. If
-unsure what the PATH argument should be, start <strong>setup.exe</strong> and see value
-<em>Local Package Directory</em> which stores the downloaded packages.</p>
-</dd>
-<dd>
-<p>When the database is available, it makes finding dependencies automatic
-from the <code>cygcheck BIN</code> listing like this:</p>
-</dd>
-<dd>
-<pre>
-    D:/cygwin/bin/ls.exe
-      D:\cygwin\bin\cygwin1.dll
-        C:\WINNT\system32\ADVAPI32.DLL
-          C:\WINNT\system32\NTDLL.DLL
-          C:\WINNT\system32\KERNEL32.DLL
-          C:\WINNT\system32\RPCRT4.DLL
-      D:\cygwin\bin\cygintl-3.dll
-        D:\cygwin\bin\cygiconv-2.dll</pre>
-</dd>
-<dd>
-<p>After the command is run. Program terminates and rest of the commands
-are ignored.</p>
-</dd>
-</li>
-<dt><strong><a name="item__2d_2dinstall_2dprefix_prexix"><strong>--install-prefix PREXIX</strong></a></strong>
+<dt><strong><a name="item__2d_2dinstall_2dprefix_prefix"><strong>--install-prefix PREFIX</strong></a></strong>
 
 <dd>
 <p>Set custom install PREFIX. The value must be path (no leading slash)
@@ -360,23 +334,11 @@ program knows about the special port:</p>
     cygbuild --release 1 --install-usrlocal CMD ...</pre>
 </dd>
 </li>
-<dt><strong><a name="item__2dm_7c_2d_2dnomore_2dspace"><strong>-m|--nomore-space</strong></a></strong>
+<dt><strong><a name="item__2dl_7c_2d_2dlzma"><strong>-l|--lzma</strong></a></strong>
 
 <dd>
-<p>No more space (on disk). This option affects the [mkpatch] command when it
-is run. The patch process would start by calling 'make clean' followed by
-'make distclean' before taking a diff between the modified sources and the
-original sources. But trashing an hours worth of compiled <code>*.o</code> files
-would be waste if package were to be rebuilt again. So, the default
-behavior for mkpatch is that it takes a snapshot <strong>copy</strong> of current
-modified sources andtakes them to /tmp where the 'clean' is done. This way
-the original *.o files are kept intact.</p>
-</dd>
-<dd>
-<p>If you do not have the room for a large compilation tree, then notify
-program with option <strong>--nomore-space</strong> that you do not have the space
-needed to make the copy. In this case the 'make clean' is run on current
-sources.</p>
+<p>Use lzma compression instead of default package compression. This
+affects the manual pages and the usr/share/doc/*/ content.</p>
 </dd>
 </li>
 <dt><strong><a name="item__2dp_7c_2d_2dpassphrase__22pass_phrase_22"><strong>-p|--passphrase ``PASS PHRASE''</strong></a></strong>
@@ -436,8 +398,8 @@ build number from <code>date(1)</code> in format YYYYMMDDHHMM</p>
 <dt><strong><a name="item__2ds_7c_2d_2dsign_signkey"><strong>-s|--sign SIGNKEY</strong></a></strong>
 
 <dd>
-<p>Gpg key to use for signing. It is best to use the hexadecimal unique key
-id to avoid picking the wrong key from keyring. See <code>gpg --list-keys</code>.</p>
+<p>GPG key to use for signing. It is best to use the hexadecimal unique key
+id to avoid picking the wrong key from key ring. See <code>gpg --list-keys</code>.</p>
 </dd>
 </li>
 <dt><strong><a name="item__2dt_7c_2d_2dtest"><strong>-t|--test</strong></a></strong>
@@ -641,8 +603,7 @@ developer's binary packaging.</p>
 <dd>
 <p>Check that all dependencies are listed in <code>package.README</code> and
 <code>setup.hint</code>. It is highly recommended that you use this command with
-verbose option <strong>--verbose</strong>. Before correct dependencies can be found, the
-package database has been created. See option <strong>--init-pkgdb</strong>.</p>
+verbose option <strong>--verbose</strong>.</p>
 </dd>
 </li>
 <dt><strong><a name="item_postinstall"><strong>postinstall</strong></a></strong>
@@ -703,7 +664,7 @@ three categories:</p>
 <dd>
 <p>The prefix 'lib' is not added in front of PACKAGE if PACKAGE name already
 starts with string 'lib'. In order to make a library release, there must be
-separate setup hint files for each in dicrectory <code>CYGWIN-PATCHES/</code>.
+separate setup hint files for each in directory <code>CYGWIN-PATCHES/</code>.
 Program will warn if any of these are missing</p>
 </dd>
 <dd>
@@ -777,7 +738,7 @@ instead of the homepage's name <code>gc</code>, like this:</p>
                                     ======</pre>
 </dd>
 <dd>
-<p>Notice how all released files now correctly inlcude prefix <code>libgc6</code>.</p>
+<p>Notice how all released files now correctly include prefix <code>libgc6</code>.</p>
 </dd>
 </li>
 <dt><strong><a name="item_source_2dpackage"><strong>source-package</strong></a></strong>
@@ -807,7 +768,7 @@ means that the steps have to be started over. Like this:</p>
 <p>Run commands <strong>[configure]</strong>, <strong>[make]</strong>, <strong>[install]</strong>, <strong>[check]</strong>,
 <strong>[package]</strong>, <strong>[readmefix]</strong>, <strong>[package]</strong>, <strong>[source-package]</strong> and
 <strong>[publish]</strong>. In other words, this command remakes complete Cygwin Net
-release. This is the command to start all from the begining and go to the
+release. This is the command to start all from the beginning and go to the
 finish. This is needed if files <code>package.README</code> or <code>setup.hint</code> is
 changed.</p>
 </dd>
@@ -823,7 +784,7 @@ actions to problems found in installation structure:</p>
 <dd>
 <pre>
     eyeball C&lt;.inst/&gt; directory, fix whatever is needed and
-    runn commadn [repackage-bin]</pre>
+    run command [repackage-bin]</pre>
 </dd>
 <dd>
 <pre>
@@ -861,13 +822,13 @@ The command will look for following lines:</p>
 <pre>
     Build instructions:
       unpack &lt;PKG&gt;-*-src.tar.bz2
-        if you use setup to install this src package, it will be
+        if you use setup to install this source package, it will be
              unpacked under /usr/src automatically
       cd /usr/src
       ./&lt;PKG&gt;-*.sh all</pre>
 </dd>
 <dd>
-<p>This lst line will be updated to reflect your name and email address
+<p>This  line will be updated to reflect your name and email address
 (See ENVIRONMENT):</p>
 </dd>
 <dd>
@@ -892,7 +853,7 @@ internal build process testing command <strong>[all]</strong>.</p>
 <p>If environment variable <code>CYGBUILD_PUBLISH_BIN</code> is set, the external
 program is called with 3 mandatory and 2 optional arguments from options
 <strong>--sign</strong> and <strong>--passphrase</strong> if those were available. The shell call
-weill be in form:</p>
+will be in form:</p>
 </dd>
 <dd>
 <pre>
@@ -1045,8 +1006,8 @@ Contact maintainer of <code>package-N.N-1-src.tar.bz2</code> for details.</p>
 
 <dd>
 <p>NOTES: 1) This command must be run in an empty directory for it to
-work properly 2) No other rcommand line options are interpreted. This
-is standalone command.</p>
+work properly 2) No other command line options are interpreted. This
+is stand alone command.</p>
 </dd>
 <dd>
 <p>Download both Cygwin source and binary net release package. If option
@@ -1061,8 +1022,8 @@ application mailing list.</p>
 </dd>
 <dd>
 <pre>
-  1. The content of *-src.tar.bz2 and setup.hist are store
-  2. the *.bzr is unpacked
+  1. The content of *-src.tar.bz2 and setup.hint are store
+  2. the *.bz2 is unpacked
   3. the CYGWIN-PATCHES is extracted from *.patch
   4. the rest of the patches (excluding CYGWIN-PATCHES) is stored
      to *-rest.patch</pre>
@@ -1089,7 +1050,7 @@ patch <code>package-VERSION-REL*.patch</code> and run build command <strong>[mak
 
 <dd>
 <p>Regenerate all links. Run this command if a) changes are made to the
-original source by addign or removing files or b) you've moved the sources
+original source by adding or removing files or b) you've moved the sources
 to another directory and the previous links become invalid. Effectively
 runs <strong>[rmshadow]</strong> and <strong>[shadow]</strong>. Notice that all compile objects files
 are gone too, so you need to recompile everything.</p>
@@ -1200,7 +1161,7 @@ number, not in directory <code>package-latest/</code>.</p>
 <h2><a name="packages_with_nonstandard_versioning_schemes">Packages with non-standard versioning schemes</a></h2>
 <p>
 </p>
-<h2><a name="packaging_directly_from_version_controll_repositories">Packaging directly from version controll repositories</a></h2>
+<h2><a name="packaging_directly_from_version_control_repositories">Packaging directly from version control repositories</a></h2>
 <p>It is easy to make build snapshots by using symlinks with time based
 version numbers, like <code>package-20010123</code>, which effectively means
 YYYYMMDD. To make a release, it could be done like this:</p>
@@ -1264,7 +1225,7 @@ files of which two must be modified. The other <code>.tmp</code> files are just
 examples they are needed for tricky packages.</p>
 <pre>
     $ cd /tmp/build/foo-1.1/CYGWIN-PATCHES/</pre>
-<p>Make sure you README and hint files are edited before proceding to building
+<p>Make sure you README and hint files are edited before preceding to building
 binary and source packages. If any of the extra scripts are needed, remove
 extension <code>.tmp</code> from them to make the scripts active.</p>
 <pre>
@@ -1285,14 +1246,14 @@ archive looks correct. Run <code>find(1)</code> to check the directory structure
 <pre>
    $ cd /tmp/build/foo-1.13/
    $ find .inst/ -print
-   $ cygbuils.sh -r 1 -v check      &lt;&lt; Run various checks</pre>
+   $ cygbuild -r 1 -v check      &lt;&lt; Run various checks</pre>
 <p>Did the manual pages (*.1, *.5, *.8 etc.) got installed correctly under
 <code>usr/share/man/manX/</code>? How about <code>*.info</code> files at <code>usr/share/info</code>? Are
 the libraries <code>.a</code> and <code>.la</code> or <code>*dll*</code> under <code>usr/lib</code>? Are
 executables under <code>usr/bin</code>? If everything is not in order, then you need
 to study the package's <code>Makefile</code> and fix it to put files in proper
 locations.</p>
-<p>Here is shortened listing of a typical library pacakge:</p>
+<p>Here is shortened listing of a typical library package:</p>
 <pre>
     usr/lib/libgc.la
     usr/lib/libgc.a
@@ -1434,18 +1395,18 @@ not used.</p>
 <dt><strong><a name="item_build_2eoptions"><strong>build.options</strong></a></strong>
 
 <dd>
-<p>If this file exsts, it is sourced to read custom flags and other <em>make(1)</em>
+<p>If this file exists, it is sourced to read custom flags and other <em>make(1)</em>
 options. The content of the file should be like this. These are the default
 values</p>
 </dd>
 <dd>
 <pre>
   CYGBUILD_CFLAGS=&quot;-O2 -g&quot;
-  CYGBUILD_LDFLAGS=&quot;&quot;          # set to -no-undefined for libraies
+  CYGBUILD_LDFLAGS=&quot;&quot;          # set to -no-undefined for libraries
   CYGBUILD_MAKEFLAGS=&quot;CC=gcc CXX=g++&quot;</pre>
 </dd>
 <dd>
-<p>And they are used in a call to initalise <a href="#item_make"><code>make(1)</code></a> variables in call like
+<p>And they are used in a call to initialize <a href="#item_make"><code>make(1)</code></a> variables in call like
 this:</p>
 </dd>
 <dd>
@@ -1477,7 +1438,7 @@ commands:</p>
 <dt><strong><a name="item_configure_2eenv_2eoptions"><strong>configure.env.options</strong></a></strong>
 
 <dd>
-<p>If this file exsts, it is sourced to read custom environment settings just
+<p>If this file exists, it is sourced to read custom environment settings just
 before <code>./configure</code> is being run.</p>
 </dd>
 <dd>
@@ -1485,7 +1446,7 @@ before <code>./configure</code> is being run.</p>
     source configure.env.options</pre>
 </dd>
 <dd>
-<p>For example to use <strong>ccache gcc</strong> with autotool packages (thse with
+<p>For example to use <strong>ccache gcc</strong> with autotool packages (these with
 configure.in, Makefile.am etc) to speed up compilation, there is example
 script <code>CYGWIN-PATCHES/compiler.sh.tmp</code> which you can take into use by
 removing the <code>.tmp</code> extension. After put this line to the file. Notice
@@ -1502,13 +1463,13 @@ execution the <strong>PATH</strong> variable will include also <code>CYGWIN-PATC
 <dt><strong><a name="item_configure_2eoptions"><strong>configure.options</strong></a></strong>
 
 <dd>
-<p>If this file exsts, all options in this file are appended to the default
+<p>If this file exists, all options in this file are appended to the default
 Cygwin options set during call to <code>./configure</code>. Comments may be added to
 preceding lines with a hash-mark. An example:</p>
 </dd>
 <dd>
 <pre>
-    # Include these optoions during configure:
+    # Include these options during configure:
     --disable-static        # Do not use static libraries
     --enable-tempstore
     --enable-threadsafe
@@ -1518,10 +1479,10 @@ preceding lines with a hash-mark. An example:</p>
 <dt><strong><a name="item_configure_2esh"><strong>configure.sh</strong></a></strong>
 
 <dd>
-<p>In case the package does not include a standard GNU <code>./configure</code> script
-at alla, a custom script <code>CYGWIN-PATCHES/configure.sh</code> can guide all
-configure steps. If there is nothing to configure, leave this script out.
-For the custom program:</p>
+<p>In case the package does not include a standard GNU <code>./configure</code>
+script, a custom script <code>CYGWIN-PATCHES/configure.sh</code> can guide all
+configure steps. If there is nothing to configure, leave this script
+out. For the custom program:</p>
 </dd>
 <dd>
 <pre>
@@ -1553,7 +1514,7 @@ switches, which you can incorporate:</p>
 <dd>
 <p>By default the <code>[patch]</code> command excludes files that it thinks do not
 belong there, but in many case package generate other extra files that
-should be escluded too. In this file it is possible to supply extra options
+should be excluded too. In this file it is possible to supply extra options
 to <code>diff(1)</code> while comparing the original source directory against the
 current package directory. The options to diff must be listed one line at a
 time. Comments can start with hash-character.</p>
@@ -1574,7 +1535,7 @@ time. Comments can start with hash-character.</p>
 <dd>
 <p>There a re couple of options that affect cygbuild itself. If following
 option is found, then no automatic guessing what files might have been
-auto-generated, is done. This is effectively a prseudo option that
+auto-generated, is done. This is effectively a pseudo option that
 says ``turn off internal check'':</p>
 </dd>
 <dd>
@@ -1582,7 +1543,7 @@ says ``turn off internal check'':</p>
     --exclude=cygbuild-ignore-autochecks</pre>
 </dd>
 <dd>
-<p>To completely suppress all default cygbuild exclude optionslike those
+<p>To completely suppress all default cygbuild exclude options like those
 of <code>*.~, *# *.orig</code> and other files), start the file with use this
 line:</p>
 </dd>
@@ -1591,7 +1552,7 @@ line:</p>
     --exclude=cygbuild-ignore-all-defaults</pre>
 </dd>
 <dd>
-<p><strong>Warning:</strong> due to shell epansions in the program, it is not possible
+<p><strong>Warning:</strong> due to shell expansions in the program, it is not possible
 to use wildcards with short option names, like this:</p>
 </dd>
 <dd>
@@ -1609,7 +1570,7 @@ to use wildcards with short option names, like this:</p>
 <dt><strong><a name="item_diff_2dbefore_2esh"><strong>diff-before.sh</strong></a></strong>
 
 <dd>
-<p>When the original source has beed unpacked, it may include files that
+<p>When the original source has been unpacked, it may include files that
 prevent taking clean diff. IT could happen that the source package
 mistakenly included compiled object files or included dangling symlinks to
 the original authors files. This is the chance to ``straighten up'' things
@@ -1638,7 +1599,7 @@ and non-zero on failure.</p>
 </dd>
 <dd>
 <p>An example is presented below. For GNU <code>diff(1)</code>, don't forget to add the
-final <code>[ &quot;$?&quot; = &quot;1&quot; ]</code> statemtement, which converts the GNU diff ok exit
+final <code>[ &quot;$?&quot; = &quot;1&quot; ]</code> statement, which converts the GNU diff ok exit
 status 1 to a standard shell ok exit status 0. GNU diff returns
 unconventionally 1 on success and N &gt; 1 on error.</p>
 </dd>
@@ -1692,7 +1653,7 @@ controllable manner.</p>
 </dd>
 <dd>
 <p>Examine the Makefile and its installation rules and write a script to mimic
-same steps. When custom sript is called:</p>
+same steps. When custom script is called:</p>
 </dd>
 <dd>
 <pre>
@@ -1824,15 +1785,15 @@ information.</p>
 Cygwin documentation for package directory <code>/usr/share/doc/foo-1.12</code> is
 populated from files in the original package. Those of INSTALL, COPYRIGHT
 and README are copied. Then any <code>doc/</code> directory if it is included. The
-default rules exclude most common files MANIFESt, *.bak, *.rej etc. and
+default rules exclude most common files MANIFEST, *.bak, *.rej etc. and
 version control subdirectories.</p>
 </dd>
 <dd>
 <p>In this file it is possible to supply extra tar options to exclude more
 files not to be included. Perhaps package's <code>doc/</code> directory contains
-subdirectories that are targetted to software developers porting the
+subdirectories that are targeted to software developers porting the
 software etc. The format of file is presented below. Empty lines are
-ignored. Comments must be palaced in separate lines.</p>
+ignored. Comments must be placed in separate lines.</p>
 </dd>
 <dd>
 <pre>
@@ -1845,7 +1806,7 @@ ignored. Comments must be palaced in separate lines.</p>
 </dd>
 <dd>
 <pre>
-    #  This is not a tar(1) option, but interpreted by cygbuild
+    #  Include files
     --include=notes.txt</pre>
 </dd>
 <dd>
@@ -1853,8 +1814,18 @@ ignored. Comments must be palaced in separate lines.</p>
     # End of file</pre>
 </dd>
 <dd>
-<p>If this option is defined, the automatic detection of possible
-documentation directory and its installation is suppressed:</p>
+<p>If following option is defined, the automatic detection of possible
+documentation directory is suppressed. Standard options like
+<strong>--include=dir</strong> are still obeyed.</p>
+</dd>
+<dd>
+<pre>
+    --exclude=cygbuild-no-docdir-guess</pre>
+</dd>
+<dd>
+<p>If following option is defined, only standard COPYING, TODO etc. files
+found from top-level source directory are installed. No other
+directories.</p>
 </dd>
 <dd>
 <pre>
@@ -1865,7 +1836,7 @@ documentation directory and its installation is suppressed:</p>
 
 <dd>
 <p>In case package does not include manual page or pages for certain binaries,
-this file can be used as a template for manaul pages. The format is Perl's
+this file can be used as a template for manual pages. The format is Perl's
 plain old documentation (pod) and the file itself is self explanatory. Just
 fill in the text and rename the file according to binaries that are
 documented. The page number is automatically read from file name:</p>
@@ -1903,7 +1874,7 @@ running <code>perldoc perlpod</code> or visit <a href="http://perldoc.perl.org/p
 <p>If a single standard binary packaging command <strong>[package]</strong> or library
 packaging command <strong>[package-devel]</strong> methods are not suitable, it is
 possible to write a custom script. There may be need for separating files
-into different tar.bz2 files etc. When custom sript is called:</p>
+into different tar.bz2 files etc. When custom script is called:</p>
 </dd>
 <dd>
 <pre>
@@ -1941,23 +1912,21 @@ patch must be set explicitly in script.</p>
 <dt><strong><a name="item_prepare_2esh"><strong>prepare.sh</strong></a></strong>
 
 <dd>
-<p>A custom script to run when package is prepared. command <strong>[all]</strong> and
-<strong>[prepare]</strong> run the script. This is the chaneg to manually arrange
-everything in order before the <strong>[configure]</strong> and <strong>[make]</strong>.</p>
+<p>A custom script to run when package is prepared. Commands <strong>[all]</strong> and
+<strong>[prepare]</strong> run the script. The purpose is to arrange everything to
+be ready for the <strong>[configure]</strong> and <strong>[make]</strong> commands.</p>
 </dd>
 <dd>
 <p>Normally command <strong>[clean]</strong> would be run along with the standard
 preparations. The purpose of the clean is to make sure the source package
-did not mistankenly include precompiled files. If it did, that would later
-prevent 'make' command to do nothing. Doing clean, makes it all pristine.
-Sometimes, you may not want to allow clean to happen after source unpack,
-so this is the chance to guide the process as needed.</p>
+did not mistakenly include compiled files. If it did, that would later
+prevent 'make' command to do nothing. Doing clean, makes it all pristine.</p>
 </dd>
 </li>
 <dt><strong><a name="item_preremove_2esh"><strong>preremove.sh</strong></a></strong>
 
 <dd>
-<p>Copy this fil as <code>.inst/etc/preremove/foo.sh</code>. It will be called just
+<p>Copy this file as <code>.inst/etc/preremove/foo.sh</code>. It will be called just
 before the package is uninstalled (setup.exe uninstalls the old version
 before installing the upgraded version).</p>
 </dd>
@@ -1982,7 +1951,7 @@ refer to the latest installed directory of
 </dd>
 <dd>
 <p>An example. Content of <a href="#item_preremove_2dmanifest_2elst"><code>preremove-manifest.lst</code></a> lists the target file that
-containst the site wide setup:</p>
+contains the site wide setup:</p>
 </dd>
 <dd>
 <pre>
@@ -2018,7 +1987,7 @@ simply read:</p>
     $PKGDOCDIR/examples/foo.conf</pre>
 </dd>
 <dd>
-<p>The special tag <code>#PKGDOCDIR</code> is just a shorthad pointer to the latest
+<p>The special tag <code>#PKGDOCDIR</code> is just a shorthand pointer to the latest
 documentation directory. If these two files do not differ, the
 &lt;preremove.sh&gt; can safely delete <code>/etc/foo.conf</code> and let the
 <a href="#item_postinstall_2esh"><code>postinstall.sh</code></a> to install new file from upstream source that is
@@ -2090,7 +2059,7 @@ releases):</p>
 <p>At first sight this may look complex, but with this structure you can
 manage several packages easily. For each package, reserve a separate
 directory where you do your work: <code>foo/</code>, <code>bar/</code>, <code>quux/</code> etc. Download
-orignal packages to these directories and upack the sources. Let's examine
+original packages to these directories and unpack the sources. Let's examine
 package <code>foo</code></p>
 <pre>
     $ cd /usr/src/cygwin-build/foo
@@ -2140,13 +2109,13 @@ publish area with command:</p>
 <h2><a name="rebuilding_packages">Rebuilding packages</a></h2>
 <p>NOTE: This section is highly experimental and the program has not yet been
 tested well. (FIXME)</p>
-<p>As Cywin is improved, the main library file <code>cygwin1.dll</code> may change and
+<p>As Cygwin is improved, the main library file <code>cygwin1.dll</code> may change and
 periodically all packages must be rebuilt so that they link to the latest
 function calls. In this case you have to rebuild every package you
 maintain. Instead of going to every directory and typing the relevant
 ``cygbuild clean conf make install ..'', there is a helper script that
 automates the task. If you use the standard build layout as described in
-previous topic, you can use rebuild sript to do the steps. Is is also a
+previous topic, you can use rebuild script to do the steps. Is is also a
 good chance to verify that the package build process is repeatable:</p>
 <pre>
     $ cygbuild-rebuild.sh -d /usr/src/cygwin-build -i 1 2&gt;&amp;1 | tee build.log
@@ -2163,11 +2132,11 @@ broken package.</p>
 <h1><a name="library_usage">LIBRARY USAGE</a></h1>
 <p>In addition to <em>cygbuild</em> being a builder program, it can be used as a
 library that can be sourced to any bash program. This makes it possible to
-selectively use functions in it. The library feature is anabled by setting
+selectively use functions in it. The library feature is enabled by setting
 variable <code>CYGBUILD_LIB</code> before <code>source</code> command. When invoked this way,
 the <em>cygbuild's</em> <code>Main()</code> function in not invoked and options or
 commands are bypassed.</p>
-<p><strong>WARNING:</strong> All the functions are namespace clean and contain prefix
+<p><strong>WARNING:</strong> All the functions are name space clean and contain prefix
 <strong>Cygbuild*</strong>, but many global variables are defined that do not
 include the prefix: <code>$instdir</code>, <code>$builddir</code> etc.</p>
 <p>To get access to full power of the functions, these steps are needed:</p>
@@ -2180,14 +2149,9 @@ include the prefix: <code>$instdir</code>, <code>$builddir</code> etc.</p>
 <pre>
     CYGBUILD_LIB=1 source $CYGBUILD</pre>
 <pre>
-    #   Prepare the library's internal variables, like defining where
-    #   RM, CP, PERL and AWK commands are.</pre>
-<pre>
-    CygbuildDefineGlobalCommands</pre>
-<pre>
-    #   And more preparations provided that the current directory's PWD,
-    #   is inside some/path/foo-1.13. If not, then please skip
-    #   this part completely.</pre>
+    #   Provided that the current directory's PWD is inside
+    #   some/path/foo-1.13. If not, then please skip this part
+    #   completely.</pre>
 <pre>
     local tdir=$(pwd)
     local -a array=( $(CygbuildSrcDirLocation $tdir) )
@@ -2212,7 +2176,7 @@ include the prefix: <code>$instdir</code>, <code>$builddir</code> etc.</p>
 <p>
 </p>
 <h2><a name="using_preremove_sh_and_postinstall_sh_for_upgrading__etc_files">Using preremove.sh and postinstall.sh for upgrading /etc files</a></h2>
-<p>The /etc directory is meant for configuraton files for programs. The first
+<p>The /etc directory is meant for configuration files for programs. The first
 installation typically copies the package's default setup file there but
 subsequent installations won't overwrite existing files in order to
 preserve user's modifications. If new version of the package includes new
@@ -2234,27 +2198,27 @@ modified, it must be left alone.</p>
 which lists every file that was created by the <em>postinstall.sh</em> script,
 and which will be removed on <em>preremove.sh</em> if untouched by the user.
 Someday, <code>cygcheck -c</code> might parse the manifest lists to help diagnose if
-postinstalls have not completed.</p>
+postinstall has not completed.</p>
 <p>
 </p>
 <h2><a name="music_file_formats___mp3____ogg_etc_">Music file formats *.mp3, *.ogg etc.</a></h2>
 <p>It is allowed to include any music related code if MP3 related code is not
 compiled in (cf.
  <a href="http://permalink.gmane.org/gmane.os.cygwin.applications/11360">http://permalink.gmane.org/gmane.os.cygwin.applications/11360</a> )</p>
-<p>As long as Cygwin is released on this US based server, the general rules
-are that it is permissable to include and not include in Cywgwin are
+<p>As long as Cygwin is released on US based server, the general rules
+are that it is permissible to include and not include in Cygwin are
 basically the same as for the Fedora project
 &lt;http://fedoraproject.org/wiki/ForbiddenItems&gt;:</p>
 <pre>
-  * If it is proprietary, it cannot be included in Fedora^WCygwin.
+  * If it is proprietary, it cannot be included in Cygwin.
   * If it is legally encumbered, it cannot be included in Cygwin.
   * If it violates US Federal law, it cannot be included in Cygwin.</pre>
-<p>This is different from SUSE and Debian. SUSE is located in another country
-may even pay royalties. Debian has a different legal point of view than Red
-Hat (see debian-legal list maiing list
-<a href="http://lists.debian.org/debian-legal/2005/07/msg00081.html">http://lists.debian.org/debian-legal/2005/07/msg00081.html</a> ). Due to
+<p>This is different from SUSE and Debian. SUSE is located in another
+country may even pay royalties. Debian has a different legal point of
+view than Red Hat
+(cf. &lt;http://lists.debian.org/debian-legal/2005/07/msg00081.html&gt;). Due to
 Cygwin's presence on a Red Hat server, the project is bound to Red Hat
-rules for now.</p>
+rules.</p>
 <p>
 </p>
 <hr />
@@ -2287,57 +2251,55 @@ repeat command <strong>[all]</strong>.</p>
 <p>
 </p>
 <h2><a name="command__check__cannot_find_files">Command [check] cannot find files</a></h2>
-<p>The full error reads smething like this:</p>
+<p>The full error reads something like this:</p>
 <pre>
     cygbuild.pl.CygcheckDepsCheckMain: Nothing to do, no *.exe *.dll found in /usr/src/build/package/package-5.07/.inst</pre>
-<p>You tried to run command <strong>[check]</strong>, but you had not ran commands <strong>[conf]</strong>
-<strong>[make]</strong> and <strong>[install]</strong>. The install copies files under <code>.inst/</code>
+<p>Command <strong>[check]</strong> was ran, but commands <strong>[conf]</strong> <strong>[make]</strong> and
+<strong>[install]</strong> were not. The <strong>[install]</strong> phase copies files under <code>.inst/</code>
 directory where the <strong>[check]</strong> command expects them.</p>
 <p>
 </p>
 <h2><a name="problem_with_command__install_">Problem with command [install]</a></h2>
-<p>You try to build a package and following error is displayed:</p>
+<p>Following error is displayed:</p>
 <pre>
     $ cygbuild -v -r 1 package</pre>
 <pre>
     [ERROR] no package-0.5/.inst/usr/share/doc/Cygwin.
     Did forget to run 'files' before 'install'?</pre>
-<p>The install check did not find anything inside
+<p>The check did not find anything inside
 <code>.inst/usr/share/doc/Cygwin</code> which is mandatory directory for Cygwin
 binary packages. Check that directory <code>package-N.N/CYGWIN-PATCHES/</code>
-includes files <code>package.README</code> and <code>setup.hint</code> which you must manually
-edit. These files can be initially created with command <strong>[files]</strong>.</p>
+includes files <code>package.README</code> and <code>setup.hint</code>. These files can be
+initially created with command <strong>[files]</strong>.</p>
 <p>
 </p>
-<h2><a name="command__package__gives_warnings">Command [package] gives warnings</a></h2>
-<p>You get following warning while making a binary package:</p>
+<h2><a name="command__package__displays_warnings">Command [package] displays warnings</a></h2>
+<p>Following warning while making a binary package is displayed:</p>
 <pre>
     -- Wait, reading and preparing variables based on current directory
     -- Hm, no *.exe or *.dll files, skipping strip.
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:1:&lt;PKG&gt;
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack &lt;PKG&gt;-VER-REL-src.tar.bz2</pre>
-<p>The warning means, that file <code>CYGWIN-PATCHES/package.README</code> was not
-modified before command <strong>[install]</strong> was run. Edit <code>package.README</code> file
-and leave all &lt;PKG&gt; &lt;VER&gt; &lt;REL&gt; tags alone. Then run <strong>[package]</strong> followed
-by command <strong>[readmefix]</strong> which is able to fix these tags automatically.</p>
+<p>The warning means, that file <code>CYGWIN-PATCHES/package.README</code> looked
+like a template. Edit <code>package.README</code> file and leave all &lt;PKG&gt;, &lt;VER&gt;
+and &lt;REL&gt; tags alone. Then run command <strong>[readmefix]</strong> which will substitute
+proper values for these tags.</p>
 <p>
 </p>
 <h2><a name="while_making_source_package__the_mkpatch_step_dies_with_an_error">While making source package, the mkpatch step dies with an error</a></h2>
-<p>Program uses predefined set of ignore rules to exclude binary files from
-the difference comparison, but there is always a possibility that the
-package you compiled generated files that are unknown. In those cases,
-examine the diff output carefully, since the program will tell you:</p>
+<p>Program uses predefined set of ignore rules to exclude binary files
+from the difference comparison. There is always a possibility that the
+package you compiled generated binary files that are unknown. In those
+cases, examine the diff output carefully hinted by message:</p>
 <pre>
     [ERROR] Making a patch failed, check /usr/src/foo-N.N/.sinst/foo-*.patch</pre>
-<p>Now run this command to determine the problematic files in the <code>diff(1)</code>
-listing:</p>
+<p>Run following command to determine the problematic files in the
+<code>diff(1)</code> listing:</p>
 <pre>
     $ egrep -n -i 'files.*differ' /usr/src/foo-N.N/.sinst/foo-*.patch</pre>
-<p>To include more files to be excluded, send mail to maintainer if the files
-are general enough to be detected as binary files. If files' extensions are
-specific to the current package build add these to file <em>diff.options</em> or
-in diffifcult cases write custom <code>CYGWIN-PATCHES/diff.sh</code> script. See
-section ``Optional external scripts'' for more.</p>
+<p>Add problematic file patterns file <em>CYGWIN-PATCHES/diff.options</em> or
+in difficult cases write custom <code>CYGWIN-PATCHES/diff.sh</code> script. See
+section ``Optional external scripts'' for more information.</p>
 <p>
 </p>
 <hr />
@@ -2369,27 +2331,26 @@ URL directory where Cygwin Net Release setup.ini file resides.</p>
 <hr />
 <h1><a name="files">FILES</a></h1>
 <p>Temporary files are created to <code>/tmp/cygbuild.tmp.*</code>. They are removed at
-the end of program except on interrupt.</p>
-<p>Several files are created under <code>./CYGWIN-PATCHES</code> after command
-<strong>[files]</strong>. Default template files are in <code>/usr/share/cygbuild/template</code>.
-No user files should be placed there because directory is emptied on new
-cygbuild installs. User files placed in <code>/etc/cygbuild/template</code> overwrite
-those in <code>/usr/share/cygbuild/template</code>.</p>
-<p>The results of <strong>--init-pkgdb</strong> are stored under <code>/var/cache/cygbuild</code>.</p>
+the end of program.</p>
+<p>Command <strong>[files]</strong> creates template files under <code>./CYGWIN-PATCHES</code>.
+Default templates are located in directory
+<code>/usr/share/cygbuild/template</code>. Developer's own templates can
+be placed in directory <code>/etc/cygbuild/template</code>. These overwrite those in
+<code>/usr/share/cygbuild/template</code>.</p>
 <p>
 </p>
 <hr />
 <h1><a name="standards">STANDARDS</a></h1>
 <p>Cygwin Package Contributor's Guide' at <a href="http://cygwin.com/setup.html">http://cygwin.com/setup.html</a> .
 Remember to compile libraries using <strong>-Wl,--enable-auto-image-base</strong>
-(cf. 2005-12-19 <a href="http://cygwin.com/ml/cygwin-apps/2005-12/msg00101.html">http://cygwin.com/ml/cygwin-apps/2005-12/msg00101.html</a> ).</p>
+Cf. 2005-12-19 &lt;http://cygwin.com/ml/cygwin-apps/2005-12/msg00101.html&gt;.</p>
 <p>A generic Bourne Shell build script can be found at page
 <a href="http://cygwin.com/setup.html">http://cygwin.com/setup.html</a> and also available at</p>
 <pre>
   cvs -d :pserver:anoncvs@sources.redhat.com:/cvs/cygwin-apps checkout packaging/templates</pre>
-<p>Consult list of packages from  before intent to port [ITP]: See
-/etc/setup/installed.db or <a href="http://cygwin.com/packages/">http://cygwin.com/packages/</a></p>
-<p>Filesystem Hierarchy Standard at &lt;http://www.pathname.com/fhs/&gt;</p>
+<p>Consult list of packages before intent to port [ITP]: See file
+/etc/setup/installed.db or oage &lt;http://cygwin.com/packages/&gt;.</p>
+<p>File system Hierarchy Standard at &lt;http://www.pathname.com/fhs/&gt;</p>
 <p>
 </p>
 <hr />
@@ -2399,40 +2360,22 @@ Remember to compile libraries using <strong>-Wl,--enable-auto-image-base</strong
 <h2><a name="commands_must_be_ordered">Commands must be ordered</a></h2>
 <p>The application does not check the sanity of the command line
 arguments. For example running commands in wrong order. It makes no
-sense trying to make a binary <em>package</em> before the program has been
-even built or installed.</p>
+sense trying to make a binary <em>package</em> before the package has been
+built or installed.</p>
 <pre>
-   cygbuild -r 1 package make install</pre>
+   cygbuild -r 1 package conf make install</pre>
 <p>The commands are always executed in listed order.</p>
 <p>
 </p>
-<h2><a name="perl_and_double_install_is_needed">Perl and double install is needed</a></h2>
-<p>If the archive you're porting is a perl module or program, the
-<strong>[install]</strong> command unfortunately must be run twice. This is needed,
-because in the first time, program writes
-<code>CYGWIN-PATCHES/postinstall.sh</code> file that handles announcing the
-program to
-<code>/usr/lib/perl5/5.8.2/cygwin-thread-multi-64int/perllocal.pod</code>.</p>
-<p>The next time the <strong>[install]</strong> is run, you will see this message,
-because the file was already generated and program will not overwrite
-existing postinstall:</p>
-<pre>
-    [WARN] Already exists, won't write to /usr/src/build/try/package-N.N/CYGWIN-PATCHES/postinstall.sh</pre>
-<p>Ignore it, and check the contents of <code>.inst/</code> directory. After the
-seconf <strong>[install]</strong> you should find the correct postinstall:</p>
-<pre>
-    .inst/etc/postinstall
-    .inst/etc/postinstall/program.sh</pre>
-<p>
-</p>
 <h2><a name="other_archive_formats_like___zip_are_not_recognized">Other archive formats like *.zip are not recognized</a></h2>
-<p>This porting tool only handles <code>*.tar.gz</code> or <code>*.tar.bz2</code> artchives. To
-port e.g. a <code>*.zip</code> archive, you need to manually convert it to recognized
-format:</p>
+<p>This porting tool only handles <code>*.tar.gz</code>, <code>*.tar.bz2</code>,
+<code>*.tar.lzma</code> archives. To port e.g. a <code>*.zip</code> archive, you need to
+manually convert it to recognized format:</p>
 <pre>
-    unzip foo-1.1.zip
-    tar cvf foo-1.1.tar.gz foo-1.1/
-    ... Now proceed normally as you would port the package
+    unzip foo-N.N.zip
+    tar -cvf foo-1.1.tar.gz foo-N.N/
+    ... Now proceed normally
+    cd foo-N.N/
     cygbuild -r 1 mkdirs files conf make install</pre>
 <p>
 </p>
@@ -2441,17 +2384,18 @@ format:</p>
 output listing to the maintainer. Provide also an URL link to the
 source package that you tried to build.</p>
 <pre>
-    $ pwd; ls -la . ..                       &gt;  ~/tmp/error.log
+    $ echo <a href="http://example.com/source">http://example.com/source</a>      &gt;  ~/tmp/error.log
+    $ pwd; ls -la . ..                    &gt;&gt; ~/tmp/error.log
     $ bash -x cygbuild [options] CMD ...  &gt;&gt; ~/tmp/error.log 2&gt;&amp;1</pre>
 <p>
 </p>
 <h2><a name="slow_program_startup">Slow program startup</a></h2>
-<p>You may notice that the startup is a little slow. This is unavoidable due
-to way the program determines what many global variables need to be
+<p>You may notice that the startup is a little slow. This is due to way
+the program determining what many global variables need to be
 available at runtime. The method of checking environment is not
-particularly smart (due to bash-scripting limitations in general; it has no
-read function that could return multiple values), so this leads to calling
-same checks of version and release numbers multiple times.</p>
+particularly efficient (due to bash-scripting limitations in general).
+E.g. same checks of version and release numbers are called multiple
+times.</p>
 <p>
 </p>
 <hr />
@@ -2460,20 +2404,21 @@ same checks of version and release numbers multiple times.</p>
 </p>
 <h2><a name="makefiles_and_compiling_libraries">Makefiles and compiling libraries</a></h2>
 <p>To compile libraries for Cygwin, the <code>LDFLAGS</code> should include option
-<code>-no-undefined</code>. If there is <code>Makefile(.in|.am)</code> you can regenerate the
-Makefiles with</p>
+<code>-no-undefined</code>. If there is <code>Makefile(.in|.am)</code>, after patching
+them manually, you can regenerate the Makefiles with</p>
 <pre>
     $ autoreconf --install --force --verbose</pre>
 <p>
 </p>
 <h2><a name="yacc_or_lex_file_compiling_notes">yacc or lex file compiling notes</a></h2>
-<p>Sometimes the <code>*.y</code> file won't compile. See thread ``ftpcmd.y -- syntax
-error'' at <a href="http://lists.gnu.org/archive/html/help-bison/2004-04/msg00015.html">http://lists.gnu.org/archive/html/help-bison/2004-04/msg00015.html</a></p>
+<p>Sometimes the <code>*.y</code> file won't compile. See thread ``ftpcmd.y --
+syntax error'' at
+&lt;http://lists.gnu.org/archive/html/help-bison/2004-04/msg00015.html&gt;.</p>
 <pre>
     bison -y ftpcmd.y
     ftpcmd.y:185.17: syntax error, unexpected &quot;=&quot;</pre>
 <pre>
-    ...There are 85 occurrences of &quot;&lt;tab&gt;=&lt;tab&gt;{&quot; in ftpcmd.y (in the
+    ...There are occurrences of &quot;&lt;tab&gt;=&lt;tab&gt;{&quot; in ftpcmd.y (in the
     wu-ftpd 2.6.2 source release). Changing all of these to &quot;&lt;tab&gt;{&quot;
     fixes the problem -- and doesn't cause problems for Berkeley yacc,
     or for earlier versions of bison.</pre>
@@ -2485,8 +2430,25 @@ permissions. The <a href="#item_postinstall"><code>postinstall</code></a> script
 to create the new file before copying unto it or a call to <code>chmod</code> to set
 reasonable permissions after the copying. If that's not done, the user may
 end up having unreadable files. NOTE: <code>cp -p</code> will not work, but <code>install
--m</code> would. See thread
-<a href="http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html">http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html</a></p>
+-m</code> would.
+(Cf. &lt;http://cygwin.com/ml/cygwin-apps/2005-01/msg00148.html&gt;).</p>
+<p>
+</p>
+<h2><a name="use_of_hard_links">Use of hard links</a></h2>
+<p>Some ported packages may rely on hard links. Those are efficient only
+under NTFS and not FAT. Please include note to &lt;package&gt;.README that
+the utility may not be best under FAT file systems.</p>
+<p>
+</p>
+<h2><a name="setup_hint_should_list_all_dependencies">setup.hint should list all dependencies</a></h2>
+<p>The <em>requires:</em> line is not only an indication of what to pull in,
+but also what the package actually uses. These dependences are also
+used to find the order of postinstall scripts (so, if package has any
+postinstall scripts with <code>#!/bin/sh</code>, the scripts may not work
+because the bash postinstall script was not run). So include all
+direct dependences in the <em>requires:</em> line, even if they are in
+<strong>Base</strong> category.
+(Cf. &lt;http://cygwin.com/ml/cygwin-apps/2008-03/msg00070.html&gt;).</p>
 <p>
 </p>
 <hr />
