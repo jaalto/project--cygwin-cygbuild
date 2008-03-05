@@ -1,10 +1,15 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
-	* README: (Install instructions): Mention /usr/local and
-	prefix= setting.
-	(Version control information): Add new topic.
+	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Remove key id
+	and use $GPGKEY variable in example.
 
-	* INSTALL: Adjust short description.
+	* README: Adjust short description.
+	(Version control information): Add new topic.
+	(Version control information): Moved from INSTALL.
+	(Dependencies): Moved from INSTALL.
+
+	* INSTALL: (Install instructions): Mention /usr/local and
+	prefix= setting. Remove verything but install instructions.
 
 	* Makefile: (install-etc-main-symlink): disable installing
 	/etc/cygbuild/programs.conf. No longer used.
@@ -17,6 +22,8 @@
 	file.
 	(CygbuildBootVariablesGlobalEtcSet): Remove
 	CYGBUILD_CONFIG_PROGRAMS (/etc/programs.conf).
+	(CygbuildVersionControlType): Mention why ARCH and RCS are
+	not tested.
 
 2008-03-04  Jari Aalto  <jari.aalto@cante.net>
 

@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0215"
+CYGBUILD_VERSION="2008.0305.0808"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -2910,6 +2910,8 @@ function CygbuildIsMonotonePackage()
 
 function CygbuildVersionControlType()
 {
+    #	RCS/ and ARCH are not tested because they are very old
+
     if CygbuildIsCvsPackage ; then
         echo "cvs"
     elif CygbuildIsSvnPackage ; then
