@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0304.1239';
+$VERSION = '2008.0305.0753';
 
 # ..................................................................
 
@@ -181,7 +181,7 @@ case as simple as running commands:
 To make this easier, a (b)uild alias will help. The option B<-r> is
 mandatory almost for all commands:
 
-    $ alias b="cygbuild -s F701D4B3 -r"    # Save this in ~/.bashrc
+    $ alias b="cygbuild --color -s $GPGKEY -r"
     $ b 1 mkdirs files conf make
     $ b 1 -v -t install                    # verbose and test mode on
     ...
