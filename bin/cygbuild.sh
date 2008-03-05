@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0305.0850"
+CYGBUILD_VERSION="2008.0305.0854"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -635,11 +635,11 @@ function CygbuildBootVariablesGlobalCacheSet()
     if [ "$PERL_VERSION" ] && [ ! -f "$file" ]; then
 	local bin=$(CygbuildWhich cygcheck)
 
-	CygbuildEcho "Wait, initializing Perl cache"
-
 	if [ "$bin" ]; then
+	    CygbuildEcho "Wait, initializing Perl cache"
 	    $bin -l perl > $file
 	else
+	    CYGBUILD_CACHE_PERL_FILES=				# global-def
 	    CygbuildWarn "-- [WARN] Skip, because cygcheck not in PATH"
 	fi
     fi
@@ -1324,6 +1324,8 @@ function CygbuildPerlLibraryDependsGuess()
 function CygbuildPerlLibraryDependsCache()
 {
     local cache="$CYGBUILD_CACHE_PERL_FILES"
+
+    [ "$cache" ] || return 0
 
     #	Call arguments are library names, like MIME::Base64.
     #	Output's first word is 'Std' or 'CPAN' to identify the module.

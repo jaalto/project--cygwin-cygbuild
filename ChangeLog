@@ -1,7 +1,10 @@
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
 	REFACTORING: Convert all $LS, $MV etc variabales into
-	regular calls in series of commit.s
+	regular calls in series of commit: 0a6b221..6cc78b6
+	(CygbuildBootVariablesGlobalCacheSet): Move message.
+	Clear CYGBUILD_CACHE_PERL_FILES if no cache can be set.
+	(CygbuildPerlLibraryDependsCache): Check cache variable.
 
 	[ Commit: 0a6b221 below ]
 
