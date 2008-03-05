@@ -10252,12 +10252,17 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
 function CygbuildCmdInstallCheckSetupHintDependExists()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local database="/etc/setup/installed.db"
     local path=${1:-/dev/null}
 
-    #  Installed files are here. We assume that developer always has
-    #  every package and library installed
+    if [ ! -d "$database" ] ; then
+	CygbuildVerb "-- [NOTE] Not exists: $database"
+	return 0
+    fi
 
-    local database="/etc/setup/installed.db"
+    #  We assume that developer always has every package and library
+    #  installed
+
     local lib
 
     awk  '/^requires:/ { sub("requires:", ""); print}' $path > $retval
