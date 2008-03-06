@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.0845"
+CYGBUILD_VERSION="2008.0306.0918"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -497,7 +497,16 @@ function CygbuildBootVariablesId()
 
     CYGBUILD_PROG_LIBPATH=				    # global-def
 
-    if [[ "$path" == /usr/local* ]]; then
+    if [[ "$CYGBUILD_PROG_NAME" == *-[0-9].sh ]]    # GBS: foo-N.N-1.sh
+    then
+
+	[ -d /usr/local/share/cygbuild ] &&
+	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
+
+	[ -d /usr/share/cygbuild ] &&
+	CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
+
+    elif [[ "$path" == /usr/local* ]]; then
 	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
     elif [[ "$path" == /usr/bin* ]]; then
 	CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
@@ -698,24 +707,15 @@ function CygbuildBootVariablesGlobalColors()
 
 function CygbuildBootVariablesGlobalMain()
 {
-    #######################################################################
-    #
     #       Private: directories
-    #
-    #######################################################################
 
     CygbuildBootVariablesGlobalEtcMain
-
-    CygbuildIsGbsCompat || CygbuildBootVariablesGlobalShareMain
+    CygbuildBootVariablesGlobalShareMain
 
     #  Like: <file>.$CYGBUILD_SIGN_EXT
     CYGBUILD_GPG_SIGN_EXT=.sig
 
-    #######################################################################
-    #
     #       Private: install options and other variables
-    #
-    #######################################################################
 
     #  List of allowed values for Category header
     #  The authorative list is in the Cygwin installer setup.hint

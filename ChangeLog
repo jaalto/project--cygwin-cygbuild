@@ -18,6 +18,10 @@
 	interactive question.
 	(CygbuildCmdGPGVerifyMain): Add support for OPTION_FORCE.
 	(CygbuildPatchList): Simplify call to find command.
+	(CygbuildBootVariablesGlobalMain): Remove call to
+	`CygbuildIsGbsCompat'. Always call
+	`CygbuildBootVariablesGlobalShareMain'
+	(CygbuildBootVariablesId): If GBS, set correct CYGBUILD_PROG_LIBPATH.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
