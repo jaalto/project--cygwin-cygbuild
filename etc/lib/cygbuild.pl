@@ -2144,7 +2144,7 @@ gpg(1)
 
 Copyright (C) 2003-2008 Jari Aalto. This program is free software; you
 can redistribute and/or modify program under the terms of Gnu General
-Public licence v2 or, at your option, any later version.
+Public license v2 or, at your option, any later version.
 
 =cut
 

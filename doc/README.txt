@@ -93,6 +93,9 @@ Dependencies
         o   Python                          any version
         o   Standard programs: ls, etc.     any version
 
+        This program runs solely with Free Software. It does not rely
+        on any component of non-Free Software.
+
         It is possible to setup a Cygwin cross compiling environment
         in Free OS. See document "Cygwin/X Contributor's Guide" at
         <http://x.cygwin.com/docs/cg/prog-build-cross.html>

@@ -103,6 +103,6 @@ None known.
 Copyright (C) 2003-2008 Jari Aalto.
 
 This program is free software; you can redistribute and/or modify it
-under Gnu General Public licence v2 or later.
+under Gnu General Public license v2 or later.
 
 =cut

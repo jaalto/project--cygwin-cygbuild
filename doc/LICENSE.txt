@@ -1,5 +1,7 @@
 Licensing information
 
+    Project general
+
         Copyright (C) 2003-2008 Jari Aalto
 
         This program (referring to all files, including documentation,
@@ -21,19 +23,16 @@ Licensing information
 
         Visit <http://www.gnu.org/copyleft/gpl.html> for more information
 
-        This program runs solely with Free Software. It does not rely
-        on any component of non-Free Software.
+    Exception for the documentation
 
-        - -
-
-        Exception: The POD section at file cygbuild.pl of project
-        "Cygbuild" is DUAL LICENCED and may be distributed under the
-        terms of GNU General Public License (GNU GPL) --see above--;
-        *or*, at your option, distributed under the terms of GNU Free
-        Documentation License (GNU FDL).
+        The documentation of project "Cygbuild" (POD sections in Perl
+        files, *.txt, *.html etc.) are DUAL LICENSED and may be
+        distributed under the terms of GNU General Public License (GNU
+        GPL) --see above--; *or*, at your option, distributed under
+        the terms of GNU Free Documentation License (GNU FDL).
 
         The end user can continue to distribute the documentation in
-        this dual licence form *or* select the other license (GNU GPL,
+        this dual license form *or* select the other license (GNU GPL,
         GNU FDL) and remove the unwanted one. In case of removal, a
         notice "License <license name> removed <date ISO 8601> by
         <Firstname Lastname>" must be mentioned somewhere in the

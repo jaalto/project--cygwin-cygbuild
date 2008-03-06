@@ -3917,7 +3917,7 @@
 	* Makefile (install-etc-main): 1.22 Added missing paren.
 	(install-etc-template): 1.22 Added missing paren.
 
-	* index.html (Mailing list): 1.28 Chnaged licence from
+	* index.html (Mailing list): 1.28 Chnaged license from
 	www.opencontent.org to creativecommons.org
 
 	* etc/template/configure.sh.tmp (function Configure()): 1.11
