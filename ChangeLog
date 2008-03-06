@@ -30,6 +30,8 @@
 	Remove unneeded variable `out'.
 	(CygbuildTreeSymlinkCopy): Ignore version control directories.
 	(CygbuildCmdInstallCheckShellFiles): Pass -O extglob to bash checks.
+	(CygbuildCommandMainCheckSpecial): Correct regexp to detect command
+	`cygsrc'.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 

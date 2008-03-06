@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.1023"
+CYGBUILD_VERSION="2008.0306.1453"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -12014,12 +12014,12 @@ function CygbuildCommandMainCheckSpecial()
 
     local opt1="(-b|--binary)"
     local opt2="(-d|--dir)"
-    local opts="( +$opt1)?( +$opt2 +)|( +$opt2)?( +$opt1 +)"
+    local opts="( +$opt1)?( +$opt2 +)?|( +$opt2)?( +$opt1 +)?"
 
     local cmd=$(
 	echo $* |
 	grep --extended-regexp --only-matching --ignore-case \
-	     "cygsrc($opts)?[a-z][^ ]+"
+	     "cygsrc($opts| +)[a-z][^ ]+"
     )
 
     if [ "$cmd" ]; then
@@ -12724,9 +12724,10 @@ function CygbuildMain()
     CygbuildBootVariablesGlobalColors
     CygbuildBootVariablesGlobalCacheMain
     CygbuildDefineGlobalCommands
-    CygbuildBootVariablesCache
 
     CygbuildCommandMainCheckSpecial "$@"
+    CygbuildBootVariablesCache
+
     CygbuildBootFunctionExport
 
     #   This file can be included as a bash library. Like this:
