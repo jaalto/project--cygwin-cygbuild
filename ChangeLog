@@ -4,7 +4,9 @@
 	ITP message example.
 	(GPG EXAMPLES): Cosmetic chnages.
 
-	* bin/cygbuild.sh: (CygbuildCmdAllMain): Remove interactive
+	* bin/cygbuild.sh:
+	-- Change Verb() calls to Warn() calls near [WARN] messages.
+	(CygbuildCmdAllMain): Remove interactive
 	step if signatures failed.
 	(top level): Chnage var+value into POSIX var:+value format.
 	Change -s (short) options in cat, diff ln, mv, rm, tar etc. to

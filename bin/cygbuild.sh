@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.1631"
+CYGBUILD_VERSION="2008.0306.1640"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4193,7 +4193,7 @@ function CygbuildHelpSourcePackage()
 
     [ "$lib" ] && [ -f "$lib" ] && return 0
 
-    CygbuildEcho "-- [WARN] Not attempting to make a source package." \
+    CygbuildEcho "-- [NOTE] Not attempting to make a source package." \
 	 "Full project is needed" \
 	 "<$CYGBUILD_HOMEPAGE_URL>."
 
@@ -4429,7 +4429,7 @@ function CygbuildNoticeDevel()
     local cmd="$1"
 
     if [[ "$PACKAGE" == lib* ]]; then
-        CygbuildEcho "-- [WARN] Library should use command: package-$cmd"
+        CygbuildWarn "-- [WARN] Libraries should use command: package-$cmd"
     fi
 }
 
@@ -4472,7 +4472,7 @@ function CygbuildGPGverify()
 
         file=${file%$sigext}
 
-        [ ! -f "$file" ]  && CygbuildEcho "-- [WARN] No file found $file"
+        [ ! -f "$file" ]  && CygbuildWarn "-- [WARN] No file found $file"
 
         #   gpg: WARNING: using insecure memory!
         #   gpg: please see http://www.gnupg.org/faq.html for more information
@@ -6959,7 +6959,7 @@ function CygbuildMakefileRunInstallFixInfo()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    #   If there are info files, the 'dir' must be remoed, otherwise
+    #   If there are info files, the 'dir' must be removed, otherwise
     #   it would overwrite the central DIR when unpackad.
     #
     #       .inst/usr/share/info/package.info
@@ -6976,7 +6976,7 @@ function CygbuildMakefileRunInstallFixInfo()
         local name=$DIR_CYGPATCH/postinstall.sh
 
         if [ ! -f "$name" ]; then
-            CygbuildEcho "-- [WARN] removing $file, so you need $name"
+            CygbuildWarn "-- [WARN] removing $file, so you need $name"
         fi
 
         rm $file
@@ -9063,8 +9063,7 @@ function CygbuildInstallExtraManualCompress()
     CygbuildVerb "-- Compressing manual pages"
 
     if [ ! -d "$instdocdir" ]; then
-        CygbuildEcho "-- [WARN] Directory not found: " \
-                     ${instdocdir/$srcdir\//}
+        CygbuildWarn "-- [WARN] Directory not found:" ${instdocdir#$srcdir/}
     else
 
         find $instdocdir -type f \
@@ -9773,7 +9772,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         #  Example: Unquoted string "imsort" may clash with future
         #           reserved word at foo.pl line 143.
         CygbuildVerb \
-            "-- [WARN] $name: report compile warnings to upstream author"
+            "-- [NOTE] $name: report compile warnings to upstream author"
 
         CygbuildVerb "$notes"
     fi
@@ -9897,7 +9896,7 @@ function CygbuildCmdInstallCheckShellFiles ()
             if CygbuildPathResolveSymlink "$file" > $retval ; then
                 file=$(< $retval)
             else
-                CygbuildEcho "-- [WARN] Couldn't resolve symlink"
+                CygbuildWarn "-- [WARN] Couldn't resolve symlink"
             fi
         fi
 
@@ -10350,7 +10349,7 @@ function CygbuildCmdInstallCheckSetupHintMain()
     CygbuildEcho "-- setup.hint checks"
 
     if [ ! -d "$dir" ]; then
-        CygbuildEcho "-- [WARN] Cannot check $file. No $dir"
+        CygbuildWarn "-- [WARN] Cannot check $file. No $dir"
         return 1
     fi
 
@@ -10647,7 +10646,7 @@ function CygbuildCmdInstallCheckManualPages()
             :    # program.sh.1
 
         else
-            CygbuildEcho "-- [WARN] No manual page for $file"
+            CygbuildWarn "-- [WARN] No manual page for $file"
         fi
 
     done
@@ -10830,7 +10829,7 @@ function CygbuildCmdInstallCheckBinFiles()
     > $retval
 
     if [ -s $retval ]; then
-        CygbuildEcho "-- [WARN] Hm, Some executables may have" \
+        CygbuildWaen "-- [WARN] Some executables may have" \
                      "missing permission +x"
         cat $retval
         # status=1
@@ -10910,7 +10909,7 @@ function CygbuildCmdInstallCheckBinFiles()
         fi
 
 	if [[ "$file" == *.@(py|pyc|pl|rb) ]]; then
-	    CygbuildEcho "-- [WARN] Extension found. $_file"
+	    CygbuildWarn "-- [WARN] Extension found. $_file"
 	    continue
 	fi
 
@@ -10957,7 +10956,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             if ! $EGREP --quiet "$plbin([ \t]|$)" $retval.1st
             then
-                CygbuildEcho "-- [WARN] possibly wrong Perl call" \
+                CygbuildWarn "-- [WARN] possibly wrong Perl call" \
                      "in $_file: $(cat $retval.1st)"
             fi
 
@@ -10979,7 +10978,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             if ! $EGREP --quiet "$pybin([ \t]|$)" $retval.1st
             then
-                CygbuildEcho "-- [WARN] possibly wrong Python call" \
+                CygbuildWarn "-- [WARN] possibly wrong Python call" \
                      "in $_file: $(cat $retval.1st)"
             fi
 
@@ -11153,7 +11152,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
         if $EGREP --line-number '[[:space:]]$' $file > $retval
         then
-            CygbuildEcho "-- [WARN] Trailing whitespaces found in $file"
+            CygbuildEcho "-- [NOTE] Trailing whitespaces found in $file"
             cat --show-nonprinting --show-tabs --show-ends $retval |
             sed 's/^/     /'
         fi
@@ -11161,7 +11160,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         if $EGREP --line-number --ignore-case \
            'copyright.*YYYY|your +name|[<]firstname' $file > $retval
         then
-            CygbuildEcho "-- [WARN] Possible unfilled template line in $file"
+            CygbuildWarn "-- [WARN] Possible unfilled template line in $file"
             sed 's/^/     /' $retval
         fi
     done
@@ -12549,8 +12548,8 @@ function CygbuildCommandMain()
 
 	    package-sign|pkg-sign|sign|sign-package)
 		if WasLibraryInstall ; then
-		    CygbuildEcho "-- [WARN] Libs found." \
-				   "Did you mean [package-devel]?"
+		    CygbuildWarn "-- [WARN] Libs found." \
+			"Did you mean [package-devel]?"
 		fi
 
 
@@ -12559,8 +12558,8 @@ function CygbuildCommandMain()
 		    status=1
 		else
 		    CygbuildGPGsignMain      \
-			  "$OPTION_SIGN"       \
-			  "$OPTION_PASSPHRASE"
+			"$OPTION_SIGN"       \
+			"$OPTION_PASSPHRASE"
 		    status=$?
 		fi
 		;;
