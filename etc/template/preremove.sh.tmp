@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
+# Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 #
 # Cygwin setup.exe runs this file just before package is being removed.
 # The shell must be 'sh'.

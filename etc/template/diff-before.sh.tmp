@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
+# Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 #
 # This file runs BEFORE the diff(1) command is run
 # It used to clean some files that may be on the way; like dangling symlinks

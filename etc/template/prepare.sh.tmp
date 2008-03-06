@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) YYYY Firstname Lastname; Licenced under GPL v2 or later
+# Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 #
 # This file runs with command [all]. Prepare package for configure
 # and build phase, which means applying the cygwin specific patch etc.

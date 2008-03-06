@@ -2,6 +2,18 @@
 
 	* bin/cygbuild.sh: (CygbuildCmdAllMain): Remove interactive
 	step if signatures failed.
+	(top level): Chnage var+value into POSIX var:+value format.
+	Change -s (short) options in cat, diff ln, mv, rm, tar etc. to
+	--long options.
+	(CygbuildCmdInstallCheckShFile): New.
+	(CygbuildCmdInstallCheckShellFiles): Add cases for Bourne and
+	Bourne-Again.
+	(CygbuildCmdInstallCheckPythonFile): Add arg FILE check.
+	(CygbuildCmdInstallCheckPerlFile): Add arg FILE check.
+	(CygbuildTarDirectory): Remove subshell from `wc' call. Remove
+	`cut' command.
+	(CygbuildInstallFixInterpreterPerl): Remove extra `set' command
+	near `wc'.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
@@ -472,7 +484,7 @@
 	no longer presend in command `readmefix.
 
 	* etc/template/package.README (Language): Typo in word
-	'Licenced ...'. Corrected to Licensed.
+	'Licensed ...'. Corrected to Licensed.
 
 	* etc/template/build.env.options.tmp: Remove obsolte file.
 
@@ -2481,7 +2493,7 @@
 	   mistakes are reposted.
 
 	* etc/template/package.README (Mailing List:): 1.17 typo:
-	Licence => License:
+	License => License:
 
 	* bin/cygbuild.pl (Help::CYGWIN PACKAGE POLICY NOTES): 1.223 New
 	heading 1. Wrote topic 'Music file formats *.mp3, *.ogg etc.'
@@ -4581,7 +4593,7 @@
 	Fixed ignoring -d command line option.
 
 	* etc/template/package.README (Upstream contact:): 1.11 Added
-	'Licence:' tag
+	'License:' tag
 
 2004-03-09 Tue  Jari Aalto  <jari aalto A T poboxes dt com>
 
