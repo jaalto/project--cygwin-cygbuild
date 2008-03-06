@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.1755"
+CYGBUILD_VERSION="2008.0306.1819"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9351,12 +9351,20 @@ function CygbuildInstallFixDocdirInstall()
     CygbuildStrToRegexpSafe "$dest1" > $retval   # 1.20+r100 etc.
     local re=$(< $retval)
 
-    local pdir=$(cd $dir/usr/share/doc && ls |
-		 $EGREP -v "$re|Cygwin" > $retval)
+    local pdir=$(
+	cd $dir/usr/share/doc &&
+	{ ls | $EGREP --invert-match "$re|Cygwin" ; }
+    )
 
     [ "$pdir" ] || return 0
 
-    pkgdocdir="$dir/usr/share/doc/$pdir"
+    local pkgdocdir="$dir/usr/share/doc/$pdir"
+
+    if [[ "$pdir" == *\ * ]]; then
+	#  Multiple directories or space in directory name.
+	CygbuildEcho "-- [NOTE] Handle manually. Can't relocate: $pkgdocdir"
+	return 0
+    fi
 
     if ! ${test:+echo} tar --directory "$pkgdocdir" -cf - . | {
 	 tar --directory "$dest" -xf -  &&

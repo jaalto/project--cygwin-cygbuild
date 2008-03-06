@@ -38,6 +38,8 @@
 	was not found.
 	(CygbuildConfCC): Correct retval.log.1 to retval.log
 	(CygbuildInstallFixInfoInstall): Correct install to /etc/defaults.
+	(CygbuildInstallFixDocdirInstall): Correct /usr/share/doc/<pkg>/
+	relocation code.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
