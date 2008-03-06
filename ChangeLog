@@ -1,5 +1,9 @@
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/cygbuild.pl: (HELP::Contributing packages): Fix
+	ITP message example.
+	(GPG EXAMPLES): Cosmetic chnages.
+
 	* bin/cygbuild.sh: (CygbuildCmdAllMain): Remove interactive
 	step if signatures failed.
 	(top level): Chnage var+value into POSIX var:+value format.

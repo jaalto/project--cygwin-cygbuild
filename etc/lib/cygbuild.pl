@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0305.1106';
+$VERSION = '2008.0306.1047';
 
 # ..................................................................
 
@@ -1108,10 +1108,10 @@ Refer to "Submitting a package" at http://cygwin.com/setup.html for
 full description.
 
 To contribute your package, place them somewhere available and send message
-to <cygwin-apps@cygwin.com> with following message. The ITP acronym used in
-from Debian and it means "intent to package":
+to <cygwin-apps@cygwin.com> with following message. The ITP acronym used is
+borrowed from Debian and it means "intent to package":
 
-    Subject: ITP: package-N.N
+    Subject: [ITP] package-N.N
 
 B<Package submittal:> Include contents of C<setup.hint> and the binary
 package listing C<tar jtvf foo-1.13-RELEASE.tar.bz2>. Provide complete to a
@@ -1120,11 +1120,11 @@ downloaded when you submit a contributed package.
 
 B<Licensing:> As a package maintainer, the licensing responsibility is on
 your shoulders. If the upstream package's license if not OSD compatible
-(see http://www.opensource.org/docs/definition_plain.html ) there may be
+(see <http://www.opensource.org/docs/definition_plain.html>) there may be
 problems, as the Cygwin glue code (libcygwin.a) is linked in on all
 cygwin-targets, thus rendering the compiled result GPL'd (see
 http://www.cygwin.com/licensing.html ), unless the license is OSD
-approved (see http://www.opensource.org/licenses/ ).
+approved (see <http://www.opensource.org/licenses/>).
 
 The Cygwin net release is a volunteer effort. If you, the volunteer, do not
 feel comfortable with the licensing, then ask for advice on the cygwin-apps
@@ -1142,7 +1142,7 @@ maintained.
 B<Publishing:> In case you're running Apache web server and world known IP
 address, you can publish your files to the world directly. Add this line to
 your C<httpd.conf> and make apache(1) read configuration again with
-B<apachectl restart>. Check that your connection can see the files with
+I<apachectl restart>. Check that your connection can see the files with
 lynx(1).
 
     Alias /cygwin /usr/src/cygwin-packages
@@ -1155,17 +1155,16 @@ ready source package, binary package and setup.hint to publish area:
 
 =head1 GPG EXAMPLES
 
-Let's assume that you have added a build alias command to your
+Let's assume that you have added following build alias command to your
 C<~/.bashrc>:
 
-    alias b="cygbuild -r"
+    alias cb="cygbuild --color --sign $GPGKEY"
 
-Switch to a command prompt and write following bash alias by hand. This can
-be copied to other terminals open. You don't want this second alias to be
-stored in permanent places, because it contains your GPG identification
-details.
+You don't want the second alias presented below to be stored in
+permanent places, because it contains your GPG identification details.
+Copy/paste if to opern terminals as needed.
 
-    $ alias bb="cygbuild -s gpg-key-id -p 'gpg-password' -r"
+    $ alias bb="cygbuild -s gpg-key-id -p 'gpg-password'"
 
 Assuming there already unpacked original package, which has been tested to
 build correctly, it's a simple matter of making GPG signed releases.
@@ -1174,18 +1173,18 @@ final words. Maybe it had typos. Or C<setup.hint> needed updating. Okay,
 run this to make new install which replaced older C<*.README> file:
 
     $ cd foo-1.13/
-    $ b 1 -v install check
+    $ cb -r 1 -v install check
 
 Look closely at the results of check command. If anything needs to be
-edited or corrected, repeat the command after edit. Double check the
+edited or corrected, repeat the command after edit. Verify the
 installation:
 
-    $ find .inst/ -print
+    $ find .inst/ -print | sort
 
 If all looks good, the signed packages can be made. If you don't have gpg
 installed, then substitute plain "b" instead of for "bb" below:
 
-    $ bb 1 package source-package
+    $ bb -r 1 package source-package
 
 In case there is permanent Internet connection where files can be put to a
 publish area (Apache, Ftp), the last step copies packages elsewhere on
