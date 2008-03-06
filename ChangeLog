@@ -37,6 +37,7 @@
 	(CygbuildCmdDownloadCygwinPackage9: Improve error message if package
 	was not found.
 	(CygbuildConfCC): Correct retval.log.1 to retval.log
+	(CygbuildInstallFixInfoInstall): Correct install to /etc/defaults.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 

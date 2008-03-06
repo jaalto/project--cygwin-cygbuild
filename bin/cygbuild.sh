@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.1640"
+CYGBUILD_VERSION="2008.0306.1755"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9485,11 +9485,12 @@ function CygbuildInstallFixEtcdirInstall()
 
     local dest="$DIR_DEFAULTS_GENERAL/etc"
 
-    if ! ${test:+echo} tar --directory  "$pkgetcdir" -cf - . | {
-	rm    -rf	    "$pkgetcdir" &&
-	mkdir --parents	    "$dest"      &&
-	tar   --directory   "$dest" -xf - ; }
-    then
+    ${test:+echo} tar --directory  "$pkgetcdir" -cf $retval.tar .   &&
+    ${test:+echo} rm	-rf	    "$pkgetcdir"		    &&
+    ${test:+echo} mkdir --parents	    "$dest"		    &&
+    ${test:+echo} tar   --directory    "$dest" -xf $retval.tar
+
+    if [ ! "$?" = "0" ]; then
 	[ ! "$test" ] &&
 	CygbuildWarn "$id: [ERROR] Internal error while relocating $pkgetcdir"
 	return 99
@@ -10423,7 +10424,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
 	if ls -F $tmp | $EGREP --quiet --invert-match '/' ; then
             error=1
-	    CygbuildWarn "-- [ERROR] Files in toplevel dir" \
+	    CygbuildWarn "-- [ERROR] Files found in toplevel dir" \
 			 ${tmp/$srcdir\/}
 	    ls -F $tmp
 	fi
