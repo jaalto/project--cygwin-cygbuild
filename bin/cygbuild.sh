@@ -42,9 +42,11 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.1453"
+CYGBUILD_VERSION="2008.0306.1631"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
+#  http://cygwin.com/packages
+
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
 "http://mirror.switch.ch/ftp/mirror/cygwin"}
 
@@ -7643,7 +7645,7 @@ CygbuildCmdDownloadCygwinPackage ()
     ' re="^[@] +$pkg *\$" $cache > $retval
 
     if [ ! -s "$retval" ]; then
-        CygbuildDie "-- [ERROR] No such package: $pkg"
+        CygbuildDie "-- [ERROR] Need to refresh cache? No such package: $pkg"
     fi
 
     local path=$(< $retval)
@@ -8108,13 +8110,14 @@ function CygbuildConfCC()
         CygbuildRunShell $conf $opt 2>&1 | tee $retval.log
         status=$?
 
-        #   checking how to link with libfoo... /usr/lib/libfoo.a
+	#   The configure log:
+        #     checking how to link with libfoo... /usr/lib/libfoo.a
 
         if $EGREP "checking how to link.*\<lib[a-z0-9]+\.a\>" \
-           $retval.log > $retval.log.1
+           $retval.log > $retval.log
         then
             CygbuildWarn "-- [WARN] configure uses static libraries"
-            cat $retval.log.1
+            cat $retval.log
         fi
 
     fi

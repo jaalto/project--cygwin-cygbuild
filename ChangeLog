@@ -31,7 +31,10 @@
 	(CygbuildTreeSymlinkCopy): Ignore version control directories.
 	(CygbuildCmdInstallCheckShellFiles): Pass -O extglob to bash checks.
 	(CygbuildCommandMainCheckSpecial): Correct regexp to detect command
-	`cygsrc'.
+	`cygsrc'.'
+	(CygbuildCmdDownloadCygwinPackage9: Improve error message if package
+	was not found.
+	(CygbuildConfCC): Correct retval.log.1 to retval.log
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
