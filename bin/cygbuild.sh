@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.0738"
+CYGBUILD_VERSION="2008.0306.0845"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -4712,6 +4712,7 @@ function CygbuildCmdGPGVerifyMain()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local interactive="$1"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
+    local force="$OPTION_FORCE"
 
     #   Are we a "build script"  or "cygbuild.sh" ?
     #   That is, is this unpacked source package case or development
@@ -4737,7 +4738,7 @@ function CygbuildCmdGPGVerifyMain()
 
     local status=0
 
-    if ! CygbuildGPGsignatureCheck $list ; then
+    if ! CygbuildGPGsignatureCheck $list && [ ! "$force" ] ; then
         status=1
         echo -n "-- [WARN] signature check(s) failed. "
 
@@ -4749,6 +4750,8 @@ function CygbuildCmdGPGVerifyMain()
             fi
         fi
     fi
+
+    [ "$force" ] && return 0
 
     return $status
 }
@@ -5522,22 +5525,17 @@ function CygbuildPatchList()
     #	Ignore verion controlled directories.
 
     find -L $dir			\
-	-type d '(' -path "*/.git*"	\
-		    -o -path "*/.bzr*"	\
-		    -o -path "*/.mtn*"	\
-		    -o -path "*/.svn*"	\
-		    -o -path "*/CVS*"	\
-		    -o -path "*/tmp/*"	\
+	-type d '(' -name ".git"	\
+		    -o -name ".bzr"	\
+		    -o -name ".mtn"	\
+		    -o -name ".svn"	\
+		    -o -name "CVS"	\
+		    -o -name "tmp"	\
 		')'			\
 	    -prune			\
-	    -a ! -name ".git"		\
-	    -a ! -name ".bzr"		\
-	    -a ! -name ".mtn"		\
-	    -a ! -name ".svn"		\
-	    -a ! -name "CVS"		\
-	    -a ! -name "tmp"		\
 	    -o				\
-	    -type f -name "*patch"  2> /dev/null |
+	    -type f -name "*patch"      \
+		2> /dev/null		|
 	    sort
 }
 
@@ -11636,7 +11634,7 @@ function CygbuildCmdAllMain()
     #       IF command A succeeds, then run B. In either
     #       case always return true
 
-    CygbuildCmdGPGVerifyMain        &&
+    CygbuildCmdGPGVerifyMain Yn     &&
     CygbuildCmdPrepMain             &&
     CygbuildCmdShadowMain           &&
     CygbuildCmdConfMain             &&

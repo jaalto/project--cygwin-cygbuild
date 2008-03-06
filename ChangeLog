@@ -14,6 +14,10 @@
 	`cut' command.
 	(CygbuildInstallFixInterpreterPerl): Remove extra `set' command
 	near `wc'.
+	(CygbuildCmdAllMain): Add back signature verification and
+	interactive question.
+	(CygbuildCmdGPGVerifyMain): Add support for OPTION_FORCE.
+	(CygbuildPatchList): Simplify call to find command.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
