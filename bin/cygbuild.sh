@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.0918"
+CYGBUILD_VERSION="2008.0306.1006"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
@@ -500,11 +500,13 @@ function CygbuildBootVariablesId()
     if [[ "$CYGBUILD_PROG_NAME" == *-[0-9].sh ]]    # GBS: foo-N.N-1.sh
     then
 
-	[ -d /usr/local/share/cygbuild ] &&
-	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
-
+	#   Secondary
 	[ -d /usr/share/cygbuild ] &&
 	CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
+
+	#   Primary
+	[ -d /usr/local/share/cygbuild ] &&
+	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
 
     elif [[ "$path" == /usr/local* ]]; then
 	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
@@ -1173,8 +1175,8 @@ function CygbuildIsDirEmpty()
 
     for file in $dir/.* $dir/*
     do
-	[ -e "$file" ] || continue
-	[[ "$file" == */@(.|..) ]] && continue
+	[ -e "$file" ]		    || continue
+	[[ "$file" == */@(.|..) ]]  && continue
 	return 1
     done
 
@@ -2967,26 +2969,23 @@ function CygbuildIsDestdirSupported()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildExitIfNoDir "$srcdir" "$id: [FATAL] variable '$srcdir'" \
-              "not defined [$srcdir]."
+    CygbuildExitIfNoDir "$srcdir" \
+	"$id: [FATAL] variable '$srcdir' not defined [$srcdir]."
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ ! "$module" ]; then
-        echo "$id: Perl module was not found"
-        return 1                # Error is already displayed
-    fi
+    [ "$module" ] || return 1
 
-    local out=$readme.tmp
-
-    #   egrep could find  .... '^[^#]+[$][{(]DESTDIR'
+    #   egrep could find  .... '^[^#]+[$][{(]DESTDIR', but to do
+    #	it reliably, we need Perl.
 
     local debug=${OPTION_DEBUG:-0}
 
     perl -e "require qq($module);  SetDebug($debug); \
               MakefileDestdirSupport(qq($srcdir), qq(-exit));"
 }
+
 function CygbuildDependsList()
 {
     #   Read the depends line
@@ -3228,16 +3227,25 @@ function CygbuildTreeSymlinkCopy()
         #   anyway.
 
         find . \
-            -type d '(' -name ".inst" -o -name ".sinst" -o -name ".build" ')' \
-            -prune                              \
-            -a ! -name ".inst"                  \
-            -a ! -name ".sinst"                 \
-            -a ! -name ".build"                 \
-            -o -type f '('  -name "*.exe"       \
-                            -o -name "*.dll"    \
-                            -o -name "*.dll.a"  \
-                            -o -name "*.s[ao]"  \
-                            -o -name "*.la" ')' \
+	    -type d '('		    \
+		-name ".inst"	    \
+		-o -name ".sinst"   \
+		-o -name ".build"   \
+		-o -name ".bzr"	    \
+		-o -name ".git"	    \
+		-o -name ".hg"	    \
+		-o -name ".darcs"   \
+		-o -name ".svn"	    \
+		-o -name "CVS"	    \
+		')'		    \
+            -prune                  \
+	    -o -type f '('	    \
+		-name "*.exe"       \
+		-o -name "*.dll"    \
+                -o -name "*.dll.a"  \
+                -o -name "*.s[ao]"  \
+		-o -name "*.la"	    \
+		')'		    \
             > $retval
 
 	if [ -s $retval ]; then
@@ -7767,7 +7775,9 @@ function CygbuildCmdShadowMain()
         #    When shadowing, use clean base
 
         CygbuildPushd
+
             cd "$srcdir" || exit $?
+
             CygbuildEcho "-- Running: make clean distclean" \
                          "(ignore errors; if any)"
 
@@ -9886,7 +9896,9 @@ function CygbuildCmdInstallCheckShellFiles ()
         elif [[ "$rest" = *\ Bourne\ * ]]; then
             CygbuildCmdInstallCheckShFile "$file"
         elif [[ "$rest" = *Bourne-Again* ]]; then
-            CygbuildCmdInstallCheckShFile "$file" "/bin/bash"
+	    #	We need to enable extglob becaus "-nx" won't execute
+	    #	any commands in the code.
+            CygbuildCmdInstallCheckShFile "$file" "/bin/bash -O extglob"
         fi
 
     done < $retval

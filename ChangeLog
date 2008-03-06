@@ -22,6 +22,10 @@
 	`CygbuildIsGbsCompat'. Always call
 	`CygbuildBootVariablesGlobalShareMain'
 	(CygbuildBootVariablesId): If GBS, set correct CYGBUILD_PROG_LIBPATH.
+	(CygbuildIsDestdirSupported): Return immediately if no perl module.
+	Remove unneeded variable `out'.
+	(CygbuildTreeSymlinkCopy): Ignore version control directories.
+	(CygbuildCmdInstallCheckShellFiles): Pass -O extglob to bash checks.
 
 2008-03-05  Jari Aalto  <jari.aalto@cante.net>
 
