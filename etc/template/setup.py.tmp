@@ -1,0 +1,22 @@
+#!/usr/bin/python
+
+from distutils.core import setup
+
+setup(name='package',
+      description='',
+      keywords='',
+      version='',
+      url='',
+      download_url='',
+      license='GPL',
+      author='',
+      author_email='',
+      long_description="""
+      """,
+"""
+      package_dir={'lib.plugins.email':'.',
+                   'lib.plugins.email.tests':'tests'},
+      packages=['lib.plugins.email',
+                'lib.plugins.email.tests']
+"""
+      )
