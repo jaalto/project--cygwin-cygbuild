@@ -1,3 +1,15 @@
+2008-03-07  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdMkpatchMain): Remove j or z
+	option check. Convert tar options to --long format.
+	(CygbuildTarDirectory): Fix tar directory detection. If there
+	were files that conatined spaces, the function failed. Moving
+	$(NF) to column $6 fixes this. Remove j or z option check.
+	Convert tar options to --long format.
+	(CygbuildInstallFixDocdirInstall): Convert tar options to
+	--long format.
+	(CygbuildCmdDownloadCygwinPackage): Remove j or z option check.
+
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/cygbuild.pl: (HELP::Contributing packages): Fix

@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0306.1819"
+CYGBUILD_VERSION="2008.0307.0955"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2553,10 +2553,7 @@ function CygbuildTarDirectory()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    CygbuildTarOptionCompress $file > $retval
-    local z=$(< $retval)
-
-    tar -${z}tvf $file > $retval || return $?
+    tar --list --verbose --file=$file > $retval || return $?
 
     if [ ! -s $retval ]; then
         CygbuildWarn "$id: [ERROR] Can't read content of $file"
@@ -2564,7 +2561,7 @@ function CygbuildTarDirectory()
     fi
 
     #   $(NF) will give last field from line:
-    #   -rw-r--r-- root/root 23206 2004-02-10 02:31:56 foo-20000401-1/COPY
+    #   -rw-r--r-- root/root 23206 2004-02-10 02:31:56 foo-N.N/COPY
     #
     #   The gsub() calls will handle cases:
     #   a) ./package-nn.nn/
@@ -2573,13 +2570,19 @@ function CygbuildTarDirectory()
     #   Different paths are gathered in HASH (associtive array) and
     #   there will be only one, if top level directory exists.
     #   Skip symbolic links.
+    #
+    #	NOTE: There may be files with spaces, so we must rely on colum 6.
+    #
+    #	... foo-N.N/testdir/with space in name
 
     local dirfile="$retval.dir"
 
     awk  '                              \
-        /->/ { next }                   \
+	/->/ {				\
+	    next			\
+        }	                        \
         {                               \
-            path = $(NF);               \
+            path = $6;                  \
             gsub("[.]/", "", path );    \
             gsub("/.*", "", path );     \
             hash[ path ] = 1;           \
@@ -2600,8 +2603,8 @@ function CygbuildTarDirectory()
         return $status
     fi
 
-    wc -l < $dirfile > $retval
-    local lines=$(< $retval)
+    wc -l < $dirfile > $retval.count
+    local lines=$(< $retval.count)
 
     if [ "$lines" = "1" ]; then
         echo $(< $dirfile)
@@ -5923,20 +5926,17 @@ function CygbuildCmdMkpatchMain()
             rm -rf "$origpkgdir" || exit 1
         fi
 
-        CygbuildTarOptionCompress "$file" > $retval
-        local z=$(< $retval)
+	dummy="PWD is $(pwd)"                  # Used for debugging
+        opt="--extract --file"
 
-        opt="-${z}xf"
-        dummy="PWD is $(pwd)"                  # Used for debugging
-
-        tar --directory "$cd" $opt "$file"     ||
+        tar --directory "$cd" $opt "$file" ||
         {
             status=$?
-            echo "$id: [ERROR] tar $opt $file"
+            echo "$id: [ERROR] tar --directory $cd $opt $file"
             return $status
         }
 
-        #   Rename by moving:  foo-1.12-orig
+        #   Rename by moving to: foo-1.12-orig
         mv "$dir" "$origpkgdir" || return $?
 
         cd "$srcdir" || exit 1
@@ -5947,9 +5947,8 @@ function CygbuildCmdMkpatchMain()
 
         if [ "$OPTION_SPACE" ]; then
 
-            #   User has instructed to use more space, so do not destroy
-            #   current compilation results, because recompilation might
-            #   be very slow with big packages.
+            #   Do not destroy current compilation results, because
+            #   recompilation might be very slow with big packages.
             #
             #   Copy the current sources elsewhere and then "clean".
             #   This preserves current sources + compilation.
@@ -6913,11 +6912,12 @@ function CygbuildMakefileRunInstallCygwinOptions()
                      "(test mode, no real install)"
     fi
 
+    local makefile
     CygbuildMakefileName > $retval
-    local makefile=$(< $retval)
+    [ -s $retval ] && makefile=$(< $retval)
 
     CygbuildExitIfEmpty "$makefile" \
-	"$id: [FATAL] Internal error. \$makefile variable is empty"
+	"$id: [FATAL] Disk read error?. \$makefile variable is empty"
 
     if [ "$CYGBUILD_MAKEFLAGS" ]; then
         CygbuildEcho "-- Extra make flags: $CYGBUILD_MAKEFLAGS"
@@ -7676,11 +7676,7 @@ CygbuildCmdDownloadCygwinPackage ()
     then
         CygbuildEcho "-- Good, archive already extracted: $archive"
     else
-
-        CygbuildTarOptionCompress "$archive" > $retval
-        local z=$(< $retval)
-
-        tar -${z}xf $verbose "$archive"
+        tar $verbose --extract --file="$archive"
     fi
 
     if ! CygbuildWhichCheck filterdiff ; then
@@ -8890,7 +8886,7 @@ function CygbuildInstallPackageDocs()
 	fi
     fi
 
-    CygbuildEcho "-- Installing docs" ${dir/$srcdir\/}
+    CygbuildEcho "-- Installing docs from" ${dir/$srcdir\/}
 
     CygbuildRun $scriptInstallDir $dest || return $?
 
@@ -9366,9 +9362,11 @@ function CygbuildInstallFixDocdirInstall()
 	return 0
     fi
 
-    if ! ${test:+echo} tar --directory "$pkgdocdir" -cf - . | {
-	 tar --directory "$dest" -xf -  &&
-	 rm -rf "$pkgdocdir" ; }
+    if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- . |
+	 {
+	    tar --directory "$dest" --extract --file=-  &&
+	    rm -rf "$pkgdocdir" ;
+	 }
     then
 
 	[ ! "$test" ] &&
@@ -9493,10 +9491,10 @@ function CygbuildInstallFixEtcdirInstall()
 
     local dest="$DIR_DEFAULTS_GENERAL/etc"
 
-    ${test:+echo} tar --directory  "$pkgetcdir" -cf $retval.tar .   &&
-    ${test:+echo} rm	-rf	    "$pkgetcdir"		    &&
-    ${test:+echo} mkdir --parents	    "$dest"		    &&
-    ${test:+echo} tar   --directory    "$dest" -xf $retval.tar
+    ${test:+echo} tar --directory "$pkgetcdir" --create --file=$retval.tar . &&
+    ${test:+echo} rm -rf "$pkgetcdir"					     &&
+    ${test:+echo} mkdir --parents "$dest"				     &&
+    ${test:+echo} tar --directory "$dest" --extract --file=$retval.tar
 
     if [ ! "$?" = "0" ]; then
 	[ ! "$test" ] &&
@@ -12789,6 +12787,10 @@ function TestRegression ()
     Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
     exit;
 }
+
+set -x
+CygbuildTarDirectory /usr/src/build/build/fdupes/fdupes_1.40.orig.tar.gz
+exit
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
