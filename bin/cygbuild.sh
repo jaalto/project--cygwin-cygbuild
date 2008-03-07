@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.0956"
+CYGBUILD_VERSION="2008.0307.1111"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6622,39 +6622,51 @@ function CygbuildMakefilePrefixCheck()
 
     if [ ! "$destdir" = "0" ]; then
 
-	#   PREFIX ?= /usr/local
-        local re='^[[:space:]]*prefix[[:space:]]*[+?]?='
+	#   "prefix ?= /usr/local"
 
-	#   We must use ls(1), otherwise grep returns status 2 for
-	#   files that it cannot open. If ls result is empty, the NULL
-	#   device is offered to grep.
+        local pre='^[[:space:]]*prefix[[:space:]]*[+?]?='
+        local Pre='^[[:space:]]*PREFIX[[:space:]]*[+?]?='
 
-        $EGREP "$re" /dev/null $(ls $makefile *.mk Makefile* 2> /dev/null)
-        status=$?
+	#   Some packages have directories: Makefile.inc/
+	#   Because this is builddir, all files are symlinks, so "ls -F"
+	#   reports "Makefile@". Ignore patch reject files.
 
-        if [ ! "$OPTION_PREFIX"  ] && [ "$status" = "0" ]; then
-            #  There was statement "prefix="
-            CygbuildEcho "-- Makefile may not use DESTDIR, adjusting \$prefix."
-            OPTION_PREFIX="automatic"       # global-def
-        else
+	ls -F | awk '
+	    ! /\.(orig|rej)/ && /(\.mk|[Mm]akefile).*@/ {
+		sub("@","");
+		print
+            }' > $retval
 
-            if MakefileUsesRedirect $makefile ; then
-                CygbuildEcho "-- Hm, Makefile seems to use redirect option -C"
-                return 0
-            fi
+	CygbuildEcho "-- Makefile may not use DESTDIR"
 
-            local file="$DIR_CYGPATCH/install.sh"
-            local msg
+	if [ -s $retval ]; then
 
-            if [ ! -f $file ]; then
-                msg=". You may need to write custom install.sh"
-            fi
+	    if $EGREP "$pre" $(< $retval) 2> /dev/null ; then
+		OPTION_PREFIX_MODE="automatic-prefix"
+		return 0
+	    fi
 
-            CygbuildWarn \
-                "-- [WARN] Makefile may not use variables 'DESTDIR'" \
-                "or 'prefix'$msg"
+	    if $EGREP "$Pre" $(< $retval) 2> /dev/null ; then
+		OPTION_PREFIX_MODE="automatic-PREFIX"
+		return 0
+	    fi
+	fi
 
-        fi
+	if MakefileUsesRedirect $makefile ; then
+	    CygbuildEcho "-- Hm, Makefile seems to use redirect option -C"
+	    return 0
+	fi
+
+	local file="$DIR_CYGPATCH/install.sh"
+	local msg
+
+	if [ ! -f $file ]; then
+	    msg=". You may need to patch makefile or write install.sh"
+	fi
+
+	CygbuildWarn \
+	    "-- [WARN] Makefile may not use variables 'DESTDIR'" \
+	    "or prefix/PREFIX$msg"
     fi
 }
 
@@ -6989,7 +7001,7 @@ function CygbuildMakefileRunInstallFixMain()
     CygbuildMakefileRunInstallFixInfo
 }
 
-function CygbuildMakefileRunInstall()
+function CygbuildMakefileRunInstallMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -7087,13 +7099,16 @@ function CygbuildMakefileRunInstall()
 
         CygbuildMakefilePrefixCheck "$makefile"
 
-        if [ "$OPTION_PREFIX" ]; then
+	local pvar="prefix"
 
-            #  Debian packages do not use DESTDIR, so the only
-            #  possibility to guide the installation process is to set
-            #  prefix for Makefile
+        if [[ "$OPTION_PREFIX_MODE" == *automatic-* ]]; then
+	    pvar=${OPTION_PREFIX_MODE#*-}  # automatic-PREFIX => PREFIX
 
+            #  Packages that do not use DESTDIR
             pfx="$instdir$CYGBUILD_PREFIX"
+
+	elif [ "$OPTION_PREFIX_MODE" ]; then	    # User option
+	    pfx="$instdir$OPTION_PREFIX_MODE"
         fi
 
         CygbuildConfigureOptionsExtra > $retval
@@ -7102,12 +7117,12 @@ function CygbuildMakefileRunInstall()
         #  GNU autoconf uses 'prefix'
 
         local docprefix="/$CYGBUILD_DOCDIR_PREFIX_RELATIVE"
-        pfx=${pfx%/}                        # remove trailing slash
+	pfx=${pfx%/}				    # remove trailing slash
 
-	local PFX="prefix=$pfx"
+	local PFX="$pvar=$pfx"
 
 	if ! CygbuildMakefilePrefixIsStandard "$makefile"; then
-	    CygbuildVerb "-- Adjusting PREFIX"
+	    CygbuildVerb "-- Use PREFIX variable"
 	    PFX="PREFIX=$pfx"
 	fi
 
@@ -11334,7 +11349,7 @@ function CygbuildCmdInstallMain()
         else
             CygbuildVerb "-- Running install to" ${dir/$srcdir\//}
 
-            CygbuildMakefileRunInstall ||
+            CygbuildMakefileRunInstallMain ||
             {
                 status=$?
                 CygbuildPopd
@@ -12105,8 +12120,7 @@ function CygbuildCommandMain()
     unset OPTION_FORCE              # global-def
     unset OPTION_GBS_COMPAT         # global-def
     unset OPTION_PASSPHRASE         # global-def
-    unset OPTION_PREFIX             # global-def
-    unset OPTION_PREFIX             # global-def
+    unset OPTION_PREFIX_MODE        # global-def
     unset OPTION_PREFIX_CYGBUILD    # global-def
     unset OPTION_PREFIX_CYGINST     # global-def
     unset OPTION_PREFIX_CYGSINST    # global-def
@@ -12222,7 +12236,7 @@ function CygbuildCommandMain()
                 ;;
 
             --install-prefix)
-                OPTION_PREFIX="$2"              # global-def
+                OPTION_PREFIX_MODE="$2"              # global-def
                 shift 2
                 ;;
 
@@ -12282,11 +12296,6 @@ function CygbuildCommandMain()
 
                 OPTION_SIGN="$2"                # global-def
                 shift 2
-                ;;
-
-            -P|-Prefix)
-                OPTION_PREFIX="yes";            # global-def
-                shift
                 ;;
 
             -t|--test)

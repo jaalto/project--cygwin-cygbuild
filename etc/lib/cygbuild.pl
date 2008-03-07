@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0306.1047';
+$VERSION = '2008.0307.1025';
 
 # ..................................................................
 
@@ -312,35 +312,6 @@ affects the manual pages and the usr/share/doc/*/ content.
 
 Signing pass phrase. In multiuser environment, consider security carefully
 before using this option.
-
-=item B<-P|--Prefix>
-
-Command B<[install]> supposes standard GNU C<./configure> where variable
-DESTDIR points to a root directory of installation. All packages do not
-include DESTDIR. A C<Makefile> may e.g. solely use variable C<prefix> to do
-the same. Look into C<Makefile> if it looks something like this:
-
-    prefix      = /usr/local             << Note: Absolute path here
-    exec_prefix = ${prefix}
-    mandir      = ${prefix}/man
-    bindir      = ${exec_prefix}/bin
-
-If so, with option B<-P> variable C<prefix> is changed instead of DESTDIR.
-The installation process is then able to put files under
-C<package-N.N/.inst/>.
-
-B<NOTE:> This options should be avoided and it may be removed. Currently
-program tries to detect if DESTDIR is supported by the Makefile and if not,
-automatically turn on option B<-P>. In practice it is better to modify
-C<Makefile> and add the C<DESTDIR> and change C<prefix> variable manually
-into:
-
-    DESTDIR         =
-    prefix          = /usr
-    exec_prefix     = $(prefix)
-    man_prefix      = $(prefix)/share
-    bindir          = $(DESTDIR)$(exec_prefix)/bin
-    mandir          = $(DESTDIR)$(man_prefix)/man/man1
 
 =item B<-r|--release RELEASE>
 

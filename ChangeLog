@@ -1,6 +1,10 @@
 2008-03-07  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/cygbuild.sh: (CygbuildCmdMkpatchMain): Remove j or z
+	* etc/lib/cygbuild.pl: Remove option -P|--prefix. Unneeded.
+
+	* bin/cygbuild.sh:
+	-- change variable $OPTION_PREFIX to OPTION_PREFIX_MODE
+	(CygbuildCmdMkpatchMain): Remove j or z
 	option check. Convert tar options to --long format.
 	(CygbuildTarDirectory): Fix tar directory detection. If there
 	were files that conatined spaces, the function failed. Moving
@@ -9,6 +13,11 @@
 	(CygbuildInstallFixDocdirInstall): Convert tar options to
 	--long format.
 	(CygbuildCmdDownloadCygwinPackage): Remove j or z option check.
+	(CygbuildCommandMain): Remove option -P|--prefix. Unneeded.
+	(CygbuildMakefileRunInstallMain): Rename. Was
+	`CygbuildMakefileRunInstall'. Obey --install-prefix option.
+	(CygbuildMakefilePrefixCheck): Rewrite logic how to
+	detect prefix= and PREFIX=.
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 
