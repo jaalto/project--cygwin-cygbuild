@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.0955"
+CYGBUILD_VERSION="2008.0307.0956"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -12787,10 +12787,6 @@ function TestRegression ()
     Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
     exit;
 }
-
-set -x
-CygbuildTarDirectory /usr/src/build/build/fdupes/fdupes_1.40.orig.tar.gz
-exit
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
