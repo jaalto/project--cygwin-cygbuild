@@ -37,6 +37,8 @@
 	(CygbuildCygcheckMain): Check is cygcheck is available.
 	(CygbuildPythonCheckImport): New.
 	(CygbuildPythonLibraryDependsMain): New.
+	(CygbuildBootVariablesGlobalMain): Remove *.egg-info from
+	from cygbuild_opt_exclude_object_files
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 
