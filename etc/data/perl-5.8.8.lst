@@ -1,5 +1,5 @@
-# This file is used to check CPAN module dependencies in perl programs.
-# Under Cygwin, result of command: cygcheck -l perl
+# This file is used to check Perl module dependencies.
+# Under Cygwin, result of command: cygcheck -l perl | perl -pe 's,\r,,'
 
 /usr/bin/a2p.exe
 /usr/bin/c2ph
