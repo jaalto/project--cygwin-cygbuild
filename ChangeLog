@@ -18,6 +18,11 @@
 	`CygbuildMakefileRunInstall'. Obey --install-prefix option.
 	(CygbuildMakefilePrefixCheck): Rewrite logic how to
 	detect prefix= and PREFIX=.
+	(CygbuildBootVariablesGlobalCachePython): New. Add
+	CYGBUILD_CACHE_PYTHON_FILES.
+	(CygbuildDefineGlobalPythonVersion): New.
+	(CygbuildPythonLibraryDependsCache): New.
+	(CygbuildPerlLibraryDependsCache): Improve lib search regexp.
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 

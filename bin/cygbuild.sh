@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.1111"
+CYGBUILD_VERSION="2008.0307.1216"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -519,6 +519,28 @@ function CygbuildBootVariablesId()
     CYGBUILD_PROG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
 }
 
+function CygbuildDefineGlobalPerlVersion()
+{
+    PERL_VERSION=$(                                 # global-def
+	perl --version |
+	awk '
+	    /This is perl/ {
+		ver = $4;
+		sub("v", "", ver);
+		print ver;
+	    }
+	'
+    )
+}
+
+function CygbuildDefineGlobalPythonVersion()
+{
+    PYTHON_VERSION=$(                               # global-def
+	python -V 2>&1 |
+	awk '{print $2}'
+    )
+}
+
 function CygbuildBootVariablesCache()
 {
     #	Private: CACHE VARIABLES; remember last function call values
@@ -607,11 +629,30 @@ function CygbuildBootVariablesGlobalCachePerl()
     else
         CygbuildVerb "-- [WARN] No Perl cache avalable."
     fi
+
+}
+
+function CygbuildBootVariablesGlobalCachePython()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    [ "$PYTHON_VERSION" ] || CygbuildDefineGlobalPythonVersion
+
+    local file="$dir/python-$PYTHON_VERSION.lst"
+    CYGBUILD_CACHE_PYTHON_FILES=				# global-def
+
+    if [ -s "$file" ]; then
+	CYGBUILD_CACHE_PYTHON_FILES="$file"			# global-def
+    else
+        CygbuildVerb "-- [WARN] No Pythin cache avalable."
+    fi
 }
 
 function CygbuildBootVariablesGlobalCacheSet()
 {
-    CygbuildBootVariablesGlobalCachePerl "$1"
+    CygbuildBootVariablesGlobalCachePerl   "$1"
+    CygbuildBootVariablesGlobalCachePython "$1"
 }
 
 function CygbuildBootVariablesGlobalLibSet()
@@ -1302,6 +1343,52 @@ function CygbuildFileSize ()
     )
 }
 
+function CygbuildPythonLibraryDependsCache()
+{
+    local cache="$CYGBUILD_CACHE_PYTHON_FILES"
+
+    [ "$cache" ] || return 0
+
+    #	Call arguments are library names, like feedparser, html2text
+
+    perl -e \
+    '
+	$cache = shift @ARGV;
+
+	-f $cache or
+	    die "Invalid cache file: $cache => @ARGV";
+
+	open my $FILE, "< $cache" or
+	    die "Cannot open cache: $cache $!";
+
+	$CACHE = join "", <$FILE>;
+	close $FILE;
+
+	#   Remove duplicates
+
+	@hash{@ARGV} = 1;
+
+	#   /usr/lib/python2.5/lib-dynload/_socket.dll
+	#   /usr/lib/python2.5/ctypes/macholib/__init__.py
+	#   /usr/lib/python2.5/email/feedparser.py
+
+	for my $module ( sort keys %hash )
+	{
+	    $lib   = $module;
+	    $type  = "Ext";
+	    $path  = "";
+
+	    if ( $CACHE =~ m,^(/usr/lib/python[\d.]+.*/$lib\b.*),m )
+	    {
+		$type = "Std";
+		$path = $1;
+	    }
+
+	    printf "%-5s %-20s $path\n", $type, $module;
+	}
+    ' "$cache" "$@"
+}
+
 function CygbuildPerlLibraryDependsGuess()
 {
     #	Call arguments are library names, like MIME::Base64.
@@ -1319,7 +1406,7 @@ function CygbuildPerlLibraryDependsGuess()
 		next unless -d ;
 
 		next if m,/\w+_perl/, ; # exclude site_perl, vendor_perl
-		next unless m,/perl5/,;
+		next unless m,/perl\d/,;
 
 		$path = "$_/$lib.pm";
 		$type = "Std";
@@ -1346,10 +1433,10 @@ function CygbuildPerlLibraryDependsCache()
 	$cache = shift @ARGV;
 
 	-f $cache or
-	    die "Invalid perl cache file: $cache => @ARGV";
+	    die "Invalid cache file: $cache => @ARGV";
 
 	open my $FILE, "< $cache" or
-	    die "Cannot open Perl cache: $cache $!";
+	    die "Cannot open cache: $cache $!";
 
 	$CACHE = join "", <$FILE>;
 	close $FILE;
@@ -1365,7 +1452,7 @@ function CygbuildPerlLibraryDependsCache()
 	    $type  = "CPAN";
 	    $path  = "";
 
-	    if ( $CACHE =~ m,^(/usr/lib/perl5/.*$lib.*),m )
+	    if ( $CACHE =~ m,^(/usr/lib/perl[\d.]+/.*$lib.*),m )
 	    {
 		$type = "Std";
 		$path = $1;
@@ -3378,20 +3465,6 @@ function CygbuildFileReadOptionsMaybe()
 #
 #######################################################################
 
-function CygbuildDefineGlobalPerlVersion()
-{
-    PERL_VERSION=$(                                 # global-def
-	perl --version |
-	awk '
-	    /This is perl/ {
-		ver = $4;
-		sub("v", "", ver);
-		print ver;
-	    }
-	'
-    )
-}
-
 function CygbuildDefineGlobalCommands()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -3448,9 +3521,7 @@ function CygbuildDefineGlobalCommands()
 
     PYTHON_PATH="$tmp"				    # global-def
 
-    PYTHON_VERSION=$(                               # global-def
-	python -V 2>&1 |
-	awk '{print $2}' )
+    CygbuildDefineGlobalPythonVersion
 
     local minor=$PYTHON_VERSION                     # global-def
 
@@ -7122,7 +7193,7 @@ function CygbuildMakefileRunInstallMain()
 	local PFX="$pvar=$pfx"
 
 	if ! CygbuildMakefilePrefixIsStandard "$makefile"; then
-	    CygbuildVerb "-- Use PREFIX variable"
+	    CygbuildVerb "-- Using PREFIX variable"
 	    PFX="PREFIX=$pfx"
 	fi
 

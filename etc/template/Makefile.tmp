@@ -78,7 +78,9 @@ $(EXE): $(OBJS)
 
 clean:
 	# clean
-	-rm -f *[#~] *.\#* *.o *.exe core *.stackdump $(PACKAGE) *.exe
+	-rm -f *[#~] *.\#* *.o core \
+	*.pyc *.elc \
+	*.exe *.stackdump *.exe $(PACKAGE)
 
 distclean: clean
 
