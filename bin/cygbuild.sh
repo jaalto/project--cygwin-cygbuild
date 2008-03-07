@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.1816"
+CYGBUILD_VERSION="2008.0307.1828"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1376,7 +1376,7 @@ def Check(list):
 
 Check(sys.argv[2:])
 
-    ' "${verbose:+1}" "$@"
+    ' "${debug:+1}" "$@"
 }
 
 function CygbuildPythonLibraryDependsCache()
@@ -1486,7 +1486,7 @@ function CygbuildPythonLibraryList()
 
 	print join " ", sort keys %hash;
 	exit
-    ' "${verbose:+1}" "$@"
+    ' "${debug:+1}" "$@"
 }
 
 function CygbuildPerlLibraryDependsGuess()
