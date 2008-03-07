@@ -1,3 +1,11 @@
+2008-03-08  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildInstallFixDocdirInstall): Ensure that target directory for
+	tar move exists.
+
+	* etc/template/setup.py.tmp: New file.
+
 2008-03-07  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/cygbuild.pl: Remove option -P|--prefix. Unneeded.
@@ -39,6 +47,10 @@
 	(CygbuildPythonLibraryDependsMain): New.
 	(CygbuildBootVariablesGlobalMain): Remove *.egg-info from
 	from cygbuild_opt_exclude_object_files
+	(CygbuildMakefileRunInstallPythonFix): Remove subshell call.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Remove subshell call.
+	(CygbuildInstallFixPermissions): New.
+	(CygbuildInstallFixMain): Use `CygbuildInstallFixPermissions'.
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 

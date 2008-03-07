@@ -16,7 +16,10 @@ setup(name='program',
       """,
       scripts = [''],
       packages = ['''],
-      data_files = [('share/package/templates', glob.glob('templates/*.tmpl'))],
+      data_files = [('share/doc/package/templates',
+			glob.glob('templates/*.tmpl'))],
+		    ('share/doc/package/examples',
+			['package.conf'])],
 
 """
       package_dir={'lib.plugins.email':'.',

@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.1924"
+CYGBUILD_VERSION="2008.0307.2226"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3273,7 +3273,7 @@ function CygbuildFilesExecutable()
 
 #    set -o noglob
 
-        find -L $dir           \
+        find -L $dir            \
         -type f                 \
         '('                     \
             -name "*.exe"       \
@@ -4582,7 +4582,7 @@ function CygbuildSignCleanAllMaybe()
     #   If signing option is not on, clean old sign files.
 
     if [ ! "$OPTION_SIGN" ]; then
-        if find $dir -name "*.$sigext" > $retval ; then
+        if find -L $dir -name "*.$sigext" > $retval ; then
             CygbuildFileCleanNow                \
                 "-- Removing old *.$sigext files"
                 "$(< $retval)"
@@ -4770,7 +4770,7 @@ function CygbuildGPGsignMain()
     set -o noglob
 
         local files
-        find $srcinstdir                   \
+        find -L $srcinstdir                 \
             -type f                         \
             '(' -name "$PKG-$VER-$REL*"     \
                 -a \! -name "*$sigext"      \
@@ -6854,6 +6854,7 @@ compileall.compile_dir(dir, force=1)
 function CygbuildMakefileRunInstallPythonFix()
 {
     local id="$0.CygbuildMakefileRunInstallPythonFix"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local root="$instdir$CYGBUILD_PREFIX"
     local dir dest
 
@@ -6904,7 +6905,8 @@ function CygbuildMakefileRunInstallPythonFix()
 
     local list rmlist
 
-    rmlist=$(find $instdir -type f -name "*.pyc")
+    find $instdir -type f -name "*.pyc" > $retval
+    rmlist=$(< $retval)
 
     if [ "$rmlist" ]; then
         list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
@@ -9214,10 +9216,12 @@ function CygbuildInstallExtraManualCompress()
         CygbuildWarn "-- [WARN] Directory not found:" ${instdocdir#$srcdir/}
     else
 
-        find $instdocdir -type f \
-            '(' \
-            ! -name "*gz" -a ! -name "*.bz2"  \
-            ')' \
+	find $instdocdir	    \
+	    -type f		    \
+	    '('			    \
+		! -name "*gz"	    \
+		-a ! -name "*.bz2"  \
+	    ')'			    \
             > $retval
 
         if [ -s $retval ]
@@ -9358,6 +9362,30 @@ function CygbuildInstallFixPermissions()
 
     [ "$exeList"  ] && chmod 755 $exeList
     [ "$readList" ] && chmod 644 $readList
+}
+
+function CygbuildInstallFixFileExtensions()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    find "$instdir/usr/bin" \
+	-name f		    \
+	-name "*.rb"	    \
+	-o -name "*.py"	    \
+	-o -name "*.pl"	    \
+	> $retval
+
+    [ -s $retval ] || return 0
+
+    local file new
+
+    while read file
+    do
+	CygbuildEcho "-- [NOTE] Removing extension from" ${file#$instdir/}
+	new=${file%.*}
+	mv "$file" "$new"
+    done < $retval
 }
 
 function CygbuildInstallFixInterpreterPerl ()
@@ -9516,6 +9544,7 @@ function CygbuildInstallFixDocdirInstall()
 
     if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- . |
 	 {
+	    mkdir -p "$dest"			        &&
 	    tar --directory "$dest" --extract --file=-  &&
 	    rm -rf "$pkgdocdir" ;
 	 }
@@ -9728,6 +9757,7 @@ function CygbuildInstallFixMain()
     CygbuildInstallFixInterpreterMain
     CygbuildInstallFixPerlPacklist
     CygbuildInstallFixMandir
+    CygbuildInstallFixFileExtensions
     CygbuildInstallFixPermissions
 }
 
@@ -10082,7 +10112,7 @@ function CygbuildCmdInstallCheckTempFiles()
     local ignore="$CYGBUILD_IGNORE_ZERO_LENGTH"
     local done file ret
 
-    find -L $dir -type f            \
+    find -L $dir -type f               \
         '(' -size 0 -name "*[#~]*" ')' \
         > $retval
 
@@ -10108,7 +10138,7 @@ function CygbuildCmdInstallCheckMakefiles()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local done file ret
 
-    find -L "$builddir" -type f    \
+    find -L "$builddir" -type f     \
         '(' -name Makefile          \
             -o -name makefile       \
             -o -name GNUMakefile    \
@@ -10696,7 +10726,7 @@ function CygbuildCmdInstallCheckManualPages()
         return 0
     fi
 
-    find -L $dir                   \
+    find -L $dir                    \
         -type f                     \
         '('                         \
             -path    "*/man/*"      \
@@ -10821,7 +10851,7 @@ function CygbuildCmdInstallCheckPkgDocdir()
     local dir="$instdir"
     local cygdoc="$DIR_DOC_GENERAL"
 
-    find -L $dir                        \
+    find -L $dir                         \
         -type f                          \
         '(' -path   "*/$pfx/doc/*"   ')' \
         > $retval
@@ -11192,7 +11222,7 @@ function CygbuildCmdInstallCheckLibFiles()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    find -L $dir -type f           \
+    find -L $dir -type f            \
         '(' -name "*.a"             \
             -o -name "*.la"         \
             -o -name "*.dll" ')'    \
@@ -11315,20 +11345,25 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
     local file
 
-    find $dir \
-    -type d '(' -name ".bzr" \
-                -o -name ".git" \
-                -o -name ".svn" \
-                -o -name ".hg" \
-                -o -name "_MTN" \
-                -o -name "RCS" \
-                -o -name "CVS" ')' -prune  \
-    -o -type f \
-        '(' \
-        ! -name "*.tmp" \
-        ! -name "*[#~]*" \
-        ')' \
-    |
+    find $dir			    \
+	-type d			    \
+	    '(' -name ".bzr"	    \
+		    -o -name ".git" \
+		    -o -name ".svn" \
+		    -o -name ".hg"  \
+		    -o -name "_MTN" \
+		    -o -name "RCS"  \
+		    -o -name "CVS"  \
+		')' -prune	    \
+	-o -type f		    \
+	    '('			    \
+		! -name "*.tmp"	    \
+		! -name "*[#~]*"    \
+	    ')'			    \
+	> $retval.list
+
+    [ -s $retval.list ] || return 0
+
     while read file
     do
         [[ "$file" == *@(patch|diff|orig) ]] && continue
@@ -11347,7 +11382,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
             CygbuildWarn "-- [WARN] Possible unfilled template line in $file"
             sed 's/^/     /' $retval
         fi
-    done
+    done < $retval.list
 }
 
 function CygbuildCmdInstallCheckMain()
@@ -11643,13 +11678,13 @@ function CygbuildStripCheck()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local file
 
     find $instdir \
         -type f '(' -name "*.exe" -o -name "*dll" ')' \
         | head -1 \
         > $retval
 
+    local file
     [ -s $retval ] && file=$(< $retval)
 
     if [ ! "$file" ]; then
