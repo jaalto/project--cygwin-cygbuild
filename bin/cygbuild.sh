@@ -42,7 +42,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.1216"
+CYGBUILD_VERSION="2008.0307.1332"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1368,6 +1368,7 @@ function CygbuildPythonLibraryDependsCache()
 
 	@hash{@ARGV} = 1;
 
+	#   import sys => /usr/include/python2.5/sysmodule.h
 	#   /usr/lib/python2.5/lib-dynload/_socket.dll
 	#   /usr/lib/python2.5/ctypes/macholib/__init__.py
 	#   /usr/lib/python2.5/email/feedparser.py
@@ -1378,7 +1379,8 @@ function CygbuildPythonLibraryDependsCache()
 	    $type  = "Ext";
 	    $path  = "";
 
-	    if ( $CACHE =~ m,^(/usr/lib/python[\d.]+.*/$lib\b.*),m )
+	    if ( $CACHE =~ m,^(.*/lib/python[\d.]+.*/$lib\b.*),m
+		 or $CACHE =~ m,^.*/include/.*${lib}module\.h,m )
 	    {
 		$type = "Std";
 		$path = $1;
@@ -1387,6 +1389,55 @@ function CygbuildPythonLibraryDependsCache()
 	    printf "%-5s %-20s $path\n", $type, $module;
 	}
     ' "$cache" "$@"
+}
+
+function CygbuildPythonLibraryList()
+{
+    [ "$1" ] || return 0
+
+    #	import sys
+    #	from config import *
+    #   from email.MIMEText import MIMEText
+    #   import cPickle as pickle, md5, time, os, traceback, urllib2, sys, types
+    #	import mimify; from StringIO import StringIO as SIO;
+
+    perl -ne '
+	$debug = 0;
+
+	$_ = join "", <>;
+
+	while ( /(from\s+(\S+)\s+import)/gm )
+	{
+	    $debug  and  print "A: [$2] => $1\n";
+	    $hash{$2} = 1;
+	}
+
+	while ( /^((?!\s*#)\s*import\s+(\S+[^\s[:punct:]])([^;\r\n]*))/gm )
+	{
+	    $hash{$2} = 1;
+	    $debug  and  print "B: [$2] => $1\n";
+
+	    # [Handle cases like]
+	    # import cPickle as pickle, md5, time, os, traceback, urllib2
+
+	    $list = $3;
+	    $list =~ s/\s+as\s+\S+\s*//g;
+
+	    next unless $list;
+
+	    $list =~ s/\s+//g;
+	    $debug  and  print "L: [$list]\n";
+
+	    @libs = split /,/, $list;
+
+	    $debug  and  print "L: @libs\n";
+
+	    @hash{@libs} = (1) x @libs;
+	}
+
+	print join " ", sort keys %hash;
+	exit
+    ' "$@"
 }
 
 function CygbuildPerlLibraryDependsGuess()
@@ -1417,7 +1468,6 @@ function CygbuildPerlLibraryDependsGuess()
 	}
     ' "$@"
 }
-
 
 function CygbuildPerlLibraryDependsCache()
 {
@@ -10877,8 +10927,28 @@ function CygbuildCmdInstallCheckPerlLibraries()
     CygbuildPerlLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
-	CygbuildEcho "-- Approx. possible Perl Libries in" ${file#$srcdir/}
-	cat $deps
+	CygbuildEcho "-- Possible libary deps in" ${file#$srcdir/}
+	sort -r $deps	    # CPAN last
+    fi
+}
+
+function CygbuildCmdInstallCheckPythonLibraries()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local deps="$retval.depends"
+    local file="$1"
+
+    [ "$verbose" ] || return 0
+
+    CygbuildPythonLibraryList "$file" > $retval
+    [ -s "$retval" ] || return 0
+
+    CygbuildPythonLibraryDependsCache $(< $retval) > $deps
+
+    if [ -s "$deps" ]; then
+	CygbuildEcho "-- possible library deps in" ${file#$srcdir/}
+	sort -r $deps	    # Extesions last
     fi
 }
 
@@ -10943,7 +11013,7 @@ function CygbuildCmdInstallCheckBinFiles()
     #   FIXME: Currently every file in /bin is supposed to be executable
     #   This may not be always true?
 
-    find -L $dir -type f       \
+    find -L $dir -type f        \
         \(                      \
            -path "*/bin/*"      \
            -o -path "*/sbin/*"  \
@@ -11002,8 +11072,7 @@ function CygbuildCmdInstallCheckBinFiles()
         fi
 
 	if [[ "$file" == *.@(py|pyc|pl|rb) ]]; then
-	    CygbuildWarn "-- [WARN] Extension found. $_file"
-	    continue
+	    CygbuildWarn "-- [WARN] Drop extension from $_file"
 	fi
 
         #   Sometimes package includes compiled binaries for Linux.
@@ -11043,18 +11112,6 @@ function CygbuildCmdInstallCheckBinFiles()
                  "for $name"
             status=1
 
-        elif [[ "$str" == *perl*   ]]; then
-
-            head -1 "$file" > $retval.1st
-
-            if ! $EGREP --quiet "$plbin([ \t]|$)" $retval.1st
-            then
-                CygbuildWarn "-- [WARN] possibly wrong Perl call" \
-                     "in $_file: $(cat $retval.1st)"
-            fi
-
-	    CygbuildCmdInstallCheckPerlLibraries "$file"
-
         elif [[ "$str" == *python* ]] && [[ ! $depends == *python* ]]  ; then
             CygbuildEcho "-- [ERROR] setup.hint may need Python dependency" \
                  "for $name"
@@ -11065,8 +11122,25 @@ function CygbuildCmdInstallCheckBinFiles()
                  "for $name"
             status=1
 
-        elif [[ "$str" == *python* ]]; then
+        fi
 
+        # ................................................ Perl libs ...
+
+        if [[ "$str" == *perl*   ]]; then
+            head -1 "$file" > $retval.1st
+
+            if ! $EGREP --quiet "$plbin([ \t]|$)" $retval.1st
+            then
+                CygbuildWarn "-- [WARN] possibly wrong Perl call" \
+                     "in $_file: $(cat $retval.1st)"
+            fi
+
+	    CygbuildCmdInstallCheckPerlLibraries "$file"
+	fi
+
+        # .............................................. Python libs ...
+
+        if [[ "$str" == *python* ]]; then
             head -1 "$file" > $retval.1st
 
             if ! $EGREP --quiet "$pybin([ \t]|$)" $retval.1st
@@ -11075,7 +11149,8 @@ function CygbuildCmdInstallCheckBinFiles()
                      "in $_file: $(cat $retval.1st)"
             fi
 
-        fi
+	    CygbuildCmdInstallCheckPythonLibraries "$file"
+	fi
 
         if [ "$verbose"  ]; then
             str=${str##*:}          # Remove path
@@ -12867,6 +12942,9 @@ function TestRegression ()
     Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
     exit;
 }
+
+# CygbuildPythonLibraryList /usr/src/build/build/rss2email/rss2email-2.62/.inst/usr/bin/rss2email.py
+# exit
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"

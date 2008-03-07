@@ -23,6 +23,12 @@
 	(CygbuildDefineGlobalPythonVersion): New.
 	(CygbuildPythonLibraryDependsCache): New.
 	(CygbuildPerlLibraryDependsCache): Improve lib search regexp.
+	(CygbuildCmdInstallCheckPythonLibraries): New.
+	(CygbuildPythonLibraryList): New.
+	(CygbuildCmdInstallCheckBinFiles): Add python library check.
+	Moved Perl library code check to its own case. Removed
+	`continue' from file extension check if-statement.
+	(CygbuildCmdInstallCheckPerlLibraries): Sort dependencies.
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 
