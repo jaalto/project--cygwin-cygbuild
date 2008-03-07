@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.2226"
+CYGBUILD_VERSION="2008.0307.2311"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9378,14 +9378,40 @@ function CygbuildInstallFixFileExtensions()
 
     [ -s $retval ] || return 0
 
-    local file new
+    local file name new re regexp
 
     while read file
     do
 	CygbuildEcho "-- [NOTE] Removing extension from" ${file#$instdir/}
+
+	name=${file##*/}
 	new=${file%.*}
 	mv "$file" "$new"
+
+	CygbuildStrToRegexpSafe "$name" > $retval.re
+	re=$(< $retval.re)
+
+	if [ "$regexp" ]; then
+	    regexp="$regexp|\<$re\>"
+	else
+	    regexp="\<$re\>"
+	fi
+
     done < $retval
+
+    #	See if the above change needs chnages in documentation
+
+    $EGREP --recursive --files-with-matches \
+	"$regexp"			    \
+	"$instdir/usr/share/doc"	    \
+	"$instdir/usr/share/man"	    \
+	> $retval			    \
+	2> /dev/null			    \
+
+    [ -s $retval ] || return 0
+
+    CygbuildWarn "-- [WARN] Docs that refer to files with the extention"
+    sed "s,$srcdir,," $retval
 }
 
 function CygbuildInstallFixInterpreterPerl ()

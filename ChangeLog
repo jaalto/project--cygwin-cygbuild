@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh:
 	(CygbuildInstallFixDocdirInstall): Ensure that target directory for
 	tar move exists.
+	(CygbuildInstallFixFileExtensions): check documentation for
+	filenames.
 
 	* etc/template/setup.py.tmp: New file.
 
