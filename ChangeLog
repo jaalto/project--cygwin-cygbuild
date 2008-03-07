@@ -32,6 +32,11 @@
 	(CygbuildBootVariablesGlobalMain): From
 	`cygbuild_opt_exclude_object_files' remove *.egg-info. This is
 	essential Python install information file.
+	(CygbuildCygcheckLibraryDepAdjustOld): Remove unused function.
+	(CygbuildStripCR): new.
+	(CygbuildCygcheckMain): Check is cygcheck is available.
+	(CygbuildPythonCheckImport): New.
+	(CygbuildPythonLibraryDependsMain): New.
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 

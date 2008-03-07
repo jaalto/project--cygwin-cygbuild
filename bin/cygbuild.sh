@@ -37,12 +37,15 @@
 #       o   Global variables ARE_LIKE_THIS and local variables are areLikeThis
 #       o   GNU programs are required. grep(1), egrep(1), awk(1) etc.
 #
+#   Other notes
+#
+#	o   cygcheck, cygpath are a MingW application and output CRLF
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.1332"
+CYGBUILD_VERSION="2008.0307.1816"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -142,6 +145,11 @@ function CygbuildRunIfExist()
 function CygbuildDate()
 {
     date "+%Y%m%d%H%M"
+}
+
+function CygbuildStripCR ()
+{
+    sed -e "s,\r,,"
 }
 
 function CygbuildPathBinFast()
@@ -1343,11 +1351,39 @@ function CygbuildFileSize ()
     )
 }
 
+function CygbuildPythonCheckImport()
+{
+    local id="$0.$FUNCNAME"
+
+    #	Returns list of import targets that are not known
+    #	Do not look under site-packages
+
+    python -c '
+
+import sys
+sys.path.remove("/usr/lib/python2.5/site-packages")
+
+verbose = sys.argv[1]
+
+def Check(list):
+    for name in list:
+	if verbose:
+	    print >>sys.stderr, ("Check %s" % name)
+	try:
+	    __import__(name)
+	except ImportError:
+	    print name
+
+Check(sys.argv[2:])
+
+    ' "${verbose:+1}" "$@"
+}
+
 function CygbuildPythonLibraryDependsCache()
 {
     local cache="$CYGBUILD_CACHE_PYTHON_FILES"
 
-    [ "$cache" ] || return 0
+    [ -f "$cache" ] || return 0
 
     #	Call arguments are library names, like feedparser, html2text
 
@@ -1391,6 +1427,14 @@ function CygbuildPythonLibraryDependsCache()
     ' "$cache" "$@"
 }
 
+function CygbuildPythonLibraryDependsMain()
+{
+    # First attempt: You really can't look into Python installation
+    # CygbuildPythonLibraryDependsCache "$@"
+
+    CygbuildPythonCheckImport "$@"
+}
+
 function CygbuildPythonLibraryList()
 {
     [ "$1" ] || return 0
@@ -1401,21 +1445,26 @@ function CygbuildPythonLibraryList()
     #   import cPickle as pickle, md5, time, os, traceback, urllib2, sys, types
     #	import mimify; from StringIO import StringIO as SIO;
 
-    perl -ne '
-	$debug = 0;
+    perl -e '
+	$debug = shift @ARGV;
+	$file  = shift @ARGV;
 
-	$_ = join "", <>;
+	open my $FH, "< $file"  or  die "$!";
+
+	binmode $FH;
+	$_ = join "", <$FH>;
+	close $FH;
 
 	while ( /(from\s+(\S+)\s+import)/gm )
 	{
-	    $debug  and  print "A: [$2] => $1\n";
+	    $debug  and  warn "A: [$2] => $1\n";
 	    $hash{$2} = 1;
 	}
 
 	while ( /^((?!\s*#)\s*import\s+(\S+[^\s[:punct:]])([^;\r\n]*))/gm )
 	{
 	    $hash{$2} = 1;
-	    $debug  and  print "B: [$2] => $1\n";
+	    $debug  and  warn "B: [$2] => $1\n";
 
 	    # [Handle cases like]
 	    # import cPickle as pickle, md5, time, os, traceback, urllib2
@@ -1426,18 +1475,18 @@ function CygbuildPythonLibraryList()
 	    next unless $list;
 
 	    $list =~ s/\s+//g;
-	    $debug  and  print "L: [$list]\n";
+	    $debug  and  warn "L: [$list]\n";
 
 	    @libs = split /,/, $list;
 
-	    $debug  and  print "L: @libs\n";
+	    $debug  and  warn "L: @libs\n";
 
 	    @hash{@libs} = (1) x @libs;
 	}
 
 	print join " ", sort keys %hash;
 	exit
-    ' "$@"
+    ' "${verbose:+1}" "$@"
 }
 
 function CygbuildPerlLibraryDependsGuess()
@@ -1473,7 +1522,7 @@ function CygbuildPerlLibraryDependsCache()
 {
     local cache="$CYGBUILD_CACHE_PERL_FILES"
 
-    [ "$cache" ] || return 0
+    [ -f "$cache" ] || return 0
 
     #	Call arguments are library names, like MIME::Base64.
     #	Output's first word is 'Std' or 'CPAN' to identify the module.
@@ -1786,43 +1835,6 @@ CygbuildCygcheckLibraryDepSource ()
     fi
 }
 
-function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
-{
-    local id="$0.$FUNCNAME"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local file="$1"     # modifes file directly
-
-    local setup="$DIR_CYGPATCH/setup.hint"
-    local list lib
-
-    # You *CAN*T tell all these deps from the indented level
-    # See discussion
-    # http://cygwin.com/ml/cygwin-apps/2007-08/msg00215.html
-    #
-    # D:\cygwin\bin\cygintl-8.dll
-    #   D:\cygwin\bin\cygiconv-2.dll
-
-    sed 's/ \+/- /' "$file" > $retval  # convert leading spaces to "-"
-
-    [ -s $retval ] || return 1
-
-    while read minus lib
-    do
-        if [ "$minus" = "-" ]; then
-            list="$list $lib"
-            CygbuildFileDeleteLine "$lib" "$file" || return 1
-        fi
-    done < $retval
-
-    for lib in $list
-    do
-        if $EGREP --quiet "^ *requires:.*\b$lib" $setup
-        then
-            CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
-        fi
-    done
-}
-
 function CygbuildCygcheckLibraryDepAdjust()
 {
     local id="$0.$FUNCNAME"
@@ -2007,29 +2019,29 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ ! "$CYGCHECK" ]; then
-        CygbuildWarn "$id: cygcheck not available. Skipped"
+        CygbuildVerb "-- [NOTE] cygcheck not available. Skipped"
 	return 1
     fi
-
+set -x
     local file
 
     for file in "$@"
     do
+	if [[ ! "$file" == /* ]]; then
+	    CygbuildWhich "$file" > $retval
+	    [ -s $retval ] && file=$(< $retval)
+	fi
 
-      if [[ ! "$file" == /* ]]; then
-          CygbuildWhich "$file" > $retval
-          [ -s $retval ] && file=$(< $retval)
-      fi
+	if [ ! -f "$file" ]; then
+	    CygbuildWarn "-- [WARN] No such file: $file"
+	    continue
+	fi
 
-      if [ ! -f "$file" ]; then
-          CygbuildWarn "-- [WARN] No such file: $file"
-          continue
-      fi
-
-      # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
-      $CYGCHECK -f $file | sed 's/-[0-9].*//'
+	# xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
+	$CYGCHECK -f $file | sed -e 's,-[0-9].*,,'
 
     done | sort --unique
+exit 888
 }
 
 CygbuildCygcheckLibraryDepGrepPgkNamesMain()
@@ -2102,13 +2114,17 @@ function CygbuildCygcheckMain()
 
     CygbuildCygcheckLibraryDepSource
 
+    [ "$CYGCHECK" ] || return 0
+    [ "$CYGPATH" ] || return 0
+set -x
     for file in "$@"
     do
 	file=${file#$srcdir/}		# Make relative path
 
 	if [[ "$file" == /* ]]; then
 	    #  Change / => \  FIXME: Is this really needed?
-	    file=$( $CYGPATH -w $file)
+	    $CYGPATH -w "$file" | CygbuildStripCR > $retval
+	    file=$(< $retval)
 	else
 	    file=${file//\+/\/}
 	fi
@@ -2120,6 +2136,7 @@ function CygbuildCygcheckMain()
 
 	CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
+exit 999
 }
 
 function CygbuildCheckRunDir()
@@ -10944,7 +10961,7 @@ function CygbuildCmdInstallCheckPythonLibraries()
     CygbuildPythonLibraryList "$file" > $retval
     [ -s "$retval" ] || return 0
 
-    CygbuildPythonLibraryDependsCache $(< $retval) > $deps
+    CygbuildPythonLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
 	CygbuildEcho "-- possible library deps in" ${file#$srcdir/}
@@ -10978,7 +10995,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
     #  All exe files must have +x permission
 
-    find -L $dir           \
+    find -L $dir            \
     '(' -name \*.sh         \
         -o -name \*.exe     \
         -o -name "*.dll"    \
@@ -12942,9 +12959,6 @@ function TestRegression ()
     Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
     exit;
 }
-
-# CygbuildPythonLibraryList /usr/src/build/build/rss2email/rss2email-2.62/.inst/usr/bin/rss2email.py
-# exit
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
