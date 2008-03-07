@@ -29,6 +29,9 @@
 	Moved Perl library code check to its own case. Removed
 	`continue' from file extension check if-statement.
 	(CygbuildCmdInstallCheckPerlLibraries): Sort dependencies.
+	(CygbuildBootVariablesGlobalMain): From
+	`cygbuild_opt_exclude_object_files' remove *.egg-info. This is
+	essential Python install information file.
 
 2008-03-06  Jari Aalto  <jari.aalto@cante.net>
 
