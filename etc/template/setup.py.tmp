@@ -1,7 +1,15 @@
 #!/usr/bin/python
 
-from distutils.core import setup
 import glob
+from distutils.core import setup
+from distutils.core import setup
+from shutil import copy2
+from os import unlink
+
+def rename(a, b):
+    # Cygwin safe rename
+    copy2(a,b)
+    unlink(a)
 
 setup(name='program',
       description='',

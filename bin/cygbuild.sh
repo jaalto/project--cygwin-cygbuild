@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0307.2311"
+CYGBUILD_VERSION="2008.0308.1136"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -286,6 +286,16 @@ function CygbuildIsNumber()
 function CygbuildIsNumberLike()
 {
     CygbuildMatchRegexp '[0-9]' "$1"
+}
+
+function CygbuildIsCygwin()
+{
+    [ -d /cygdrive/c ]
+}
+
+function CygbuildIsLinux()
+{
+    [ -d /boot/vmlinuz ]
 }
 
 #######################################################################
@@ -1672,6 +1682,12 @@ function CygbuildFindDo()
 	    -o -name ".build"	        \
 	    -o -name "debian"	        \
 	    -o -name "CYGWIN-PATCHES"	\
+	    -o -name ".bzr"		\
+	    -o -name ".git"		\
+	    -o -name ".hg"		\
+	    -o -name ".darcs"		\
+	    -o -name ".svn"		\
+	    -o -name "CVS"		\
 	    ')'			        \
 	-prune			        \
 	-a ! -name ".inst"              \
@@ -1679,6 +1695,12 @@ function CygbuildFindDo()
 	-a ! -name ".build"             \
 	-a ! -name "debian"             \
 	-a ! -name "CYGWIN-PATCHES"     \
+	-a ! -name ".bzr"		\
+	-a ! -name ".git"		\
+	-a ! -name ".hg"		\
+	-a ! -name ".darcs"		\
+	-a ! -name ".svn"		\
+	-a ! -name "CVS"		\
 	"$@"
 }
 
@@ -1821,16 +1843,42 @@ CygbuildCygcheckLibraryDepList ()
 CygbuildCygcheckLibraryDepSource ()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local done
 
-    #  Sometimes programs have direct shell calls like
+    #  Programs may have direct shell calls like
     #
     #  execvp("/bin/diff")
 
-    if find "$builddir" -name "*.c" -o -name "*.cc" |
-       $EGREP "^[^/]*exec[a-z]* *\("
+    CygbuildFindDo "${builddir#$srcdir/}" \
+	-name "*.c"		\
+	-o -name "*.cc"		\
+	-o -name "*.cpp"	\
+	> $retval
+
+    if [ -s $retval ] &&
+       $EGREP --line-number "^[^/]*exec[a-z]* *\(" $retval
     then
-        CygbuildWarn "-- [WARN] External shell call detected." \
-          "More dependencies may be needed (for an example: binutils)"
+        CygbuildWarn "-- [WARN] Possible external dep needed."
+	done="done"
+    fi
+
+    local
+
+    find "${instdir#$srcdir/}"	    \
+	-type f			    \
+	\(			    \
+	    ! -path "*/doc/*"	    \
+	    -a ! -path "*/man/*"    \
+	\)			    \
+	> $retval
+
+    [ -s $retval ] || return 0
+
+    if	$EGREP --line-number "^[^#]*(SMTPSERVER|SMTP_SERVER)" \
+	$retval
+    then
+        [ "$done" ] || CygbuildWarn "-- [WARN] Possible external dep."
     fi
 }
 
@@ -2021,7 +2069,7 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
         CygbuildVerb "-- [NOTE] cygcheck not available. Skipped"
 	return 1
     fi
-set -x
+
     local file
 
     for file in "$@"
@@ -2040,7 +2088,6 @@ set -x
 	$CYGCHECK -f $file | sed -e 's,-[0-9].*,,'
 
     done | sort --unique
-exit 888
 }
 
 CygbuildCygcheckLibraryDepGrepPgkNamesMain()
@@ -2111,11 +2158,9 @@ function CygbuildCygcheckMain()
     local dummy="$*"			# For debug
     local file
 
-    CygbuildCygcheckLibraryDepSource
-
     [ "$CYGCHECK" ] || return 0
     [ "$CYGPATH" ] || return 0
-set -x
+
     for file in "$@"
     do
 	file=${file#$srcdir/}		# Make relative path
@@ -2135,7 +2180,6 @@ set -x
 
 	CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
-exit 999
 }
 
 function CygbuildCheckRunDir()
@@ -3384,28 +3428,7 @@ function CygbuildTreeSymlinkCopy()
         #   Remove all *.exe files before shadowing (they should be generated
         #   anyway.
 
-        find . \
-	    -type d '('		    \
-		-name ".inst"	    \
-		-o -name ".sinst"   \
-		-o -name ".build"   \
-		-o -name ".bzr"	    \
-		-o -name ".git"	    \
-		-o -name ".hg"	    \
-		-o -name ".darcs"   \
-		-o -name ".svn"	    \
-		-o -name "CVS"	    \
-		')'		    \
-            -prune                  \
-		-a ! -name ".inst"  \
-		-a ! -name ".sinst" \
-		-a ! -name ".build" \
-		-a ! -name ".bzr"   \
-		-a ! -name ".git"   \
-		-a ! -name ".hg"    \
-		-a ! -name ".darcs" \
-		-a ! -name ".svn"   \
-		-a ! -name "CVS"    \
+	CygbuildFindDo .
 	    -o -type f '('	    \
 		-name "*.exe"       \
 		-o -name "*.dll"    \
@@ -7158,8 +7181,8 @@ function CygbuildMakefileRunInstallMain()
     if [ -f "$makeScript" ]; then
 
         CygbuildEcho "--- Running external make:" ${makeScript/$srcdir\/} \
-             ${instdir/$srcdir\/} \
-             $CYGBUILD_PREFIX \
+	     ${instdir/$srcdir\/}	\
+	     $CYGBUILD_PREFIX		\
              ${exec_prefix/$srcdir\/}
 
         echo "$id: NOT YET IMPLEMENTED"
@@ -8814,16 +8837,13 @@ function CygbuildInstallPackageInfo()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    find $srcdir                                               \
-        -type d '(' -name ".inst"                               \
-                    -o -name ".sinst"                           \
-                    -o -name ".build" ')' -prune                \
-        -a ! -name ".inst"                                      \
-        -a ! -name ".sinst"                                     \
-        -a ! -name ".build"                                     \
-        -o -type f '(' -name "*.info" -o -name "*.info-*" ')'   \
-        | sort \
-        > $retval
+    CygbuildFindDo "$srcdir"	    \
+	-o -type f		    \
+	'('			    \
+	    -name "*.info"	    \
+	    -o -name "*.info-*"	    \
+	')'			    |
+	sort > $retval
 
     local dest="$DIR_INFO"
     local file done
@@ -11432,9 +11452,8 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckTempFiles         || stat=$?
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
 
-    if [ "$verbose" ]; then
+    [ "$verbose" ] &&
 	CygbuildCmdInstallCheckTexiFiles     || stat=$?
-    fi
 
     CygbuildCmdInstallCheckShellFiles        || stat=$?
     CygbuildCmdInstallCheckReadme            || stat=$?
@@ -11442,6 +11461,11 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckManualPages       || stat=$?
     CygbuildCmdInstallCheckPkgDocdir         || stat=$?
     CygbuildCmdInstallCheckDocdir            || stat=$?
+
+verbose=1
+    [ "$verbose" ] &&
+	CygbuildCygcheckLibraryDepSource     || stat=$?
+
     CygbuildCmdInstallCheckBinFiles          || stat=$?
     CygbuildCmdInstallCheckSymlinks          || stat=$?
     CygbuildCmdInstallCheckLibFiles          || stat=$?
@@ -11497,7 +11521,7 @@ function CygbuildCmdInstallFinishMessage()
         find -L ${instdir#$(pwd)/} -print
     else
 	[ ! "$test" ] &&
-        CygbuildEcho "-- See also: find $relative -print | sort"
+        CygbuildEcho "-- See also: find $relative -type f | sort"
     fi
 }
 
@@ -11594,7 +11618,8 @@ function CygbuildCmdInstallMain()
             CygbuildChmodExec $scriptAfter
 
             CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-		$scriptAfter "$dir" "$thispath" | CygbuildMsgFilter ||
+		$scriptAfter "$dir" "$thispath" |
+		CygbuildMsgFilter		||
             {
                 status=$?
                 CygbuildPopd

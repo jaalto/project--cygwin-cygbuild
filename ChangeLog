@@ -5,6 +5,12 @@
 	tar move exists.
 	(CygbuildInstallFixFileExtensions): check documentation for
 	filenames.
+	(CygbuildIsCygwin): New.
+	(CygbuildIsLinux): New.
+	(CygbuildCygcheckLibraryDepSource): Rewrite logic. Detect SMTPSERVER
+	(CygbuildFindDo): Exclude version control directories.
+	(CygbuildTreeSymlinkCopy): Use `CygbuildFindDo'.
+	(CygbuildInstallPackageInfo): Use `CygbuildFindDo'.
 
 	* etc/template/setup.py.tmp: New file.
 
