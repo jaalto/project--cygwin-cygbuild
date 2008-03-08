@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1225"
+CYGBUILD_VERSION="2008.0308.1227"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5656,8 +5656,10 @@ function CygbuildPatchApplyRun()
 
     local opt
 
-    if CygbuildFileIsCRLF "$patch" ; then
-	opt="--binary"
+    if CygbuildIsCygwin; then
+	if CygbuildFileIsCRLF "$patch" ; then
+	    opt="--binary"
+	fi
     fi
 
     #  FIXME: We don't need to test destination files for --binary

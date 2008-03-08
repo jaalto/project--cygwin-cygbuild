@@ -12,6 +12,8 @@
 	(CygbuildTreeSymlinkCopy): Use `CygbuildFindDo'.
 	(CygbuildInstallPackageInfo): Use `CygbuildFindDo'.
 	(CygbuildTarDirectory): Simplify `status' check.
+	(CygbuildPatchApplyRun): Use `CygbuildIsCygwin' to check if
+	--binary option is needed.
 
 	* etc/template/setup.py.tmp: New file.
 
