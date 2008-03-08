@@ -11,6 +11,7 @@
 	(CygbuildFindDo): Exclude version control directories.
 	(CygbuildTreeSymlinkCopy): Use `CygbuildFindDo'.
 	(CygbuildInstallPackageInfo): Use `CygbuildFindDo'.
+	(CygbuildTarDirectory): Simplify `status' check.
 
 	* etc/template/setup.py.tmp: New file.
 

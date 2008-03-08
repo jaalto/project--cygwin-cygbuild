@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1136"
+CYGBUILD_VERSION="2008.0308.1211"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1857,9 +1857,9 @@ CygbuildCygcheckLibraryDepSource ()
 	> $retval
 
     if [ -s $retval ] &&
-       $EGREP --line-number "^[^/]*exec[a-z]* *\(" $retval
+       $EGREP --line-number "^[^/]*exec[a-z]* *\(" $(< $retval)
     then
-        CygbuildWarn "-- [WARN] Possible external dep needed."
+        CygbuildWarn "-- [WARN] Possible external calls"
 	done="done"
     fi
 
@@ -1875,10 +1875,11 @@ CygbuildCygcheckLibraryDepSource ()
 
     [ -s $retval ] || return 0
 
-    if	$EGREP --line-number "^[^#]*(SMTPSERVER|SMTP_SERVER)" \
-	$retval
+    if	$EGREP --line-number \
+	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER)" \
+	    $(< $retval)
     then
-        [ "$done" ] || CygbuildWarn "-- [WARN] Possible external dep."
+        [ "$done" ] || CygbuildWarn "-- [WARN] Possible external calls"
     fi
 }
 
@@ -2791,14 +2792,7 @@ function CygbuildTarDirectory()
             }                           \
         }                               \
         '                               \
-        $retval                         \
-        > $dirfile
-
-    local status=$?
-
-    if [ "$status" != "0" ]; then
-        return $status
-    fi
+        $retval > $dirfile || return $?
 
     wc -l < $dirfile > $retval.count
     local lines=$(< $retval.count)
