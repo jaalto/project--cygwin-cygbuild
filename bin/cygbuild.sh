@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1214"
+CYGBUILD_VERSION="2008.0308.1225"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1858,7 +1858,7 @@ CygbuildCygcheckLibraryDepSource ()
     if [ -s $retval ] &&
        $EGREP --line-number "^[^/]*exec[a-z]* *\(" $(< $retval)
     then
-        CygbuildWarn "-- [WARN] Possible external deps"
+        CygbuildWarn "-- [WARN] Possible external deps. See above."
 	done="done"
     fi
 
@@ -1876,7 +1876,8 @@ CygbuildCygcheckLibraryDepSource ()
 	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER)" \
 	    $(< $retval)
     then
-        [ "$done" ] || CygbuildWarn "-- [WARN] Possible external deps"
+        [ "$done" ] ||
+	    CygbuildWarn "-- [WARN] Possible external deps. See above."
     fi
 }
 
