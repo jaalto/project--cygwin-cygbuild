@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1227"
+CYGBUILD_VERSION="2008.0308.1351"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1844,7 +1844,6 @@ CygbuildCygcheckLibraryDepSource ()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local done
 
     #  Programs may have direct shell calls like
     #
@@ -1855,12 +1854,11 @@ CygbuildCygcheckLibraryDepSource ()
 	-o -name "*.cc"		\
 	-o -name "*.cpp"	\
 	> $retval
-    if [ -s $retval ] &&
-       $EGREP --line-number "^[^/]*exec[a-z]* *\(" $(< $retval)
-    then
-        CygbuildWarn "-- [WARN] Possible external deps. See above."
-	done="done"
-    fi
+
+    : > $retval.1
+
+    [ -s $retval ] &&
+       $EGREP --line-number "^[^/]*exec[a-z]* *\(" $(< $retval) >> $retval.1
 
     find "${instdir#$srcdir/}"	    \
 	-type f			    \
@@ -1870,14 +1868,23 @@ CygbuildCygcheckLibraryDepSource ()
 	\)			    \
 	> $retval
 
-    [ -s $retval ] || return 0
+    [ -s $retval ] &&
+	$EGREP --line-number \
+	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER)" \
+	    $(< $retval) >> $retval.1
+
+    if [ -s $retval.1 ] ; then
+	CygbuildWarn "-- [WARN] Possible external deps. Please verify."
+	cat $retval.1
+    fi
 
     if	$EGREP --line-number \
-	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER)" \
-	    $(< $retval)
+	    '^[^#]*\<os[a-z]*\.rename' \
+	    $(< $retval) > $retval.2
     then
-        [ "$done" ] ||
-	    CygbuildWarn "-- [WARN] Possible external deps. See above."
+	CygbuildWarn "-- [WARN] Python::os.rename is likely to fail on Cygwin"
+
+	cat $retval.2
     fi
 }
 

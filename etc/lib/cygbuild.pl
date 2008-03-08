@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0307.1025';
+$VERSION = '2008.0308.1242';
 
 # ..................................................................
 
@@ -1861,6 +1861,23 @@ Cygwin's presence on a Red Hat server, the project is bound to Red Hat
 rules.
 
 =head1 TROUBLESHOOTING
+
+=head2 Porting and Python os.rename
+
+If python application contains calls to I<os.rename(from, to)> or
+I<osutils.rename(from, to)>, these will cause unlock race
+condition under Cygwin.
+
+  OSError: [Errno 13] Permission denied
+
+Please contact the upstream to negotiate how to solve this. One possible
+solution is to rewrite all calls to:
+
+    import os, shutil
+
+    def saferename(a, b):
+	shutil.copy2(a, b)
+	os.unlink(a)
 
 =head2 General errors
 

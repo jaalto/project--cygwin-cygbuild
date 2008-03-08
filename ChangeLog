@@ -1,5 +1,8 @@
 2008-03-08  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/cygbuild.pl: (HELP::TROUBLESHOOTING). Add
+	section `Porting and Python os.rename'.
+
 	* bin/cygbuild.sh:
 	(CygbuildInstallFixDocdirInstall): Ensure that target directory for
 	tar move exists.
