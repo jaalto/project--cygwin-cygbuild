@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1723"
+CYGBUILD_VERSION="2008.0308.1726"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2826,7 +2826,7 @@ function CygbuildMakefileName()
             break
         elif [ -h "$path" ]; then
             CygbuildWarn "-- [ERROR] broken links." \
-                 "Perhaps sources moved and you need to run [reshadow]."
+                 "Perhaps sources moved and you need to run again [shadow]."
             ls -l --all "$path"
             break
         fi
@@ -6210,7 +6210,7 @@ function CygbuildCmdMkpatchMain()
 
                 CygbuildWarn "$id: [ERROR] Making patch failed," \
                      "check $origpkgdir and $out"        \
-                     "Do you need to run [reshadow]?"
+                     "Do you need to run again [shadow]?"
 
                 $EGREP --line-number --invert-match 'files.*differ' $out
 
@@ -7302,7 +7302,7 @@ function CygbuildMakefileRunInstallMain()
         CygbuildNoticeBuilddirMaybe
 
         CygbuildWarn "-- [WARN] There is no Makefile." \
-             "Did you forget to run [configure] or [reshadow]?"
+             "Did you forget to run [configure] or repeat [shadow]?"
 
     fi
 }
@@ -7954,8 +7954,7 @@ function CygbuildCmdShadowMain()
 
     if CygbuildIsBuilddirOk ; then
         CygbuildEcho "-- Already shadowed. Perhaps you had" \
-                     "in mind 'rmshadow'" \
-             "or 'reshadow'"
+	    "in mind [rmshadow] or [reshadow]"
     else
         #    When shadowing, use clean base
 
@@ -8593,7 +8592,7 @@ function CygbuildCmdBuildStdMakefile()
                  "If you already tried [configure]" \
                  "You may need to write custom script" \
 		 "CYGWIN-PATCHES/build.sh" \
-                 "(remember to run [reshadow] after changes)"
+                 "(remember to run [shadow] after changes)"
 
             status="17"  # Just random number
 
@@ -9113,7 +9112,7 @@ function CygbuildInstallPackageDocs()
 
     elif [ "$status" != "0" ]; then
 	CygbuildWarn "$id: [ERROR] tar failed to move files. " \
-	     "Need to run [files] or [reshadow]?"
+	     "Need to run [files] or repeat [shadow]?"
 
 	return $status
     fi
