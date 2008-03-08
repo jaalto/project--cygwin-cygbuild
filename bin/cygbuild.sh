@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1351"
+CYGBUILD_VERSION="2008.0308.1723"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1870,7 +1870,7 @@ CygbuildCygcheckLibraryDepSource ()
 
     [ -s $retval ] &&
 	$EGREP --line-number \
-	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER)" \
+	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER|<\sendmail\>)" \
 	    $(< $retval) >> $retval.1
 
     if [ -s $retval.1 ] ; then
@@ -3427,7 +3427,7 @@ function CygbuildTreeSymlinkCopy()
         #   Remove all *.exe files before shadowing (they should be generated
         #   anyway.
 
-	CygbuildFindDo .
+	CygbuildFindDo .	    \
 	    -o -type f '('	    \
 		-name "*.exe"       \
 		-o -name "*.dll"    \
@@ -12915,18 +12915,13 @@ function CygbuildCommandMain()
 		status=$?
 		;;
 
-	    reshadow)
-		CygbuildCmdShadowDelete  &&
-		CygbuildCmdShadowMain
-		status=$?
-		;;
-
 	    rmshadow)
 		CygbuildCmdShadowDelete
 		status=$?
 		;;
 
 	    shadow)
+		CygbuildCmdShadowDelete  &&
 		CygbuildCmdShadowMain
 		status=$?
 		;;

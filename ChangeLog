@@ -2,6 +2,8 @@
 
 	* etc/lib/cygbuild.pl: (HELP::TROUBLESHOOTING). Add
 	section `Porting and Python os.rename'.
+	(PACKAGE MAINTENANCE COMMANDS::Other commands): Remove
+	command [shadow].
 
 	* bin/cygbuild.sh:
 	(CygbuildInstallFixDocdirInstall): Ensure that target directory for
@@ -17,6 +19,9 @@
 	(CygbuildTarDirectory): Simplify `status' check.
 	(CygbuildPatchApplyRun): Use `CygbuildIsCygwin' to check if
 	--binary option is needed.
+	(CygbuildTreeSymlinkCopy): Add missing continuation marker to
+	call `CygbuildFindDo'.
+	(CygbuildCommandMain): Remove command [reshadow].
 
 	* etc/template/setup.py.tmp: New file.
 
