@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0308.1242';
+$VERSION = '2008.0308.1823';
 
 # ..................................................................
 
@@ -1175,10 +1175,10 @@ files contains tag B<cyginstdir:> to point to new location. An example:
 
 =head1 OPTIONAL EXTERNAL FILES
 
-The list of scripts is alphabetically ordered. The name of the script
-indicates when it is run or which command runs it. All C<CYGWIN-PATCHES/>
-configuration files that have suffix C<.tmp> are temporary (templates) and
-not used.
+The following list of scripts is alphabetically ordered. The name of
+the script indicates when it is run or which command runs it. All
+files in C<CYGWIN-PATCHES/> that have suffix C<.tmp> are temporary
+templates and not used.
 
 =over 4
 

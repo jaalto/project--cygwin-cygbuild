@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0308.1726"
+CYGBUILD_VERSION="2008.0309.1134"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4639,8 +4639,12 @@ function CygbuildGPGverify()
         #   gpg: WARNING: using insecure memory!
         #   gpg: please see http://www.gnupg.org/faq.html for more information
 
-        $GPG --verify $file$sigext $file 2>&1 \
-            | $EGREP --invert-match 'insecure memory|faq.html' \
+	$GPG --no-permission-warning				\
+	    --no-secmem-warning					\
+	    --no-mdc-warning					\
+	    --verify						\
+	    $file$sigext $file 2>&1				|
+	    $EGREP --invert-match 'insecure memory|faq.html'	\
             > $tmp
 
         status=$?
