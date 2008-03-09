@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0309.1134"
+CYGBUILD_VERSION="2008.0309.1430"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2353,7 +2353,10 @@ function CygbuildDefineVersionVariables()
 	    CygbuildDie "$id: Can't read version info: $str"
 	fi
 
-        arr=( $(< $retval) )
+	[ -s $retval ] ||
+	    CygbuildDie "$id: Can't read disk version info: $str"
+
+	arr=( $(< $retval) )
         dummy="${arr[*]}"  #  For debugging
 
         CYGBUILD_STATIC_VER_ARRAY=( ${arr[*]} )
@@ -8487,12 +8490,12 @@ function CygbuildCmdConfMain()
                 xmkmf -a
             fi
 
-        elif [ -f configure.in ]; then
+        elif [ -f configure.in ] || [ -f configure.ac ]; then
 
-           CygbuildEcho "-- Running: autoconf -r -i"
-                        "(auto detected; ./configure.in)"
+           CygbuildEcho "-- Running: autoconf -i"
+                        "due to detected ./configure.{in,ac}"
 
-	    autoconf -r -i  &&
+	    autoconf --initialization  &&
 	    CygbuildConfCC
 	    status=$?
 

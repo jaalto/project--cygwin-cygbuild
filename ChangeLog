@@ -2,6 +2,9 @@
 
 	* bin/cygbuild.sh: (CygbuildGPGverify): Add to gpg call:
 	--no-permission-warning --no-secmem-warning --no-mdc-warning
+	(CygbuildCmdConfMain): Remove option -r from autoconf call.
+	No such options exists.
+	(CygbuildDefineVersionVariables): check for disk read error.
 
 2008-03-08  Jari Aalto  <jari.aalto@cante.net>
 
