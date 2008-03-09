@@ -103,6 +103,6 @@ install-bin:
 
 install: all install-bin install-man
 
-.PHONY: clean distclean install install-bin install-man
+.PHONY: clean distclean realclean install install-bin install-man
 
 # End of file

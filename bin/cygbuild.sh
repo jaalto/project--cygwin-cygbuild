@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0309.1430"
+CYGBUILD_VERSION="2008.0309.2106"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1100,6 +1100,8 @@ function CygbuildBootVariablesGlobalMain()
     "
 
     cygbuild_opt_exclude_cache_files="\
+     --exclude=config.guess \
+     --exclude=config.sub \
      --exclude=config.cache \
      --exclude=config.status \
      --exclude=config.log \
@@ -2350,7 +2352,7 @@ function CygbuildDefineVersionVariables()
         local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
         if ! CygbuildVersionInfo "$str" > $retval ; then
-	    CygbuildDie "$id: Can't read version info: $str"
+	    CygbuildDie "-- [ERROR] Not foo-N.N? Can't read version info: $str"
 	fi
 
 	[ -s $retval ] ||
@@ -5676,20 +5678,22 @@ function CygbuildPatchApplyRun()
 	fi
     fi
 
-    #  FIXME: We don't need to test destination files for --binary
+    #  The files to be patched must be writable. Sometimes upstream
+    #	contains read-only files.
 
-#     local dest opt
-#     CygbuildPatchLs "$patch" > $retval
-#     for dest in $(< $retval)
-#     do
-# 	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 1
-# 	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 2
-# 	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 3
+     local dest opt
+     CygbuildPatchLs "$patch" > $retval
 
-# 	if CygbuildFileIsCRLF "$dest"; then
-# 	    opt="--binary"
-# 	fi
-#    done
+     for dest in $(< $retval)
+     do
+	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 1
+	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 2
+	[ ! -f "$dest" ] && dest=${dest#*/}	# Strip 3
+
+	if [ -f "$dest" ] && [ ! -w "$dest" ]; then
+	    chmod $verbose +w $dest
+	fi
+    done
 
     if [ -f "$patch" ]; then
 	if [ "$verbose" ]; then
@@ -6036,7 +6040,8 @@ function CygbuildCmdMkpatchMain()
     local copydir=$builddir_root/${srcdir##*/}
     local file="$SRC_ORIG_PKG"
 
-    CygbuildExitIfNoFile "$file" "$id: [ERROR] Original archive not found $file"
+    CygbuildExitIfNoFile \
+	"$file" "$id: [ERROR] Original archive not found $file"
 
     CygbuildFileReadOptionsMaybe "$EXTRA_DIFF_OPTIONS_PATCH" > $retval
     local extraDiffOpt=$(< $retval)
@@ -8501,7 +8506,7 @@ function CygbuildCmdConfMain()
 
         else
 
-            CygbuildEcho "-- [NOTE] No ./configre script found."
+            CygbuildEcho "-- [NOTE] No ./configre program found."
 
         fi
 
@@ -11558,7 +11563,7 @@ function CygbuildCmdInstallMain()
               "$id: [ERROR] No builddir $builddir." \
 	      "Did you run [mkdirs] and [shadow]?"
 
-    local dir=$instdir
+    local dir="$instdir"
 
     if [ ! "$dir" ]; then
 	CygbuildDie "$id: [ERROR] \$instdir is empty"
@@ -11625,7 +11630,11 @@ function CygbuildCmdInstallMain()
             CygbuildChmodExec $scriptAfter
 
             CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-		$scriptAfter "$dir" "$thispath" |
+		$scriptAfter \
+		    "$dir"   \
+		    "$PKG"   \
+		    "$VER"   \
+		    "$thispath"			|
 		CygbuildMsgFilter		||
             {
                 status=$?

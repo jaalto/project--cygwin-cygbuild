@@ -1,10 +1,17 @@
 2008-03-09  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/template/install-after.sh.tmp: Document new arguments
+	to program: PRG and VER.
+
 	* bin/cygbuild.sh: (CygbuildGPGverify): Add to gpg call:
 	--no-permission-warning --no-secmem-warning --no-mdc-warning
 	(CygbuildCmdConfMain): Remove option -r from autoconf call.
 	No such options exists.
 	(CygbuildDefineVersionVariables): check for disk read error.
+	(CygbuildCmdInstallMain): Send PKG and VER to install-after.sh
+	(CygbuildBootVariablesGlobalMain): Add to config.guess, config.sub
+	`cygbuild_opt_exclude_cache_files'.
+	(CygbuildPatchApplyRun): Make sure patch target files are writable.
 
 2008-03-08  Jari Aalto  <jari.aalto@cante.net>
 
