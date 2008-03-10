@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0309.2106"
+CYGBUILD_VERSION="2008.0310.0520"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9097,7 +9097,6 @@ function CygbuildInstallPackageDocs()
 
 	if [ "$test" ]; then
 	    taropt="--list"
-	    CygbuildVerb "-- Test mode: install in $dir (TEST MODE)"
 	fi
 
 	local status=0
@@ -9129,7 +9128,8 @@ function CygbuildInstallPackageDocs()
 	return $status
     fi
 
-    CygbuildVerb "-- Adjusting permissions in" ${dest/$srcdir\/}
+    local _dest=${dest/$srcdir\/}
+    CygbuildVerb "-- Adjusting permissions in $_dest" ${test:+(TEST MODE)}
 
     find "$dest" -print > $retval
 
@@ -9242,7 +9242,7 @@ function CygbuildInstallExtraManualCompress()
 
     local instdocdir="$instdir/$CYGBUILD_MANDIR_FULL"
 
-    CygbuildVerb "-- Compressing manual pages"
+    CygbuildVerb "-- Compressing manual pages" ${test:+(TEST MODE)}
 
     if [ ! -d "$instdocdir" ]; then
         CygbuildWarn "-- [WARN] Directory not found:" ${instdocdir#$srcdir/}
