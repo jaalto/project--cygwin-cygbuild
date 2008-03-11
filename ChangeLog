@@ -23,6 +23,7 @@
 	(CygbuildCmdReadmeFixFile): Completely rewritten.
 	(CygbuildCmdPerlModuleCall): Renamed. Was `CygbuildCmdReadmeFixFile'.
 	(CygbuildCmdFixFilesOther): Convert to recursive search.
+	(CygbuildCygcheckLibraryDepSource): Search for getopt.
 
 2008-03-09  Jari Aalto  <jari.aalto@cante.net>
 

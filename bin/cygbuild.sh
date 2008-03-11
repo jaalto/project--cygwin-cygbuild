@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.1246"
+CYGBUILD_VERSION="2008.0311.1344"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1867,7 +1867,9 @@ CygbuildCygcheckLibraryDepSource()
     : > $retval.1
 
     [ -s $retval ] &&
-       $EGREP --line-number "^[^/]*exec[a-z]* *\(" $(< $retval) >> $retval.1
+	$EGREP --line-number \
+	"^[^/]*exec[a-z]* *\(|getopt" \
+	$(< $retval) >> $retval.1
 
     find "${instdir#$srcdir/}"	    \
 	-type f			    \

@@ -38,13 +38,14 @@ INSTALL_OBJS_ETC   =
 BINDIR		= $(DESTDIR)$(exec_prefix)/bin
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
 LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
-MANDIR1		= $(DESTDIR)$(man_prefix)/man/man1
-MANDIR5		= $(DESTDIR)$(man_prefix)/man/man5
-MANDIR8		= $(DESTDIR)$(man_prefix)/man/man8
-
 SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
 DOCDIR		= $(DESTDIR)$(prefix)/share/doc
+
+MANDIR		= $(DESTDIR)$(man_prefix)/man
+MANDIR1		= $(MANDIR)/man1
+MANDIR5		= $(MANDIR)/man5
+MANDIR8		= $(MANDIR)/man8
 
 LDFLAGS		=
 CC		= gcc
