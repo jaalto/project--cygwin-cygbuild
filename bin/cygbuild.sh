@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.1243"
+CYGBUILD_VERSION="2008.0311.1246"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1669,10 +1669,10 @@ function CygbuildGrepCheck()
 
 function CygbuildFindDo()
 {
-    local dirs="$1"
+    local arg="$1"
     shift
 
-    find -L $dirs			\
+    find -L $arg \
 	-type d '('		        \
 	    -name ".inst"	        \
 	    -o -name ".sinst"	        \
@@ -5055,7 +5055,7 @@ function CygbuildCmdFixFilesOther()
 
     CygbuildPushd
 	cd $dir &&
-	CygbuildFindDo "."		\
+	CygbuildFindDo ". -maxdepth 1"  \
 	    -o -type f			\
 	    '('				\
 		! -name "*.diff"        \
