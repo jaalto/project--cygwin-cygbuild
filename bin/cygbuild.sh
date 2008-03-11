@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.1212"
+CYGBUILD_VERSION="2008.0311.1243"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1709,6 +1709,7 @@ function CygbuildFindDo()
 	-a ! -name "*~"			\
 	-a ! -name "*.orig"		\
 	-a ! -name "*.rej"		\
+	-a ! -name "*.bak"		\
 	"$@"
 }
 
@@ -5021,7 +5022,7 @@ CygbuildCmdPerlModuleCall()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
-    local funcion="$1"
+    local function="$1"
     local command="$2"
 
     if [ ! "$module" ]; then
@@ -5046,25 +5047,29 @@ function CygbuildCmdFixFilesOther()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
 
-    local list
+    #	Because CygbuildFindDo excludes $dir, we must use trick to
+    #	cd there first and then restore filenames with sed.
+    #
+    #	FIXME: Note: directory debian/ is included too, but it only contains
+    #	patches.
 
-    for file in $dir/*
-    do
-	[ -f "$file" ] || continue
-	[[ "$file" == *.@(patch|rej|orig|diff|bak) ]] && continue
+    CygbuildPushd
+	cd $dir &&
+	CygbuildFindDo "."		\
+	    -o -type f			\
+	    '('				\
+		! -name "*.diff"        \
+		-a ! -name "*.patch"    \
+	    ')'				|
+	sed "s,^\.,$dir,"		|
+	sort > $retval.list
+    CygbuildPopd
 
-        if echo $file |
-           $EGREP --quiet "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
-        then
-	    continue
-	fi
+    [ -s $retval.list ] || return 0
 
-	CygbuildVerb "-- Check" ${file#$srcdir}
+    [ "$verbose" ] && cat $retval.list
 
-	list="$list $file"
-    done
-
-    [ "$list" ] || return 0
+    local list=$(< $retval.list)
 
     CygbuildCmdPerlModuleCall "FileFix" \
         "FileFix(qq(split), qq($list));"

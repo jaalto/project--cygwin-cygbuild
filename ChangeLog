@@ -22,6 +22,7 @@
 	(CygbuildCmdFixFilesOther): New.
 	(CygbuildCmdReadmeFixFile): Completely rewritten.
 	(CygbuildCmdPerlModuleCall): Renamed. Was `CygbuildCmdReadmeFixFile'.
+	(CygbuildCmdFixFilesOther): Convert to recursive search.
 
 2008-03-09  Jari Aalto  <jari.aalto@cante.net>
 
