@@ -1,11 +1,27 @@
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/cygbuild.pl:
+	-- Chnage all open command to 3-parameter form.
+	(HELP::Packaging commands): Update
+	`readmefix' command documentation.
+	(UpdateYears): New.
+	(UpdatePackageTags): New.
+	(FileWrite): Add binmode. Add debug.
+
+	* etc/template/Makefile.redirect.tmp (EXE): Add missing target ending
+	colon.
+
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckCygpatchDirectory):
 	Chnage find(1) call to `CygbuildFindDo'.
 	(CygbuildFindDo): Add more ignores. Like temporary,
 	monotone VCS and patch reject files.
 	(CygbuildCmdInstallCheckFSFaddress): New.
 	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckFSFaddress'.
+	(CygbuildCmdReadmeFixMain): Completely rewritten.
+	(CygbuildCmdFixFilesReadme): New.
+	(CygbuildCmdFixFilesOther): New.
+	(CygbuildCmdReadmeFixFile): Completely rewritten.
+	(CygbuildCmdPerlModuleCall): Renamed. Was `CygbuildCmdReadmeFixFile'.
 
 2008-03-09  Jari Aalto  <jari.aalto@cante.net>
 

@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.0844"
+CYGBUILD_VERSION="2008.0311.1149"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -770,11 +770,6 @@ function CygbuildBootVariablesGlobalColors()
 
 function CygbuildBootVariablesGlobalMain()
 {
-    #       Private: directories
-
-    CygbuildBootVariablesGlobalEtcMain
-    CygbuildBootVariablesGlobalShareMain
-
     #  Like: <file>.$CYGBUILD_SIGN_EXT
     CYGBUILD_GPG_SIGN_EXT=.sig
 
@@ -5022,16 +5017,14 @@ function CygbuildReadmeReleaseMatchCheck()
     fi
 }
 
-CygbuildCmdReadmeFixFile ()
+CygbuildCmdPerlModuleCall()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local readme="$1"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
-
-    CygbuildExitIfNoDir "$srcdir" "$id: [FATAL] Not exists $srcdir"
+    local command="$1"
 
     if [ ! "$module" ]; then
-        CygbuildWarn "$id: [FATAL] Perl module was not found"
+        CygbuildWarn "$id: [ERROR] Perl module not found"
         return 1                # Error is already displayed
     fi
 
@@ -5041,55 +5034,61 @@ CygbuildCmdReadmeFixFile ()
 
     CygbuildVerb "-- Calling $module::ReadmeFix()"
 
-    local out=$readme.tmp
-
-    cp "$readme" "$readme.bak"  || return $?
-
     local debug=${OPTION_DEBUG:-0}
 
-    perl -e "require qq($module);  SetDebug($debug);              \
-      ReadmeFix(qq($readme), qq($FULLPKG), qq($FILE_BIN_PKG));"    \
-      > $out
-
-    local status=$?
-
-    if [ ! "$status" = "0" ]; then
-        CygbuildWarn "-- [ERROR] Perl call ReadmeFix() failed."
-        return $status          # Something went wrong
-    fi
-
-    if [ ! -s "$out" ]; then # Zero length?
-        CygbuildWarn "-- [ERROR] ReadmeFix() output file is empty $out"
-        return 1
-    fi
-
-    mv "$out" "$readme"   &&
-    rm --force "$readme.bak"
+    perl -e "require qq($module);  SetDebug($debug); $command"
 }
 
-function CygbuildCmdReadmeFixMain()
+function CygbuildCmdFixFilesOther()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
+
+    local list
+
+    for file in $dir/*
+    do
+	[ -f "$file" ] || continue
+	[[ "$file" == *.@(patch|rej|orig|diff|bak) ]] && continue
+
+        if echo $file |
+           $EGREP --quiet "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
+        then
+	    continue
+	fi
+
+	list="$list $file"
+    done
+
+    [ "$list" ] || return 0
+
+    CygbuildCmdPerlModuleCall \
+        "FileFix(qq(split), qq($list));"
+}
+
+function CygbuildCmdFixFilesReadme()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local readme
     CygbuildDetermineReadmeFile > $retval
-    [ -s $retval ] && readme=$(< $retval)
 
-    CygbuildEcho "== Readmefix command"
-    CygbuildVerb "-- Modifying ${readme#$srcdir/}"
-
-    if [ ! "$readme" ]; then
+    if [ -s $retval ]; then
+	local readme=$(< $retval)
+	CygbuildVerb "-- Modifying ${readme#$srcdir/}"
+	CygbuildCmdPerlModuleCall \
+	    "ReadmeFix(qq($readme), qq($PKG), qq($VER), qq($REL));"
+    else
         CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
-        return 1
     fi
+}
 
-    if [ ! -r $readme ]; then
-        CygbuildWarn "$id: [ERROR] not readable $readme"
-        return 1
-    fi
-
-    CygbuildCmdReadmeFixFile "$readme"
+function CygbuildCmdReadmeFixMain()
+{
+    CygbuildEcho "== Readmefix command"
+    CygbuildCmdFixFilesReadme
+    CygbuildCmdFixFilesOther
 }
 
 function CygbuildCmdPublishSetupFix()
@@ -12397,6 +12396,8 @@ function CygbuildCommandMain()
 
     CygbuildProgramVersion '' "$*"
     CygbuildDefineGlobalScript
+    CygbuildBootVariablesGlobalEtcMain
+    CygbuildBootVariablesGlobalShareMain
     CygbuildBootVariablesGlobalMain
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"

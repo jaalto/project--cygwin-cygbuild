@@ -50,7 +50,7 @@ EXE		= $(OBJDIR)/$(PACKAGE)
 
 all: $(EXE)
 
-$(EXE)
+$(EXE):
 	$(MAKE) -C $(OBJDIR) CC="$(CC)"
 
 clean:
