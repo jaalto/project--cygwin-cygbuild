@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.1412"
+CYGBUILD_VERSION="2008.0311.1415"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1858,7 +1858,7 @@ CygbuildCygcheckLibraryDepSource()
     #
     #  execvp("/bin/diff")
 
-    CygbuildFindDo "${builddir#$srcdir/}" \
+    CygbuildFindDo "."		\
 	-name "*.c"		\
 	-o -name "*.cc"		\
 	-o -name "*.cpp"	\
@@ -1885,7 +1885,7 @@ CygbuildCygcheckLibraryDepSource()
 	    $(< $retval) >> $retval.1
 
     if [ -s $retval.1 ] ; then
-	CygbuildWarn "-- [WARN] Possible external deps. Please verify."
+	CygbuildWarn "-- [WARN] Possible external dependencies"
 	cat $retval.1
     fi
 
