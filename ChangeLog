@@ -1,3 +1,12 @@
+2008-03-11  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckCygpatchDirectory):
+	Chnage find(1) call to `CygbuildFindDo'.
+	(CygbuildFindDo): Add more ignores. Like temporary,
+	monotone VCS and patch reject files.
+	(CygbuildCmdInstallCheckFSFaddress): New.
+	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckFSFaddress'.
+
 2008-03-09  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/install-after.sh.tmp: Document new arguments

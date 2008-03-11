@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0310.0520"
+CYGBUILD_VERSION="2008.0311.0844"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1689,7 +1689,10 @@ function CygbuildFindDo()
 	    -o -name ".hg"		\
 	    -o -name ".darcs"		\
 	    -o -name ".svn"		\
+	    -o -name ".mtn"		\
 	    -o -name "CVS"		\
+	    -o -name "RCS"		\
+	    -o -name "_MTN"		\
 	    ')'			        \
 	-prune			        \
 	-a ! -name ".inst"              \
@@ -1702,7 +1705,15 @@ function CygbuildFindDo()
 	-a ! -name ".hg"		\
 	-a ! -name ".darcs"		\
 	-a ! -name ".svn"		\
+	-a ! -name ".mtn"		\
 	-a ! -name "CVS"		\
+	-a ! -name "RCS"		\
+	-a ! -name "_MTN"		\
+	-a ! -name "*.tmp"		\
+	-a ! -name "*[#]*"		\
+	-a ! -name "*~"			\
+	-a ! -name "*.orig"		\
+	-a ! -name "*.rej"		\
 	"$@"
 }
 
@@ -1842,7 +1853,7 @@ CygbuildCygcheckLibraryDepList ()
     ' "$file"
 }
 
-CygbuildCygcheckLibraryDepSource ()
+CygbuildCygcheckLibraryDepSource()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -1864,10 +1875,10 @@ CygbuildCygcheckLibraryDepSource ()
 
     find "${instdir#$srcdir/}"	    \
 	-type f			    \
-	\(			    \
+	'('			    \
 	    ! -path "*/doc/*"	    \
 	    -a ! -path "*/man/*"    \
-	\)			    \
+	')'			    \
 	> $retval
 
     [ -s $retval ] &&
@@ -11393,6 +11404,48 @@ function CygbuildCmdInstallCheckSymlinkExe()
     fi
 }
 
+function CygbuildCmdInstallCheckFSFaddress()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    find -L "$instdir" -type f > $retval.list
+
+    : > $retval
+
+    local file _file cmd
+
+    while read file
+    do
+	cmd="cat"
+
+	[[ "$file" == *.@(dll|exe|la|[ao#~]) ]] && continue
+
+	[[ "$file" == *.gz   ]] && cmd="gzip  -dc"
+	[[ "$file" == *.bz2  ]] && cmd="bzip2 -dc"
+	[[ "$file" == *.lzma ]] && cmd="lzma  -dc"
+
+	_file=${file#$srcdir/}
+
+	if $cmd "$file" |
+	   $EGREP --line-number '675[[:space:]]+Mass[[:space:]]+Ave' \
+	   > $retval.grep
+	then
+	   echo "$_file:$(< $retval.grep)" >> $retval
+	fi
+
+    done < $retval.list
+
+    [ -s $retval ] || return 0
+
+    local url="http://savannah.gnu.org/forum/forum.php?forum_id=3766"
+    local new="51 Franklin St, Fifth Floor, Boston, MA, 02111-1301 USA"
+
+    if [ -s "$retval" ]; then
+	CygbuildEcho "-- [NOTE] Use new FSF address (<$url>: $new)"
+	cat $retval
+    fi
+}
+
 function CygbuildCmdInstallCheckCygpatchDirectory()
 {
     local id="$0.$FUNCNAME"
@@ -11401,26 +11454,11 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
     [ -d "$dir" ] || return 0
 
-    local file
-
-    find $dir			    \
-	-type d			    \
-	    '(' -name ".bzr"	    \
-		    -o -name ".git" \
-		    -o -name ".svn" \
-		    -o -name ".hg"  \
-		    -o -name "_MTN" \
-		    -o -name "RCS"  \
-		    -o -name "CVS"  \
-		')' -prune	    \
-	-o -type f		    \
-	    '('			    \
-		! -name "*.tmp"	    \
-		! -name "*[#~]*"    \
-	    ')'			    \
-	> $retval.list
+    CygbuildFindDo $dir	-o -type f > $retval.list
 
     [ -s $retval.list ] || return 0
+
+    local file
 
     while read file
     do
@@ -11453,13 +11491,12 @@ function CygbuildCmdInstallCheckMain()
     local dummy=$(pwd)                    # For debug
     local stat=0
 
+    [ "$verbose" ] && CygbuildCmdInstallCheckFSFaddress
     CygbuildCmdInstallCheckLineEndings
 
     CygbuildEcho "== Checking content of installation in" ${instdir/$srcdir\/}
 
-    if [ "$verb" ]; then
-        CygbuildCmdInstallCheckMakefiles || stat=$?
-    fi
+    [ "$verbose" ] && CygbuildCmdInstallCheckMakefiles
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
@@ -11474,7 +11511,6 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckPkgDocdir         || stat=$?
     CygbuildCmdInstallCheckDocdir            || stat=$?
 
-verbose=1
     [ "$verbose" ] &&
 	CygbuildCygcheckLibraryDepSource     || stat=$?
 
