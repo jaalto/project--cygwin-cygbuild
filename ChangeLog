@@ -25,6 +25,9 @@
 	(CygbuildCmdFixFilesOther): Convert to recursive search.
 	(CygbuildCygcheckLibraryDepSource): Search for getopt. Add
 	option --with-filename to grep calls.
+	(CygbuildCmdDownloadUpstream): Use default for DIR_CYGPATCH.
+	(CygbuildCommandMainCheckSpecial): Move download command here.
+	(CygbuildCmdDownloadUpstream): Rewrote.
 
 2008-03-09  Jari Aalto  <jari.aalto@cante.net>
 

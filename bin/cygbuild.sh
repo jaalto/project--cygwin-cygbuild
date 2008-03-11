@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.1415"
+CYGBUILD_VERSION="2008.0311.1846"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5062,6 +5062,7 @@ function CygbuildCmdFixFilesOther()
 	    '('				\
 		! -name "*.diff"        \
 		-a ! -name "*.patch"    \
+		-a ! -name "*.tmp"	\
 	    ')'				|
 	sed "s,^\.,$dir,"		|
 	sort > $retval.list
@@ -6439,36 +6440,35 @@ function CygbuildCmdPkgSourceMain()
 function CygbuildCmdDownloadUpstream ()
 {
     local id="$0.$FUNCNAME"
-    local name="mywebget.pl"
-    local bin=$(which $name)
-
-    if [ ! "$bin" ]; then
-        CygbuildWarn "-- [ERROR] $name is not installed. See manual."
-        return 1
-    fi
-
-    name="upstream.perl-webget"
-    local conf="$DIR_CYGPATCH/$name"
-
-    if [ ! -f "$conf" ]; then
-        CygbuildWarn "-- [ERROR] $conf not found."
-        return 1
-    fi
+    local bin="mywebget.pl"
+    bin=$(which $bin)
 
     CygbuildEcho "-- Upstream download: checking for new versions..."
 
-    local confpath=$(cd $DIR_CYGPATCH; pwd)
-    local conffile=$confpath/$name
-    local status=0
+    if [ ! "$bin" ]; then
+        CygbuildWarn "-- [ERROR] $bin not found in PATH."
+        return 1
+    fi
 
-    CygbuildPushd
-        cd $TOPDIR || exit 1
-        perl $bin ${OPTION_DEBUG+--debug=3} --verbose \
-                   --config $conffile --Tag $PKG --new
-        status=$?
-    CygbuildPopd
+    local confdir=${DIR_CYGPATCH:-CYGWIN-PATCHES}
+    local name="upstream.perl-webget"
+    local conf=$(cd $confdir && ls $(pwd)/$name)
 
-    return $status
+    if [ ! -f "$conf" ]; then
+        CygbuildDie "-- [ERROR] $conf not found."
+    fi
+
+    local pkg=$(awk '/tag[0-9]:/  {print $2; exit}' $conf)
+
+    if [ ! "$pkg" ]; then
+        CygbuildDie "-- [ERROR] Can't parse 'tag' from $conf"
+    fi
+
+    (
+	cd .. &&
+	perl $bin ${OPTION_DEBUG+--debug=3} --verbose \
+	     --new --config $conf --Tag $pkg
+    )
 }
 
 #######################################################################
@@ -12342,6 +12342,10 @@ function CygbuildCommandMainCheckSpecial()
             -V|--Version|--version)
                 CygbuildProgramVersion 0
                 ;;
+	    download|dl)
+		CygbuildCmdDownloadUpstream
+		exit 0
+		;;
         esac
     done
 
@@ -13004,11 +13008,6 @@ function CygbuildCommandMain()
 
 	    unpatch)
 		CygbuildPatchApplyMaybe unpatch
-		status=$?
-		;;
-
-	    download|dl)
-		CygbuildCmdDownloadUpstream
 		status=$?
 		;;
 
