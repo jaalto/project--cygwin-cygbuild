@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0311.1159';
+$VERSION = '2008.0311.1207';
 
 # ..................................................................
 
@@ -3779,16 +3779,22 @@ sub FileFix ($@)
     my $type = shift;
     my @list = @ARG;
 
+    $debug  and
+        warn "$id: INPUT A \@list: @list";
+
+
     if ($type =~ /split/i )
     {
         @list = map { split /\s+/ } @list;
     }
 
     $debug  and
-        warn "$id: INPUT \@list: @list";
+        warn "$id: INPUT B \@list: @list";
 
     for my $file (@list)
     {
+	$file =~ /\S/  or  next;		# Drop empty strings
+
 	my $str = FileRead $file  or next;
 	my $len = length $ARG;
 
@@ -3836,7 +3842,8 @@ sub ReadmeFix ($ $$$)
     $ver  or  die "$id: No argument: VERSION";
     $rel  or  die "$id: No argument: RELEASE";
 
-    my $orig = FileRead $file;
+    my $orig = FileRead $file or die "$ERRNO";
+
     my $str = UpdateYears $orig;
 
     $str = UpdatePackageTags
