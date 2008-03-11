@@ -41,19 +41,20 @@ Main()
     emacsdir=$sharedir/emacs/site-lisp
     mandir=$sharedir/man/man1
 
-    # docdir=$(cd $root/usr/share/doc/[a-zA-Z]*-*[0-9] && pwd)
-    # docpkg=$(cd $root/usr/share/doc/[a-z]*[a-zA-Z] && pwd)
-    # [ "$docdir" ] || return 0
-    # [ "$docpkg" ] || return 0
+    docdir=$(cd $root/usr/share/doc/[a-zA-Z]*-*[0-9] && pwd)
+    docpkg=$(cd $root/usr/share/doc/[a-z]*[a-zA-Z] && pwd)
+
+    [ "$docdir" ] || return 0
+    [ "$docpkg" ] || return 0
 
     # example 1) Copy whole 'doc' directory to package dir
-    # echo ">> Relocating doc directory"
-    # Cmd mv $root/doc $root/usr/share/doc
+    echo ">> Relocating doc directory"
+    Cmd mv $root/doc $root/usr/share/doc
 
-    # example 2) copy missing xxx.sh to package dir
-    # echo ">> Relocating xxx.sh directory"
-    # Cmd install -m 755 $root/usr/share/bin/xxx.sh $root/usr/bin
-    # Cmd rm $root/usr/share/bin/xxx.sh
+    # example 2) copy xxx.sh to package dir
+    echo ">> Relocating xxx.sh directory"
+    Cmd install -m 755 $root/usr/share/bin/xxx.sh $root/usr/bin
+    Cmd rm $root/usr/share/bin/xxx.sh
 }
 
 Main "$@"
