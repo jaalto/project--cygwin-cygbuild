@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0311.1149"
+CYGBUILD_VERSION="2008.0311.1212"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5021,7 +5021,8 @@ CygbuildCmdPerlModuleCall()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local module="$CYGBUILD_STATIC_PERL_MODULE"
-    local command="$1"
+    local funcion="$1"
+    local command="$2"
 
     if [ ! "$module" ]; then
         CygbuildWarn "$id: [ERROR] Perl module not found"
@@ -5032,7 +5033,7 @@ CygbuildCmdPerlModuleCall()
     #   2. Call function Readmefix() with parameters. It will handle the
     #      text manipulation details.
 
-    CygbuildVerb "-- Calling $module::ReadmeFix()"
+    CygbuildVerb "-- Calling $module::$function"
 
     local debug=${OPTION_DEBUG:-0}
 
@@ -5058,12 +5059,14 @@ function CygbuildCmdFixFilesOther()
 	    continue
 	fi
 
+	CygbuildVerb "-- Check" ${file#$srcdir}
+
 	list="$list $file"
     done
 
     [ "$list" ] || return 0
 
-    CygbuildCmdPerlModuleCall \
+    CygbuildCmdPerlModuleCall "FileFix" \
         "FileFix(qq(split), qq($list));"
 }
 
@@ -5076,8 +5079,8 @@ function CygbuildCmdFixFilesReadme()
 
     if [ -s $retval ]; then
 	local readme=$(< $retval)
-	CygbuildVerb "-- Modifying ${readme#$srcdir/}"
-	CygbuildCmdPerlModuleCall \
+	CygbuildVerb "-- Check ${readme#$srcdir/}"
+	CygbuildCmdPerlModuleCall "ReadmeFix" \
 	    "ReadmeFix(qq($readme), qq($PKG), qq($VER), qq($REL));"
     else
         CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
