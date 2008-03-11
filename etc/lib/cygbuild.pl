@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0311.1145';
+$VERSION = '2008.0311.1159';
 
 # ..................................................................
 
@@ -4336,7 +4336,6 @@ sub Test ()
     print "[Version] ", Version $a, " [Package] ", Package $a, "\n";
 }
 
-TestDriverReadmeFix ; die;
 # Test; die;
 
 #   Interactive call from command line contains parameters
