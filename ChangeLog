@@ -10,6 +10,14 @@
 	(CygbuildCygcheckLibraryDepSource): Improve getopt regexp.
 	Correct python grep statement. New logic.
 	(CygbuildCmdInstallCheckBinFiles): Add lib/ and /share/PKG.
+	(CygbuildInstallFixFileExtensions): Correct find call.
+	Add handling for manual pages.
+	(CygbuildCmdInstallCheckBinFiles): Add Ruby library support.
+	(CygbuildInstallFixInterpreterMain): Add Ruby support. Change
+	to use recursive find. Include lib/ and share/ directories.
+	(CygbuildInstallFixInterpreterGeneric): New.
+	(CygbuildRubyLibraryList): New.
+	(CygbuildDefineGlobalCommands): Add RUBYBIN
 
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 

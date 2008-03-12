@@ -19,21 +19,11 @@ ifneq (,)
 This makefile requires GNU Make.
 endif
 
+PACKAGE		= foo
 DESTDIR		=
 prefix		= /usr
 exec_prefix	= $(prefix)
 man_prefix	= $(prefix)/share
-
-PACKAGE		= foo
-INSTALL		= /usr/bin/install
-INSTALL_BIN	= $(INSTALL) -m 755
-INSTALL_SUID	= $(INSTALL) -m 4755
-INSTALL_DATA	= $(INSTALL) -m 644
-
-INSTALL_OBJS_BIN   = $(PACKAGE)
-INSTALL_OBJS_MAN1  = *.1
-INSTALL_OBJS_SHARE =
-INSTALL_OBJS_ETC   =
 
 BINDIR		= $(DESTDIR)$(exec_prefix)/bin
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
@@ -48,6 +38,16 @@ MANDIR1		= $(MANDIR)/man1
 MANDIR5		= $(MANDIR)/man5
 MANDIR6		= $(MANDIR)/man6
 MANDIR8		= $(MANDIR)/man8
+
+INSTALL		= /usr/bin/install
+INSTALL_BIN	= $(INSTALL) -m 755
+INSTALL_SUID	= $(INSTALL) -m 4755
+INSTALL_DATA	= $(INSTALL) -m 644
+
+INSTALL_OBJS_BIN   = $(PACKAGE)
+INSTALL_OBJS_MAN1  = *.1
+INSTALL_OBJS_SHARE =
+INSTALL_OBJS_ETC   =
 
 LDFLAGS		=
 CC		= gcc

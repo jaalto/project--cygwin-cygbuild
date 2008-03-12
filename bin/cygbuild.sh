@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.0955"
+CYGBUILD_VERSION="2008.0312.1150"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1456,7 +1456,7 @@ function CygbuildPythonLibraryList()
 	$debug = shift @ARGV;
 	$file  = shift @ARGV;
 
-	open my $FH, "< $file"  or  die "$!";
+	open my $FH, "<", $file  or  die "$!";
 
 	binmode $FH;
 	$_ = join "", <$FH>;
@@ -1491,9 +1491,39 @@ function CygbuildPythonLibraryList()
 	    @hash{@libs} = (1) x @libs;
 	}
 
-	print join " ", sort keys %hash;
+	%hash  and  print join " ", sort keys %hash;
 	exit
     ' "${debug:+1}" "$@"
+}
+
+function CygbuildRubyLibraryList()
+{
+    [ "$1" ] || return 0
+
+    perl -e '
+	$debug = shift @ARGV;
+	$file  = shift @ARGV;
+
+	open my $FH, "<", $file  or  die "$!";
+
+	binmode $FH;
+	$_ = join "", <$FH>;
+	close $FH;
+
+	while ( /^[^#]*\s*(?:require|include)\s+(\S+)/gm )
+	{
+	    $hash{$1} = 1;
+	}
+
+	%hash  and  print join " ", sort keys %hash;
+	exit
+    ' "${debug:+1}" "$@"
+}
+
+function CygbuildRubyLibraryDependsMain()
+{
+    : # FIXME: TODO
+    echo $*
 }
 
 function CygbuildPerlLibraryDependsGuess()
@@ -3582,11 +3612,15 @@ function CygbuildDefineGlobalCommands()
     GREP="grep --binary-files=without-match"	    # global-def
     EGREP="$GREP --extended-regexp"		    # global-def
 
-    #	Official location under Cygwin. Used to check proper shebang line
-    #	Under Debian, this is /bin/perl
+    # ................................................. interpreters ...
+    #	Official locations under Cygwin. Used to check proper shebang line
+    #	Note: under Debian, this would be /bin/perl
 
-    PERLBIN=/usr/bin/perl			    # global-def
-    PYTHONBIN=/usr/bin/python			    # global-def
+    local prefix=/usr/bin
+
+    PERLBIN=$prefix/perl			    # global-def
+    PYTHONBIN=$prefix/python			    # global-def
+    RUBYBIN=$prefix/ruby			    # global-def
 
     # ............................................ optional features ...
 
@@ -9429,7 +9463,7 @@ function CygbuildInstallFixFileExtensions()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     find "$instdir/usr/bin" \
-	-name f		    \
+	-type f		    \
 	-name "*.rb"	    \
 	-o -name "*.py"	    \
 	-o -name "*.pl"	    \
@@ -9460,12 +9494,18 @@ function CygbuildInstallFixFileExtensions()
 
     #	See if the above change needs chnages in documentation
 
+    local dir=${instdir#$srcdir}
+
     $EGREP --recursive --files-with-matches \
 	"$regexp"			    \
-	"$instdir/usr/share/doc"	    \
-	"$instdir/usr/share/man"	    \
+	"$dir/usr/share/doc"		    \
 	> $retval			    \
-	2> /dev/null			    \
+	2> /dev/null
+
+    #	FIXME: bz2?
+    zgrep "$regexp" "$dir/usr/share/man*/*" \
+	>> $retval			    \
+	2> /dev/null
 
     [ -s $retval ] || return 0
 
@@ -9545,12 +9585,12 @@ function CygbuildInstallFixInterpreterPerl ()
     fi
 }
 
-function CygbuildInstallFixInterpreterPython()
+function CygbuildInstallFixInterpreterGeneric()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local bin="$PYTHONBIN"
-    local file="$1"
+    local bin="$1"
+    local file="$2"
 
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
         CygbuildWarn "$id: No such file $file"
@@ -9562,7 +9602,7 @@ function CygbuildInstallFixInterpreterPython()
     if [ -s "$retval" ] &&
 	CygbuildFileCmpDiffer "$file" "$retval"
     then
-	CygbuildEcho "-- [NOTE] Fixing Python call line"
+	CygbuildEcho "-- [NOTE] Fixing shebang call line"
 	[ "$verbose" ] && diff "$file" "$retval"
 	mv --force "$retval" "$file"
     fi
@@ -9780,10 +9820,17 @@ function CygbuildInstallFixInterpreterMain()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local plbin="$PERLBIN"
     local pybin="$PYTHONBIN"
+    local pybin="$RUBYBIN"
+
+    find $instdir/usr/{bin,share,lib}	\
+	-type -f			\
+	> $retval.list
+
+    [ -s $retval.list ] || return 0
 
     local file
 
-    for file in $instdir/usr/bin/*
+    while read file
     do
         [ -f "$file" ] || continue
 
@@ -9805,9 +9852,16 @@ function CygbuildInstallFixInterpreterMain()
             CygbuildEcho "-- [NOTE] Suspicious Python call" \
                  "in $_file: $(cat $retval)"
 
-            CygbuildInstallFixInterpreterPython "$file"
+            CygbuildInstallFixInterpreterGeneric "$pybin" "$file"
+
+        elif $EGREP --quiet "ruby" $retval &&
+           ! $EGREP --quiet "$rbbin[[:space:]]*$" $retval
+	then
+
+            CygbuildInstallFixInterpreterGeneric "$rbbin" "$file"
         fi
-    done
+
+    done < $retval.list
 }
 
 function CygbuildInstallFixPerlPacklist()
@@ -11078,8 +11132,28 @@ function CygbuildCmdInstallCheckPythonLibraries()
     CygbuildPythonLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
-	CygbuildEcho "-- possible library deps in" ${file#$srcdir/}
-	sort -r $deps	    # Extesions last
+	CygbuildEcho "-- possible Python library deps in" ${file#$srcdir/}
+	sort -r $deps	    # Extensions last
+    fi
+}
+
+function CygbuildCmdInstallCheckRubyLibraries()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local deps="$retval.depends"
+    local file="$1"
+
+    [ "$verbose" ] || return 0
+
+    CygbuildRubyLibraryList "$file" > $retval
+    [ -s "$retval" ] || return 0
+
+    CygbuildRubyLibraryDependsMain $(< $retval) > $deps
+
+    if [ -s "$deps" ]; then
+	CygbuildEcho "-- possible Ruby library deps in" ${file#$srcdir/}
+	sort -r $deps	    # Extensions last
     fi
 }
 
@@ -11221,6 +11295,7 @@ function CygbuildCmdInstallCheckBinFiles()
         local name=${file##*.inst}
 	local plbin="$PERLBIN"
 	local pybin="$PYTHONBIN"
+	local rbbin="$RUBYBIN"
 
         if [[ "$str" == *Linux* ]]; then
             CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
@@ -11284,6 +11359,22 @@ function CygbuildCmdInstallCheckBinFiles()
 
 	    CygbuildCmdInstallCheckPythonLibraries "$file"
 	fi
+
+        # ................................................ Ruby libs ...
+
+        if [[ "$str" == *ruby* ]]; then
+            head -1 "$file" > $retval.1st
+
+            if ! $EGREP --quiet "$rbbin([ \t]|$)" $retval.1st
+            then
+                CygbuildWarn "-- [WARN] possibly wrong Ruby call" \
+                     "in $_file: $(cat $retval.1st)"
+            fi
+
+	    CygbuildCmdInstallCheckRubyLibraries "$file"
+	fi
+
+        # .................................................... other ...
 
         if [ "$verbose"  ]; then
             str=${str##*:}          # Remove path
@@ -11502,19 +11593,18 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 function CygbuildCmdInstallCheckMain()
 {
     local id="$0.$FUNCNAME"
-
-    #   See if there are any obvious errors
-    #   - Zero length files
-
     local dummy=$(pwd)                    # For debug
     local stat=0
 
-    [ "$verbose" ] && CygbuildCmdInstallCheckFSFaddress
-    CygbuildCmdInstallCheckLineEndings
-
     CygbuildEcho "== Checking content of installation in" ${instdir/$srcdir\/}
 
-    [ "$verbose" ] && CygbuildCmdInstallCheckMakefiles
+    [ "$verbose" ] &&
+	CygbuildCmdInstallCheckFSFaddress
+
+    CygbuildCmdInstallCheckLineEndings
+
+    [ "$verbose" ] &&
+	CygbuildCmdInstallCheckMakefiles
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
