@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1150"
+CYGBUILD_VERSION="2008.0312.1225"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9823,8 +9823,9 @@ function CygbuildInstallFixInterpreterMain()
     local pybin="$RUBYBIN"
 
     find $instdir/usr/{bin,share,lib}	\
-	-type -f			\
-	> $retval.list
+	-type f				\
+	> $retval.list			\
+	2> /dev/null
 
     [ -s $retval.list ] || return 0
 

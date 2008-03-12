@@ -18,6 +18,7 @@
 	(CygbuildInstallFixInterpreterGeneric): New.
 	(CygbuildRubyLibraryList): New.
 	(CygbuildDefineGlobalCommands): Add RUBYBIN
+	(CygbuildInstallFixInterpreterMain): Correct find -type call.
 
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 
