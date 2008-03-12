@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1600"
+CYGBUILD_VERSION="2008.0312.1620"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -8198,7 +8198,9 @@ function CygbuildConfDepend()
 
 function CygbuildConfOptionAdjustment()
 {
-    #	 All messages must be printed to STDERR
+
+    #	 All messages must be printed to STDERR because erturn value
+    #	 is echoed
 
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -8217,8 +8219,8 @@ function CygbuildConfOptionAdjustment()
 	}' $conf > $retval
 
 	if [ -s $retval ] ; then
-	    CygbuildEcho "-- [NOTE] Configure supports additional options:"
-	    sed 's/^/ /' $retval
+	    CygbuildWarn "-- [NOTE] Configure supports additional options:"
+	    sed 's/^/ /' $retval >&2
 	fi
     fi
 
