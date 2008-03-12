@@ -21,6 +21,9 @@
 	(CygbuildInstallFixInterpreterMain): Correct find -type call.
 	(CygbuildConfOptionAdjustment): Fix detection of extra configure
 	options.
+	(CygbuildCygcheckMain): Simplify function.
+	(CygbuildDefineGlobalCommands): emove CYGPATH. Not needed.
+	(CygbuildAskYes): Fix return status.
 
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 

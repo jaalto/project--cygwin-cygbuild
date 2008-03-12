@@ -39,13 +39,13 @@
 #
 #   Other notes
 #
-#	o   cygcheck, cygpath are a MingW application and output CRLF
+#	o   cygcheck is a MingW application and output conatains CRLF
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1448"
+CYGBUILD_VERSION="2008.0312.1600"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -109,7 +109,7 @@ function CygbuildAskYes()
     local ans
     read ans
 
-    [[ "$ans" == [yN]* ]]
+    [[ "$ans" == [yY]* ]]
 }
 
 function CygbuildPushd()
@@ -2213,24 +2213,13 @@ function CygbuildCygcheckMain()
     local file
 
     [ "$CYGCHECK" ] || return 0
-    [ "$CYGPATH" ] || return 0
 
     for file in "$@"
     do
 	file=${file#$srcdir/}		# Make relative path
 
-	if [[ "$file" == /* ]]; then
-	    #  Change / => \  FIXME: Is this really needed?
-	    $CYGPATH -w "$file" | CygbuildStripCR > $retval
-	    file=$(< $retval)
-	else
-	    file=${file//\+/\/}
-	fi
-
-	if [ "$verbose" ] ; then
-	    CygbuildEcho "-- Wait, listing depends"
-	    $CYGCHECK "$file" # | tee $retval 2> /dev/null
-	fi
+	CygbuildEcho "-- Wait, listing depends"
+	$CYGCHECK "$file" # | tee $retval 2> /dev/null
 
 	CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
@@ -3627,11 +3616,6 @@ function CygbuildDefineGlobalCommands()
     CYGCHECK=
     CygbuildWhich cygcheck > $retval
     [ -s $retval ] && CYGCHECK=$(< $retval)	    # global-def
-
-    CYGPATH=
-    CygbuildWhich cygpath > $retval
-    [ -s $retval ] && CYGPATH=$(< $retval)	    # global-def
-    local tmp
 
     GPG=					    # global-def
     CygbuildPathBinFast gpg > $retval
