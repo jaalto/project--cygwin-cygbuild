@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0311.1207';
+$VERSION = '2008.0312.0842';
 
 # ..................................................................
 
@@ -117,7 +117,7 @@ cygbuild - Cygwin source and binary package build script
 
 =head1 QUICK OVERVIEW
 
-The "big picture" of the porting directories used are as follows:
+The directories used in the program are as follows:
 
   ROOT/package
        <original upstream package source(s): package-1.2.3.tar.gz>
@@ -146,15 +146,19 @@ B<CASE A)> to build Cygwin Net Release from a package that includes a
 standard C<./configure> script, the quick path for porting would be in
 the fortunate case:
 
-    $ mkdir -p /tmp/build
-    $ rm /tmp/build/*
-    $ cd /tmp/build
-    $ mv /download/path/package-N.N.tar.gz .
+    $ export NAME="Firstname Lastname"
+    $ export EMAIL="foo@example.com"
+
+    ... make a project directory
+
+    $ mkdir -p /tmp/package
+    $ cd /tmp/package
+    $ wget http://example.com/package-N.N.tar.gz
     $ tar -zxvf package-N.N.tar.gz
 
     ... source has now been unpacked, go there
 
-    $ cd package-N.N
+    $ cd package-N.N/
 
     ... If this is the first port ever, it is better to run commands
     ... individually to see possible problems.
@@ -165,39 +169,38 @@ the fortunate case:
 
     $ cygbuild -r 1 makedirs
     $ cygbuild -r 1 files
-    $ cygbuild -r 1 shadow           # [optional]
+    $ cygbuild -r 1 readmefix	    # Fill in CYGWIN/package.README
+    $ cygbuild -r 1 shadow          # prepare sources to .build/build
     $ cygbuild -r 1 configure
     $ cygbuild -r 1 make
-    $ cygbuild -r 1 -v -t install    # "verbose test mode" first
-    $ cygbuild -r 1 install          # The "real" install
-    $ find .inst/ -print             # Verify install structure
-    $ cygbuild -r 1 -v check         # Do install integrity check
-    $ cygbuild -r 1 -v depend        # Check dependencies
-    $ cygbuild -r 1 package          # Make Net install binary
-    $ cygbuild -r 1 source-package   # Make Net install source
-    $ cygbuild -r 1 publish          # Copy files to publish area (if any)
+    $ cygbuild -r 1 -v -t install   # "verbose test mode" first
+    $ cygbuild -r 1 install         # The "real" install
+    $ find .inst/ -print            # Verify install structure
+    $ cygbuild -r 1 -v check        # Do install integrity check
+    $ cygbuild -r 1 package         # Make Net install binary
+    $ cygbuild -r 1 source-package  # Make Net install source
+    $ cygbuild -r 1 publish         # Copy files to publish area (if any)
 
-There is also shortcut 'import', which runs steps up to 'make'
+There is also shortcut 'import', which runs all steps up till 'make'
 
     $ cygbuild -r 1 import
-    ...  Package is configured. Did it succeed? *Try* install first
+    ...  Package is configured. Did it succeed? Run test install
     $ cygbuild -r 1 -v -t install
     ...  If ok, continue just like in the example above
 
 To make this easier, an alias will help.
 
     $ alias cb="cygbuild --color --sign $GPGKEY"
-    $ cb import
+    $ cb -r 1 import
     ...
 
 B<CASE B)> If the downloaded Cygwin source release package is
 controlled by cygbuild, then commands B<[all]> and B<[almostall]> can
 be used to check the binary build:
 
-    $ mkdir -p /tmp/build
-    $ rm -rf /tmp/build/*
-    $ tar -C /tmp/build -xf package-N.N-RELEASE-src.tar.bz2
-    $ cd /tmp/build
+    $ mkdir -p /tmp/package
+    $ cd /tmp/package
+    $ tar -xf /path/to/package-N.N-RELEASE-src.tar.bz2
     $ ./*.sh --color --verbose all
 
 =head1 OPTIONS
@@ -3629,12 +3632,77 @@ sub ReadMeFilesIncluded ($ $)
 #
 #   DESCRIPTION
 #
+#       Add new stanza based on input arguments:
+#
+#       ---- version <VER>-<REL> -----
+#       - New upstream release <YYYY-MM-DD> <First Last>
+#
+#   INPUT PARAMETER HASH
+#
+#       str => $str     String
+#	tag => value	Hash values: -pkg, -ver, -rel
+#
+#   RETURN VALUES
+#
+#       String
+#
+# ****************************************************************************
+
+sub UpdateNewVersionStanza (%)
+{
+    my $id          = "$LIB.UpdatePackageTags";
+    my %hash        = @ARG;
+
+    local $ARG	    = $hash{-str};
+    my $pkg	    = $hash{-pkg};
+    my $ver	    = $hash{-ver};
+    my $rel	    = $hash{-rel};
+    my $name	    = $hash{-name}  || $systemName;
+
+    $debug  and  warn "$id: pkg [$pkg] ver [$ver] rel [$rel]\n";
+
+    my $vid	= "$ver-$rel";				# version id
+    my $iso8601 = Date(-utc => 1);
+
+    my $stanza =
+"----- version $vid -----
+- New upstream release $iso8601 Firstname Lastname
+
+";
+
+    if ( $name )
+    {
+        $stanza =~ s,(Firstname Lastname),$name,;
+    }
+    else
+    {
+        warn "$id: [WARN] Can't update 'name'. No Env. vars NAME or EMAIL";
+    }
+
+    unless ( /^-.*version.*$vid/m )
+    {
+	$debug   and  warn  "$id:\nUPDATE START${stanza}UPDATE END\n";
+	s/(Port\s+Notes:.*?)^(---)/$1$stanza$2/sm;
+    }
+
+    $ARG;
+}
+
+# ****************************************************************************
+#
+#   DESCRIPTION
+#
 #       Replace all <PKG> <REL> <VER> tags.
 #
 #   INPUT PARAMETER HASH
 #
 #       str => $str     String
 #	tag => value	Hash values to replace.
+#
+#   ENVIRONMENT
+#
+#	NAME
+#	EMAIL
 #
 #   RETURN VALUES
 #
@@ -3704,6 +3772,11 @@ sub UpdatePackageTags (%)
 #   INPUT PARAMETER HASH
 #
 #	$str		String
+#
+#   ENVIRONMENT
+#
+#	NAME
+#	EMAIL
 #
 #   RETURN VALUES
 #
@@ -3847,6 +3920,13 @@ sub ReadmeFix ($ $$$)
     my $str = UpdateYears $orig;
 
     $str = UpdatePackageTags
+	-str => $str,
+	-pkg => $pkg,
+	-ver => $ver,
+	-rel => $rel
+	;
+
+    $str = UpdateNewVersionStanza
 	-str => $str,
 	-pkg => $pkg,
 	-ver => $ver,

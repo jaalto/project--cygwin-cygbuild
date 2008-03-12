@@ -1,5 +1,10 @@
 2008-03-12  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/cygbuild.pl (UpdateNewVersionStanza): New.
+	(ReadmeFix): Call `UpdateNewVersionStanza'.
+	(HELP): Add export NAME and EMAIL examples to the beginning.
+	Adjust "Case A".
+
 	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
 	Update CYGBUILD_INSTALL_IGNORE
 
