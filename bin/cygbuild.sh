@@ -25,11 +25,14 @@
 #
 #   WARNING
 #
-#       If this the name of the file is not "cygbuild" or
-#       "cygbuild.sh", then it has been auto-generated and you are
-#       looking at the result of packaging script. IN THAT CASE YOU
-#       SHOULD NOT TRY TO USE THIS FILE FOR ANYTING ELSE THAN CALLING
-#       COMMANDS LIKE "all" or "-h" TO BUILD THE CYGWIN BINARY PACKAGE
+#       If the name of the file is not "cygbuild" or "cygbuild.sh",
+#       then it has been auto-generated and you are looking at the
+#       result of packaging script. IN THAT CASE YOU SHOULD NOT TRY TO
+#       USE THIS FILE FOR ANYTING ELSE THAN CALLING PROGRAM WITH ONE OF:
+#
+#	    -h
+#	    all
+#	    almostall
 #
 #   Code notes
 #
@@ -45,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1620"
+CYGBUILD_VERSION="2008.0312.1707"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -11737,7 +11740,10 @@ function CygbuildCmdInstallMain()
             fi
 
         else
-            CygbuildVerb "-- Running install to" ${dir/$srcdir\//}
+
+            CygbuildVerb "-- Running install to" \
+		${dir/$srcdir\//} \
+		${test:+(TEST MODE)}
 
             CygbuildMakefileRunInstallMain ||
             {
