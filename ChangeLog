@@ -1,3 +1,8 @@
+2008-03-12  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
+	Update CYGBUILD_INSTALL_IGNORE
+
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/cygbuild.pl:

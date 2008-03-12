@@ -42,9 +42,11 @@ SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
 DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 
+# 1 = regular, 5 = conf, 6 = games, 8 = daemons
 MANDIR		= $(DESTDIR)$(man_prefix)/man
 MANDIR1		= $(MANDIR)/man1
 MANDIR5		= $(MANDIR)/man5
+MANDIR6		= $(MANDIR)/man6
 MANDIR8		= $(MANDIR)/man8
 
 LDFLAGS		=
