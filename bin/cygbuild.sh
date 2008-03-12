@@ -45,7 +45,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.0738"
+CYGBUILD_VERSION="2008.0312.0955"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1867,10 +1867,23 @@ CygbuildCygcheckLibraryDepSource()
 
     : > $retval.1
 
-    [ -s $retval ] &&
-	$EGREP --line-number --with-filename \
-	"^[^/]*exec[a-z]* *\(|getopt" \
-	$(< $retval) >> $retval.1
+    if [ -s $retval ]; then
+
+	$EGREP --line-number --with-filename		\
+	    "^[^/]*exec[a-z]* *\(|include .*getopt\>"	\
+	    $(< $retval) >> $retval.grep
+
+	local re="^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER|<\sendmail\>)"
+	re="$re|\<system\>.*[(]"
+
+	$EGREP --line-number --with-filename "$re" \
+	    $(< $retval) >> $retval.grep
+
+	if [ -s $retval.grep ] ; then
+	    CygbuildWarn "-- [WARN] Possible external system calls"
+	    cat $retval.grep
+	fi
+    fi
 
     find "${instdir#$srcdir/}"	    \
 	-type f			    \
@@ -1880,23 +1893,16 @@ CygbuildCygcheckLibraryDepSource()
 	')'			    \
 	> $retval
 
-    [ -s $retval ] &&
-	$EGREP --line-number --with-filename \
-	    "^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER|<\sendmail\>)" \
-	    $(< $retval) >> $retval.1
+    [ -s $retval ] || return 0
 
-    if [ -s $retval.1 ] ; then
-	CygbuildWarn "-- [WARN] Possible external dependencies"
-	cat $retval.1
-    fi
+    $EGREP --line-number --with-filename	\
+	'^[^#]*\<os[a-z]*\.rename'		\
+	$(< $retval) > $retval.grep
 
-    if	$EGREP --line-number --with-filename \
-	    '^[^#]*\<os[a-z]*\.rename' \
-	    $(< $retval) > $retval.2
-    then
-	CygbuildWarn "-- [WARN] Python::os.rename is likely to fail on Cygwin"
-
-	cat $retval.2
+    if [ -s $retval.grep ]; then
+	CygbuildWarn "-- [WARN] Python::os.rename is" \
+	    "likely to fail on Cygwin"
+	cat $retval.grep
     fi
 }
 
@@ -11087,7 +11093,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
     #   If we find binary files, but they are not in $instdir, then
     #   Makefile has serious errors
-    #   #TODO: why is here a subshell wrapper?
+    #   FIXME: why is here a subshell wrapper?
 
     ( CygbuildFilesExecutable "$dir" ) > $retval
     local files=$(< $retval)
@@ -11138,11 +11144,13 @@ function CygbuildCmdInstallCheckBinFiles()
     #   FIXME: Currently every file in /bin is supposed to be executable
     #   This may not be always true?
 
-    find -L $dir -type f        \
-        \(                      \
-           -path "*/bin/*"      \
-           -o -path "*/sbin/*"  \
-        \)                      \
+    find -L $dir -type f	    \
+	\(			    \
+	   -path "*/bin/*"	    \
+	   -o -path "*/sbin/*"	    \
+	   -o -path "*/lib/*"	    \
+           -o -path "*/share/$PKG*" \
+	\)			    \
         > $retval
 
     local list=$(< $retval)

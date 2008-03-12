@@ -7,6 +7,9 @@
 
 	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
 	Update CYGBUILD_INSTALL_IGNORE
+	(CygbuildCygcheckLibraryDepSource): Improve getopt regexp.
+	Correct python grep statement. New logic.
+	(CygbuildCmdInstallCheckBinFiles): Add lib/ and /share/PKG.
 
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 
