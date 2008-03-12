@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1820"
+CYGBUILD_VERSION="2008.0312.1923"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -7133,6 +7133,7 @@ function CygbuildMakefilePrefixIsStandard ()
 
 function CygbuildMakefileRunInstallCygwinOptions()
 {
+set -x
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx=${1:-"prefix=$CYGBUILD_PREFIX"}
@@ -7168,8 +7169,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
             source $makeEnv || exit $?
         fi
 
-        # local docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
-        local docdir="$instdir/$DIR_DOC_GENERAL"
+        local docdir="$DIR_DOC_GENERAL"
 
         #   Run install with Cygwin options
 
@@ -7187,6 +7187,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
              $CYGBUILD_MAKEFLAGS        \
              install
     )
+exit 777
 }
 
 function CygbuildMakefileRunInstallFixInfo()
