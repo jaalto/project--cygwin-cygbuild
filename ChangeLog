@@ -26,6 +26,7 @@
 	(CygbuildCygcheckMain): Simplify function.
 	(CygbuildDefineGlobalCommands): emove CYGPATH. Not needed.
 	(CygbuildAskYes): Fix return status.
+	(CygbuildInstallPackageDocs): Handle filenames with spaces.
 
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 

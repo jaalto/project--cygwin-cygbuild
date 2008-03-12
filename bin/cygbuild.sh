@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1707"
+CYGBUILD_VERSION="2008.0312.1820"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9183,25 +9183,15 @@ function CygbuildInstallPackageDocs()
 
     find "$dest" -print > $retval
 
-    local mode644 mode755
-
     while read item
     do
 	if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
 	then
-	    mode755="$mode755 $item"
+	    chmod 755 "$item" || return $?
 	else
-	    mode644="$mode644 $item"
+	    chmod 644 "$item" || return $?
 	fi
     done < $retval
-
-    if [ "$mode644" ]; then
-	chmod 644 $mode644 || return $?
-    fi
-
-    if [ "$mode755" ]; then
-	chmod 755 $mode755 || return $?
-    fi
 
     return $status
 }
@@ -10784,7 +10774,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
                 _file=${file/$srcdir\//}
 
-                CygbuildWarn "-- [ERROR] Do not overwrite /etc in $_file," \
+                CygbuildWarn "-- [ERROR] Instead of $_file," \
                              "use /etc/defaults/etc and postinstall"
                 error=1
                 break
