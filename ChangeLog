@@ -19,6 +19,8 @@
 	(CygbuildRubyLibraryList): New.
 	(CygbuildDefineGlobalCommands): Add RUBYBIN
 	(CygbuildInstallFixInterpreterMain): Correct find -type call.
+	(CygbuildConfOptionAdjustment): Fix detection of extra configure
+	options.
 
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 
