@@ -26,7 +26,6 @@
 #
 #           $ cygbuild --help
 
-use 5.004;
 use strict;
 use integer;
 
@@ -88,7 +87,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0312.0842';
+$VERSION = '2008.0312.1713';
 
 # ..................................................................
 

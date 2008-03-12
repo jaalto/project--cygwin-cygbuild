@@ -1,6 +1,8 @@
 2008-03-12  Jari Aalto  <jari.aalto@cante.net>
 
-	* etc/lib/cygbuild.pl (UpdateNewVersionStanza): New.
+	* etc/lib/cygbuild.pl
+	(top level): Drop 'use 5.004'. Prototypes are standard in Perl.
+	(UpdateNewVersionStanza): New.
 	(ReadmeFix): Call `UpdateNewVersionStanza'.
 	(HELP): Add export NAME and EMAIL examples to the beginning.
 	Adjust "Case A".
