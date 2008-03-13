@@ -1,5 +1,19 @@
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 
+	- Moved all checking functions to separate library:
+	  etc/lib/libcheck.sh
+	(CygbuildCmdInstallCheckMain): Use libcheck.sh
+	(FROM_ETC_LIB): New
+	(OBJS_ETC_LIB): New.
+
+	* etc/lib/libcheck.sh: New file.
+	* Makefile (install-lib-symlinks): New.
+	(install-share-lib): New.
+	(install-share): Add install-share-lib.
+	(install-in-place): Add install-lib-symlinks.
+
+	[ commit: fb2dca2]
+
 	* bin/cygbuild.sh: (CygbuildCygcheckLibraryDepSource): Add
 	xmlto, asciidoc check. Add *.mk search.
 	(CygbuildCmdInstallCheckBinFiles): Add /usr/games.

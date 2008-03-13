@@ -32,26 +32,28 @@ include $(MAKE_INCLUDEDIR)/id.mk
 include $(MAKE_INCLUDEDIR)/vars.mk
 include $(MAKE_INCLUDEDIR)/unix.mk
 include $(MAKE_INCLUDEDIR)/cygwin.mk
-include $(MAKE_INCLUDEDIR)/net-sf.mk
-
-PL		= etc/lib/$(PACKAGE).pl
-SH		= bin/$(PACKAGE).sh \
-		  bin/$(PACKAGE)-rebuild.sh
+#include $(MAKE_INCLUDEDIR)/net-sf.mk
 
 #   There are directories fromt he archive, not install dirs. See vars.mk
 
 FROM_ETC_MAIN	 = etc/etc
 FROM_ETC_TMPL	 = etc/template
 FROM_ETC_DATA	 = etc/data
+FROM_ETC_LIB	 = etc/lib
 ETCDIR_TMPL	 = $(SHAREDIR)/template
 ETCDIR_DATA	 = $(SHAREDIR)/data
+ETCDIR_LIB	 = $(SHAREDIR)/lib
 ETCDIR_TMPL_USER = $(ETCDIR)/template
 
-SRCS		= $(PL) $(SH)
+SRCS		= bin/$(PACKAGE).sh \
+		  bin/$(PACKAGE)-rebuild.sh
+
 OBJS		= $(SRCS) Makefile README ChangeLog
+
 OBJS_ETC_MAIN	= `find $(FROM_ETC_MAIN) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
 OBJS_ETC_TMPL	= `find $(FROM_ETC_TMPL) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
 OBJS_ETC_DATA	= `find $(FROM_ETC_DATA) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
+OBJS_ETC_LIB	= `find $(FROM_ETC_LIB) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
 
 # ######################################################### &targets ###
 
@@ -93,7 +95,11 @@ doc-readme:
 # Rule: install-dir-structure - [maintenance] Create /etc directory
 install-dir-structure:
 	# install-dir-structure
-	$(INSTALL_BIN) -d $(ETCDIR_TMPL) $(ETCDIR_DATA) $(ETCDIR_TMPL_USER)
+	$(INSTALL_BIN) -d \
+		$(ETCDIR_TMPL) \
+		$(ETCDIR_DATA) \
+		$(ETCDIR_LIB)  \
+		$(ETCDIR_TMPL_USER)
 
 # Rule: install-etc-main - [maintenance] Install configuration files
 install-etc-main: install-dir-structure
@@ -129,6 +135,17 @@ install-share-template: install-dir-structure
 	    fi;								\
 	done
 
+# Rule: install-template-symlinks - [maintenance] Install templates using symlinks
+install-template-symlinks: install-dir-structure
+	# install-template-symlinks
+	-rm -f	$(ETCDIR_TMPL)/*
+	@for file in $(OBJS_ETC_TMPL);					\
+	do								\
+	    if [ -f $$file ]; then					\
+		ln -vsf `pwd`/$$file $(ETCDIR_TMPL)/`basename $$file`;	\
+	    fi;								\
+	done
+
 # Rule: install-share-data - [maintenance] Install data configuration files
 install-share-data: install-dir-structure
 	# install-share-data
@@ -138,17 +155,6 @@ install-share-data: install-dir-structure
 	    if [ -f $$file ]; then					\
 		echo $(INSTALL_DATA) $$file $(ETCDIR_DATA);		\
 		$(INSTALL_DATA) $$file $(ETCDIR_DATA);			\
-	    fi;								\
-	done
-
-# Rule: install-template-symlinks - [maintenance] Install templates using symlinks
-install-template-symlinks: install-dir-structure
-	# install-template-symlinks
-	-rm -f	$(ETCDIR_TMPL)/*
-	@for file in $(OBJS_ETC_TMPL);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		ln -vsf `pwd`/$$file $(ETCDIR_TMPL)/`basename $$file`;	\
 	    fi;								\
 	done
 
@@ -163,11 +169,37 @@ install-data-symlinks: install-dir-structure
 	    fi;								\
 	done
 
+# Rule: install-share-lib - [maintenance] Install lib configuration files
+install-share-lib: install-dir-structure
+	# install-share-lib
+	-rm -f	$(ETCDIR_LIB)/*
+	@for file in $(OBJS_ETC_LIB);					\
+	do								\
+	    if [ -f $$file ]; then					\
+		echo $(INSTALL_LIB) $$file $(ETCDIR_LIB);		\
+		$(INSTALL_LIB) $$file $(ETCDIR_LIB);			\
+	    fi;								\
+	done
+
+# Rule: install-lib-symlinks - [maintenance] Install lib using symlinks
+install-lib-symlinks: install-dir-structure
+	# install-lib-symlinks
+	-rm -f	$(ETCDIR_LIB)/*
+	@for file in $(OBJS_ETC_LIB);					\
+	do								\
+	    if [ -f $$file ]; then					\
+		ln -vsf `pwd`/$$file $(ETCDIR_LIB)/`basename $$file`;	\
+	    fi;								\
+	done
+
 # Rule: install-etc - [maintenance] Install /etc directories
-install-share: install-share-data install-share-template
+install-share: install-share-data \
+		install-share-lib \
+		install-share-template
 
 # Rule: install-in-place - Install from current dir using symlinks
 install-in-place: install-data-symlinks		\
+		install-lib-symlinks		\
 		install-template-symlinks	\
 		install-bin-symlink
 
