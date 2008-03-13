@@ -661,6 +661,48 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local path="$1"
 
+    #  FIXME: Move to data/setup.hint-categies
+
+    #  List of allowed values for Category header
+    #  The authorative list is in the Cygwin installer setup.hint
+    #  See also http://cygwin.com/setup.html
+    #
+    #  NOTICE: All must be space separated, no tabs anywhere.
+
+    CYGBUILD_SETUP_HINT_CATEGORY="\
+    Accessibility\
+    Admin\
+    Archive\
+    Audio\
+    Base
+    Database\
+    Devel\
+    Doc\
+    Editors\
+    Games\
+    Gnome\
+    Graphics\
+    Interpreters\
+    KDE\
+    Libs\
+    Mail\
+    Math\
+    Mingw\
+    Misc\
+    Net\
+    Perl\
+    Publishing\
+    Python\
+    Security\
+    Science\
+    Shells\
+    System\
+    Text\
+    Utils\
+    Web\
+    X11\
+    "
+
     if [ ! "$path" ]; then
 	CygbuildWarn "$id: Missing argument PATH"
 	return 1

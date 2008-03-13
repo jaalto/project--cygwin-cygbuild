@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0313.1010"
+CYGBUILD_VERSION="2008.0313.2015"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -777,46 +777,6 @@ function CygbuildBootVariablesGlobalMain()
     CYGBUILD_GPG_SIGN_EXT=.sig
 
     #       Private: install options and other variables
-
-    #  List of allowed values for Category header
-    #  The authorative list is in the Cygwin installer setup.hint
-    #  See also http://cygwin.com/setup.html
-    #
-    #  NOTICE: All this must be space separated, no tabs anywhere.
-
-    CYGBUILD_SETUP_HINT_CATEGORY="\
-    Accessibility\
-    Admin\
-    Archive\
-    Audio\
-    Base
-    Database\
-    Devel\
-    Doc\
-    Editors\
-    Games\
-    Gnome\
-    Graphics\
-    Interpreters\
-    KDE\
-    Libs\
-    Mail\
-    Math\
-    Mingw\
-    Misc\
-    Net\
-    Perl\
-    Publishing\
-    Python\
-    Security\
-    Science\
-    Shells\
-    System\
-    Text\
-    Utils\
-    Web\
-    X11\
-    "
 
     #  This variable holds bash match expressions for files to exclude
     #  from original sources while copying the user documentation to
@@ -1706,8 +1666,9 @@ function CygbuildFindDo()
     local arg="$1"
     shift
 
-    find -L $arg \
-	-type d '('		        \
+    find -L $arg			\
+	-type d				\
+	    '('				\
 	    -name ".inst"	        \
 	    -o -name ".sinst"	        \
 	    -o -name ".build"	        \
@@ -5716,21 +5677,20 @@ function CygbuildPatchList()
 
     [ "$dir" ] || return 0
 
-    #	Ignore verion controlled directories.
-
-    find -L $dir			\
-	-type d '(' -name ".git"	\
-		    -o -name ".bzr"	\
-		    -o -name ".mtn"	\
-		    -o -name ".svn"	\
-		    -o -name "CVS"	\
-		    -o -name "tmp"	\
-		')'			\
-	    -prune			\
-	    -o				\
-	    -type f -name "*patch"      \
-		2> /dev/null		|
+    CygbuildPushd
+	cd "$dir"		    &&
+	CygbuildFindDo .	    \
+	    -a -type d		    \
+		'('		    \
+		    ! -name "tmp"   \
+		    -a ! -name "."  \
+		')'		    \
+		-prune		    \
+	    -o -type f		    \
+		-name "*patch"	    |
+	    sed "s,^\.,$dir,"	    |
 	    sort
+    CygbuildPopd
 }
 
 function CygbuildPatchPrefixStripCountFromContent()
@@ -5885,9 +5845,9 @@ function CygbuildPatchApplyMaybe()
     local file done name continue list
 
     CygbuildPatchList > $retval
-    local list=$(< $retval)
+    [ -s $retval ] || return 0
 
-    [ "$list" ] || return 0
+    local list=$(< $retval)
 
     [ "$msg" ] && CygbuildEcho "$msg"
 
@@ -9064,14 +9024,16 @@ function CygbuildInstallPackageDocs()
 
     if [ "$docdirGuess" ]; then
 	CygbuildDetermineDocDir $builddir > $retval
-	[ -s $retval ] && dir=$(< $retval)
+	[ -s $retval ] || return 0
+
+	dir=$(< $retval)
 
 	if CygbuildIsDirEmpty "$dir" && [ ! "$tarOptInclude" ]; then
 	    return 0			#  Nothing to install
 	fi
     fi
 
-    CygbuildEcho "-- Installing docs from" ${dir/$srcdir\/}
+    CygbuildEcho "-- Installing docs from" ${dir#$srcdir/}
 
     CygbuildRun $scriptInstallDir $dest || return $?
 

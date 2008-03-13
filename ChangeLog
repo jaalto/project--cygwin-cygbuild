@@ -1,15 +1,21 @@
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 
-	- Moved all checking functions to separate library:
-	  etc/lib/libcheck.sh. Commit: 1eb59c7
+	* bin/cygbuild.sh:
+	-- Move all checking functions to separate library:
+	   etc/lib/libcheck.sh. Commit: 1eb59c7
+	(CygbuildBootVariablesGlobalMain): Move
+	CYGBUILD_SETUP_HINT_CATEGORY to libcheck.sh
 	(CygbuildCmdInstallCheckMain): Use libcheck.sh
-	(FROM_ETC_LIB): New
-	(OBJS_ETC_LIB): New.
+	(CygbuildInstallPackageDocs): Adjust docdirguess.
+	(CygbuildPatchList): Use `CygbuildFindDo'.
 
 	* etc/lib/libcheck.sh: New file.
 	(CygbuildCygcheckLibraryDepSourceMake): Fix regexp
 
-	* Makefile (install-lib-symlinks): New.
+	* Makefile
+	(FROM_ETC_LIB): New
+	(OBJS_ETC_LIB): New.
+	(install-lib-symlinks): New.
 	(install-share-lib): New.
 	(install-share): Add install-share-lib.
 	(install-in-place): Add install-lib-symlinks.

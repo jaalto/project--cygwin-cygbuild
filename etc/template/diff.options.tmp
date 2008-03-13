@@ -7,6 +7,6 @@
 # Completely ignore all cygbuild default -x options:
 # -x cygbuild-ignore-all-defaults
 #
-# Exclude file from patch:
-# -x Makefile.in
-# -x package.1.in
+# Exclude file from patch. Use *LONG* option if there are file glob patterns
+# --exclude=*.in
+

@@ -24,16 +24,19 @@ DESTDIR		=
 prefix		= /usr
 exec_prefix	= $(prefix)
 man_prefix	= $(prefix)/share
+mandir		= $(man_prefix)/man
+bindir		= $(exec_prefix)/bin
+sharedir	= $(prefix)/share
 
-BINDIR		= $(DESTDIR)$(exec_prefix)/bin
-DOCDIR		= $(DESTDIR)$(prefix)/share/doc
+BINDIR		= $(DESTDIR)$(bindir)/bin
+DOCDIR		= $(DESTDIR)$(sharedir/doc
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
 LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
 SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
 
 # 1 = regular, 5 = conf, 6 = games, 8 = daemons
-MANDIR		= $(DESTDIR)$(man_prefix)/man
+MANDIR		= $(DESTDIR)$(mandir)
 MANDIR1		= $(MANDIR)/man1
 MANDIR5		= $(MANDIR)/man5
 MANDIR6		= $(MANDIR)/man6
