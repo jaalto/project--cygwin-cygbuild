@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "CYGBUILD 1"
-.TH CYGBUILD 1 "2008-03-11" "perl v5.8.8" "Cygwin source and binary packge build script"
+.TH CYGBUILD 1 "2008-03-12" "perl v5.8.8" "Cygwin source and binary packge build script"
 .SH "NAME"
 cygbuild \- Cygwin source and binary package build script
 .SH "SYNOPSIS"
@@ -139,7 +139,7 @@ cygbuild \- Cygwin source and binary package build script
 .Ve
 .SH "QUICK OVERVIEW"
 .IX Header "QUICK OVERVIEW"
-The \*(L"big picture\*(R" of the porting directories used are as follows:
+The directories used in the program are as follows:
 .PP
 .Vb 22
 \&  ROOT/package
@@ -170,11 +170,19 @@ The \*(L"big picture\*(R" of the porting directories used are as follows:
 standard \f(CW\*(C`./configure\*(C'\fR script, the quick path for porting would be in
 the fortunate case:
 .PP
-.Vb 5
-\&    $ mkdir -p /tmp/build
-\&    $ rm /tmp/build/*
-\&    $ cd /tmp/build
-\&    $ mv /download/path/package-N.N.tar.gz .
+.Vb 2
+\&    $ export NAME="Firstname Lastname"
+\&    $ export EMAIL="foo@example.com"
+.Ve
+.PP
+.Vb 1
+\&    ... make a project directory
+.Ve
+.PP
+.Vb 4
+\&    $ mkdir -p /tmp/package
+\&    $ cd /tmp/package
+\&    $ wget http://example.com/package-N.N.tar.gz
 \&    $ tar -zxvf package-N.N.tar.gz
 .Ve
 .PP
@@ -183,7 +191,7 @@ the fortunate case:
 .Ve
 .PP
 .Vb 1
-\&    $ cd package-N.N
+\&    $ cd package-N.N/
 .Ve
 .PP
 .Vb 6
@@ -198,24 +206,24 @@ the fortunate case:
 .Vb 13
 \&    $ cygbuild -r 1 makedirs
 \&    $ cygbuild -r 1 files
-\&    $ cygbuild -r 1 shadow           # [optional]
+\&    $ cygbuild -r 1 readmefix       # Fill in CYGWIN/package.README
+\&    $ cygbuild -r 1 shadow          # prepare sources to .build/build
 \&    $ cygbuild -r 1 configure
 \&    $ cygbuild -r 1 make
-\&    $ cygbuild -r 1 -v -t install    # "verbose test mode" first
-\&    $ cygbuild -r 1 install          # The "real" install
-\&    $ find .inst/ -print             # Verify install structure
-\&    $ cygbuild -r 1 -v check         # Do install integrity check
-\&    $ cygbuild -r 1 -v depend        # Check dependencies
-\&    $ cygbuild -r 1 package          # Make Net install binary
-\&    $ cygbuild -r 1 source-package   # Make Net install source
-\&    $ cygbuild -r 1 publish          # Copy files to publish area (if any)
+\&    $ cygbuild -r 1 -v -t install   # "verbose test mode" first
+\&    $ cygbuild -r 1 install         # The "real" install
+\&    $ find .inst/ -print            # Verify install structure
+\&    $ cygbuild -r 1 -v check        # Do install integrity check
+\&    $ cygbuild -r 1 package         # Make Net install binary
+\&    $ cygbuild -r 1 source-package  # Make Net install source
+\&    $ cygbuild -r 1 publish         # Copy files to publish area (if any)
 .Ve
 .PP
-There is also shortcut 'import', which runs steps up to 'make'
+There is also shortcut 'import', which runs all steps up till 'make'
 .PP
 .Vb 4
 \&    $ cygbuild -r 1 import
-\&    ...  Package is configured. Did it succeed? *Try* install first
+\&    ...  Package is configured. Did it succeed? Run test install
 \&    $ cygbuild -r 1 -v -t install
 \&    ...  If ok, continue just like in the example above
 .Ve
@@ -224,7 +232,7 @@ To make this easier, an alias will help.
 .PP
 .Vb 3
 \&    $ alias cb="cygbuild --color --sign $GPGKEY"
-\&    $ cb import
+\&    $ cb -r 1 import
 \&    ...
 .Ve
 .PP
@@ -232,11 +240,10 @@ To make this easier, an alias will help.
 controlled by cygbuild, then commands \fB[all]\fR and \fB[almostall]\fR can
 be used to check the binary build:
 .PP
-.Vb 5
-\&    $ mkdir -p /tmp/build
-\&    $ rm -rf /tmp/build/*
-\&    $ tar -C /tmp/build -xf package-N.N-RELEASE-src.tar.bz2
-\&    $ cd /tmp/build
+.Vb 4
+\&    $ mkdir -p /tmp/package
+\&    $ cd /tmp/package
+\&    $ tar -xf /path/to/package-N.N-RELEASE-src.tar.bz2
 \&    $ ./*.sh --color --verbose all
 .Ve
 .SH "OPTIONS"

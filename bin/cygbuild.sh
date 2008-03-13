@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1923"
+CYGBUILD_VERSION="2008.0312.1932"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4463,7 +4463,7 @@ function CygbuildNoticeBuilddirMaybe()
 {
     if ! CygbuildIsBuilddirOk ; then
         CygbuildWarn "-- [ERROR] Builddir not ready." \
-            "Try running command '[re]shadow'."
+            "Try running command 'shadow'."
         return 1
     fi
 }
@@ -7133,7 +7133,6 @@ function CygbuildMakefilePrefixIsStandard ()
 
 function CygbuildMakefileRunInstallCygwinOptions()
 {
-set -x
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx=${1:-"prefix=$CYGBUILD_PREFIX"}
@@ -7187,7 +7186,6 @@ set -x
              $CYGBUILD_MAKEFLAGS        \
              install
     )
-exit 777
 }
 
 function CygbuildMakefileRunInstallFixInfo()
@@ -8014,8 +8012,7 @@ function CygbuildCmdShadowMain()
     CygbuildEcho "== Shadow command"
 
     if CygbuildIsBuilddirOk ; then
-        CygbuildEcho "-- Already shadowed. Perhaps you had" \
-	    "in mind [rmshadow] or [reshadow]"
+        :
     else
         #    When shadowing, use clean base
 
