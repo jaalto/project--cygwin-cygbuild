@@ -1138,7 +1138,7 @@ CygbuildCygcheckLibraryDepSourceMake()
     while read file
     do
 	$EGREP --with-filename --line-number --ignore-case \
-	    '^[^#]*xmlto|asciidoc)\>'	    \
+	    '^[^#]*(xmlto|asciidoc)\>'	    \
 	    "$file"			    \
 	    > $retval.grep
     done < $retval
