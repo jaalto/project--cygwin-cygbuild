@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0312.1932"
+CYGBUILD_VERSION="2008.0313.0945"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1883,7 +1883,43 @@ CygbuildCygcheckLibraryDepList ()
     ' "$file"
 }
 
-CygbuildCygcheckLibraryDepSource()
+CygbuildCygcheckLibraryDepSourceMake()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    CygbuildFindDo "."		    \
+	-o -type f -iname "*make*"  \
+	-o -name "*.mk"		    \
+	-o -name "*.mak"	    \
+	> $retval		    \
+	2> /dev/null
+
+    [ -s $retval ] || return 0
+
+    : > $retval.grep
+
+    while read file
+    do
+	$EGREP --with-filename --line-number --ignore-case \
+	    '^[^#]*xmlto|asciidoc)\>'	    \
+	    "$file"			    \
+	    > $retval.grep
+    done < $retval
+
+    [ -s $retval.grep ] || return 0
+
+    # FIXME: CAn we detect if this is mentioned in README?
+    # FIXME: Might be difficult to parse result grep: $(XMLTO) etc.
+
+    # CygbuildDetermineReadmeFile > $retval.me
+    # local readme=$(< $retval.me)
+
+    CygbuildWarn "-- [WARN] Possible build dependency"
+    cat $retval.grep
+}
+
+CygbuildCygcheckLibraryDepSourceCpp()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -1896,27 +1932,40 @@ CygbuildCygcheckLibraryDepSource()
 	-name "*.c"		\
 	-o -name "*.cc"		\
 	-o -name "*.cpp"	\
-	> $retval
+	> $retval		\
+	2> /dev/null
 
-    : > $retval.1
+    [ -s $retval ] || return 0
 
-    if [ -s $retval ]; then
+    local re="^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER|<\sendmail\>)"
+    re="$re|\<system\>.*[(]"
+    local file
 
+    : > $retval.grep
+
+    while read file
+    do
 	$EGREP --line-number --with-filename		\
-	    "^[^/]*exec[a-z]* *\(|include .*getopt\>"	\
-	    $(< $retval) >> $retval.grep
+	    "^[^/]*exec[a-z]* *\(|include .*getopt\>"   \
+	    "$file"					\
+	    >> $retval.grep
 
-	local re="^[^#]*(\<exec\>|SMTPSERVER|SMTP_SERVER|<\sendmail\>)"
-	re="$re|\<system\>.*[(]"
+	$EGREP --with-filename --line-number		\
+	    "$re"					\
+	    >> $retval.grep
 
-	$EGREP --line-number --with-filename "$re" \
-	    $(< $retval) >> $retval.grep
+    done < $retval
 
-	if [ -s $retval.grep ] ; then
-	    CygbuildWarn "-- [WARN] Possible external system calls"
-	    cat $retval.grep
-	fi
-    fi
+    [ -s $retval.grep ] || return 0
+
+    CygbuildWarn "-- [WARN] Possible external system calls"
+    cat $retval.grep
+}
+
+CygbuildCygcheckLibraryDepSourcePython()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     find "${instdir#$srcdir/}"	    \
 	-type f			    \
@@ -1924,19 +1973,34 @@ CygbuildCygcheckLibraryDepSource()
 	    ! -path "*/doc/*"	    \
 	    -a ! -path "*/man/*"    \
 	')'			    \
-	> $retval
+	> $retval		    \
+	2> /dev/null
 
     [ -s $retval ] || return 0
 
-    $EGREP --line-number --with-filename	\
-	'^[^#]*\<os[a-z]*\.rename'		\
-	$(< $retval) > $retval.grep
+    : > $retval.grep
 
-    if [ -s $retval.grep ]; then
-	CygbuildWarn "-- [WARN] Python::os.rename is" \
-	    "likely to fail on Cygwin"
-	cat $retval.grep
-    fi
+    while read file
+    do
+	$EGREP --with-filename --line-number	\
+	    '^[^#]*\<os[a-z]*\.rename'		\
+	    "$file"				\
+	    > $retval.grep
+    done < $retval
+
+    [ -s $retval.grep ] || return 0
+
+    CygbuildWarn "-- [WARN] Python::os.rename is" \
+	"likely to fail on Cygwin"
+
+    cat $retval.grep
+}
+
+CygbuildCygcheckLibraryDepSourceMain()
+{
+    CygbuildCygcheckLibraryDepSourceCpp
+    CygbuildCygcheckLibraryDepSourceMake
+    CygbuildCygcheckLibraryDepSourcePython
 }
 
 function CygbuildCygcheckLibraryDepAdjust()
@@ -1965,13 +2029,74 @@ function CygbuildCygcheckLibraryDepAdjust()
     done < $file
 }
 
+function CygbuildDetermineReadmeFile()
+{
+    local id="$0.$FUNCNAME"
+    local ret file
+
+    for file in  $DIR_CYGPATCH/$PKG.README  \
+                 $DIR_CYGPATCH/README
+    do
+        #   install first found file
+        if [ -f "$file" ]; then
+            ret=$file
+            break
+        fi
+    done
+
+    if [ "$ret" ]; then
+        echo $ret
+    else
+        return 1
+    fi
+}
+
+function CygbuildDetermineDocDir()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="${1%/}"      # delete trailing slash
+
+    CygbuildExitIfNoDir \
+        "$dir" "$id: [FATAL] Call parameter DIR does not exist [$dir]"
+
+    local ret=""
+    local try=""
+
+    #   Examples: http:://wwww.fprot.org/ uses doc_ws
+    #   There must be trailing slash, because DIR may be a symlink and
+    #   the content is important.
+
+    if ls -F $dir/ |
+       $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
+    then
+        while read try
+        do
+            try=$dir/$try           # Absolute path
+            if [ -d "$try" ]; then
+                ret=${try%/}        # Delete trailing slash
+                break
+            fi
+        done < $retval
+    fi
+
+    echo $ret
+}
+
 function CygbuildCygcheckLibraryDepReadme()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
-    local readme="$DIR_CYGPATCH/$PKG.README"
     local lib
+
+    CygbuildDetermineReadmeFile > $retval
+    local readme=$(< $retval)
+
+    if [ ! "$readme" ]; then
+	CygbuildWarn "$id: [ERROR] Can't set REAME filename"
+	return 1
+    fi
 
     while read lib
     do
@@ -4526,7 +4651,7 @@ function CygbuildCygDirCheck()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    # Make sure there is a README at /usr/share/doc/Cygwin/
+    #	Make sure there is a README in /usr/share/doc/Cygwin/
 
     CygbuildExitIfNoDir "$DIR_DOC_CYGWIN"  "$id: [ERROR] no $DIR_DOC_CYGWIN" \
               "Did forget to run [files] before [install]?"
@@ -4547,60 +4672,6 @@ function CygbuildCygDirCheck()
             "-- [WARN] $DIR_DOC_CYGWIN/package.README contains tags." \
             "Edit, use [readmefix] and run [install]"
     fi
-}
-
-function CygbuildDetermineReadmeFile()
-{
-    local id="$0.$FUNCNAME"
-    local ret file
-
-    for file in  $DIR_CYGPATCH/$PKG.README  \
-                 $DIR_CYGPATCH/README
-    do
-        #   install first found file
-        if [ -f "$file" ]; then
-            ret=$file
-            break
-        fi
-    done
-
-    if [ "$ret" ]; then
-        echo $ret
-    else
-        return 1
-    fi
-}
-
-function CygbuildDetermineDocDir()
-{
-    local id="$0.$FUNCNAME"
-    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local dir="${1%/}"      # delete trailing slash
-
-    CygbuildExitIfNoDir \
-        "$dir" "$id: [FATAL] Call parameter DIR does not exist [$dir]"
-
-    local ret=""
-    local try=""
-
-    #   Examples: http:://wwww.fprot.org/ uses doc_ws
-    #   There must be trailing slash, because DIR may be a symlink and
-    #   the content is important.
-
-    if ls -F $dir/ |
-       $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
-    then
-        while read try
-        do
-            try=$dir/$try           # Absolute path
-            if [ -d "$try" ]; then
-                ret=${try%/}        # Delete trailing slash
-                break
-            fi
-        done < $retval
-    fi
-
-    echo $ret
 }
 
 #######################################################################
@@ -9245,7 +9316,7 @@ function CygbuildInstallExtraManual()
                 --section="$nbr"                                    \
                 --release="dummy123"                                \
                 --center="User Contributed Documentation" $file |   \
-                sed -e 's/dummy123//g'                             \
+		sed -e 's/dummy123//g'				    \
                      -e "s/$name/$program/ig"                       \
                 > $manpage  ||                                      \
                 return $?
@@ -9256,17 +9327,17 @@ function CygbuildInstallExtraManual()
         #  Copy manual pages to installation directory
 
         nbr=${nbr%$addsect}
-        mansect=$mandest/man$nbr
+        mansect="$mandest/man$nbr"
 
         CygbuildEcho "-- Copying external manual page" \
              ${manpage/$srcdir\/} "to" ${mandest/$srcdir\/}
 
-        $scriptInstallDir  $mansect
-        $scriptInstallFile $manpage $mansect
+        $scriptInstallDir  "$mansect"
+        $scriptInstallFile "$manpage" "$mansect"
 
         if [ "$podcopy" ]; then
             #  This was generated and installed, so remove it
-            rm $podcopy
+            rm -f "$podcopy"
         fi
     done
 }
@@ -9296,7 +9367,12 @@ function CygbuildInstallExtraManualCompress()
 
         if [ -s $retval ]
         then
-            CygbuildCompressManualPage --force --best $(< $retval) || return $?
+	    local file
+
+	    while read file
+	    do
+		CygbuildCompressManualPage --force --best "$file" || return $?
+	    done < $retval
         fi
 
         find $instdocdir -type l -name "*.[1-9]" > $retval
@@ -9439,12 +9515,13 @@ function CygbuildInstallFixFileExtensions()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    find "$instdir/usr/bin" \
+    find "$instdir/usr/bin" "$instdir/usr/games" \
 	-type f		    \
 	-name "*.rb"	    \
 	-o -name "*.py"	    \
 	-o -name "*.pl"	    \
-	> $retval
+	> $retval	    \
+	2> /dev/null
 
     [ -s $retval ] || return 0
 
@@ -10518,11 +10595,10 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
 	return 1
     fi
 
-    for item in $(< $retval)
+    for item in $(< $retval) # Break on space to read categoies
     do
 	#  Skip first word, the "Category:" header
 	[[ "$item" == *:* ]] && continue
-
 
 	if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
 	    CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"
@@ -10592,11 +10668,11 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     #  We assume that developer always has every package and library
     #  installed
 
-    local lib
-
     awk  '/^requires:/ { sub("requires:", ""); print}' $path > $retval
 
-    for lib in $(< $retval)
+    local lib
+
+    for lib in $(< $retval)	# Break line on space to get LIBs
     do
         if $EGREP --quiet --files-with-matches "$lib" "$database"
         then
@@ -10713,7 +10789,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
     local tmp error try
 
-    for try in $instdir/bin $pfx/bin $pfx/sbin $pfx/lib
+    for try in $instdir/bin $pfx/bin $pfx/games $pfx/sbin $pfx/lib
     do
         if [ -d "$try" ]; then
             error=1
@@ -11202,6 +11278,7 @@ function CygbuildCmdInstallCheckBinFiles()
 	   -o -path "*/sbin/*"	    \
 	   -o -path "*/lib/*"	    \
            -o -path "*/share/$PKG*" \
+	   -o -path "*/usr/games/*" \
 	\)			    \
         > $retval
 
@@ -11598,7 +11675,7 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckDocdir            || stat=$?
 
     [ "$verbose" ] &&
-	CygbuildCygcheckLibraryDepSource     || stat=$?
+	CygbuildCygcheckLibraryDepSourceMain || stat=$?
 
     CygbuildCmdInstallCheckBinFiles          || stat=$?
     CygbuildCmdInstallCheckSymlinks          || stat=$?

@@ -26,11 +26,11 @@ exec_prefix	= $(prefix)
 man_prefix	= $(prefix)/share
 
 BINDIR		= $(DESTDIR)$(exec_prefix)/bin
+DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
 LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
 SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
 ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
-DOCDIR		= $(DESTDIR)$(prefix)/share/doc
 
 # 1 = regular, 5 = conf, 6 = games, 8 = daemons
 MANDIR		= $(DESTDIR)$(man_prefix)/man
@@ -39,15 +39,15 @@ MANDIR5		= $(MANDIR)/man5
 MANDIR6		= $(MANDIR)/man6
 MANDIR8		= $(MANDIR)/man8
 
-INSTALL		= /usr/bin/install
-INSTALL_BIN	= $(INSTALL) -m 755
-INSTALL_SUID	= $(INSTALL) -m 4755
-INSTALL_DATA	= $(INSTALL) -m 644
-
 INSTALL_OBJS_BIN   = $(PACKAGE)
 INSTALL_OBJS_MAN1  = *.1
 INSTALL_OBJS_SHARE =
 INSTALL_OBJS_ETC   =
+
+INSTALL		= /usr/bin/install
+INSTALL_BIN	= $(INSTALL) -m 755
+INSTALL_DATA	= $(INSTALL) -m 644
+INSTALL_SUID	= $(INSTALL) -m 4755
 
 LDFLAGS		=
 CC		= gcc
