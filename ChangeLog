@@ -1,5 +1,8 @@
 2008-03-14  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/cygbuild.pl: (HELP::Patch management commands):
+	Document new command [patch-list].
+
 	* bin/cygbuild.sh (CygbuildPerlLibraryList): Remove var SORT.
 	(CygbuildObjDumpLibraryDepList): Remove var SORT.
 	(CygbuildCygcheckLibraryDepListFull): Remove var SORT.
@@ -13,6 +16,7 @@
 	(CygbuildPatchFileList): Was CygbuildPatchList.
 	(CygbuildFindLowlevel): New.
 	(CygbuildPatchFileList): Use CygbuildFindLowlevel
+	(CygbuildCommandMainCheckSpecial): New command [patch-list].
 
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 

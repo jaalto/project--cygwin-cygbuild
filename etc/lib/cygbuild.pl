@@ -87,7 +87,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0312.1713';
+$VERSION = '2008.0314.0949';
 
 # ..................................................................
 
@@ -730,10 +730,14 @@ B<--strip> option to B<patch(1)> command.
 
 See also command B<[unpatch]>.
 
-=item B<patch-check>
+=item B<patch-check|pchk>
 
 Display content of C<CYGWIN-PATCHES/done-patches.tmp> if any and list
 filenames from result of command B<[mkpatch]>.
+
+=item B<patch-list|plist>
+
+Display patch list of C<CYGWIN-PATCHES/>. The order is apply order.
 
 =item B<unpatch>
 

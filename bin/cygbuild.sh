@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.0943"
+CYGBUILD_VERSION="2008.0314.0947"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5715,7 +5715,7 @@ function CygbuildPatchApplyRun()
 function CygbuildPatchFileList()
 {
     local id="$0.$FUNCNAME"
-    local dir=${1:-$DIR_CYGPATCH}
+    local dir=${1:-${DIR_CYGPATCH:?Variable not defined}}
 
     [ "$dir" ] || return 0
 
@@ -10763,6 +10763,10 @@ function CygbuildCommandMainCheckSpecial()
             -V|--Version|--version)
                 CygbuildProgramVersion 0
                 ;;
+	    patch-list|plist)
+		CygbuildPatchFileList CYGWIN-PATCHES
+		exit 0
+		;;
 	    download|dl)
 		CygbuildCmdDownloadUpstream
 		exit 0
