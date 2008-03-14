@@ -7,6 +7,9 @@
 	(CygbuildDefineGlobalCommands): Define GPGOPT.
 	(CygbuildGPGsignFiles): Use GPGOPT.
 	(CygbuildGPGverify): Use GPGOPT.
+	(CygbuildDllToLibName): new.
+	(CygbuildCygcheckLibraryDepMain): Use objdump result and
+	`CygbuildDllToLibName'.
 
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 

@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.0707"
+CYGBUILD_VERSION="2008.0314.0910"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1758,6 +1758,22 @@ CygbuildObjDumpLibraryDepList ()
          sort          # No need for --unique; awk uses hash
 }
 
+CygbuildDllToLibName ()
+{
+    # cygncurses-8.dll => libncurses8
+
+    local lib ver
+
+    for lib in "$@"
+    do
+	lib=${lib%.dll}
+	ver=${lib##*-}
+	lib=${lib%-*}
+
+	echo lib${lib#cyg}$ver
+    done
+}
+
 CygbuildCygcheckLibraryDepListFull ()
 {
     local id="$0.$FUNCNAME"
@@ -1940,7 +1956,7 @@ function CygbuildCygcheckLibraryDepReadme()
 
     while read lib
     do
-        if ! $EGREP --quiet " \b$lib" $readme
+        if ! $EGREP --quiet " \<$lib" $readme
         then
             CygbuildWarn "-- [ERROR] $PKG.README does not mention $lib"
         fi
@@ -2146,7 +2162,7 @@ function CygbuildCygcheckLibraryDepMain()
     #   2) use fgrep to get all lines matchíng the dlls
     #   3) process the fgrep results to extract package name
 
-    CygbuildEcho "-- Trying to resolve depends for" ${file/$srcdir\//}
+    CygbuildEcho "-- Trying to resolve depends for" ${file#$srcdir/}
 
     # old methods
     # CygbuildCygcheckLibraryDepList "$datafile" > "$retval"
@@ -2161,17 +2177,22 @@ function CygbuildCygcheckLibraryDepMain()
     if CygbuildCygcheckLibraryDepGrepPgkNamesMain \
        "$retval" > "$retval.pkglist"
     then
-        CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
         CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
+        # CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
 
         sed 's/^ \+//' "$retval.pkglist" |
 	    sort --unique |
 	    sed 's/^/   depends: /'
 
-	CygbuildEcho "-- Objdump reports dependencies"
-	CygbuildObjDumpLibraryDepList "$file"
+	CygbuildObjDumpLibraryDepList "$file" > "$retval.obj"
+	CygbuildDllToLibName $retval.obj > "$retval.libnames"
 
-        CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
+	CygbuildEcho "-- Objdump direct dependencies (possible more accurate)"
+	cat "$retval.obj"
+
+        CygbuildCygcheckLibraryDepSetup "$retval.libnames"
+        CygbuildCygcheckLibraryDepReadme "$retval.libnames"
+
     fi
 }
 
@@ -3548,7 +3569,7 @@ function CygbuildFileReadOptionsMaybe()
 
         if [ ! "$msg" ]; then
             CygbuildWarn "-- Reading more options from" \
-                         "${file/$srcdir\/}: $str"
+                         "${file#$srcdir/}: $str"
         else
             CygbuildWarn "$msg"
         fi
@@ -4649,7 +4670,7 @@ function CygbuildGPGsignFiles()
 
     for file in "$@"
     do
-        CygbuildEcho "-- Signing with key [$signkey] file ${file/$srcdir\/}"
+        CygbuildEcho "-- Signing with key [$signkey] file ${file#$srcdir/}"
 
         sigfile=$file$sigext
 
@@ -4964,7 +4985,7 @@ function CygbuildReadmeReleaseMatchCheck()
 
     if [ "$rel" != "$REL" ]; then
         CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel" \
-                     "in ${file/$srcdir\//}"
+                     "in ${file#$srcdir/}"
     fi
 }
 
@@ -5251,7 +5272,7 @@ function CygbuildCmdPkgExternal()
         cd $instdir
 
         CygbuildEcho "== Making package [binary] with external:" \
-             ${prg/$srcdir\/} $PKG $VER $REL
+             ${prg#$srcdir/} $PKG $VER $REL
 
         CygbuildChmodExec $prg
         $prg $PKG $VER $REL $TOPDIR
@@ -5292,7 +5313,7 @@ function CygbuildCmdPkgDevelStandardDoc()
             PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DOC
 
-            CygbuildEcho "-- devel-doc" ${tar/$srcdir\//}
+            CygbuildEcho "-- devel-doc" ${tar#$srcdir/}
 
             tar $taropt $tar $(< $retval.doc) ||
             {
@@ -5324,7 +5345,7 @@ function CygbuildCmdPkgDevelStandardBin()
 
             local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -${z}cf"
 
-            CygbuildEcho "-- devel-bin" ${tar/$srcdir\//}
+            CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
             tar $taropt $tar \
             $(< $retval.bin) $(< $retval.man.bin) ||
@@ -5375,7 +5396,7 @@ function CygbuildCmdPkgDevelStandardLib()
             PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DEV
 
-            CygbuildEcho "-- devel-lib" ${tar/$srcdir\//}
+            CygbuildEcho "-- devel-lib" ${tar#$srcdir/}
 
             tar $taropt $tar \
             $(< $retval.lib) ||
@@ -5418,7 +5439,7 @@ function CygbuildCmdPkgDevelStandardDev()
             PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
             local tar=$PATH_PKG_LIB_LIBRARY
 
-            CygbuildEcho "-- devel-dev" ${tar/$srcdir\//}
+            CygbuildEcho "-- devel-dev" ${tar#$srcdir/}
 
             tar $taropt $tar \
             $(< $retval.dev) ||
@@ -5448,7 +5469,7 @@ function CygbuildCmdPkgDevelStandardMain()
     CygbuildPushd
 
         CygbuildEcho "== Making packages [devel] from" \
-                     "${instdir/$srcdir\//}"
+                     "${instdir#$srcdir/}"
 
         cd $instdir || exit 1
 
@@ -5567,7 +5588,7 @@ function CygbuildCmdPkgBinaryStandard()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local pkg=$FILE_BIN_PKG
 
-    CygbuildEcho "== Making package [binary]" ${pkg/$srcdir\/}
+    CygbuildEcho "== Making package [binary]" ${pkg#$srcdir/}
 
     CygbuildExitIfNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
               "Did you forget to run [mkdirs]?"
@@ -5863,7 +5884,7 @@ function CygbuildPatchApplyMaybe()
 
         if [ ! -f "$statfile" ]; then
             CygbuildEcho "-- [INFO] Nothing to unpatch. No" \
-                         ${statfile/$srcdir\//}
+                         ${statfile#$srcdir/}
             return 0
         fi
 
@@ -5980,7 +6001,7 @@ function CygbuildCmdMkpatchMain()
     local debug
     [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
-    CygbuildEcho "== Making patch" ${out/$srcdir\/}
+    CygbuildEcho "== Making patch" ${out#$srcdir/}
 
     CygbuildNoticeBuilddirMaybe || return 1
 
@@ -6214,7 +6235,7 @@ function CygbuildCmdMkpatchMain()
                     mv "$out.tmp" "$out"
                 fi
 
-                CygbuildVerb "-- Removing" ${origpkgdir/$srcdir\/}
+                CygbuildVerb "-- Removing" ${origpkgdir#$srcdir/}
 
                 if [ ! "$debug" ]; then
                     rm -rf "$origpkgdir" "$cleandir"
@@ -6278,7 +6299,7 @@ function CygbuildCmdPkgSourceStandard()
     local name="$SCRIPT_SRC_PKG_BUILD"    # script-VERSION-RELEASE.sh
     local taropt="$verbose -jcf"
 
-    CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG/$srcdir\/}
+    CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG#$srcdir/}
 
     local script="$srcinstdir/$name"
 
@@ -6310,7 +6331,7 @@ function CygbuildCmdPkgSourceStandard()
 
         if [ -s $retval ]; then
             CygbuildWarn "-- [NOTE] Deleting old releases from" \
-                         ${srcinstdir/$srcdir\/}
+                         ${srcinstdir#$srcdir/}
 
             rm $verbose $(< $retval) || exit $?
         fi
@@ -6343,7 +6364,7 @@ function CygbuildCmdPkgSourceExternal ()
         cd $instdir || exit 1
 
         eCygbuildEcho "== [NOTE] Making package [source] with external:" \
-             ${prg/$srcdir\/} $PKG $VER $REL
+             ${prg#$srcdir/} $PKG $VER $REL
 
         CygbuildChmodExec $prg
 
@@ -6689,7 +6710,7 @@ function CygbuildMakeRunInstallFixPerlManpage()
 
     for file in $bindir/*
     do
-        _file=${file/$srcdir\/}
+        _file=${file#$srcdir/}
         name=${file##*/}
         name=${name%.pl}
         manpage="$destdir/$name.1"
@@ -7155,14 +7176,14 @@ function CygbuildMakefileRunInstallMain()
     #   install under .inst/
 
     CygbuildEcho "-- Running 'make install' (or equiv.) in" \
-                 ${builddir/$srcdir\/}
+                 ${builddir#$srcdir/}
 
     if [ -f "$makeScript" ]; then
 
-        CygbuildEcho "--- Running external make:" ${makeScript/$srcdir\/} \
-	     ${instdir/$srcdir\/}	\
+        CygbuildEcho "--- Running external make:" ${makeScript#$srcdir/} \
+	     ${instdir#$srcdir/}	\
 	     $CYGBUILD_PREFIX		\
-             ${exec_prefix/$srcdir\/}
+             ${exec_prefix#$srcdir/}
 
         echo "$id: NOT YET IMPLEMENTED"
 
@@ -7910,7 +7931,7 @@ function CygbuildCmdShadowDelete()
     local id="$0.$FUNCNAME"
     local pfile="$CYGPATCH_DONE_PATCHES_FILE"
 
-    CygbuildVerb "-- Emptying shadow directory" ${builddir/$srcdir\/}
+    CygbuildVerb "-- Emptying shadow directory" ${builddir#$srcdir/}
 
     if [[ ! -d "$srcdir" ]]; then
         CygbuildVerb "-- Nothing to do. No directory found: $srcdir"
@@ -7952,7 +7973,7 @@ function CygbuildCmdShadowMain()
 
         CygbuildPopd
 
-        CygbuildVerb "-- Wait, shadowing source files to ${builddir/$srcdir\/}"
+        CygbuildVerb "-- Wait, shadowing source files to ${builddir#$srcdir/}"
         CygbuildTreeSymlinkCopy "$srcdir" "$builddir"
         CygbuildVerb "-- Shadow finished."
     fi
@@ -8586,7 +8607,7 @@ function CygbuildCmdBuildStdMakefile()
             (
                 if [ -r "$optfile" ]; then
                     CygbuildEcho "-- Reading extra env from" \
-                                 ${optfile/$srcdir\//}
+                                 ${optfile#$srcdir/}
 
                     [ "$verbose" ] && cat $optfile
                     source $optfile || exit $?
@@ -8633,7 +8654,7 @@ function CygbuildCmdBuildMain()
     if [ -f "$script" ]; then
 
         CygbuildEcho "--- Building with external:" \
-		 ${script/$srcdir\/} $PKG $VER $REL
+		 ${script#$srcdir/} $PKG $VER $REL
 
         CygbuildPushd
             cd $builddir || exit 1
@@ -8714,7 +8735,7 @@ function CygbuildCmdCleanMain()
     local dir=${1:-$builddir}
     local opt="$2"
 
-    CygbuildEcho "-- Running 'make clean' (or equiv.) in" ${dir/$srcdir\/}
+    CygbuildEcho "-- Running 'make clean' (or equiv.) in" ${dir#$srcdir/}
 
     CygbuildExitIfNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
 
@@ -8776,7 +8797,7 @@ function CygbuildCmdDistcleanMain
     local dir=${1:-$builddir}
     local opt="$2"
 
-    CygbuildEcho "-- Running 'make distclean' (or equiv.) in" ${dir/$srcdir\/}
+    CygbuildEcho "-- Running 'make distclean' (or equiv.) in" ${dir#$srcdir/}
 
     local status=0
 
@@ -8833,7 +8854,7 @@ function CygbuildInstallPackageInfo()
             $INSTALL_SCRIPT $INSTALL_BIN_MODES -d "$DIR_INFO" || return 1
             done=1
             CygbuildEcho "-- Installing info files to" \
-                         "${dest/$srcdir\//}"
+                         "${dest#$srcdir/}"
         fi
 
         if [ -f "$file" ]; then
@@ -8994,7 +9015,7 @@ function CygbuildInstallPackageDocs()
         if [ ! "$done" ]; then      #  Do this only once
             CygbuildRun $scriptInstallDir "$dest" || return $?
             done=1
-            CygbuildVerb "-- Installing docs to" ${dest/$srcdir\/} \
+            CygbuildVerb "-- Installing docs to" ${dest#$srcdir/} \
                          ${test:+(TEST MODE)}
         fi
 
@@ -9097,7 +9118,7 @@ function CygbuildInstallPackageDocs()
 	return $status
     fi
 
-    local _dest=${dest/$srcdir\/}
+    local _dest=${dest#$srcdir/}
     CygbuildVerb "-- Adjusting permissions in $_dest" ${test:+(TEST MODE)}
 
     find "$dest" -print > $retval
@@ -9180,7 +9201,7 @@ function CygbuildInstallExtraManual()
         mansect="$mandest/man$nbr"
 
         CygbuildEcho "-- Copying external manual page" \
-             ${manpage/$srcdir\/} "to" ${mandest/$srcdir\/}
+             ${manpage#$srcdir/} "to" ${mandest#$srcdir/}
 
         $scriptInstallDir  "$mansect"
         $scriptInstallFile "$manpage" "$mansect"
@@ -9289,7 +9310,7 @@ function CygbuildInstallExtraBinFiles
 
         todir="$instdir$dest"
 
-        CygbuildVerb "-- install ${todir/$srcdir\//}/$_file"
+        CygbuildVerb "-- install ${todir#$srcdir/}/$_file"
 
         CygbuildRun $scriptInstallFile $item $todir/$_file || return $?
     done
@@ -9539,7 +9560,7 @@ function CygbuildInstallFixDocdirInstall()
 	do
 	    if CygbuildIsDirEmpty "$tmp" ; then
 		CygbuildVerb "-- Removing empty directory" \
-			     ${tmp/$pwd\//}
+			     ${tmp#$pwd/}
 		rmdir "$tmp"
 	    fi
 	done < $retval
@@ -9586,7 +9607,7 @@ function CygbuildInstallFixDocdirInstall()
     fi
 
     CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$pwd/} to" \
-		 ${dest/$dir\//}
+		 ${dest#$dir/}
 }
 
 function CygbuildInstallPostinstallPartInfo()
@@ -9713,7 +9734,7 @@ function CygbuildInstallFixEtcdirInstall()
     fi
 
     CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
-		 ${DIR_DEFAULTS_GENERAL/$dir\//}
+		 ${DIR_DEFAULTS_GENERAL#$dir/}
 
     CygbuildInstallPostinstallPartEtc
 }
@@ -9739,7 +9760,7 @@ function CygbuildInstallFixInterpreterMain()
     do
         [ -f "$file" ] || continue
 
-        local _file=${file/$srcdir\/}       # relative path
+        local _file=${file#$srcdir/}       # relative path
 
         head -1 "$file" > $retval 2> /dev/null
 
@@ -9782,7 +9803,7 @@ function CygbuildInstallFixPerlPacklist()
     do
         [ -f "$file" ] || continue
 
-        local _file=${file/$srcdir\/}       # relative path
+        local _file=${file#$srcdir/}       # relative path
 
         CygbuildVerb "-- Adjusting $_file"
 
@@ -9819,7 +9840,7 @@ function CygbuildInstallCygwinPartPostinstall()
         local tofile="$dest/$PKG.sh"
 
         CygbuildEcho "-- Installing postinstall script to" \
-                     "directory ${tofile/$srcdir\//}"
+                     "directory ${tofile#$srcdir/}"
 
         $scriptInstallDir $dest
         $scriptInstallFile $file $tofile
@@ -9878,7 +9899,7 @@ function CygbuildCmdInstallCheckMain()
     local name="libcheck.sh"
     local lib="$CYGBUILD_PROG_LIBPATH/lib/$name"
 
-    CygbuildEcho "== Checking content of installation in" ${instdir/$srcdir\/}
+    CygbuildEcho "== Checking content of installation in" ${instdir#$srcdir/}
 
     if [ ! -f $lib ]; then
 	CygbuildEcho "-- [WARN] Not available: $lib"
@@ -9942,7 +9963,7 @@ function CygbuildCmdInstallDirClean ()
 
 	    #   If other terminal is in this directory, this may fail.
 
-	    CygbuildVerb "-- Emptying" ${dir/$srcdir\/}
+	    CygbuildVerb "-- Emptying" ${dir#$srcdir/}
 
 	    rm -rf $dir/*
 
@@ -10025,7 +10046,7 @@ function CygbuildCmdInstallMain()
             mkdir --parents $verbose "$dir"
 
             CygbuildEcho "--- Installing with external:" \
-                         "${scriptInstall/$srcdir\//}" \
+                         "${scriptInstall#$srcdir/}" \
                          "$dir" \
                          "$thispath"
 
@@ -10041,7 +10062,7 @@ function CygbuildCmdInstallMain()
         else
 
             CygbuildVerb "-- Running install to" \
-		${dir/$srcdir\//} \
+		${dir#$srcdir/} \
 		${test:+(TEST MODE)}
 
             CygbuildMakefileRunInstallMain ||
@@ -10057,7 +10078,7 @@ function CygbuildCmdInstallMain()
         if [ -f "$scriptAfter" ]; then
 
             CygbuildEcho "--- Running external:" \
-                 ${scriptAfter/$srcdir\/} \
+                 ${scriptAfter#$srcdir/} \
                  "$dir" \
                  "$thispath"
 
@@ -10099,7 +10120,7 @@ function CygbuildCmdScriptRunMain()
     local id="$0.$FUNCNAME"
     local script="$1"
 
-    CygbuildEcho "-- Running" ${script/$srcdir\/} ${instdir/$srcdir\/}
+    CygbuildEcho "-- Running" ${script#$srcdir/} ${instdir#$srcdir/}
 
     if [ -f "$script" ]; then
 
@@ -10254,7 +10275,7 @@ function CygbuildCmdFilesWrite()
         return 1
     fi
 
-    CygbuildEcho "-- Writing default files to" ${todir/$srcdir\//}
+    CygbuildEcho "-- Writing default files to" ${todir#$srcdir/}
 
     local file
 
