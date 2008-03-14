@@ -10,6 +10,9 @@
 	(CygbuildDllToLibName): new.
 	(CygbuildCygcheckLibraryDepMain): Use objdump result and
 	`CygbuildDllToLibName'.
+	(CygbuildPatchFileList): Was CygbuildPatchList.
+	(CygbuildFindLowlevel): New.
+	(CygbuildPatchFileList): Use CygbuildFindLowlevel
 
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 

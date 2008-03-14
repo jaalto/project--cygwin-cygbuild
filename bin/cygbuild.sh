@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.0910"
+CYGBUILD_VERSION="2008.0314.0943"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1661,7 +1661,7 @@ function CygbuildGrepCheck()
            > /dev/null 2>&1
 }
 
-function CygbuildFindDo()
+function CygbuildFindLowlevel()
 {
     local arg="$1"
     shift
@@ -1669,12 +1669,7 @@ function CygbuildFindDo()
     find -L $arg			\
 	-type d				\
 	    '('				\
-	    -name ".inst"	        \
-	    -o -name ".sinst"	        \
-	    -o -name ".build"	        \
-	    -o -name "debian"	        \
-	    -o -name "CYGWIN-PATCHES"	\
-	    -o -name ".bzr"		\
+	    -name ".bzr"		\
 	    -o -name ".git"		\
 	    -o -name ".hg"		\
 	    -o -name ".darcs"		\
@@ -1685,11 +1680,6 @@ function CygbuildFindDo()
 	    -o -name "_MTN"		\
 	    ')'			        \
 	-prune			        \
-	-a ! -name ".inst"              \
-	-a ! -name ".sinst"             \
-	-a ! -name ".build"             \
-	-a ! -name "debian"             \
-	-a ! -name "CYGWIN-PATCHES"     \
 	-a ! -name ".bzr"		\
 	-a ! -name ".git"		\
 	-a ! -name ".hg"		\
@@ -1705,6 +1695,29 @@ function CygbuildFindDo()
 	-a ! -name "*.orig"		\
 	-a ! -name "*.rej"		\
 	-a ! -name "*.bak"		\
+	"$@"
+}
+
+function CygbuildFindDo()
+{
+    local arg="$1"
+    shift
+
+    CygbuildFindLowlevel "$arg"
+	-o -type d			\
+	    '('				\
+	    -name ".inst"	        \
+	    -o -name ".sinst"	        \
+	    -o -name ".build"	        \
+	    -o -name "debian"	        \
+	    -o -name "CYGWIN-PATCHES"	\
+	    ')'			        \
+	-prune			        \
+	-a ! -name ".inst"              \
+	-a ! -name ".sinst"             \
+	-a ! -name ".build"             \
+	-a ! -name "debian"             \
+	-a ! -name "CYGWIN-PATCHES"     \
 	"$@"
 }
 
@@ -5699,27 +5712,23 @@ function CygbuildPatchApplyRun()
     fi
 }
 
-function CygbuildPatchList()
+function CygbuildPatchFileList()
 {
     local id="$0.$FUNCNAME"
     local dir=${1:-$DIR_CYGPATCH}
 
     [ "$dir" ] || return 0
 
-    CygbuildPushd
-	cd "$dir"		    &&
-	CygbuildFindDo .	    \
-	    -a -type d		    \
-		'('		    \
-		    ! -name "tmp"   \
-		    -a ! -name "."  \
-		')'		    \
-		-prune		    \
-	    -o -type f		    \
-		-name "*patch"	    |
-	    sed "s,^\.,$dir,"	    |
-	    sort
-    CygbuildPopd
+    CygbuildFindLowlevel "$dir"	    \
+	-a -type d		    \
+	    '('			    \
+		! -name "tmp"	    \
+	    ')'			    \
+	    -prune		    \
+	-o -type f		    \
+	    -name "*patch"	    |
+	sed "s,^\.,$dir,"	    |
+	sort
 }
 
 function CygbuildPatchPrefixStripCountFromContent()
@@ -5872,8 +5881,8 @@ function CygbuildPatchApplyMaybe()
     fi
 
     local file done name continue list
+    CygbuildPatchFileList > $retval
 
-    CygbuildPatchList > $retval
     [ -s $retval ] || return 0
 
     local list=$(< $retval)
@@ -9996,7 +10005,7 @@ function CygbuildCmdInstallPatchVerify()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$CYGPATCH_DONE_PATCHES_FILE"
 
-    CygbuildPatchList > $retval
+    CygbuildPatchFileList > $retval
 
     if [ -s $retval ] && [ ! -f "$file" ]; then
 	CygbuildWarn "-- [WARN] Patches are not applied"
