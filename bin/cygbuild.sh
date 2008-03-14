@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.0947"
+CYGBUILD_VERSION="2008.0314.0952"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1703,7 +1703,7 @@ function CygbuildFindDo()
     local arg="$1"
     shift
 
-    CygbuildFindLowlevel "$arg"
+    CygbuildFindLowlevel "$arg"		\
 	-o -type d			\
 	    '('				\
 	    -name ".inst"	        \
