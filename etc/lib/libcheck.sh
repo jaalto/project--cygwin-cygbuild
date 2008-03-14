@@ -1709,7 +1709,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
     if [ ! "$error" ]; then
         CygbuildWarn "-- [ERROR] incorrect directory structure," \
-             "$instdir contain no bin/ usr/bin, usr/sbin or usr/lib"
+             "$instdir contain no bin/ usr/bin usr/games usr/sbin or usr/lib"
         return 1
     fi
 }
