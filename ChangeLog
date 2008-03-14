@@ -17,6 +17,7 @@
 	(CygbuildFindLowlevel): New.
 	(CygbuildPatchFileList): Use CygbuildFindLowlevel
 	(CygbuildCommandMainCheckSpecial): New command [patch-list].
+	(CygbuildCygcheckLibraryDepMain): Adjust objdump handling.
 
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 

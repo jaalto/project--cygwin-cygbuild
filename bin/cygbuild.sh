@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.0952"
+CYGBUILD_VERSION="2008.0314.1015"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2198,14 +2198,16 @@ function CygbuildCygcheckLibraryDepMain()
 	    sed 's/^/   depends: /'
 
 	CygbuildObjDumpLibraryDepList "$file" > "$retval.obj"
-	CygbuildDllToLibName $retval.obj > "$retval.libnames"
 
-	CygbuildEcho "-- Objdump direct dependencies (possible more accurate)"
+	[ -s "$retval.obj" ] || return 0
+
+	CygbuildDllToLibName $(< $retval.obj) > "$retval.libnames"
+
+	CygbuildEcho "-- Objdump direct dependencies"
 	cat "$retval.obj"
 
-        CygbuildCygcheckLibraryDepSetup "$retval.libnames"
+        CygbuildCygcheckLibraryDepSetup  "$retval.libnames"
         CygbuildCygcheckLibraryDepReadme "$retval.libnames"
-
     fi
 }
 
