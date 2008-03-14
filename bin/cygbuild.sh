@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0313.2015"
+CYGBUILD_VERSION="2008.0314.0653"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1586,7 +1586,7 @@ function CygbuildPerlLibraryList()
 	'^[^#]*\<[^#$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
     ${EGREP:-grep -E} --only-matching \
 	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' |
-    ${SORT:-sort} --unique
+    sort --unique
 }
 
 function WasLibraryInstallMakefile ()
@@ -1727,7 +1727,7 @@ function CygbuildChmodExec()
     CygbuildChmodDo ugo+x "$@"
 }
 
-CygbuildObjDumpLibraryDepList ()  # Unused 2007-12-20
+CygbuildObjDumpLibraryDepList ()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -1740,7 +1740,6 @@ CygbuildObjDumpLibraryDepList ()  # Unused 2007-12-20
 
     #   objdump lists only those that the binary is linked against.
     #   Traditionally setup.hint lists *all* dependencies.
-    #   DO NOT USE THIS FUNCTION
 
     objdump -p "$file" |
         awk '
@@ -1756,7 +1755,7 @@ CygbuildObjDumpLibraryDepList ()  # Unused 2007-12-20
                     print name;
                 }
             }' |
-         ${SORT:-"sort"}          # No need for --unique; awk uses hash
+         sort          # No need for --unique; awk uses hash
 }
 
 CygbuildCygcheckLibraryDepListFull ()
@@ -1794,7 +1793,7 @@ CygbuildCygcheckLibraryDepListFull ()
                 sub(" .*", "", str);
                 print str;
             }' |
-        ${SORT:-"sort"} --unique
+        sort --unique
 }
 
 CygbuildCygcheckLibraryDepList ()
@@ -2151,7 +2150,6 @@ function CygbuildCygcheckLibraryDepMain()
 
     # old methods
     # CygbuildCygcheckLibraryDepList "$datafile" > "$retval"
-    # CygbuildObjDumpLibraryDepList "$file" > "$retval"
 
     CygbuildCygcheckLibraryDepListFull "$file" > "$retval"
 
@@ -2169,6 +2167,9 @@ function CygbuildCygcheckLibraryDepMain()
         sed 's/^ \+//' "$retval.pkglist" |
 	    sort --unique |
 	    sed 's/^/   depends: /'
+
+	CygbuildEcho "-- Objdump direct depends"
+	CygbuildObjDumpLibraryDepList "$file"
 
         CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
     fi

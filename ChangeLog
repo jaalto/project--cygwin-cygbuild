@@ -1,3 +1,10 @@
+2008-03-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPerlLibraryList): Remove var SORT.
+	(CygbuildObjDumpLibraryDepList): Remove var SORT.
+	(CygbuildCygcheckLibraryDepListFull): Remove var SORT.
+	(CygbuildCygcheckLibraryDepMain): Show also objdump results.
+
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
