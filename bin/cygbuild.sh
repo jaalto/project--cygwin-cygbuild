@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.0653"
+CYGBUILD_VERSION="2008.0314.0707"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2168,7 +2168,7 @@ function CygbuildCygcheckLibraryDepMain()
 	    sort --unique |
 	    sed 's/^/   depends: /'
 
-	CygbuildEcho "-- Objdump direct depends"
+	CygbuildEcho "-- Objdump reports dependencies"
 	CygbuildObjDumpLibraryDepList "$file"
 
         CygbuildCygcheckLibraryDepSetup "$retval.pkglist"
@@ -3589,7 +3589,16 @@ function CygbuildDefineGlobalCommands()
 
     GPG=					    # global-def
     CygbuildPathBinFast gpg > $retval
-    [ -s $retval ] && GPG=$(< $retval)
+
+    if [ -s $retval ]; then
+	GPG=$(< $retval)
+
+	GPGOPT="\
+  --no-permission-warning\
+  --no-secmem-warning\
+  --no-mdc-warning"
+
+    fi
 
     WGET=					    # global-def
     CygbuildPathBinFast wget > $retval
@@ -4594,9 +4603,7 @@ function CygbuildGPGverify()
         #   gpg: WARNING: using insecure memory!
         #   gpg: please see http://www.gnupg.org/faq.html for more information
 
-	$GPG --no-permission-warning				\
-	    --no-secmem-warning					\
-	    --no-mdc-warning					\
+	$GPG $GPGOPT						\
 	    --verify						\
 	    $file$sigext $file 2>&1				|
 	    $EGREP --invert-match 'insecure memory|faq.html'	\
@@ -4653,7 +4660,7 @@ function CygbuildGPGsignFiles()
         if [ "$passphrase" ]; then
 
             echo "$passphrase" |                            \
-            $GPG                                            \
+            $GPG $GPGOPT                                    \
                 --verbose                                   \
                 --no-tty                                    \
                 --batch                                     \
@@ -4669,7 +4676,7 @@ function CygbuildGPGsignFiles()
 
         else
 
-            $GPG                                            \
+            $GPG $GPGOPT                                    \
                 --no-batch                                  \
                 --detach-sign                               \
                 --armor                                     \

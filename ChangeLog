@@ -4,6 +4,9 @@
 	(CygbuildObjDumpLibraryDepList): Remove var SORT.
 	(CygbuildCygcheckLibraryDepListFull): Remove var SORT.
 	(CygbuildCygcheckLibraryDepMain): Show also objdump results.
+	(CygbuildDefineGlobalCommands): Define GPGOPT.
+	(CygbuildGPGsignFiles): Use GPGOPT.
+	(CygbuildGPGverify): Use GPGOPT.
 
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 
