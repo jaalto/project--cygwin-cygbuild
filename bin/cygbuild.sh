@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0314.1015"
+CYGBUILD_VERSION="2008.0317.1404"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3609,9 +3609,9 @@ function CygbuildDefineGlobalCommands()
 
     # ................................................. interpreters ...
     #	Official locations under Cygwin. Used to check proper shebang line
-    #	Note: under Debian, this would be /bin/perl
+    #	Note: /usr/bin in Cygwin is just a mount link to /bin
 
-    local prefix=/usr/bin
+    local prefix=/bin
 
     PERLBIN=$prefix/perl			    # global-def
     PYTHONBIN=$prefix/python			    # global-def
@@ -7833,7 +7833,9 @@ CygbuildCmdDownloadCygwinPackage ()
     ' re="^[@] +$pkg *\$" $cache > $retval
 
     if [ ! -s "$retval" ]; then
-        CygbuildDie "-- [ERROR] Need to refresh cache? No such package: $pkg"
+        CygbuildWarn "-- [ERROR] Need to refresh cache?" \
+	    "No such package: $pkg"
+	return 2
     fi
 
     local path=$(< $retval)
@@ -10815,18 +10817,32 @@ function CygbuildCommandMainCheckSpecial()
 
 	for pkg in "$@"
 	do
-	    CygbuildPushd
+	  CygbuildPushd
 
 	    if [ "$mkdir" ] && [ -e "$pkg" ]; then
-		CygbuildDie "-- [ERROR] Already exists dir/or file: $pkg"
+		CygbuildDie "-- [ERROR] Already exists dir or file: $pkg"
 	    elif [ "$mkdir" ]; then
 		mkdir "$pkg"	|| exit $?
 		cd "$pkg"	|| exit $?
 	    fi
 
-	    CygbuildCmdDownloadCygwinPackage "$pkg" "$mode"
-	    CygbuildPopd
+	    local rmdir=""
+
+	    if ! CygbuildCmdDownloadCygwinPackage "$pkg" "$mode" ; then
+		rmdir="rmdir"
+	    fi
+
+	  CygbuildPopd
+
+	  if [ "$rmdir" ] &&
+	     [ "$mkdir" ] &&
+	     CygbuildIsDirEmpty "$pkg"
+	  then
+	      rmdir "$pkg"
+	  fi
+
 	done
+
 	exit $?
     fi
 }

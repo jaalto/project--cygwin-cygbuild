@@ -1,3 +1,10 @@
+2008-03-17  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdDownloadCygwinPackage): Return
+	error code instead of die if cannot download.
+	(CygbuildCommandMainCheckSpecial): Remove created directory
+	if download failed.
+
 2008-03-14  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/cygbuild.pl: (HELP::Patch management commands):
@@ -18,6 +25,8 @@
 	(CygbuildPatchFileList): Use CygbuildFindLowlevel
 	(CygbuildCommandMainCheckSpecial): New command [patch-list].
 	(CygbuildCygcheckLibraryDepMain): Adjust objdump handling.
+	(CygbuildDefineGlobalCommands): Move prefix of perl, python
+	and ruby from /usr/bin to /bin.
 
 2008-03-13  Jari Aalto  <jari.aalto@cante.net>
 
