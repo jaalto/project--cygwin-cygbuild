@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0317.1404"
+CYGBUILD_VERSION="2008.0318.2004"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10176,47 +10176,46 @@ function CygbuildCmdStripMain()
 
     CygbuildEcho "== Strip command"
 
-    CygbuildFilesExecutable \
-        "$dir" \
-        "-o -type f ( -name '*.dll' -o -name '*.so' )" \
+    find -L "$dir"		\
+        -type f                 \
+        '('                     \
+            -name "*.exe"       \
+            -o -name "*.dll"    \
+	    -o -name "*.a"	\
+            -o -name "*.so"     \
+        ')'                     \
         > $retval
 
-    local files="$(< $retval)"
-    local file type list
+    local file type
 
-    for file in $files
+    [ -s $retval ] || return 0
+
+    while read file
     do
-        type=""
+        file $file > $retval.type
+        [ -s $retval.type ] || continue
 
-        file $file > $retval
-        [ -s $retval ] && type=$(< $retval)
-
-        #  Otherwise strip would say "File format not recognized"
+	type=$(< $retval.type)
 
         if [[ "$type" == *Intel* ]]; then
             CygbuildVerb "-- strip $file"
-            list="$list $file"
+	    strip "$file"
 
         else
             CygbuildVerb "-- [INFO] Not a binary executable;" \
                  " strip skipped for $file"
         fi
 
-    done
-
-    if [ "$list" ]; then
-        strip $list
-    elif [ ! "$done" ]; then
-        CygbuildWarn "-- [NOTE] Hm, no installed files to strip."
-    fi
+    done < $retval
 }
 
 function CygbuildStripCheck()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$instdir"
 
-    find $instdir \
+    find "$dir" \
         -type f '(' -name "*.exe" -o -name "*dll" ')' \
         | head -1 \
         > $retval
