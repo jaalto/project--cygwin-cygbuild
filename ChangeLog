@@ -3,6 +3,7 @@
 	* bin/cygbuild.sh: (CygbuildCmdStripMain): Use plain find,
 	which is faster. Convert for-loop to while loop. Change
 	Support filenames with spaces.
+	(CygbuildStripCheck): All -L to find.
 
 2008-03-17  Jari Aalto  <jari.aalto@cante.net>
 

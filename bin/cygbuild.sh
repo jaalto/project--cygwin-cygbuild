@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0318.2004"
+CYGBUILD_VERSION="2008.0318.2007"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10215,7 +10215,7 @@ function CygbuildStripCheck()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
-    find "$dir" \
+    find -L "$dir" \
         -type f '(' -name "*.exe" -o -name "*dll" ')' \
         | head -1 \
         > $retval
