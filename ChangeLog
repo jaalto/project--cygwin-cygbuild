@@ -1,3 +1,7 @@
+2008-03-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/Makefile.tmp (BINDIR): Remove extra /bin.
+
 2008-03-18  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildCmdStripMain): Use plain find,

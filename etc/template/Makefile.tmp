@@ -28,7 +28,7 @@ mandir		= $(man_prefix)/man
 bindir		= $(exec_prefix)/bin
 sharedir	= $(prefix)/share
 
-BINDIR		= $(DESTDIR)$(bindir)/bin
+BINDIR		= $(DESTDIR)$(bindir)
 DOCDIR		= $(DESTDIR)$(sharedir/doc
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
 LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
