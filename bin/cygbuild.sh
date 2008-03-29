@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0318.2007"
+CYGBUILD_VERSION="2008.0329.1201"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1347,246 +1347,6 @@ def Check(list):
 Check(sys.argv[2:])
 
     ' "${debug:+1}" "$@"
-}
-
-function CygbuildPythonLibraryDependsCache()
-{
-    local cache="$CYGBUILD_CACHE_PYTHON_FILES"
-
-    [ -f "$cache" ] || return 0
-
-    #	Call arguments are library names, like feedparser, html2text
-
-    perl -e \
-    '
-	$cache = shift @ARGV;
-
-	-f $cache or
-	    die "Invalid cache file: $cache => @ARGV";
-
-	open my $FILE, "< $cache" or
-	    die "Cannot open cache: $cache $!";
-
-	$CACHE = join "", <$FILE>;
-	close $FILE;
-
-	#   Remove duplicates
-
-	@hash{@ARGV} = 1;
-
-	#   import sys => /usr/include/python2.5/sysmodule.h
-	#   /usr/lib/python2.5/lib-dynload/_socket.dll
-	#   /usr/lib/python2.5/ctypes/macholib/__init__.py
-	#   /usr/lib/python2.5/email/feedparser.py
-
-	for my $module ( sort keys %hash )
-	{
-	    $lib   = $module;
-	    $type  = "Ext";
-	    $path  = "";
-
-	    if ( $CACHE =~ m,^(.*/lib/python[\d.]+.*/$lib\b.*),m
-		 or $CACHE =~ m,^.*/include/.*${lib}module\.h,m )
-	    {
-		$type = "Std";
-		$path = $1;
-	    }
-
-	    printf "%-5s %-20s $path\n", $type, $module;
-	}
-    ' "$cache" "$@"
-}
-
-function CygbuildPythonLibraryDependsMain()
-{
-    # First attempt: You really can't look into Python installation
-    # CygbuildPythonLibraryDependsCache "$@"
-
-    CygbuildPythonCheckImport "$@"
-}
-
-function CygbuildPythonLibraryList()
-{
-    [ "$1" ] || return 0
-
-    #	import sys
-    #	from config import *
-    #   from email.MIMEText import MIMEText
-    #   import cPickle as pickle, md5, time, os, traceback, urllib2, sys, types
-    #	import mimify; from StringIO import StringIO as SIO;
-
-    perl -e '
-	$debug = shift @ARGV;
-	$file  = shift @ARGV;
-
-	open my $FH, "<", $file  or  die "$!";
-
-	binmode $FH;
-	$_ = join "", <$FH>;
-	close $FH;
-
-	while ( /(from\s+(\S+)\s+import)/gm )
-	{
-	    $debug  and  warn "A: [$2] => $1\n";
-	    $hash{$2} = 1;
-	}
-
-	while ( /^((?!\s*#)\s*import\s+(\S+[^\s[:punct:]])([^;\r\n]*))/gm )
-	{
-	    $hash{$2} = 1;
-	    $debug  and  warn "B: [$2] => $1\n";
-
-	    # [Handle cases like]
-	    # import cPickle as pickle, md5, time, os, traceback, urllib2
-
-	    $list = $3;
-	    $list =~ s/\s+as\s+\S+\s*//g;
-
-	    next unless $list;
-
-	    $list =~ s/\s+//g;
-	    $debug  and  warn "L: [$list]\n";
-
-	    @libs = split /,/, $list;
-
-	    $debug  and  warn "L: @libs\n";
-
-	    @hash{@libs} = (1) x @libs;
-	}
-
-	%hash  and  print join " ", sort keys %hash;
-	exit
-    ' "${debug:+1}" "$@"
-}
-
-function CygbuildRubyLibraryList()
-{
-    [ "$1" ] || return 0
-
-    perl -e '
-	$debug = shift @ARGV;
-	$file  = shift @ARGV;
-
-	open my $FH, "<", $file  or  die "$!";
-
-	binmode $FH;
-	$_ = join "", <$FH>;
-	close $FH;
-
-	while ( /^[^#]*\s*(?:require|include)\s+(\S+)/gm )
-	{
-	    $hash{$1} = 1;
-	}
-
-	%hash  and  print join " ", sort keys %hash;
-	exit
-    ' "${debug:+1}" "$@"
-}
-
-function CygbuildRubyLibraryDependsMain()
-{
-    : # FIXME: TODO
-    echo $*
-}
-
-function CygbuildPerlLibraryDependsGuess()
-{
-    #	Call arguments are library names, like MIME::Base64.
-    #	Output's first word is 'Std' or 'CPAN' to identify the module.
-
-    perl -e \
-    '
-	for my $module ( @ARGV )
-	{
-	    $lib = $module;
-	    $lib =~ s,::,/,g;
-
-	    for (@INC)
-	    {
-		next unless -d ;
-
-		next if m,/\w+_perl/, ; # exclude site_perl, vendor_perl
-		next unless m,/perl\d/,;
-
-		$path = "$_/$lib.pm";
-		$type = "Std";
-		$type = "CPAN" unless -f $path;
-	    }
-
-	    printf "%-5s %-20s $path\n", $type, $module;
-	}
-    ' "$@"
-}
-
-function CygbuildPerlLibraryDependsCache()
-{
-    local cache="$CYGBUILD_CACHE_PERL_FILES"
-
-    [ -f "$cache" ] || return 0
-
-    #	Call arguments are library names, like MIME::Base64.
-    #	Output's first word is 'Std' or 'CPAN' to identify the module.
-
-    perl -e \
-    '
-	$cache = shift @ARGV;
-
-	-f $cache or
-	    die "Invalid cache file: $cache => @ARGV";
-
-	open my $FILE, "< $cache" or
-	    die "Cannot open cache: $cache $!";
-
-	$CACHE = join "", <$FILE>;
-	close $FILE;
-
-	#  Remove duplicates
-
-	@hash{@ARGV} = 1;
-
-	for my $module ( sort keys %hash )
-	{
-	    $lib   = $module;
-	    $lib   =~ s,::,/,g;
-	    $type  = "CPAN";
-	    $path  = "";
-
-	    if ( $CACHE =~ m,^(/usr/lib/perl[\d.]+/.*$lib.*),m )
-	    {
-		$type = "Std";
-		$path = $1;
-	    }
-
-	    printf "%-5s %-20s $path\n", $type, $module;
-	}
-    ' "$cache" "$@"
-}
-
-function CygbuildPerlLibraryDependsMain()
-{
-    local cache="$CYGBUILD_CACHE_PERL_FILES"
-
-    if [ "$cache" ] && [ -s "$cache" ]; then
-	CygbuildPerlLibraryDependsCache "$@"
-    else
-	CygbuildWarn "-- No perl cache, results are pure guesswork..."
-	CygbuildPerlLibraryDependsGuess "$@"
-    fi
-}
-
-function CygbuildPerlLibraryList()
-{
-    [ "$1" ] || return 0
-
-    #   Ignore $var::Libx
-    #	1. grep: Look into non-comment lines only
-    #	2. grep: return only matched portion.
-
-    ${EGREP:-grep -E} --only-matching \
-	'^[^#]*\<[^#$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
-    ${EGREP:-grep -E} --only-matching \
-	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' |
-    sort --unique
 }
 
 function WasLibraryInstallMakefile ()
@@ -9758,7 +9518,7 @@ function CygbuildInstallFixInterpreterMain()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local plbin="$PERLBIN"
     local pybin="$PYTHONBIN"
-    local pybin="$RUBYBIN"
+    local rbbin="$RUBYBIN"
 
     find $instdir/usr/{bin,share,lib}	\
 	-type f				\
@@ -9778,7 +9538,7 @@ function CygbuildInstallFixInterpreterMain()
         head -1 "$file" > $retval 2> /dev/null
 
         if $EGREP --quiet "perl" $retval &&
-           ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
+         ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
         then
             CygbuildVerb "-- [NOTE] Suspicious Perl call" \
 		"in $_file: $(cat $retval)"
@@ -9908,7 +9668,6 @@ function CygbuildInstallCygwinPartMain()
 
 function CygbuildCmdInstallCheckMain()
 {
-    local stat=0
     local name="libcheck.sh"
     local lib="$CYGBUILD_PROG_LIBPATH/lib/$name"
 
@@ -9920,43 +9679,7 @@ function CygbuildCmdInstallCheckMain()
     fi
 
     . $lib || return $?
-
-    [ "$verbose" ] &&
-	CygbuildCmdInstallCheckFSFaddress
-
-    CygbuildCmdInstallCheckLineEndings
-
-    [ "$verbose" ] &&
-	CygbuildCmdInstallCheckMakefiles
-
-    CygbuildCmdInstallCheckTempFiles         || stat=$?
-    CygbuildCmdInstallCheckInfoFiles         || stat=$?
-
-    [ "$verbose" ] &&
-	CygbuildCmdInstallCheckTexiFiles     || stat=$?
-
-    CygbuildCmdInstallCheckShellFiles        || stat=$?
-    CygbuildCmdInstallCheckReadme            || stat=$?
-    CygbuildCmdInstallCheckSetupHintMain     || stat=$?
-    CygbuildCmdInstallCheckManualPages       || stat=$?
-    CygbuildCmdInstallCheckPkgDocdir         || stat=$?
-    CygbuildCmdInstallCheckDocdir            || stat=$?
-
-    [ "$verbose" ] &&
-	CygbuildCygcheckLibraryDepSourceMain || stat=$?
-
-    CygbuildCmdInstallCheckBinFiles          || stat=$?
-    CygbuildCmdInstallCheckSymlinks          || stat=$?
-    CygbuildCmdInstallCheckLibFiles          || stat=$?
-    CygbuildCmdInstallCheckDirStructure      || stat=$?
-    CygbuildCmdInstallCheckDirEmpty          || stat=$?
-    CygbuildCmdInstallCheckEtc               || stat=$?
-    CygbuildCmdInstallCheckSymlinkExe        || stat=$?
-    CygbuildCmdInstallCheckCygpatchDirectory || stat=$?
-
-    CygbuildEcho "-- Check finished. Please verify messages above."
-
-    return $stat
+    CygbuildCmdInstallCheckEverything
 }
 
 function CygbuildCmdInstallDirClean ()

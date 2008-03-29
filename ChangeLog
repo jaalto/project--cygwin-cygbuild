@@ -1,3 +1,15 @@
+2008-03-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/libcheck.sh: (CygbuildCmdInstallCheckEverything): New.
+
+	* bin/cygbuild.sh
+	-- Relocate massive amount of functions to libcheck.sh.
+	(CygbuildCmdInstallCheckMain): Rewritten. Move
+	logic to `CygbuildCmdInstallCheckEverything'.
+	(CygbuildInstallFixInterpreterMain): At beginning, chnage incorrect
+	variable debinition pybin to `rbbin'. This error caused all
+	python file to have ruby interpreters.
+
 2008-03-28  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/template/Makefile.tmp (BINDIR): Remove extra /bin.
