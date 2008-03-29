@@ -9,6 +9,11 @@
 	(CygbuildInstallFixInterpreterMain): At beginning, chnage incorrect
 	variable debinition pybin to `rbbin'. This error caused all
 	python file to have ruby interpreters.
+	(CygbuildTarOptionCompress): Return --gzip, --bzip2, not j, z.
+	(CygbuildCmdPkgDevelStandardBin): Make taropt more readable.
+	(CygbuildCmdPkgDevelStandardMain): Remove unuset tar variable
+	statements.
+	(CygbuildExtractTar): Make tar options more readable.
 
 2008-03-28  Jari Aalto  <jari.aalto@cante.net>
 

@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0329.1201"
+CYGBUILD_VERSION="2008.0329.1226"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -192,8 +192,8 @@ function CygbuildTarOptionCompress()
     # FIXME: lzma
 
     case "$1" in
-        *.tar.gz|*.tgz)   echo "z" ;;
-        *.bz2|*.tbz*)     echo "j" ;;
+        *.tar.gz|*.tgz)   echo "--gzip" ;;
+        *.bz2|*.tbz*)     echo "--bzip2" ;;
         *)                return 1 ;;
     esac
 }
@@ -5118,11 +5118,11 @@ function CygbuildCmdPkgDevelStandardBin()
 	    CygbuildTarOptionCompress $tar > $retval
 	    local z=$(< $retval)
 
-            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -${z}cf"
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
 
             CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
-            tar $taropt $tar \
+            tar $taropt --create --file=$tar \
             $(< $retval.bin) $(< $retval.man.bin) ||
             {
                 status=$?
@@ -5234,12 +5234,6 @@ function CygbuildCmdPkgDevelStandardMain()
     local id="$0.$FUNCNAME"
     local status=0
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-
-    CygbuildTarOptionCompress $tar > $retval
-    local z=$(< $retval)
-
-    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -${z}cf"
-    local pkgdev pkglib pkgbin pkgdoc
 
     CygbuildPushd
 
@@ -7160,7 +7154,7 @@ function CygbuildExtractTar()
     CygbuildTarDirectory $file > $retval || return $?
     local dir=$(< $retval)
 
-    local opt="$verbose --no-same-owner -${z}xf "
+    local opt="$verbose --no-same-owner $z --extract --file"
     CygbuildEcho "-- Extracting $file"
 
     if [ "$dir" != "$expectdir" ]; then
@@ -7189,7 +7183,7 @@ function CygbuildExtractTar()
                 "-- [ERROR] Cannot unpack, existing directory found: $dir"
         fi
 
-        tar $opt $file || return $?
+        tar $opt "$file" || return $?
 
         if [ "$dir" != "$expectdir" ]; then
 
@@ -7205,7 +7199,7 @@ function CygbuildExtractTar()
             local name2=$(< $retval)
 
             if [ "$name2" = "$name1" ]; then
-                CygbuildEcho "-- Interesting, unpack dir $dir => $name2 - Skipped"
+                CygbuildEcho "-- Unpack dir $dir is same $name2 - Skipped"
             else
                 CygbuildEcho "-- Renaming unpack dir: mv $dir $expectdir"
                 mv "$dir" "$expectdir" || return $?
