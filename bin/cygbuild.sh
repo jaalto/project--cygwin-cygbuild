@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0329.1226"
+CYGBUILD_VERSION="2008.0329.1829"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6428,8 +6428,9 @@ grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 
 function CygbuildPod2man()
 {
-    local file="$1"
-    local mansect=${2:-1}
+    local file=$1
+    local mansect=$2
+    local Destdir=$3
 
     local dir="."                                       # Not used now
 
@@ -6440,11 +6441,22 @@ function CygbuildPod2man()
     local package=${file##*/}
     local package=${package%.*}
 
+    if [ "$mansect" = "" ]; then
+	mansect="1"
+
+	#  program.1
+
+	if [[ $package == *.[0-9] ]]; then
+	    mansect=${package##*.}
+	    package=${package%.$mansect}
+	fi
+    fi
+
     local date=$(date "+%Y-%m-%d")
     local podcenter=$date
 
     local mandir="$instdir/usr/share/man"
-    local destdir="$mandir/man$mansect"
+    local destdir="${Destdir:-$mandir/man$mansect}"
     local manpage="$destdir/$package.$mansect"
 
     mkdir --parents $destdir

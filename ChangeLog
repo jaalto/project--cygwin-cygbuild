@@ -14,6 +14,8 @@
 	(CygbuildCmdPkgDevelStandardMain): Remove unuset tar variable
 	statements.
 	(CygbuildExtractTar): Make tar options more readable.
+	(CygbuildPod2man): Set mansect to 1 if empty. Add new arg 3,
+	Destdir.
 
 2008-03-28  Jari Aalto  <jari.aalto@cante.net>
 
