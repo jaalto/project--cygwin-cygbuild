@@ -1,3 +1,8 @@
+2008-05-08  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterGeneric):
+	Handle '/usr/bin/env interpreter' shebang lines better.
+
 2008-03-29  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/libcheck.sh: (CygbuildCmdInstallCheckEverything): New.

@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0329.1829"
+CYGBUILD_VERSION="2008.0508.0953"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9296,12 +9296,21 @@ function CygbuildInstallFixInterpreterGeneric()
     local bin="$1"
     local file="$2"
 
+    local name=${bin##*/}
+
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
         CygbuildWarn "$id: No such file $file"
         return 1
     fi
 
-    sed -e "1s,#!.* \(.*\),#!$bin \1," "$file" > "$retval" &&
+    #  /usr/bin/env python
+    #  sed => /bin/python python
+    #  sed => /bin/python
+
+    sed -e "1s,#!.* \(.*\),#!$bin \1," \
+	-e "1s,\($name\)[ \t]\+\1,\1," \
+	"$file" \
+        > "$retval" &&
 
     if [ -s "$retval" ] &&
 	CygbuildFileCmpDiffer "$file" "$retval"
