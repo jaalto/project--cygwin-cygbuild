@@ -78,20 +78,20 @@ ASM_FLAGS	=
 
 all: $(EXE)
 
-$(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
-
 .cc.o:
 	$(CXX) $(CXXLAGS) -c -o $*.o $<
 
 .asm.o: $(ASM_OBJS)
 	nasm $(ASM_FLAGS) $<
 
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
+
 clean:
 	# clean
 	-rm -f *[#~] *.\#* *.o core \
 	*.pyc *.elc \
-	*.exe *.stackdump *.exe $(PACKAGE)
+	*.exe *.stackdump $(PACKAGE)
 
 distclean: clean
 
