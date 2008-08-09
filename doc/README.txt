@@ -102,7 +102,7 @@ Dependencies
 
 Information for developers
 
-	FIXME: 2008-03-02 This information is not complete
+	FIXME: This information is not complete
 
     Policy for documenting changes
 
