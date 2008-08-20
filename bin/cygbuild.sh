@@ -9665,7 +9665,7 @@ function CygbuildInstallCygwinPartMain()
     file=$(< $retval)
 
     if [ ! "$file" ]; then
-        CygbuildDie "-- [FATAL] Can't find Cygwin specific README file" \
+        CygbuildDie "-- [FATAL] Can't find Cygwin specific $PKG.README file" \
 	    "Please run command [files]"
     fi
 
