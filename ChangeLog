@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh (CygbuildDllToLibName): Correct 'cyg'
 	prefix handling. Add zlib special case.
+	(CygbuildDefineVersionVariables): Improve error message.
 
 2008-08-20  Jari Aalto  <jari.aalto@cante.net>
 

@@ -2167,7 +2167,8 @@ function CygbuildDefineVersionVariables()
         local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
         if ! CygbuildVersionInfo "$str" > $retval ; then
-	    CygbuildDie "-- [ERROR] Not foo-N.N? Can't read version info: $str"
+	    CygbuildDie "-- [ERROR] Not inside directory package-N.N/" \
+		"Can't read version info: $str"
 	fi
 
 	[ -s $retval ] ||
