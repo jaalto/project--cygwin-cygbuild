@@ -1685,7 +1685,7 @@ function CygbuildCmdInstallCheckBinFiles()
             fi
         fi
 
-	if [[ "$file" == *.@(py|pyc|pl|rb) ]]; then
+	if [[ "$file" == *.@(py|pl|rb) ]]; then
 	    CygbuildWarn "-- [WARN] Drop extension from $_file"
 	fi
 

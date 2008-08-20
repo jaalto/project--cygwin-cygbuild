@@ -1,5 +1,8 @@
 2008-08-20  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles): Remove
+	*.pyc.
+
 	* bin/cygbuild.sh:
 	(CygbuildDefineGlobalCommand): Improve error messages.
 	(CygbuildCmdDownloadUpstream): Announce mywebget.pl URL
