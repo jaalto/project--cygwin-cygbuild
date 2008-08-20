@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0508.0953"
+CYGBUILD_VERSION="2008.0820.0801"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3406,7 +3406,7 @@ function CygbuildDefineGlobalCommands()
     [ -s $retval ] && tmp=$(< $retval)
 
     if [ ! "$tmp" ]; then
-	CygbuildDie "-- [FATAL] perl not found in PATH"
+	CygbuildDie "-- [FATAL] 'perl' not found in PATH"
     fi
 
     PERL_PATH="$tmp"
@@ -3418,7 +3418,7 @@ function CygbuildDefineGlobalCommands()
     [ -s $retval ] && tmp=$(< $retval)
 
     if [ ! "$tmp" ]; then
-	CygbuildDie "-- [FATAL] python not found in PATH"
+	CygbuildDie "-- [FATAL] 'python' not found in PATH"
     fi
 
     PYTHON_PATH="$tmp"				    # global-def
@@ -6173,13 +6173,15 @@ function CygbuildCmdPkgSourceMain()
 function CygbuildCmdDownloadUpstream ()
 {
     local id="$0.$FUNCNAME"
-    local bin="mywebget.pl"
-    bin=$(which $bin)
+    local PRG="mywebget"
+    local bin=$(which $PRG)
 
     CygbuildEcho "-- Upstream download: checking for new versions..."
 
     if [ ! "$bin" ]; then
-        CygbuildWarn "-- [ERROR] $bin not found in PATH."
+        CygbuildWarn "-- [ERROR] '$PRG' not found in PATH."
+        CygbuildWarn "-- Download from" \
+	    "http://freshmeat.net/projects/perl-webget"
         return 1
     fi
 
@@ -6188,7 +6190,8 @@ function CygbuildCmdDownloadUpstream ()
     local conf=$(cd $confdir && ls $(pwd)/$name)
 
     if [ ! -f "$conf" ]; then
-        CygbuildDie "-- [ERROR] $conf not found."
+        CygbuildDie "-- [ERROR] $conf/ subdirectory not found." \
+	    "Cannot read download instructions."
     fi
 
     local pkg=$(awk '/tag[0-9]:/  {print $2; exit}' $conf)

@@ -1,3 +1,11 @@
+2008-08-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildDefineGlobalCommand): Improve error messages.
+	(CygbuildCmdDownloadUpstream): Announce mywebget.pl URL
+	is program was not found. Drop *.pl extension. Improve
+	error message if CYGWIN-PATCHES/ not found.
+
 2008-05-08  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterGeneric):
