@@ -1540,10 +1540,16 @@ CygbuildDllToLibName ()
     for lib in "$@"
     do
 	lib=${lib%.dll}
-	ver=${lib##*-}
-	lib=${lib%-*}
+	ver=
 
-	echo lib${lib#cyg}$ver
+	if [[ "$lib" == *-* ]]; then
+	    ver=${lib##*-}
+	fi
+
+	lib=${lib%-*}
+	lib=lib${lib#cyg}
+
+	echo $lib$ver
     done
 }
 
