@@ -1549,7 +1549,15 @@ CygbuildDllToLibName ()
 	lib=${lib%-*}
 	lib=lib${lib#cyg}
 
-	echo $lib$ver
+	lib=$lib$ver
+
+	# Special cases:
+
+	case "$lib" in
+	    libz) lib=zlib ;;
+	esac
+
+	echo $lib
     done
 }
 
