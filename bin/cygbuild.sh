@@ -48,13 +48,13 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0820.0801"
+CYGBUILD_VERSION="2008.0820.1505"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
-"http://mirror.switch.ch/ftp/mirror/cygwin"}
+"http://mirrors.eu.kernel.org/sourceware/cygwin"}
 
 #######################################################################
 #
@@ -10347,9 +10347,10 @@ function CygbuildFilePackageGuessMain()
         [ -s $retval ] && verRe=$(< $retval)
 
         local ver="$nameRe[_-]$verRe"
+	local ext="(orig[.])?tar[.](gz|bz2|lzma)|tgz|tbz"
 
         CygbuildFilePackageGuessArchive \
-            "$ver.(tar.gz|tar.bz2|tar.lzma|orig.tar.gz|orig.tar.bz2|tgz|tbz)" \
+            "$ver[.]($ext)" \
             "(-src.tar.(bz2|lzma)|$nameRe-$verRe-$SCRIPT_RELEASE[.]|[.]sig)" \
             >  $retval
 
@@ -10358,7 +10359,7 @@ function CygbuildFilePackageGuessMain()
         len=${#arr[*]}
 
         if [ $len = "0" ]; then
-            CygbuildWarn "-- [WARN] Packing script detection failed."
+            CygbuildWarn "-- [WARN] Original archive detection failed."
         fi
 
     else

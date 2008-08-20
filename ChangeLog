@@ -4,6 +4,10 @@
 	prefix handling. Add zlib special case.
 	(CygbuildDefineVersionVariables): Improve error message.
 	(CygbuildInstallCygwinPartMain): Improve error message.
+	(CygbuildFilePackageGuessMain): New variable 'ext'. Rewrite
+	archive extension regexp.
+	(top level::CYGBUILD_SRCPKG_URL): Change to use
+	mirrors.eu.kernel.org
 
 2008-08-20  Jari Aalto  <jari.aalto@cante.net>
 
