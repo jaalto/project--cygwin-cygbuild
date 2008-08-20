@@ -87,7 +87,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.0314.0949';
+$VERSION = '2008.0820.0902';
 
 # ..................................................................
 
@@ -701,15 +701,12 @@ in C<.sinst/>.
 
 =item B<patch>
 
-Apply all local I<*patch> files found recursively under
-C<CYGWIN-PATCHES/> to original sources. The applied patches are
-recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't be
-applied multiple times. The order of patches applied is determined by
-call:
+Apply all I<*.patch> files found recursively under C<CYGWIN-PATCHES/>
+to original sources (see command B<patch-list>). The applied patches
+are recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't
+be applied multiple times.
 
-  find CYGWIN-PATCHES -name "*patch" | sort
-
-The directories and filenames are therefore best to be prefixed with a
+The directories and filenames are best to be prefixed with a
 sequential number, like:
 
   0001-Makefile-rewrite-install.patch
@@ -738,12 +735,16 @@ filenames from result of command B<[mkpatch]>.
 =item B<patch-list|plist>
 
 Display patch list of C<CYGWIN-PATCHES/>. The order is apply order.
+Effectively runs command:
+
+    find CYGWIN-PATCHES -name "*.patch" | sort
 
 =item B<unpatch>
 
-Deapply all local patches in C<CYGWIN-PATCHES/*.patch>. On success,
-the record keeping file C<CYGWIN-PATCHES/done-patches.tmp> is deleted.
-The opposite of B<[patch]> command.
+Deapply all *.patch files found using find(1), followed by sort(1),
+under C<CYGWIN-PATCHES>. On success, the record keeping file
+C<CYGWIN-PATCHES/done-patches.tmp> is deleted. The opposite of
+B<[patch]> command.
 
 =back
 
