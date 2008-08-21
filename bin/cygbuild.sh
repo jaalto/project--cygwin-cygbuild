@@ -28,7 +28,7 @@
 #       If the name of the file is not "cygbuild" or "cygbuild.sh",
 #       then it has been auto-generated and you are looking at the
 #       result of packaging script. IN THAT CASE YOU SHOULD NOT TRY TO
-#       USE THIS FILE FOR ANYTING ELSE THAN CALLING PROGRAM WITH ONE OF:
+#       USE THIS PROGRAM FOR ANYTING ELSE THAN CALLING PROGRAM WITH ONE OF:
 #
 #	    -h
 #	    all

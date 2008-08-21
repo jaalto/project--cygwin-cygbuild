@@ -3753,7 +3753,7 @@ sub UpdatePackageTags (%)
     #  etc/postinstall/bogofilter.sh
     #  ...
 
-    my $placeholder = "  See content of *.tar.gz";
+    my $placeholder = "  See Cygwin package archive";
 
     s{(Files included in.*binary.*dist\w+:).+?(^---------)}
      {$1\n$placeholder\n\n$2}ms;
