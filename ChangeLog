@@ -1,6 +1,8 @@
 2008-10-24  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/cygbuild.sh: Rewrite logid. Remove else.
+	* bin/cygbuild.sh: (CygbuildCmdFixFilesReadme):
+	Rewrite logid. Remove else.
+	(CygbuildCmdFixFilesAnnounce): New.
 
 	* etc/lib/cygbuild.pl (ReadmeFix): Before file write, check
 	length of $orig, not $file.
