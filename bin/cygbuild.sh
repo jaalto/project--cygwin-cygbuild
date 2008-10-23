@@ -4837,6 +4837,30 @@ function CygbuildCmdFixFilesOther()
         "FileFix(qq(split), qq($list));"
 }
 
+function CygbuildCmdFixFilesAnnounce()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
+    local file tmp
+
+    for tmp in $dir/*.mail
+    do
+	if [ -f "$tmp" ] ; then
+	    file="$tmp"
+	fi
+    done
+
+    if [ ! "$file" ]; then
+	CygbuildVerbWarn "-- [WARN] Cannot update announcement (none found)"
+	return 0;
+    fi
+
+    CygbuildCmdPerlModuleCall "UpdateAnnouncement" \
+	"UpdateAnnouncement(qq($file), qq($PKG), qq($VER), qq($REL));"
+
+}
+
 function CygbuildCmdFixFilesReadme()
 {
     local id="$0.$FUNCNAME"
@@ -4844,20 +4868,23 @@ function CygbuildCmdFixFilesReadme()
 
     CygbuildDetermineReadmeFile > $retval
 
-    if [ -s $retval ]; then
-	local readme=$(< $retval)
-	CygbuildVerb "-- Check ${readme#$srcdir/}"
-	CygbuildCmdPerlModuleCall "ReadmeFix" \
-	    "ReadmeFix(qq($readme), qq($PKG), qq($VER), qq($REL));"
-    else
+    if [ ! -s $retval ]; then
         CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
+	return 0
     fi
+
+    local readme=$(< $retval)
+    CygbuildVerb "-- Check ${readme#$srcdir/}"
+
+    CygbuildCmdPerlModuleCall "ReadmeFix" \
+	"ReadmeFix(qq($readme), qq($PKG), qq($VER), qq($REL));"
 }
 
 function CygbuildCmdReadmeFixMain()
 {
     CygbuildEcho "== Readmefix command"
     CygbuildCmdFixFilesReadme
+    CygbuildCmdFixFilesAnnounce
     CygbuildCmdFixFilesOther
 }
 

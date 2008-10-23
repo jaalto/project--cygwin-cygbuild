@@ -26,6 +26,7 @@
 #
 #           $ cygbuild --help
 
+require 5.10.0;			# perlre: Named backreferences
 use strict;
 use integer;
 
@@ -3636,6 +3637,58 @@ sub ReadMeFilesIncluded ($ $)
 #
 #   DESCRIPTION
 #
+#       Update announcement mail message
+#
+#       To: cygwin-announce@cygwin.com
+#       Subject: Updated: foo 1.7.1-1 -- description
+#
+#   INPUT PARAMETER HASH
+#
+#       $file           location to package.README
+#       $pkg            Package name
+#       $ver            Version N.N
+#       $rel		Release N
+#
+#   RETURN VALUES
+#
+#	None. Processed file content is written back to $file
+#
+# ****************************************************************************
+
+sub UpdateAnnouncement ($$$$)
+{
+    my $id          = "$LIB.UpdateAnnouncement";
+    my($file, $pkg, $ver, $rel) = @ARG;
+
+    $debug  and  warn "$id: file [$file] pkg [$pkg] ver [$ver] rel [$rel]\n";
+
+    $file  or  die "$id: FILE argument is empty";
+
+    my $orig = FileRead $file or die "$ERRNO";
+    local $ARG = $orig;
+
+    my $vid	= "$ver-$rel";				# version id
+    my $iso8601 = Date(-utc => 1);
+
+    s
+    < ^Subject: \s*
+       (?<type> \S+): \s*
+       (?<pkg>  \S+)  \s+
+       (?<ver>  \S+)
+       (?<rest>  .*)
+    >
+    <Subject: Updated: $+{pkg} $vid$+{rest}>mx;
+
+    unless ( length $file == length $ARG )
+    {
+	FileWrite $file, $ARG;
+    }
+}
+
+# ****************************************************************************
+#
+#   DESCRIPTION
+#
 #       Add new stanza based on input arguments:
 #
 #       ---- version <VER>-<REL> -----
@@ -3896,13 +3949,13 @@ sub FileFix ($@)
 #   INPUT PARAMETERS
 #
 #       $file           location to package.README
-#       $fullpkg        Obsolete, Now really used; will be removed
-#       $binpkg         location to Cygwin binary package, from where the
-#                       current file listing can be read.
+#       $pkg            Package name
+#       $ver            Version N.N
+#       $rel		Release N
 #
 #   RETURN VALUES
 #
-#       Processed file content is printed to stdout
+#	None. Processed file content is written back to $file
 #
 # ****************************************************************************
 
@@ -3937,7 +3990,7 @@ sub ReadmeFix ($ $$$)
 	-rel => $rel
 	;
 
-    unless ( length $file == length $str )
+    unless ( length $orig == length $str )
     {
 	FileWrite $file, $str;
     }
@@ -4224,7 +4277,21 @@ sub TestDriverReadmeFix ()
     $debug = 3;
 
     ReadmeFix
-      "/usr/src/build/build/cdargs/cdargs-1.35/CYGWIN-PATCHES/cdargs.README"
+      "CYGWIN-PATCHES/cdargs.README"
+      , "cdargs"
+      , "1.35"
+      , "1"
+      ;
+
+    exit;
+}
+
+sub TestDriverUpdateAnnouncement ()
+{
+    $debug = 3;
+
+    UpdateAnnouncement
+      "CYGWIN-PATCHES/cygwin-announce.mail"
       , "cdargs"
       , "1.35"
       , "1"

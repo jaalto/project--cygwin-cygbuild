@@ -1,3 +1,12 @@
+2008-10-24  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: Rewrite logid. Remove else.
+
+	* etc/lib/cygbuild.pl (ReadmeFix): Before file write, check
+	length of $orig, not $file.
+	(UpdateAnnouncement): New.
+	(TestDriverUpdateAnnouncement): New.
+
 2008-08-21  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/cygbuild.pl (UpdatePackageTags): Change
