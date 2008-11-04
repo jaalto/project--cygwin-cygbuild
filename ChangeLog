@@ -16,6 +16,8 @@
 	from subdirectory CYGWIN-PATCHES/manpages.
 	(CygbuildDefineGlobalMain): Make SCRIPT_BUILD_CYGFILE and
 	SCRIPT_CONFIGURE_CYGFILE absolute.
+	(CygbuildCommandMain): from command
+	'repackage-all|repackage|repkg', remove publish.
 
 	* etc/template/preremove.sh.tmp Add --verbose to rm(1) command.
 

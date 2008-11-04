@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.1810"
+CYGBUILD_VERSION="2008.1104.1820"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -11239,8 +11239,7 @@ function CygbuildCommandMain()
 		{
 		    CygbuildHelpSourcePackage   &&
 		    CygbuildCmdPkgSourceMain ;
-		}   || :                        &&
-		CygbuildCmdPublishMain
+		}
 		status=$?
 		;;
 
