@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.1015"
+CYGBUILD_VERSION="2008.1104.1810"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3887,8 +3887,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_DIFF_BEFORE_CYGFILE=$DIR_CYGPATCH/diff-before.sh     # global-def
     SCRIPT_DIFF_CYGFILE=$DIR_CYGPATCH/diff.sh                   # global-def
 
-    SCRIPT_CONFIGURE_CYGFILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/configure.sh # global-def
-    SCRIPT_BUILD_CYGFILE=$CYGBUILD_DIR_CYGPATCH_RELATIVE/build.sh                 # global-def
+    SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh		# global-def
+    SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
 
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
