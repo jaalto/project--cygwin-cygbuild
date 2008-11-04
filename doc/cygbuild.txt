@@ -513,16 +513,13 @@ PACKAGE MAINTENANCE COMMANDS
 
   Patch management commands
     patch
-        Apply all local **patch* files found recursively under
-        "CYGWIN-PATCHES/" to original sources. The applied patches are
-        recorded in "CYGWIN-PATCHES/done-patches.tmp" so that they won't be
-        applied multiple times. The order of patches applied is determined
-        by call:
+        Apply all **.patch* files found recursively under "CYGWIN-PATCHES/"
+        to original sources (see command patch-list). The applied patches
+        are recorded in "CYGWIN-PATCHES/done-patches.tmp" so that they won't
+        be applied multiple times.
 
-          find CYGWIN-PATCHES -name "*patch" | sort
-
-        The directories and filenames are therefore best to be prefixed with
-        a sequential number, like:
+        The directories and filenames are best to be prefixed with a
+        sequential number, like:
 
           0001-Makefile-rewrite-install.patch
           0002-command.c-add-ifdef-Cygwin.patch
@@ -542,14 +539,21 @@ PACKAGE MAINTENANCE COMMANDS
 
         See also command [unpatch].
 
-    patch-check
+    patch-check|pchk
         Display content of "CYGWIN-PATCHES/done-patches.tmp" if any and list
         filenames from result of command [mkpatch].
 
+    patch-list|plist
+        Display patch list of "CYGWIN-PATCHES/". The order is apply order.
+        Effectively runs command:
+
+            find CYGWIN-PATCHES -name "*.patch" | sort
+
     unpatch
-        Deapply all local patches in "CYGWIN-PATCHES/*.patch". On success,
-        the record keeping file "CYGWIN-PATCHES/done-patches.tmp" is
-        deleted. The opposite of [patch] command.
+        Deapply all *.patch files found using find(1), followed by sort(1),
+        under "CYGWIN-PATCHES". On success, the record keeping file
+        "CYGWIN-PATCHES/done-patches.tmp" is deleted. The opposite of
+        [patch] command.
 
   Other commands
     all Run all relevant steps: prep, conf, build, install, strip, package,
@@ -1265,6 +1269,17 @@ OPTIONAL EXTERNAL FILES
 
             --exclude=cygbuild-no-docdir-install
 
+    mandir
+        If this file exists, it should contain only one line: the dorectory
+        name relative to CYGWIN-PATCHES where the manual pages are stored.
+        An example (which is also the default location):
+
+           $ cat CYGWIN-PATCHES/mandir
+           manpages
+
+        This instructs to read manual pages from subdirectory
+        "CYGWIN-PATCHES/manpages/" instead of root of "CYGWIN-PATCHES/".
+
     manualpage.1.pod
         In case package does not include manual page or pages for certain
         binaries, this file can be used as a template for manual pages. The
@@ -1277,6 +1292,8 @@ OPTIONAL EXTERNAL FILES
                                           |
            cp manualpage.1.pod  xprogram.1x.pod
            cp manualpage.1.pod  program.8.pod
+              |                 |
+              Template file     copy to <program>.<section>.pod
 
         The typical sections are:
 
@@ -1284,13 +1301,16 @@ OPTIONAL EXTERNAL FILES
            5  Configuration files
            8  Administrative binaries: /sbin
 
-        Here are some markup to use in "*.pod" files. See more information
-        by running "perldoc perlpod" or visit
+        Here are some markup help to use in "*.pod" files. See more
+        information by running "perldoc perlpod" or visit
         http://perldoc.perl.org/perlpod.html
 
           B<bold text>
           I<italics>
           C</some/file/name.here>
+
+        The **.pod* files can be put to separate directory
+        "CYGWIN-PATCHES/manpages".
 
     package-bin.sh
         If a single standard binary packaging command [package] or library
@@ -1306,7 +1326,7 @@ OPTIONAL EXTERNAL FILES
              PACKAGE VERSION RELEASE TOPDIR
 
         The "TOPDIR" is the location where the script should place the
-        "tar.bz2" files. It is typically directory above the sources:
+        *tar.bz2* files. It is typically directory above the sources:
         package-N.N/..
 
     package-source.sh
