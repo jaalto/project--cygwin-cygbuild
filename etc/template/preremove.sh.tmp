@@ -1,5 +1,4 @@
 #!/bin/sh
-# Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 #
 # Cygwin setup.exe runs this file just before package is being removed.
 # The shell must be 'sh'.
@@ -118,7 +117,7 @@ RemoveConffiles ()
 
                 if [ "$?" = "0" ]; then
                     #  No changes
-                    Run rm -f "$to"
+                    Run rm --verbose --force "$to"
                 else
                     Warn "$0: [$package:WARN] $to has changed." \
                          "Not installing new $from"
@@ -132,7 +131,7 @@ RemoveConffiles ()
 
 Main ()
 {
-    Environment "$@"    &&
+    Environment "$@" &&
     RemoveConffiles
 }
 
