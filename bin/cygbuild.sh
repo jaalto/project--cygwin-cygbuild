@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.0919"
+CYGBUILD_VERSION="2008.1104.1015"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3877,6 +3877,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     EXTRA_CONF_OPTIONS=$DIR_CYGPATCH/configure.options          # global-def
     EXTRA_CONF_ENV_OPTIONS=$DIR_CYGPATCH/configure.env.options  # global-def
 
+    EXTRA_MANDIR_FILE=$DIR_CYGPATCH/mandir			# global-def
+
     EXTRA_BUILD_OPTIONS=$DIR_CYGPATCH/build.options             # global-def
     EXTRA_DIFF_OPTIONS_PATCH=$DIR_CYGPATCH/diff.options         # global-def
     EXTRA_TAR_OPTIONS_INSTALL=$DIR_CYGPATCH/install.tar.options # global-def
@@ -5327,7 +5329,7 @@ function CygbuildCmdPkgDevelStandardMain()
 
         if [ -s $retval.bin ]; then
 
-            # Include manual pages fro executables
+            # Include manual pages for executables
 
             local manregexp=$(
                 awk '
@@ -9003,23 +9005,44 @@ function CygbuildInstallExtraManual()
 
     local mandest=$instdir/$CYGBUILD_MANDIR_FULL
     local addsect=$CYGBUILD_MAN_SECTION_ADDITIONAL
-    local file page name nbr mansect manpage program
+
+    local mandir="$DIR_CYGPATCH"
+
+    if [ -f $EXTRA_MANDIR_FILE ]; then
+	local dir=DIR_CYGPATCH/$(< $EXTRA_MANDIR_FILE)
+
+	if [ -d "$dir" ]; then
+	    CygbuildEcho "-- Reading extra dir info from" ${dir#$srcdir/}
+	    mandir=$dir
+	else
+	    CygbuildWarn "-- [ERROR] Not a directory '$dir', based on " \
+		${dir#$srcdir/}
+	fi
+
+    elif [ -d "$mandir/manpages" ]; then
+	mandir="$mandir/manpages"
+    fi
 
     #   Convert Perl pod pages to manuals.
 
     local done podcopy
+    local file page name nbr mansect manpage program
 
-    for file in $DIR_CYGPATCH/*.pod           \
-                $DIR_CYGPATCH/*.[1-9]         \
-                $DIR_CYGPATCH/*.[1-9]$addsect
+    for file in $mandir/*.pod           \
+                $mandir/*.[1-9]         \
+                $mandir/*.[1-9]$addsect
     do
 
         [[ $file == *\[*  ]]    && continue # Name was not expanded
         [ ! -f "$file" ]        && continue
 
         podcopy=
-        name=${file##*/}        # /path/to/program.1x.pod => program.1x.pod
-        name=${name%.pod}       # program.1x.pod => program.1x
+
+	#  /path/to/program.1x.pod => program.1x.pod
+        name=${file##$DIR_CYGPATCH/}
+
+	#  program.1x.pod => program.1x
+        name=${name%.pod}
 
         manpage=$DIR_CYGPATCH/$name
         program=${name%$addsect}        # program.1x => program.1

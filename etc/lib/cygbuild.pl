@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.1023.2202';
+$VERSION = '2008.1104.1005';
 
 # ..................................................................
 
@@ -1499,18 +1499,33 @@ directories.
 
     --exclude=cygbuild-no-docdir-install
 
+=item B<mandir>
+
+If this file exists, it should contain only one line: the dorectory
+name relative to CYGWIN-PATCHES where the manual pages are stored. An
+example (which is also the default location):
+
+   $ cat CYGWIN-PATCHES/mandir
+   manpages
+
+This instructs to read manual pages from subdirectory
+C<CYGWIN-PATCHES/manpages/> instead of root of C<CYGWIN-PATCHES/>.
+
 =item B<manualpage.1.pod>
 
-In case package does not include manual page or pages for certain binaries,
-this file can be used as a template for manual pages. The format is Perl's
-plain old documentation (pod) and the file itself is self explanatory. Just
-fill in the text and rename the file according to binaries that are
-documented. The page number is automatically read from file name:
+In case package does not include manual page or pages for certain
+binaries, this file can be used as a template for manual pages. The
+format is Perl's plain old documentation (pod) and the file itself is
+self explanatory. Just fill in the text and rename the file according
+to binaries that are documented. The page number is automatically read
+from file name:
 
        X11 programs use section "x"
                                   |
    cp manualpage.1.pod  xprogram.1x.pod
    cp manualpage.1.pod  program.8.pod
+      |                 |
+      Template file     copy to <program>.<section>.pod
 
 The typical sections are:
 
@@ -1518,12 +1533,16 @@ The typical sections are:
    5  Configuration files
    8  Administrative binaries: /sbin
 
-Here are some markup to use in C<*.pod> files. See more information by
-running C<perldoc perlpod> or visit http://perldoc.perl.org/perlpod.html
+Here are some markup help to use in C<*.pod> files. See more
+information by running C<perldoc perlpod> or visit
+http://perldoc.perl.org/perlpod.html
 
   B<bold text>
   I<italics>
   C</some/file/name.here>
+
+The I<*.pod> files can be put to separate directory
+C<CYGWIN-PATCHES/manpages>.
 
 =item B<package-bin.sh>
 
@@ -1538,7 +1557,7 @@ into different tar.bz2 files etc. When custom script is called:
   2. script receives 4 arguments:
      PACKAGE VERSION RELEASE TOPDIR
 
-The C<TOPDIR> is the location where the script should place the C<tar.bz2>
+The C<TOPDIR> is the location where the script should place the I<tar.bz2>
 files. It is typically directory above the sources: package-N.N/..
 
 =item B<package-source.sh>

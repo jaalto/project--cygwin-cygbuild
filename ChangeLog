@@ -1,5 +1,8 @@
 2008-11-04  Jari Aalto  <jari.aalto@cante.net>
 
+	* etc/lib/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES): Document
+	new file CYGWIN-PATCHES/mandir.
+
 	* bin/cygbuild.sh: (CygbuildPatchApplyMaybe): Check
 	content of done-patch.tmp in more detail. The old cygbuild
 	versions did not record PATH names. Offer support for
@@ -8,6 +11,9 @@
 	(CygbuildIsCplusplusPackage): Add 'g++' check for Makefiles.
 	(CygbuildPatchApplyRun): Signal 'Unpatching' during
 	--reverse patch.
+	(CygbuildDefineGlobalMain): New EXTRA_MANDIR_FILE 'mandir'.
+	(CygbuildInstallExtraManual): Add support for reading manual pages
+	from subdirectory CYGWIN-PATCHES/manpages.
 
 2008-10-24  Jari Aalto  <jari.aalto@cante.net>
 
