@@ -1,27 +1,25 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 #
-#	Copyright (C) 2003-2008 Jari Aalto
+#   Copyright
 #
-#	This program is free software; you can redistribute it and/or
+#	Copyright (C) 2003-2009 Jari Aalto
+#
+#   License
+#
+#	This program is free software; you can redistribute it and or
 #	modify it under the terms of the GNU General Public License as
-#	published by the Free Software Foundation; either version 2 of the
-#	License, or (at your option) any later version
+#	published by the Free Software Foundation; either version 2 of
+#	the License, or (at your option) any later version.
 #
 #	This program is distributed in the hope that it will be useful, but
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-#	General Public License for more details.
-#
-#	You should have received a copy of the GNU General Public License
-#	along with program. If not, write to the Free Software
-#	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-#	02110-1301, USA.
-#
-#	Visit <http://www.gnu.org/copyleft/gpl.html>
+#	General Public License for more details at
+#	<http://www.gnu.org/copyleft/gpl.html>
 
 ifneq (,)
-This makefile requires GNU Make.
+    This makefile requires GNU Make.
 endif
 
 PACKAGE	= cygbuild
@@ -79,7 +77,7 @@ test:
 	@echo "Nothing to test. Try and report bugs to <$(EMAIL)>"
 
 # Rule: doc - [maintenance] Generate or update documentation
-# "docs" is infact synonym for target "doc"
+# docs is synonym for target doc
 docs: doc
 
 doc: $(DOCDIR)/$(PACKAGE).1
@@ -225,6 +223,8 @@ kit: release-world release-cygwin
 install-docdir:
 	$(INSTALL_BIN) -d $(DOCDIR)
 
+PL = etc/lib/cygbuild.pl
+
 $(DOCDIR)/$(PACKAGE).1: $(PL) install-docdir
 	perl ./$< help --man > $(DOCDIR)/$(PACKAGE).1
 	@-rm -f *.x~~ pod*.tmp
@@ -234,7 +234,7 @@ $(DOCDIR)/$(PACKAGE).html: $(PL) install-docdir
 	@-rm -f *.x~~ pod*.tmp
 
 $(DOCDIR)/$(PACKAGE).txt: $(PL) install-docdir
-	perl ./$< help > $(DOCDIR)/$(PACKAGE).txt
+	pod2text $<  > $(DOCDIR)/$(PACKAGE).txt
 	@-rm -f *.x~~ pod*.tmp
 
 $(DOCDIR)/cygbuild-rebuild.1: doc/cygbuild-rebuild.pod install-docdir
