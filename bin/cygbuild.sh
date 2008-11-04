@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.0849"
+CYGBUILD_VERSION="2008.1104.0910"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5733,7 +5733,7 @@ function CygbuildPatchApplyMaybe()
         [ -f "$file" ] || continue
 
         local name=${file#$srcdir\/}
-	local grep="$GREP --quiet --fixed-strings"
+	local grep="$GREP --quiet --ignore-case --fixed-strings"
         done=
         continue=
 	record=
@@ -5746,7 +5746,7 @@ function CygbuildPatchApplyMaybe()
                 if $grep "$name" "$statfile" ; then
 		    record="$name"
 		    done=done
-		elif [ "$name" == */* ]] &&
+		elif [[ "$name" == */* ]] &&
 		     $grep "$basename" "$statfile"
 		then
 		    #   The recorded filename did not contain path
@@ -8451,7 +8451,7 @@ function CygbuildCmdBuildStdMakefile()
 		 "CYGWIN-PATCHES/build.sh" \
                  "(remember to run [shadow] after changes)"
 
-            status="17"  # Just random number
+            status="17"  # Just random number, different from rest
 
         else
 
@@ -8462,7 +8462,7 @@ function CygbuildCmdBuildStdMakefile()
             [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
             (
-                if [ -r "$optfile" ]; then
+                if [ -f "$optfile" ]; then
                     CygbuildEcho "-- Reading extra env from" \
                                  ${optfile#$srcdir/}
 
