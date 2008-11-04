@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.1104.1005';
+$VERSION = '2008.1104.1600';
 
 # ..................................................................
 
@@ -1594,7 +1594,7 @@ before installing the upgraded version).
 =item B<preremove-manifest.lst>
 
 If I<postinstall.sh> file copies any default setup files to C</etc>
-directory the absolute path names of files (one or many) must be listed
+directory, the absolute path names of files (one or many) must be listed
 here. See topic I<CYGWIN PACKAGE POLICY NOTES::Using preremove.sh and
 postinstall.sh for upgrading /etc files>.
 
@@ -1646,7 +1646,7 @@ mentioned in <preremove-manifest-from.lst>. This effectively means:
 
 =item B<publish.sh>
 
-A custom script to publish packages.
+A custom script to publish package.
 
 =back
 
