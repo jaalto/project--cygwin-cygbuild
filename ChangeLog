@@ -5,6 +5,7 @@
 	versions did not record PATH names. Offer support for
 	backward compatibility in case of 'unpatch' so that that
 	both 'path/file.patch' and 'file.patch' records are removed.
+	(CygbuildIsCplusplusPackage): Add 'g++' check for Makefiles.
 
 2008-10-24  Jari Aalto  <jari.aalto@cante.net>
 

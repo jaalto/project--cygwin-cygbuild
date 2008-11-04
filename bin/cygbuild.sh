@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.0829"
+CYGBUILD_VERSION="2008.1104.0849"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2704,7 +2704,7 @@ function CygbuildIsMakefileTarget()
     CygbuildGrepCheck "^$target:" $file
 }
 
-function CygbuildIsMakefileCplusplus ()
+function CygbuildIsMakefileCplusplus()
 {
     #	FIXME: Any better file patterns?
     #	Consider Makefile.SunOS, Makefile.linux and this is not
@@ -2715,7 +2715,7 @@ function CygbuildIsMakefileCplusplus ()
 	src/*Makefile src/makefile src/*.mk
 }
 
-function CygbuildIsMakefileCstandard ()
+function CygbuildIsMakefileCstandard()
 {
     # FIXME: Any better file patterns?
     CygbuildGrepCheck "^[^#]+=[[:space:]]*(gcc|cc)" \
@@ -2738,10 +2738,29 @@ function CygbuildIsCplusplusPackage()
 
     #   Search under any directory
 
+    local file
+
     for file in *.hh *.cc *.cpp *.cxx */*.hh */*.cc */*.cpp  */*.cxx
     do
         [ -f "$file" ] && return 0
     done
+
+    local retval=$RETVAL.$FUNCNAME
+
+    find .			    \
+	-maxdepth 3		    \
+	-iname "*makefile"	    \
+	> $retval
+
+    [ -s $retval ] || return 1
+
+    while read file
+    do
+	if $GREP --quiet "^[[:space:]]*CC[[:space:]]*=[^#]*g[+][+]" "$file"
+	then
+	    return 0
+	fi
+    done < $retval
 
     return 1
 }
@@ -5324,7 +5343,7 @@ function CygbuildCmdPkgDevelStandardMain()
             )
 
             if [ "$manregexp" ]; then
-                find usr/share/man                     \
+                find usr/share/man                      \
                     -regextype posix-egrep              \
                     -regex ".*($manregexp)[.][0-9].*"   \
                     -type f                             \
