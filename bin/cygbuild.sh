@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.0910"
+CYGBUILD_VERSION="2008.1104.0919"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5519,8 +5519,12 @@ function CygbuildPatchApplyRun()
 	if [ "$verbose" ]; then
 	    CygbuildEcho "-- cd $dummy && patch $patchopt" "$@" "< $patch"
 	else
-	    CygbuildEcho "-- Patching with ${patch#$srcdir/}"
+	    local msg="Patching"
+	    [[ "$*" == *\ +(--reverse|-R\ )* ]] && msg="Unpatching"
+
+	    CygbuildEcho "-- $msg with ${patch#$srcdir/}"
 	fi
+
         ${test:+echo} patch $patchopt $opt "$@" < $patch
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
@@ -5797,11 +5801,9 @@ function CygbuildPatchApplyMaybe()
 
         if [ "$cmd" = "unpatch" ] && [ "$statCheck" ] ; then
 
-            #   Remove name from patch list
             if [ -f "$statfile" ]; then
-                $GREP --invert-match --fixed-strings "$record" \
-                        "$statfile" > $retval
-
+                #   Remove name from patch list
+                $grep --invert-match "$record" "$statfile" > $retval
                 mv "$retval" "$statfile"
             fi
 

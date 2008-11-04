@@ -6,6 +6,8 @@
 	backward compatibility in case of 'unpatch' so that that
 	both 'path/file.patch' and 'file.patch' records are removed.
 	(CygbuildIsCplusplusPackage): Add 'g++' check for Makefiles.
+	(CygbuildPatchApplyRun): Signal 'Unpatching' during
+	--reverse patch.
 
 2008-10-24  Jari Aalto  <jari.aalto@cante.net>
 
