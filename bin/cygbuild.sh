@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.0820.1505"
+CYGBUILD_VERSION="2008.1104.0823"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5678,7 +5678,6 @@ function CygbuildPatchApplyMaybe()
         cmd=${cmd%-nostat}
     fi
 
-    local file done name continue list
     CygbuildPatchFileList > $retval
 
     [ -s $retval ] || return 0
@@ -5695,7 +5694,7 @@ function CygbuildPatchApplyMaybe()
             return 0
         fi
 
-	local tmp
+	local file tmp
 
         #  reverse order
         for file in $list
@@ -5708,18 +5707,33 @@ function CygbuildPatchApplyMaybe()
 
     # FIXME: patch-before.sh
 
+    local file done continue record
+set -x
     for file in $list
     do
         [ -f "$file" ] || continue
 
-        name=${file#$srcdir\/}
+        local name=${file#$srcdir\/}
+	local grep="$GREP --quiet --fixed-strings"
         done=
         continue=
+	record=
 
         if [ "$statCheck" ]; then
             if [ -f "$statfile" ]; then
 
-                $GREP --quiet --fixed-strings "$name" $statfile && done=done
+		local basename=${name##*/}
+
+                if $grep "$name" "$statfile" ; then
+		    record="$name"
+		    done=done
+		elif [ "$name" == */* ]] &&
+		     $grep "$basename" "$statfile"
+		then
+		    #   The recorded filename did not contain path
+		    done=done
+		    record="$basename"
+		fi
 
                 if [ "$cmd" = patch ] ; then
                     if [ "$done" ]; then
@@ -5741,7 +5755,7 @@ function CygbuildPatchApplyMaybe()
             fi
         fi
 
-        local opt=
+        local opt
 
         CygbuildPatchPrefixStripCountMain "$file" > $retval
 
@@ -5749,7 +5763,6 @@ function CygbuildPatchApplyMaybe()
             local count=$(< $retval)
             opt="$opt --strip=$count"
         fi
-
 
         [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
 
@@ -5767,7 +5780,7 @@ function CygbuildPatchApplyMaybe()
 
             #   Remove name from patch list
             if [ -f "$statfile" ]; then
-                $GREP --invert-match --fixed-strings "$name" \
+                $GREP --invert-match --fixed-strings "$record" \
                         "$statfile" > $retval
 
                 mv "$retval" "$statfile"
@@ -5781,6 +5794,8 @@ function CygbuildPatchApplyMaybe()
             echo $name >> $statfile
         fi
     done
+
+exit 777
 }
 
 function CygbuildCmdMkpatchMain()
