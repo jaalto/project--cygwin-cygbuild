@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.1820"
+CYGBUILD_VERSION="2008.1104.1823"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5058,7 +5058,7 @@ function CygbuildCmdPublishExternal()
     local signer="$2"
     local pass="$3"
 
-    CygbuildEcho "--- Publishing with external:" \
+    CygbuildEcho "-- Publishing with external:" \
 	"$prg $TOPDIR $signer ${pass+<pass>}"
 
     CygbuildChmodExec "$prg"
