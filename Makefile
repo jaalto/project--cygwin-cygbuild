@@ -33,9 +33,10 @@ install:
 
 install-test:
 	# Rule install-test - for Maintainer only
-	rm -rf tmp
+	mkdir -p tmp
+	rm -rf tmp/*
 	make DESTDIR=`pwd`/tmp prefix=/. install
-	@echo "find tmp -type f | less"
+	@echo "find tmp -type f | sort"
 
 www:
 	# Rule www - for Maintainer only
