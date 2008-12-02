@@ -3,12 +3,11 @@ Cygbuild - A porting tool for making Cygwin net releases
 
 Install instructions
 
-    Cygwin binary package install
+    Standard install
 
-        If you received cygbuild in standard Cygwin binary archive
-        format, it is installed by unpacking it at root directory:
+        The /usr/local is the default install location:
 
-            tar -C / -jxf <name-of-package.tar.bz2>
+            make [prefix=/usr] install
 
     Running in place
 
@@ -21,18 +20,5 @@ Install instructions
 
 	or b) package's bin/ directory is added to environment
         variable PATH.
-
-    Standard install from a version control checkout
-
-        Details how to check out the project can ve found from project
-        page and README. From listing:
-
-            make help
-
-        There is command 'install-in-place' which uses symbolic links
-        to current checkout location. The /usr/local is the default
-        install location:
-
-            make [prefix=/usr/local] install-in-place
 
 End of file
