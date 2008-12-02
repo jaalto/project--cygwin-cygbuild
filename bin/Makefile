@@ -63,11 +63,6 @@ install-etc:
 	$(INSTALL_BIN) -d $(ETCDIR)
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_ETC) $(ETCDIR)
 
-install-template:
-	# install-template
-	$(INSTALL_BIN) -d $(ETCDIR)/template
-	$(INSTALL_BIN)	  $(INSTALL_OBJS_TPL) $(ETCDIR)/template
-
 install-man:
 	# install-man
 	$(INSTALL_BIN) -d $(MANDIR1)
@@ -91,6 +86,11 @@ install-data:
 	$(INSTALL_BIN) -d $(SHAREDIR)/data
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_DATA) $(SHAREDIR)/data
 
+install-template:
+	# install-template
+	$(INSTALL_BIN) -d $(SHAREDIR)/template
+	$(INSTALL_BIN)	  $(INSTALL_OBJS_TPL) $(SHAREDIR)/template
+
 install: all \
 	 install-bin \
 	 install-lib \
@@ -99,6 +99,24 @@ install: all \
 	 install-etc \
 	 install-template
 
-.PHONY: clean distclean realclean install install-bin install-man
+install-symlink:
+	# Maintainer only target. Install using symlinks.
+	$(INSTALL_BIN) -d $(BINDIR)
+	rm -f $(BINDIR)/cygbuild
+	ln -s $$(pwd)/cygbuild $(BINDIR)/cygbuild
+
+	$(INSTALL_BIN) -d $(ETCDIR)
+	rm -f $(ETCDIR)/*.conf
+	ln -s $$(pwd)/etc/programs.conf $(ETCDIR)/programs.conf
+
+	$(INSTALL_BIN) -d $(SHAREDIR)
+	rm -rf $(SHAREDIR)/data \
+	       $(SHAREDIR)/lib \
+	       $(SHAREDIR)/template
+	ln -s $$(pwd)/data $(SHAREDIR)/data
+	ln -s $$(pwd)/lib $(SHAREDIR)/lib
+	ln -s $$(pwd)/template $(SHAREDIR)/template
+
+.PHONY: clean distclean realclean install
 
 # End of file
