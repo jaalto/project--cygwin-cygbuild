@@ -30,8 +30,9 @@ PL		   = lib/cygbuild.pl
 INSTALL_OBJS_BIN   = *.sh
 INSTALL_OBJS_MAN1  = *.1 lib/*.1
 INSTALL_OBJS_LIB   = $(PL) lib/*.sh
-INSTALL_OBJS_ETC   = etc/*
-INSTALL_OBJS_TPL   = template/*
+INSTALL_OBJS_DATA  = data/*.lst
+INSTALL_OBJS_ETC   = etc/*.conf
+INSTALL_OBJS_TPL   = template/*.tmp
 
 INSTALL		= /usr/bin/install
 INSTALL_BIN	= $(INSTALL) -m 755
@@ -82,10 +83,21 @@ install-bin:
 
 install-lib:
 	# install-lib
-	$(INSTALL_BIN) -d $(SHAREDIR)
-	$(INSTALL_BIN)	  $(INSTALL_OBJS_LIB) $(SHAREDIR)
+	$(INSTALL_BIN) -d $(SHAREDIR)/lib
+	$(INSTALL_BIN)	  $(INSTALL_OBJS_LIB) $(SHAREDIR)/lib
 
-install: all install-bin install-lib install-man install-etc install-template
+install-data:
+	# install-lib
+	$(INSTALL_BIN) -d $(SHAREDIR)/data
+	$(INSTALL_BIN)	  $(INSTALL_OBJS_DATA) $(SHAREDIR)/data
+
+install: all \
+	 install-bin \
+	 install-lib \
+	 install-data \
+	 install-man \
+	 install-etc \
+	 install-template
 
 .PHONY: clean distclean realclean install install-bin install-man
 
