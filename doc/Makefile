@@ -20,12 +20,17 @@
 #
 #	 Rules for maintenance
 
-PL = ../bin/lib/cygbuild.pl
+ifneq (,)
+    This makefile requires GNU Make.
+endif
 
-all: doc man
+include ../mk/common.mk
 
-../bin/lib/dyndns.1: $(PL)
-	perl $? --Help-man > $@
+all: doc
+
+clean:
+	# clean
+	-rm -f *.tmp *[#~] */*[#~]
 
 manual/index.html: $(PL)
 	perl $? --Help-html > $@
@@ -37,11 +42,30 @@ manual/index.txt: $(PL)
 index.txt: index.html
 	lynx -dump $? > $@
 
-# Rule: man: generate manual page
-man: ../bin/lib/cygbuild.1
-
 # Rule: doc: generate documentation
 doc: index.txt manual/index.html manual/index.txt
+
+install-index:
+	# install-doc
+	$(INSTALL_BIN) -d $(DOCDIR)
+	$(INSTALL_BIN) index.txt index.html $(DOCDIR)
+
+install-manual:
+	# install-manual
+	$(INSTALL_BIN) -d $(DOCDIR)/manual
+	$(INSTALL_BIN) manual/* $(DOCDIR)
+
+install-devel:
+	# install-devel
+	$(INSTALL_BIN) -d $(DOCDIR)/devel
+	$(INSTALL_BIN) devel/* $(DOCDIR)
+
+install-license:
+	# install-license
+	$(INSTALL_BIN) -d $(DOCDIR)/license
+	$(INSTALL_BIN) license/* $(DOCDIR)
+
+install: all install-index install-manual install-devel install-license
 
 # Rule: www: copy web pages to ../../<project>-www
 www: doc

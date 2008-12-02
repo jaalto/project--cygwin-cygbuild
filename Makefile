@@ -1,244 +1,46 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
 #
-#   Copyright
+#	Copyright (C) 2003-2008 Jari Aalto
 #
-#	Copyright (C) 2003-2009 Jari Aalto
-#
-#   License
-#
-#	This program is free software; you can redistribute it and or
+#	This program is free software; you can redistribute it and/or
 #	modify it under the terms of the GNU General Public License as
-#	published by the Free Software Foundation; either version 2 of
-#	the License, or (at your option) any later version.
+#	published by the Free Software Foundation; either version 2 of the
+#	License, or (at your option) any later version
 #
 #	This program is distributed in the hope that it will be useful, but
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #	General Public License for more details at
-#	<http://www.gnu.org/copyleft/gpl.html>
+#	Visit <http://www.gnu.org/copyleft/gpl.html>.
 
 ifneq (,)
     This makefile requires GNU Make.
 endif
 
-PACKAGE	= cygbuild
+all:
+	$(MAKE) -C doc all
+	$(MAKE) -C bin all
 
-MAKE_INCLUDEDIR = etc/makefile
+clean:
+	$(MAKE) -C doc	     clean
+	$(MAKE) -C bin	     clean
 
-include $(MAKE_INCLUDEDIR)/id.mk
-include $(MAKE_INCLUDEDIR)/vars.mk
-include $(MAKE_INCLUDEDIR)/unix.mk
-include $(MAKE_INCLUDEDIR)/cygwin.mk
-#include $(MAKE_INCLUDEDIR)/net-sf.mk
+realclean: clean
 
-#   There are directories fromt he archive, not install dirs. See vars.mk
+install:
+	$(MAKE) -C doc	     install
+	$(MAKE) -C bin	     install
 
-FROM_ETC_MAIN	 = etc/etc
-FROM_ETC_TMPL	 = etc/template
-FROM_ETC_DATA	 = etc/data
-FROM_ETC_LIB	 = etc/lib
-ETCDIR_TMPL	 = $(SHAREDIR)/template
-ETCDIR_DATA	 = $(SHAREDIR)/data
-ETCDIR_LIB	 = $(SHAREDIR)/lib
-ETCDIR_TMPL_USER = $(ETCDIR)/template
+install-test:
+	# Rule install-test - for Maintainer only
+	rm -rf tmp
+	make DESTDIR=`pwd`/tmp prefix=/. install
+	@echo "find tmp -type f | less"
 
-SRCS		= bin/$(PACKAGE).sh \
-		  bin/$(PACKAGE)-rebuild.sh
+www:
+	# Rule www - for Maintainer only
+	$(MAKE) -C doc www
 
-OBJS		= $(SRCS) Makefile README ChangeLog
-
-OBJS_ETC_MAIN	= `find $(FROM_ETC_MAIN) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
-OBJS_ETC_TMPL	= `find $(FROM_ETC_TMPL) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
-OBJS_ETC_DATA	= `find $(FROM_ETC_DATA) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
-OBJS_ETC_LIB	= `find $(FROM_ETC_LIB) -maxdepth 1 -type f ! -name ".[\#]*" -a ! -name "*[\#~]" `
-
-# ######################################################### &targets ###
-
-.PHONY: all clean distclean realclean test doc
-.PHONY: install-dir-structure
-.PHONY: install-share-template install-template-symlinks install
-
-# Rule: all - Make and compile all.
-all:	doc
-
-
-# Rule: clean - Remove unnecessary files
-clean: clean-temp-files
-
-# Rule: distclean - [maintenance] Remove files that can be generated
-distclean: clean
-	@-rm -rf $(DOCDIR)
-
-# Rule: realclean - [maintenance] Clean everything that is not needed
-realclean: distclean
-
-test:
-	@echo "Nothing to test. Try and report bugs to <$(EMAIL)>"
-
-# Rule: doc - [maintenance] Generate or update documentation
-# docs is synonym for target doc
-docs: doc
-
-doc: $(DOCDIR)/$(PACKAGE).1
-doc: $(DOCDIR)/$(PACKAGE).html
-doc: $(DOCDIR)/$(PACKAGE).txt
-doc: $(DOCDIR)/cygbuild-rebuild.1
-
-# Rule: doc-readme - [maintenance] Convert README into HTML, you need perl-text2html.sourceforge.net
-doc-readme:
-	t2html.pl --title "cygbuild README" \
-	    --as-is --simple README > doc/README.html
-
-# Rule: install-dir-structure - [maintenance] Create /etc directory
-install-dir-structure:
-	# install-dir-structure
-	$(INSTALL_BIN) -d \
-		$(ETCDIR_TMPL) \
-		$(ETCDIR_DATA) \
-		$(ETCDIR_LIB)  \
-		$(ETCDIR_TMPL_USER)
-
-# Rule: install-etc-main - [maintenance] Install configuration files
-install-etc-main: install-dir-structure
-	# install-etc-main
-	@for file in $(OBJS_ETC_MAIN);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		echo $(INSTALL_DATA) $$file $(ETCDIR);			\
-		$(INSTALL_DATA) $$file $(ETCDIR);			\
-	    fi;								\
-	done
-
-# Rule: install-etc-main-symlink - [maintenance] Install symlinks to configuration dir
-# FIXME: remove. 2008-03-03 no longer used.
-install-etc-main-symlink: install-dir-structure
-	# install-etc-main-symlink
-	@for file in $(OBJS_ETC_MAIN);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		ln -vsf `pwd`/$$file $(ETCDIR)/`basename $$file`;	\
-	    fi;								\
-	done
-
-# Rule: install-share-template - [maintenance] Install template configuration files
-install-share-template: install-dir-structure
-	# install-share-template
-	-rm -f	$(ETCDIR_TMPL)/*
-	@for file in $(OBJS_ETC_TMPL);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		echo $(INSTALL_DATA) $$file $(ETCDIR_TMPL);		\
-		$(INSTALL_DATA) $$file $(ETCDIR_TMPL);			\
-	    fi;								\
-	done
-
-# Rule: install-template-symlinks - [maintenance] Install templates using symlinks
-install-template-symlinks: install-dir-structure
-	# install-template-symlinks
-	-rm -f	$(ETCDIR_TMPL)/*
-	@for file in $(OBJS_ETC_TMPL);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		ln -vsf `pwd`/$$file $(ETCDIR_TMPL)/`basename $$file`;	\
-	    fi;								\
-	done
-
-# Rule: install-share-data - [maintenance] Install data configuration files
-install-share-data: install-dir-structure
-	# install-share-data
-	-rm -f	$(ETCDIR_DATA)/*
-	@for file in $(OBJS_ETC_DATA);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		echo $(INSTALL_DATA) $$file $(ETCDIR_DATA);		\
-		$(INSTALL_DATA) $$file $(ETCDIR_DATA);			\
-	    fi;								\
-	done
-
-# Rule: install-data-symlinks - [maintenance] Install data using symlinks
-install-data-symlinks: install-dir-structure
-	# install-data-symlinks
-	-rm -f	$(ETCDIR_DATA)/*
-	@for file in $(OBJS_ETC_DATA);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		ln -vsf `pwd`/$$file $(ETCDIR_DATA)/`basename $$file`;	\
-	    fi;								\
-	done
-
-# Rule: install-share-lib - [maintenance] Install lib configuration files
-install-share-lib: install-dir-structure
-	# install-share-lib
-	-rm -f	$(ETCDIR_LIB)/*
-	@for file in $(OBJS_ETC_LIB);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		echo $(INSTALL_LIB) $$file $(ETCDIR_LIB);		\
-		$(INSTALL_LIB) $$file $(ETCDIR_LIB);			\
-	    fi;								\
-	done
-
-# Rule: install-lib-symlinks - [maintenance] Install lib using symlinks
-install-lib-symlinks: install-dir-structure
-	# install-lib-symlinks
-	-rm -f	$(ETCDIR_LIB)/*
-	@for file in $(OBJS_ETC_LIB);					\
-	do								\
-	    if [ -f $$file ]; then					\
-		ln -vsf `pwd`/$$file $(ETCDIR_LIB)/`basename $$file`;	\
-	    fi;								\
-	done
-
-# Rule: install-etc - [maintenance] Install /etc directories
-install-share: install-share-data \
-		install-share-lib \
-		install-share-template
-
-# Rule: install-in-place - Install from current dir using symlinks
-install-in-place: install-data-symlinks		\
-		install-lib-symlinks		\
-		install-template-symlinks	\
-		install-bin-symlink
-
-# Rule: install - install everything to system directories
-install: install-unix install-share
-
-# ######################################################### &release ###
-
-.PHONY: kit release
-
-release: kit
-
-# xRule: kit - [maintenance] Make a World and Cygwin binary release kits
-kit: release-world release-cygwin
-
-# #################################################### &dependencies ###
-
-# Pod generates .x~~ extra files, remove those
-
-.SUFFIXES:
-.SUFFIXES: .1 .html .txt .pod
-
-install-docdir:
-	$(INSTALL_BIN) -d $(DOCDIR)
-
-PL = etc/lib/cygbuild.pl
-
-$(DOCDIR)/$(PACKAGE).1: $(PL) install-docdir
-	perl ./$< help --man > $(DOCDIR)/$(PACKAGE).1
-	@-rm -f *.x~~ pod*.tmp
-
-$(DOCDIR)/$(PACKAGE).html: $(PL) install-docdir
-	perl ./$< help --html > $(DOCDIR)/$(PACKAGE).html
-	@-rm -f *.x~~ pod*.tmp
-
-$(DOCDIR)/$(PACKAGE).txt: $(PL) install-docdir
-	pod2text $<  > $(DOCDIR)/$(PACKAGE).txt
-	@-rm -f *.x~~ pod*.tmp
-
-$(DOCDIR)/cygbuild-rebuild.1: doc/cygbuild-rebuild.pod install-docdir
-	name=`echo $< | sed -e 's/.*\///; s/.pod//'`; pod2man $< > $(DOCDIR)/$$name.1
-	@-rm -f *.x~~ pod*.tmp
+.PHONY: all clean distclean realclean install install-test www
 
 # End of file

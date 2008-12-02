@@ -21,31 +21,10 @@
 #	 Rules for maintenance
 
 ifneq (,)
-This makefile requires GNU Make.
+    This makefile requires GNU Make.
 endif
 
-PACKAGE		= cygbuild
-DESTDIR		=
-prefix		= /usr
-exec_prefix	= $(prefix)
-man_prefix	= $(prefix)/share
-mandir		= $(man_prefix)/man
-bindir		= $(exec_prefix)/bin
-sharedir	= $(prefix)/share
-
-BINDIR		= $(DESTDIR)$(bindir)
-DOCDIR		= $(DESTDIR)$(sharedir/doc
-SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
-LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
-SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
-ETCDIR		= $(DESTDIR)/etc/$(PACKAGE)
-
-# 1 = regular, 5 = conf, 6 = games, 8 = daemons
-MANDIR		= $(DESTDIR)$(mandir)
-MANDIR1		= $(MANDIR)/man1
-MANDIR5		= $(MANDIR)/man5
-MANDIR6		= $(MANDIR)/man6
-MANDIR8		= $(MANDIR)/man8
+include ../mk/common.mk
 
 PL		   = lib/cygbuild.pl
 INSTALL_OBJS_BIN   = $(PACKAGE)
@@ -57,10 +36,6 @@ INSTALL		= /usr/bin/install
 INSTALL_BIN	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
 INSTALL_SUID	= $(INSTALL) -m 4755
-
-SRCS		= $(PACKAGE).sh
-OBJS		=
-EXE		= $(PACKAGE)
 
 all: man
 
@@ -75,7 +50,7 @@ man: cygbuild-rebuild.1
 
 clean:
 	# clean
-	-rm -f *[#~] *.\#*
+	-rm -f *.tmp *.\#* *[#~] */*[#~]
 
 distclean: clean
 
@@ -89,17 +64,17 @@ install-etc:
 install-man:
 	# install-man
 	$(INSTALL_BIN) -d $(MANDIR1)
-	$(INSTALL_DATA) $(INSTALL_OBJS_MAN1) $(MANDIR1)
+	$(INSTALL_DATA)	  $(INSTALL_OBJS_MAN1) $(MANDIR1)
 
 install-bin:
 	# install-bin
 	$(INSTALL_BIN) -d $(BINDIR)
-	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
+	$(INSTALL_BIN)	  $(INSTALL_OBJS_BIN) $(BINDIR)
 
 install-lib:
 	# install-lib
 	$(INSTALL_BIN) -d $(SHAREDIR)
-	$(INSTALL_BIN) -s $(INSTALL_OBJS_LIB) $(SHAREDIR)
+	$(INSTALL_BIN)	  $(INSTALL_OBJS_LIB) $(SHAREDIR)
 
 install: all install-bin install-lib install-man install-etc
 
