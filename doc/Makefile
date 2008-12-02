@@ -53,17 +53,17 @@ install-index:
 install-manual:
 	# install-manual
 	$(INSTALL_BIN) -d $(DOCDIR)/manual
-	$(INSTALL_BIN) manual/* $(DOCDIR)
+	$(INSTALL_BIN) manual/* $(DOCDIR)/manual
 
 install-devel:
 	# install-devel
 	$(INSTALL_BIN) -d $(DOCDIR)/devel
-	$(INSTALL_BIN) devel/* $(DOCDIR)
+	$(INSTALL_BIN) devel/* $(DOCDIR)/devel
 
 install-license:
 	# install-license
 	$(INSTALL_BIN) -d $(DOCDIR)/license
-	$(INSTALL_BIN) license/* $(DOCDIR)
+	$(INSTALL_BIN) license/* $(DOCDIR)/license
 
 install: all install-index install-manual install-devel install-license
 
