@@ -14,8 +14,9 @@ into a installable Cygwin source and binary packages.
 Important files
 
     INSTALL                     Install instructions
-    doc/README.txt              Project information
-    doc/LICENSE.txt             Licensing information
+    doc/devel/README.txt        Project information
+    doc/license/LICENSE.txt     Licensing information
+    doc/manual/                 How to use Cygbuild
     ChangeLog                   Project change records
 
 Project contacts
@@ -31,16 +32,18 @@ Project contacts
 
 Version control information
 
-    Latest development code is available at
+    Latest development_
 
-	git clone http://git.cante.net/repo/cygbuild.git
-	cd cygbuild
-	git checkout -b master origin/devel
+        git clone git://git.savannah.nongnu.org/cygbuild.git
+        cd cygbuild
+        git checkout --track -b devel origin/devel
+        make install-etc
 
-    Infrequently released stable is available at
+    Infrequently released stable:
 
 	git clone git://git.savannah.nongnu.org/cygbuild.git
 	cd cygbuild
+        git checkout master
 
     To receive updates (to either one above)
 
