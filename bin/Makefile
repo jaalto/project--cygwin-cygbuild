@@ -103,7 +103,7 @@ install-symlink:
 	# Maintainer only target. Install using symlinks.
 	$(INSTALL_BIN) -d $(BINDIR)
 	rm -f $(BINDIR)/cygbuild
-	ln -s $$(pwd)/cygbuild $(BINDIR)/cygbuild
+	ln -s $$(pwd)/cygbuild.sh $(BINDIR)/cygbuild
 
 	$(INSTALL_BIN) -d $(ETCDIR)
 	rm -f $(ETCDIR)/*.conf
