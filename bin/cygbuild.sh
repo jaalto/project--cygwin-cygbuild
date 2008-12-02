@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.1820"
+CYGBUILD_VERSION="2008.1202.1011"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -650,7 +650,6 @@ function CygbuildBootVariablesGlobalCachePerl()
     else
         CygbuildVerb "-- [WARN] No Perl cache avalable."
     fi
-
 }
 
 function CygbuildBootVariablesGlobalCachePython()
