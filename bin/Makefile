@@ -27,10 +27,11 @@ endif
 include ../mk/common.mk
 
 PL		   = lib/cygbuild.pl
-INSTALL_OBJS_BIN   = $(PACKAGE)
+INSTALL_OBJS_BIN   = *.sh
 INSTALL_OBJS_MAN1  = *.1 lib/*.1
 INSTALL_OBJS_LIB   = $(PL) lib/*.sh
 INSTALL_OBJS_ETC   = etc/*
+INSTALL_OBJS_TPL   = template/*
 
 INSTALL		= /usr/bin/install
 INSTALL_BIN	= $(INSTALL) -m 755
@@ -61,22 +62,30 @@ install-etc:
 	$(INSTALL_BIN) -d $(ETCDIR)
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_ETC) $(ETCDIR)
 
+install-template:
+	# install-template
+	$(INSTALL_BIN) -d $(ETCDIR)/template
+	$(INSTALL_BIN)	  $(INSTALL_OBJS_TPL) $(ETCDIR)/template
+
 install-man:
 	# install-man
 	$(INSTALL_BIN) -d $(MANDIR1)
 	$(INSTALL_DATA)	  $(INSTALL_OBJS_MAN1) $(MANDIR1)
 
 install-bin:
-	# install-bin
 	$(INSTALL_BIN) -d $(BINDIR)
-	$(INSTALL_BIN)	  $(INSTALL_OBJS_BIN) $(BINDIR)
+	@for file in  $(INSTALL_OBJS_BIN);				\
+	do								\
+	    to=$$(echo $$file | sed 's/.sh//');				\
+	    $(INSTALL_BIN) $$file $(BINDIR)/$$to;			\
+	done;
 
 install-lib:
 	# install-lib
 	$(INSTALL_BIN) -d $(SHAREDIR)
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_LIB) $(SHAREDIR)
 
-install: all install-bin install-lib install-man install-etc
+install: all install-bin install-lib install-man install-etc install-template
 
 .PHONY: clean distclean realclean install install-bin install-man
 
