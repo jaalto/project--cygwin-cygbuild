@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1104.1823"
+CYGBUILD_VERSION="2008.1105.0711"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6341,6 +6341,7 @@ function CygbuildPostinstallWriteMain()
 
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LC_ALL=C
+set -e
 "	>  $file || return 1
     fi
 
@@ -9542,7 +9543,7 @@ function CygbuildInstallPostinstallPartEtc()
 	list="$list $i"
     done < <(
 	cd $dest &&
-	find . |
+	find . ! -name preremove -a ! -name postinstall |
 	    sed \
 	    -e 's,^\./,,' \
 	    -e 's,^\.$,,' \
@@ -9611,17 +9612,63 @@ function CygbuildInstallFixEtcdirInstall()
 
     [ "$pkgetcdir" ] || return 0
 
-    local dest="$DIR_DEFAULTS_GENERAL/etc"
+    #	Preserve these:
+    #	    .inst/etc/preremove
+    #	    .inst/etc/postinstall
+    #
+    #	and move everything else into
+    #
+    #	    .inst/etc/defaults/etc
 
-    ${test:+echo} tar --directory "$pkgetcdir" --create --file=$retval.tar . &&
-    ${test:+echo} rm -rf "$pkgetcdir"					     &&
-    ${test:+echo} mkdir --parents "$dest"				     &&
-    ${test:+echo} tar --directory "$dest" --extract --file=$retval.tar
+    local dir list
 
-    if [ ! "$?" = "0" ]; then
-	[ ! "$test" ] &&
-	CygbuildWarn "$id: [ERROR] Internal error while relocating $pkgetcdir"
-	return 99
+    for dir in preremove postinstall
+    do
+	if [ -d "$pkgetcdir/$dir" ] ; then
+	    list="$list $dir"
+	fi
+    done
+
+    local ptar="$retval.pre-post.tar"
+
+    if [ "$list" ]; then
+	${test:+echo} tar	    \
+	--directory "$pkgetcdir"    \
+	--create		    \
+	--file=$ptar		    \
+	$list
+    fi
+
+    local tar="$retval.tar"
+
+    #	All the rest files
+    ${test:+echo} tar		    \
+	--directory "$pkgetcdir"    \
+	--create		    \
+	--file=$tar		    \
+	--exclude=*preremove*	    \
+	--exclude=*postinstall*	    \
+	.
+
+    #	Now recreate the directory structure for Cygwin
+    ${test:+echo} rm -rf "$pkgetcdir"/*
+
+    if [ -f $ptar ]; then
+	${test:+echo} tar --directory "$pkgetcdir" --extract --file=$ptar
+    fi
+
+    if [ -s $tar ]; then
+
+	local dest="$DIR_DEFAULTS_GENERAL/etc"
+
+	${test:+echo} mkdir --parents "$dest"	&&
+	${test:+echo} tar --directory "$dest" --extract --file=$tar
+
+	if [ ! "$?" = "0" ]; then
+	    [ ! "$test" ] &&
+	    CygbuildWarn "$id: [ERROR] error while relocating $pkgetcdir"
+	    return 99
+	fi
     fi
 
     CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
@@ -9964,6 +10011,7 @@ function CygbuildCmdInstallMain()
 
     CygbuildInstallExtraMain
     CygbuildInstallFixMain
+
     CygbuildInstallCygwinPartPostinstall
     CygbuildInstallExtraManualCompress
     CygbuildCmdInstallFinishMessage
@@ -10248,11 +10296,6 @@ function CygbuildCmdAllMain()
          "build procedure only." \
          "See -h for source development options."
 
-    #   The "{ A && B; } || :" reads:
-    #
-    #       IF command A succeeds, then run B. In either
-    #       case always return true
-
     CygbuildCmdGPGVerifyMain Yn     &&
     CygbuildCmdPrepMain             &&
     CygbuildCmdShadowMain           &&
@@ -10260,6 +10303,7 @@ function CygbuildCmdAllMain()
     CygbuildCmdBuildMain            &&
     CygbuildCmdInstallMain          &&
     CygbuildCmdStripMain            &&
+
     if WasLibraryInstall ; then
         CygbuildCmdPackageDevMain
 
@@ -10795,13 +10839,13 @@ function CygbuildCommandMain()
                 ;;
 
             -d|--debug)
-                if [[ "$2" != [0-9] ]]; then
+		shift
+                if [[ "$1" != [0-9] ]]; then
                     CygbuildWarn "-- [WARN] Debug level" \
-                        " not numeric [$2]. Adjusting to 1"
+                        " not numeric [$1]. Adjusting to 1"
                 else
-                    OPTION_DEBUG=$2             # global-def
-                    shift 2
-
+                    OPTION_DEBUG=$1             # global-def
+                    shift
                 fi
                 ;;
 
