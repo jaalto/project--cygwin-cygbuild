@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2008.1202.1035"
+CYGBUILD_VERSION="2008.1205.2316"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10779,7 +10779,7 @@ function CygbuildCommandMain()
     #   installed
 
     if ! CygbuildWhich getopt > /dev/null ; then
-        CygbuildDie "$id: 'getopt' not in PATH. Cannot read options."
+        CygbuildDie "$id: 'getopt' (pkg: util-linux) not in PATH. Cannot read options."
     fi
 
     local arg args dir quiet release package
