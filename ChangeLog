@@ -1,3 +1,13 @@
+2009-02-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe): Improve
+	external option read message.
+
+2008-12-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCommandMain): Suggest 'util-linux' package
+	of 'getopt' is not available.
+
 2008-11-05  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallFixEtcdirInstall): Rewrite
