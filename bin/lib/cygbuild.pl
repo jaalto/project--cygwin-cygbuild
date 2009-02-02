@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.1104.1600';
+$VERSION = '2009.0131.1805';
 
 # ..................................................................
 
@@ -769,20 +769,20 @@ Cygwin net release. Like this:
 If the build process breaks, then the fault is in the packaging.
 Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
 
-=item <almostall>
+=item B<almostall>
 
 Same as command B<[all]> but without the B<[finish]> step.
 
 =item B<cygsrc [-b|--binary] [<--dir|-d>] PACKAGE>
 
-NOTES: 1) This command must be run in an empty directory for it to
-work properly 2) No other command line options are interpreted. This
-is stand alone command.
+NOTES: 1) This command must be run at an empty directory and 2) No
+other command line options are interpreted. This is a stand alone
+command.
 
-Download both Cygwin source and binary net release package. If option
-B<--dir> is given, create directory with name I<PACKAGE>, cd to it and
-start downloading I<PACKAGE>. If option B<--binary> is given, download
-only binary package.
+Download both Cygwin source net release package. If option B<--dir> is
+given, create directory with name I<PACKAGE>, cd to it and start
+downloading I<PACKAGE>. If option B<--binary> is given, download only
+binary package.
 
 This command is primarily used for downloading sources of orphaned
 package in order to prepare ITA (intent to adopt) to Cygwin
