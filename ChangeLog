@@ -1,3 +1,15 @@
+2009-02-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/cygwin-announce.mail.tmp (License): Add Copyright
+	line.
+
+	* bin/template/install-after.sh.tmp
+	(top level): Correct argument order in synapsis.
+	(main): Fix positional arguments.
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call message about
+	calling $scriptAfter.
+
 2009-02-02  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe): Improve

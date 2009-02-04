@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0203.1728"
+CYGBUILD_VERSION="2009.0204.1947"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9979,20 +9979,22 @@ function CygbuildCmdInstallMain()
 
             CygbuildEcho "--- Running external:" \
                  ${scriptAfter#$srcdir/} \
-                 "$dir" \
-                 "$thispath"
+		 "$dir"		\
+		 "$PKG"		\
+		 "$VER"		\
+		 "$thispath"
 
             local path="$CYGBUILD_PROG_FULLPATH"
 
             CygbuildChmodExec $scriptAfter
 
             CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-		$scriptAfter \
-		    "$dir"   \
-		    "$PKG"   \
-		    "$VER"   \
-		    "$thispath"			|
-		CygbuildMsgFilter		||
+		$scriptAfter	    \
+		    "$dir"	    \
+		    "$PKG"	    \
+		    "$VER"	    \
+		    "$thispath"	    |
+		CygbuildMsgFilter   ||
             {
                 status=$?
                 CygbuildPopd

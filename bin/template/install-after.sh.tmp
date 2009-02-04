@@ -3,10 +3,9 @@
 #
 # install-after.sh -- Custom installation
 #
-# The script will receive one argument: relative path to
-# installation root directory. Script is called like:
+# The script will receive arguments:
 #
-#    $ install-after.sh .inst <caller-prg> <PKG> <VER>
+#    $ install-after.sh .inst <install-dir> <PKG> <VER> <caller-prg>
 #
 # This script is run after [install] command. NOTE: Echo all messages
 # with ">> " prefix".
@@ -26,9 +25,9 @@ Cmd()
 Main()
 {
     root=${1:-".inst"}
-    caller=$2
-    pkg=$3
-    ver=$4
+    pkg=$2
+    ver=$3
+    caller=$4
 
     if [ ! "$root"  ] || [ ! -d "$root" ]; then
         echo "$0: [ERROR] In $(pwd) no such directory: '$root'" >&2
