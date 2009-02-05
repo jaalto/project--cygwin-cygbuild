@@ -24,19 +24,19 @@ all:
 
 # clean: clean om doc/ and bin/
 clean:
-	$(MAKE) -C doc	     clean
-	$(MAKE) -C bin	     clean
+	$(MAKE) -C doc clean
+	$(MAKE) -C bin clean
 
 realclean: clean
 
 # install: install doc/ and bin/
 install:
-	$(MAKE) -C doc	     install
-	$(MAKE) -C bin	     install
+	$(MAKE) -C doc install
+	$(MAKE) -C bin install
 
 # install-symlink: [developer] install in place; from version control checkout
-install-symlink
-	$(MAKE) -C bin	install-symlink
+install-symlink:
+	$(MAKE) -C bin install-symlink
 
 # install-test: [developer] make test install to tmp/
 install-test:

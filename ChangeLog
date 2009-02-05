@@ -1,8 +1,12 @@
 2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* doc/index.html: (Install from Version Control): correct
+	'make install-etc' to 'make install-symlink'
+
 	* bin/lib/cygbuild.pl (UpdateAnnouncement): Call UpdateYears().
 
 	* Makefile: (help): New target.
+	(install-symlink): New target.
 
 	* TODO: Add headings: incomplete, planned.
 
