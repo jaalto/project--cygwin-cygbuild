@@ -1,11 +1,10 @@
 #!/bin/sh
 # Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 #
-# /etc/postinstall/<package>.sh -- Custom installation steps
+# /etc/postinstall/<package>.sh [destdir]
 #
 # -- NOTE: This script will be run under /bin/sh
 # -- THIS AN EXAMPLE, MODIFY AS NEEDED
-#
 
 PATH="/sbin:/usr/sbin/:/bin:/usr/bin:/usr/X11R6/bin"
 LC_ALL="C"
