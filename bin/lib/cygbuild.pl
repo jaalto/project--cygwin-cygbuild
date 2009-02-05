@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2008.1104.1600';
+$VERSION = '2009.0205.1228';
 
 # ..................................................................
 
@@ -3687,7 +3687,20 @@ sub UpdateAnnouncement ($$$$)
     local $ARG = $orig;
 
     my $vid	= "$ver-$rel";				# version id
-    my $iso8601 = Date(-utc => 1);
+    my $iso8601 = Date(-utc => "on");
+
+    my $rest;
+
+    if ( /(New \s+ package | Updated): .*? (?<rest> \s* --+ .*)/mxi )
+    {
+	$rest = $+{rest};
+    }
+
+    s
+    < ^(?<header> Subject: \s*)
+       New package:
+    >
+    <$+{header}Updated:>mxi;
 
     s
     < ^Subject: \s*
@@ -3696,7 +3709,11 @@ sub UpdateAnnouncement ($$$$)
        (?<ver>  \S+)
        (?<rest>  .*)
     >
-    <Subject: Updated: $+{pkg} $vid$+{rest}>mx;
+    <Subject: Updated: $+{pkg} $vid$rest>mxi;
+
+   #  Delete this line
+
+   s< ^Subject: \s* New \s+ Package: .* \r? \n ><>mxi;
 
     unless ( length $file == length $ARG )
     {
@@ -3738,7 +3755,7 @@ sub UpdateNewVersionStanza (%)
     $debug  and  warn "$id: pkg [$pkg] ver [$ver] rel [$rel]\n";
 
     my $vid	= "$ver-$rel";				# version id
-    my $iso8601 = Date(-utc => 1);
+    my $iso8601 = Date(-utc => "on");
 
     my $stanza =
 "----- version $vid -----
@@ -3867,7 +3884,7 @@ sub UpdateYears ($)
 
     #   Dates and all that
 
-    my $iso8601 = Date(-utc => 1);
+    my $iso8601 = Date(-utc => "on");
     my $YYYY    = 1900 + (gmtime time)[5];
 
     s,[<]?YYYY-MM-DD[>]?,$iso8601,;

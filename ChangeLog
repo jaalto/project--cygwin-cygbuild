@@ -1,5 +1,10 @@
 2009-02-05  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Improve call to Date().
+	(UpdateNewVersionStanza): Improve call to Date().
+	(UpdateYears): Improve call to Date().
+	(UpdateAnnouncement): Delete 'New Package' line.
+
 	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Correct
 	CYGBUILD_FILE_MANIFEST_TO from 'manifest.lst' to 'manifest-to.lst'.
 	(CygbuildIsDirMatch): New.
