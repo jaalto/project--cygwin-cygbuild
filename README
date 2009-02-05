@@ -8,16 +8,15 @@ into a installable Cygwin source and binary packages.
 
     bin/            The programs
     doc/            Documentation
-    etc/makefile    Project maintenence dir. The install makefiles.
-    etc/template    Files installed to /usr/share/cygbuild/
+    mk/		    Makefiles; for developers
 
 Important files
 
+    ChangeLog                   Change records
     INSTALL                     Install instructions
-    doc/devel/README.txt        Project information
+    doc/devel/README.txt        Project information. Developer information.
     doc/license/LICENSE.txt     Licensing information
     doc/manual/                 How to use Cygbuild
-    ChangeLog                   Project change records
 
 Project contacts
 
