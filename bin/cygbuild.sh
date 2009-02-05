@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0205.1722"
+CYGBUILD_VERSION="2009.0205.1730"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3274,7 +3274,6 @@ function CygbuildTreeSymlinkCopy()
     if [ "$LNDIR" ]; then
 	LNDIR="$LNDIR -silent"
     else
-
 	CygbuildDie "$id: 'lndir' not found in PATH. Cannot shadow sources."
     fi
 
