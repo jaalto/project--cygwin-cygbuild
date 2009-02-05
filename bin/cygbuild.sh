@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0205.1652"
+CYGBUILD_VERSION="2009.0205.1722"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -127,11 +127,13 @@ function CygbuildPopd()
 
 function CygbuildWhich()
 {
+    # returns path name
     [ "$1" ] && type -p "$1" 2> /dev/null
 }
 
 function CygbuildWhichCheck()
 {
+    # Ignore return values (path name)
     [ "$1" ] && CygbuildWhich "$1" > /dev/null
 }
 
@@ -332,7 +334,7 @@ function CygbuildIsGbsCompat()
 
 function CygbuildMsgFilter()
 {
-    if [ ! "$OPTION_COLOR" ]; then
+    if [ ! "$OPTION_COLOR" ] || [ ! -f "$PERLBIN" ]; then
 	cat                                             # Pass through
 	return 0
     fi
@@ -351,7 +353,7 @@ function CygbuildMsgFilter()
     export topic error error fatal warn info msg note external end
 
     local str=$(
-	perl -ane '
+	$PERLBIN -ane '
 	    exit 0 unless /\S/;
 
 	    eval "\$$_ = q($ENV{$_});" for
@@ -3417,6 +3419,7 @@ function CygbuildFileReadOptionsMaybe()
 
 function CygbuildDefineGlobalCommands()
 {
+    local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     BASHX="/bin/bash -x"                            # global-def
@@ -3492,6 +3495,10 @@ function CygbuildDefineGlobalCommands()
     if [ -d $tmp ]; then
 	PYTHON_LIBDIR=$tmp/config                   # global-def
     fi
+
+    CygbuildWhichCheck make || 	CygbuildDie "[FATAL] $id: make not in PATH"
+    CygbuildWhichCheck gcc  ||  CygbuildDie "[FATAL] $id: gcc not in PATH"
+    CygbuildWhichCheck perl ||  CygbuildDie "[FATAL] $id: perl not in PATH"
 }
 
 function CygbuildIsArchiveScript()

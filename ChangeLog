@@ -22,6 +22,9 @@
 	available, options cannot be parsed. If `CygbuildIsGbsCompat', do
 	not run `CygbuildBootVariablesGlobalShareMain'.
 	(CygbuildTreeSymlinkCopy): Simplify 'lndir' error message.
+	(CygbuildDefineGlobalCommands): Verify that commands make, gcc. perl
+	are in PATH.
+	(CygbuildMsgFilter): Use cat if perl is not available.
 
 2009-02-05  Jari Aalto  <jari.aalto@cante.net>
 
