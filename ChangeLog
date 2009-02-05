@@ -1,5 +1,7 @@
 2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Call UpdateYears().
+
 	* Makefile: (help): New target.
 
 	* TODO: Add headings: incomplete, planned.

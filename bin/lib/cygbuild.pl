@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.0205.1425';
+$VERSION = '2009.0205.1557';
 
 # ..................................................................
 
@@ -3711,9 +3711,13 @@ sub UpdateAnnouncement ($$$$)
     >
     <Subject: Updated: $+{pkg} $vid$rest>mxi;
 
-   #  Delete this line
+    #  Delete this line
 
-   s< ^Subject: \s* New \s+ Package: .* \r? \n ><>mxi;
+    s< ^Subject: \s* New \s+ Package: .* \r? \n ><>mxi;
+
+    #  Update Copyright information.
+
+    $ARG = UpdateYears($ARG);
 
     unless ( length $file == length $ARG )
     {
