@@ -1,5 +1,19 @@
 2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* Makefile: (help): New target.
+
+	* TODO: Add headings: incomplete, planned.
+
+	* README: (Important files): Update directory information.
+
+	* doc/devel/README.txt: (Information for developers): Clean up
+	section.
+	(Policies): Update. Add CODING STYLE.
+
+	* doc/Makefile (help): New target. Document other targets.
+
+	* bin/Makefile: (help): New target. Document other targets.
+
 	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before `cd'
 	(optimization).
 
