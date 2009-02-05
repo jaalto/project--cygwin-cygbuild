@@ -19,6 +19,7 @@
 	* doc/Makefile (help): New target. Document other targets.
 
 	* bin/Makefile: (help): New target. Document other targets.
+	(install-symlink): Adjust comment.
 
 	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before
 	`cd'.

@@ -103,7 +103,7 @@ install: all \
 
 # install-symlink: [developer] install in place; e.g. version control checkout
 install-symlink:
-	# Maintainer only target. Install using symlinks.
+	# Install using symlinks.
 	$(INSTALL_BIN) -d $(BINDIR)
 	rm -f $(BINDIR)/cygbuild
 	ln -s $$(pwd)/cygbuild.sh $(BINDIR)/cygbuild
