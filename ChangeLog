@@ -16,8 +16,12 @@
 
 	* bin/Makefile: (help): New target. Document other targets.
 
-	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before `cd'
-	(optimization).
+	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before
+	`cd'.
+	(CygbuildCommandMain): Add getopt safeguards. If 'getopt' is not
+	available, options cannot be parsed. If `CygbuildIsGbsCompat', do
+	not run `CygbuildBootVariablesGlobalShareMain'.
+	(CygbuildTreeSymlinkCopy): Simplify 'lndir' error message.
 
 2009-02-05  Jari Aalto  <jari.aalto@cante.net>
 

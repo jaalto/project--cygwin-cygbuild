@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0205.1424"
+CYGBUILD_VERSION="2009.0205.1652"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -707,7 +707,7 @@ function CygbuildBootVariablesGlobalShareMain()
     local id="$0.$FUNCNAME"
     local dir="$CYGBUILD_PROG_LIBPATH"
 
-    if [ -d "$dir" ]; then
+    if [ "$dir" ] && [ -d "$dir" ]; then
 	CygbuildBootVariablesGlobalShareDir "$dir"
 	return 0
     fi
@@ -3273,10 +3273,7 @@ function CygbuildTreeSymlinkCopy()
 	LNDIR="$LNDIR -silent"
     else
 
-	local msg="$id: 'lndir' not found in PATH. Cannot shadow."
-	msg="$msg It is included in xorg* packages."
-
-	CygbuildDie "$msg"
+	CygbuildDie "$id: 'lndir' not found in PATH. Cannot shadow sources."
     fi
 
     #   lndir(1) cannot be used directly, because we are copying UNDER
@@ -10776,7 +10773,9 @@ function CygbuildCommandMain()
     CygbuildProgramVersion '' "$*"
     CygbuildDefineGlobalScript
     CygbuildBootVariablesGlobalEtcMain
-    CygbuildBootVariablesGlobalShareMain
+
+    CygbuildIsGbsCompat || CygbuildBootVariablesGlobalShareMain
+
     CygbuildBootVariablesGlobalMain
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -10814,36 +10813,42 @@ function CygbuildCommandMain()
     OPTION_SPACE="yes"              # global-def
     OPTION_COMPRESS="bz2"           # global-def
 
-    #   On Cygwin upgrades, it may be possible that this proram is not
-    #   installed
-
-    if ! CygbuildWhich getopt > /dev/null ; then
-	CygbuildDie "$id: 'getopt' (pkg: util-linux) not in PATH." \
-	    "Cannot read options."
-    fi
-
     local arg args dir quiet release package
     local stripflag="yes"
     local OPTIND=1
 
     unset verbose
 
-    getopt \
+    #   On Cygwin upgrades, it may be possible that this proram is not
+    #   installed
+
+    local isgetopt="isgetop"
+
+    if ! CygbuildWhich getopt > /dev/null ; then
+        isgetopt=""
+
+        CygbuildIsGbsCompat ||
+	CygbuildDie "$id: 'getopt' (from package util-linux) not in PATH." \
+	    "Cannot parse options."
+    fi
+
+    if [ "$isgetopt" ]; then
+        getopt \
 	-n $id \
 	--long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
 	--option bcDd:e:f:glp:Pr:s:tvVx -- "$@" \
 	> $retval
 
-    if [ ! "$?" = "0" ] ; then
-	CygbuildDie "$id: Cannot read options."
+        [ "$?" = "0" ] || CygbuildDie "$id: Cannot read options."
+
+        eval set -- $(< $retval)
     fi
 
-    eval set -- $(< $retval)
     local tmp=15                        # safeguard against infinite loop
 
     while [ "$*" ]
     do
-	local dummy="$1, $*"                    # just for debugging
+	local dummy="$1 => $*"                  # just for debugging
 	tmp=$((tmp - 1))
 
 	if [ $tmp -eq 0 ]; then
@@ -11002,6 +11007,14 @@ function CygbuildCommandMain()
 
 	    -*) CygbuildDie "$id: Unknown option  [$1]. Aborted."
 		;;
+
+            [a-z]*)
+                #  End of options, when getopt is not available
+                # to write "--" marker
+                set -- $*
+                break
+                ;;
+
 	esac
     done
 
@@ -11119,6 +11132,7 @@ function CygbuildCommandMain()
     # ................................................ user commands ...
 
     local status=0
+    local opt
 
     for opt in "$@"
     do
