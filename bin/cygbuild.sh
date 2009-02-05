@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2008 Jari Aalto
+#       Copyright (C) 2003-2009 Jari Aalto
 #
 #   License
 #
@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0204.1947"
+CYGBUILD_VERSION="2009.0205.1014"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1183,6 +1183,29 @@ function CygbuildLibInstallEnvironment()
 #       Utility functions
 #
 #######################################################################
+
+function CygbuildIsDirMatch()
+{
+    local dir="$1"  # ARG 1   = directory
+    shift 1	    # ARG 2.. = list of globs
+
+    local element
+
+    CygbuildPushd
+
+	cd $dir &&
+	for element in $*
+	do
+	    if [ -e "$element" ]; then
+		CygbuildPopd
+		return 0
+	    fi
+	done
+
+    CygbuildPopd
+
+    return 1
+}
 
 function CygbuildIsDirEmpty()
 {
@@ -3850,7 +3873,7 @@ function CygbuildDefineGlobalMain()
     #   More global-def
 
     CYGBUILD_FILE_MANIFEST_DATA=manifest.lst
-    CYGBUILD_FILE_MANIFEST_TO=manifest.lst
+    CYGBUILD_FILE_MANIFEST_TO=manifest-to.lst
     CYGBUILD_FILE_MANIFEST_FROM=manifest-from.lst
 
     FILE_PREREMOVE_MANIFEST_FROM=\
@@ -9007,6 +9030,11 @@ function CygbuildInstallExtraManual()
     local addsect=$CYGBUILD_MAN_SECTION_ADDITIONAL
 
     local mandir="$DIR_CYGPATCH"
+    local try="$DIR_CYGPATCH/man"
+
+    if CygbuildIsDirMatch "$try" *.[0-9]* *.pod ; then
+	mandir=$try
+    fi
 
     if [ -f $EXTRA_MANDIR_FILE ]; then
 	local dir=DIR_CYGPATCH/$(< $EXTRA_MANDIR_FILE)

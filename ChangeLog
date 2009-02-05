@@ -1,3 +1,10 @@
+2009-02-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Correct
+	CYGBUILD_FILE_MANIFEST_TO from 'manifest.lst' to 'manifest-to.lst'.
+	(CygbuildIsDirMatch): New.
+	(CygbuildInstallExtraManual): Support CYGWIN-PATCHES/man directory.
+
 2009-02-04  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/cygwin-announce.mail.tmp (License): Add Copyright
