@@ -17,20 +17,28 @@ ifneq (,)
     This makefile requires GNU Make.
 endif
 
+# all: run target in doc/ and bin/
 all:
 	$(MAKE) -C doc all
 	$(MAKE) -C bin all
 
+# clean: clean om doc/ and bin/
 clean:
-	$(MAKE) -C doc	     clean
-	$(MAKE) -C bin	     clean
+	$(MAKE) -C doc clean
+	$(MAKE) -C bin clean
 
 realclean: clean
 
+# install: install doc/ and bin/
 install:
-	$(MAKE) -C doc	     install
-	$(MAKE) -C bin	     install
+	$(MAKE) -C doc install
+	$(MAKE) -C bin install
 
+# install-symlink: [developer] install in place; from version control checkout
+install-symlink:
+	$(MAKE) -C bin install-symlink
+
+# install-test: [developer] make test install to tmp/
 install-test:
 	# Rule install-test - for Maintainer only
 	mkdir -p tmp
@@ -38,9 +46,13 @@ install-test:
 	make DESTDIR=`pwd`/tmp prefix=/. install
 	@echo "find tmp -type f | sort"
 
+# www: [developer] Publish doc/ directory's WWW documentation
 www:
 	# Rule www - for Maintainer only
 	$(MAKE) -C doc www
+
+help:
+	@egrep "^# [-a-z]+:" Makefile | sort | sed 's/# //'
 
 .PHONY: all clean distclean realclean install install-test www
 

@@ -42,7 +42,7 @@ manual/index.txt: $(PL)
 index.txt: index.html
 	lynx -dump $? > $@
 
-# Rule: doc: generate documentation
+# doc: generate documentation from source files
 doc: index.txt manual/index.html manual/index.txt
 
 install-index:
@@ -65,9 +65,13 @@ install-license:
 	$(INSTALL_BIN) -d $(DOCDIR)/license
 	$(INSTALL_BIN) license/* $(DOCDIR)/license
 
-install: all install-index install-manual install-devel install-license
+# install: install idex, manual, devel, license
+install: all install-index	\
+	install-manual		\
+	install-devel		\
+	install-license
 
-# Rule: www: copy web pages to ../../<project>-www
+# www: copy web pages to ../../<project>-www
 www: doc
 	name=$$(basename $$(cd .. && pwd)); \
 	to=../../$$name-www; \
@@ -81,5 +85,8 @@ www: doc
 	  -r \
 	  . \
 	  $$to/
+
+help:
+	@egrep "^# [-a-z]+:" Makefile | sort | sed 's/# //'
 
 # End of file

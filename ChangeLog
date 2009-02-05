@@ -1,3 +1,71 @@
+2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* doc/index.html: (Install from Version Control): correct
+	'make install-etc' to 'make install-symlink'
+
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Call UpdateYears().
+
+	* Makefile: (help): New target.
+	(install-symlink): New target.
+
+	* TODO: Add headings: incomplete, planned.
+
+	* README: (Important files): Update directory information.
+
+	* doc/devel/README.txt: (Information for developers): Clean up
+	section.
+	(Policies): Update. Add CODING STYLE.
+
+	* doc/Makefile (help): New target. Document other targets.
+
+	* bin/Makefile: (help): New target. Document other targets.
+
+	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before
+	`cd'.
+	(CygbuildCommandMain): Add getopt safeguards. If 'getopt' is not
+	available, options cannot be parsed. If `CygbuildIsGbsCompat', do
+	not run `CygbuildBootVariablesGlobalShareMain'.
+	(CygbuildTreeSymlinkCopy): Simplify 'lndir' error message.
+	(CygbuildDefineGlobalCommands): Verify that commands make, gcc. perl
+	are in PATH.
+	(CygbuildMsgFilter): Use cat if perl is not available.
+
+2009-02-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Improve call to Date().
+	(UpdateNewVersionStanza): Improve call to Date().
+	(UpdateYears): Improve call to Date().
+	(UpdateAnnouncement): Delete 'New Package' line.
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Correct
+	CYGBUILD_FILE_MANIFEST_TO from 'manifest.lst' to 'manifest-to.lst'.
+	(CygbuildIsDirMatch): New.
+	(CygbuildInstallExtraManual): Support CYGWIN-PATCHES/man directory.
+	(CygbuildInstallPostinstallPartEtc): Change variable `dest'
+	to `destdir'. Use command line arg `dest'.
+	(CygbuildPostinstallWriteMain): Assign command line argument
+	$1 to variable dest.
+	(CygbuildCommandMain): Correct -d option without numeric argument.
+	(CygbuildCmdConfMain): Move 'configure command' message.
+	(CygbuildCmdConfAutomake): Simplify if-statement.
+
+2009-02-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/cygwin-announce.mail.tmp (License): Add Copyright
+	line.
+
+	* bin/template/install-after.sh.tmp
+	(top level): Correct argument order in synapsis.
+	(main): Fix positional arguments.
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call message about
+	calling $scriptAfter.
+
+2009-02-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe): Improve
+	external option read message.
+
 2009-01-31  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (HELP::Other commands): Add Missing B<>

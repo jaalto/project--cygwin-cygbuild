@@ -26,7 +26,7 @@
 #
 #           $ cygbuild --help
 
-require 5.10.0;			# perlre: Named backreferences
+require 5.10.0;                 # perlre: Named backreferences
 use strict;
 use integer;
 
@@ -57,12 +57,12 @@ IMPORT:
 
     use vars qw
     (
-        $SYSTEMROOT
-        $NAME
-        $DEBFULLNAME
-        $CYGBUILD_FULLNAME
-        $EMAIL
-        $CYGBUILD_EMAIL
+	$SYSTEMROOT
+	$NAME
+	$DEBFULLNAME
+	$CYGBUILD_FULLNAME
+	$EMAIL
+	$CYGBUILD_EMAIL
     );
 }
 
@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.0131.1805';
+$VERSION = '2009.0205.1557';
 
 # ..................................................................
 
@@ -123,24 +123,24 @@ The directories used in the program are as follows:
        <original upstream package source(s): package-1.2.3.tar.gz>
        |
        +- package-1.2.3/
-          <upstream *.tar.gz unpacked>
-          <All cygbuild commands must be given in *this* directory>
-          |
-          +- .build/
-          |  <generic working area of temporary files>
-          |  |
-          |  +- build/
-          |  |  <separate "shadow" directory where compiling happens>
-          |  |  <contains only symlinks and object *.o etc. files>
-          |  |
-          |  +- package-1.2.3-orig/
-          |     <Used during taking a diff for Cygwin source package>
-          |
-          +- .inst/
-          |  <The "make install" target directory>
-          |
-          +- .sinst/
-              <diffs, signatures, binary and source packages appear here>
+	  <upstream *.tar.gz unpacked>
+	  <All cygbuild commands must be given in *this* directory>
+	  |
+	  +- .build/
+	  |  <generic working area of temporary files>
+	  |  |
+	  |  +- build/
+	  |  |  <separate "shadow" directory where compiling happens>
+	  |  |  <contains only symlinks and object *.o etc. files>
+	  |  |
+	  |  +- package-1.2.3-orig/
+	  |     <Used during taking a diff for Cygwin source package>
+	  |
+	  +- .inst/
+	  |  <The "make install" target directory>
+	  |
+	  +- .sinst/
+	      <diffs, signatures, binary and source packages appear here>
 
 B<CASE A)> to build Cygwin Net Release from a package that includes a
 standard C<./configure> script, the quick path for porting would be in
@@ -169,7 +169,7 @@ the fortunate case:
 
     $ cygbuild -r 1 makedirs
     $ cygbuild -r 1 files
-    $ cygbuild -r 1 readmefix	    # Fill in CYGWIN/package.README
+    $ cygbuild -r 1 readmefix       # Fill in CYGWIN/package.README
     $ cygbuild -r 1 shadow          # prepare sources to .build/build
     $ cygbuild -r 1 configure
     $ cygbuild -r 1 make
@@ -379,14 +379,14 @@ ported directly by using standard C<./configure> or C<make install> calls.
     setup.hint              Mandatory, edit this
     conf.sh.tmp             optional; If there is no ./configure
     build.sh.tmp            optional; If standard "make all"
-                                      doesn't do it
+				      doesn't do it
     install.sh.tmp          optional; If "make install"
-                                      doesn't do it
+				      doesn't do it
     install-after.sh.tmp    optional; If "make install"
-                                      quite didn't do it right. E.g
-                                      moving .inst/etc/* files elsewhere
+				      quite didn't do it right. E.g
+				      moving .inst/etc/* files elsewhere
     postinstall.sh.tmp      optional; Things to do after system
-                                      install for binary packages
+				      install for binary packages
 
 If you remove the extension C<.tmp>, the shell scripts are automatically
 noticed and used. You can leave the files alone if you do not use them,
@@ -587,7 +587,7 @@ instead of the homepage's name C<gc>, like this:
     --   [devel-lib] /usr/src/build/libgc6-6.2.1.6-1.tar.bz2
     --   [devel-doc] /usr/src/build/libgc6-doc-6.2.1.6-1.tar.bz2
     --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.bz2
-                                    ======
+				    ======
 
 Notice how all released files now correctly include prefix C<libgc6>.
 
@@ -657,12 +657,12 @@ B<--sign> and B<--passphrase> if those were available. The shell call
 will be in form:
 
     $CYGBUILD_PUBLISH_BIN \
-        /directory/where/package-N.N/.sinst/
-        <package string>
-        <version string>
-        <release number>
-        [gpg sign id]
-        [gpg pass phrase]
+	/directory/where/package-N.N/.sinst/
+	<package string>
+	<version string>
+	<release number>
+	[gpg sign id]
+	[gpg pass phrase]
 
 If no C<CYGBUILD_PUBLISH_BIN> exists, source and binary packages are copied
 under publish directory C<$CYGBUILD_PUBLISH_DIR/package/>.
@@ -760,9 +760,9 @@ source-package, finish>. This command is used to test the integrity of
 Cygwin net release. Like this:
 
     root@foo:/usr/src/build# tar -xvf package-N.N-1-src.tar.bz2
-        package-N.N-1.sh
-        package-N.N-1.patch
-        package-N.N-src.tar.gz
+	package-N.N-1.sh
+	package-N.N-1.patch
+	package-N.N-src.tar.gz
 
     root@foo:/usr/src/build# ./package-N.N-1.sh all
 
@@ -892,10 +892,10 @@ Similarly if the unpack directory structure does not use universal scheme
 C<package-N.N>, it's a problem. Suppose a package unpacks like this:
 
     $ tar zxvf package-beta-latest.tar.gz
-        ...
-        package-latest
-        package-latest/src
-        package-latest/doc
+	...
+	package-latest
+	package-latest/src
+	package-latest/doc
 
 The situation can be coped by making a symbolic link to whatever is
 appropriate for the version number. If unsure, pick a YYYYMMDD in case
@@ -976,7 +976,7 @@ if you make more releases of the same package.
 
     $ cd /tmp/build/foo-1.13/
     $ cygbuild -r 1 -v makedirs files
-                          ==============
+			  ==============
 
 Command B<[makedirs]> created three dot-directories which should be
 C<foo-1.13/{.build,.inst,.sinst}>. Command B<[files]> wrote few template
@@ -1001,7 +1001,7 @@ packages. It will appear in directory C<./.sinst>:
 
    $ cd /tmp/build/foo-1.13/
    $ cygbuild -r 1 -v install strip package
-                         =====================
+			 =====================
 
 6. Examine carefully the install phase and double check that the created
 archive looks correct. Run C<find(1)> to check the directory structure:
@@ -1051,7 +1051,7 @@ C<package-N.N/CYGWIN-PATCHES/>. Try this first:
 
    <your still at directory package-N.N/>
    $ cygbuild -r 1 -v source-package
-                         ==============
+			 ==============
 
 That's it, if all succeeded. At directory up C<./.sinst> you should see two
 complete Cygwin Net release shipments: a binary package and a source
@@ -1246,16 +1246,16 @@ To start with the custom script, here are the standard Cygwin configure
 switches, which you can incorporate:
 
     ./configure
-        --target=i686-pc-cygwin
-        --srcdir=/usr/src/cygbuild/package/package-N.N
-        --prefix=/usr
-        --exec-prefix=/usr
-        --sysconfdir=/etc
-        --libdir=/usr/lib
-        --includedir=/usr/include
-        --localstatedir=/var
-        --libexecdir='${sbindir}'
-        --datadir='${prefix}/share'
+	--target=i686-pc-cygwin
+	--srcdir=/usr/src/cygbuild/package/package-N.N
+	--prefix=/usr
+	--exec-prefix=/usr
+	--sysconfdir=/etc
+	--libdir=/usr/lib
+	--includedir=/usr/include
+	--localstatedir=/var
+	--libexecdir='${sbindir}'
+	--datadir='${prefix}/share'
 
 =item B<diff.options>
 
@@ -1328,24 +1328,24 @@ unconventionally 1 on success and N > 1 on error.
     # CYGWIN-PATCHES/diff.sh -- custom diff
 
     diff -urN $1 $2             \
-            --exclude='.build'  \
-            --exclude='.inst'   \
-            --exclude='.sinst'  \
-            --exclude='*.o'     \
-            --exclude='*.a'     \
-            --exclude='*.dll'   \
-            --exclude='*.exe'   \
-            --exclude='*.bak'   \
-            --exclude='*.tmp'   \
-            --exclude='*~'      \
-            --exclude='*#'      \
-            --exclude='.#*'     \
-            --exclude='.hg'     \
-            --exclude='.bzr'    \
-            --exclude='.git'    \
-            --exclude='CVS'     \
-            --exclude='RCS'     \
-             ...[your options here]...\
+	    --exclude='.build'  \
+	    --exclude='.inst'   \
+	    --exclude='.sinst'  \
+	    --exclude='*.o'     \
+	    --exclude='*.a'     \
+	    --exclude='*.dll'   \
+	    --exclude='*.exe'   \
+	    --exclude='*.bak'   \
+	    --exclude='*.tmp'   \
+	    --exclude='*~'      \
+	    --exclude='*#'      \
+	    --exclude='.#*'     \
+	    --exclude='.hg'     \
+	    --exclude='.bzr'    \
+	    --exclude='.git'    \
+	    --exclude='CVS'     \
+	    --exclude='RCS'     \
+	     ...[your options here]...\
     > $3
 
     [ "$?" = "1" ]
@@ -1521,7 +1521,7 @@ to binaries that are documented. The page number is automatically read
 from file name:
 
        X11 programs use section "x"
-                                  |
+				  |
    cp manualpage.1.pod  xprogram.1x.pod
    cp manualpage.1.pod  program.8.pod
       |                 |
@@ -1641,8 +1641,8 @@ mentioned in <preremove-manifest-from.lst>. This effectively means:
        have not been changed, remove them.
 
     postinstall: if there are no files that are listed in
-        C<preremove-manifest.lst> file then install new upstream files
-        pointed by <preremove-manifest-from.lst>
+	C<preremove-manifest.lst> file then install new upstream files
+	pointed by <preremove-manifest-from.lst>
 
 =item B<publish.sh>
 
@@ -1762,10 +1762,10 @@ previous topic, you can use rebuild script to do the steps. Is is also a
 good chance to verify that the package build process is repeatable:
 
     $ cygbuild-rebuild.sh -d /usr/src/cygwin-build -i 1 2>&1 | tee build.log
-                           |                       |
-                           |                       increase releases by 1
-                           |
-                           directory where to start recursive build
+			   |                       |
+			   |                       increase releases by 1
+			   |
+			   directory where to start recursive build
 
 If something goes wrong, you have to manually fix the package. Do not run
 the rebuild script again until you have fixed the build process for a
@@ -1804,9 +1804,9 @@ To get access to full power of the functions, these steps are needed:
     local src=${array[1]}
 
     CygbuildDefineGlobalMain    \
-        "$top"                  \
-        "$src"                  \
-        "$RELEASE"              \
+	"$top"                  \
+	"$src"                  \
+	"$RELEASE"              \
 
     #   Now any function can be called. Like installing documentation
 
@@ -2155,22 +2155,22 @@ sub Help (;@)
 
     if ( /html/ )
     {
-        pod2html $PROGRAM_NAME;
+	pod2html $PROGRAM_NAME;
     }
     elsif ( /man/ )
     {
-        eval "use Pod::Man";
-        $EVAL_ERROR  and  die "Cannot generate Man $EVAL_ERROR";
+	eval "use Pod::Man";
+	$EVAL_ERROR  and  die "Cannot generate Man $EVAL_ERROR";
 
-        my %options;
-        $options{center} = 'Cygwin source and binary packge build script';
+	my %options;
+	$options{center} = 'Cygwin source and binary packge build script';
 
-        my $parser = Pod::Man->new(%options);
-        $parser->parse_from_file ($PROGRAM_NAME);
+	my $parser = Pod::Man->new(%options);
+	$parser->parse_from_file ($PROGRAM_NAME);
     }
     else
     {
-        pod2text $PROGRAM_NAME;
+	pod2text $PROGRAM_NAME;
     }
 }
 
@@ -2222,7 +2222,7 @@ sub PathToCygwin ($)
 
     if ( m,^(.):(.*), )
     {
-        $ARG = "/cygdrive/$1$2";
+	$ARG = "/cygdrive/$1$2";
     }
 
     $debug  > 2 and  warn "$id: RET $ARG\n";
@@ -2301,7 +2301,7 @@ sub PrintHash ($%)
 
     while ( my($key, $val) = each %hash )
     {
-        warn "HASH: [$key] => [$val]\n";
+	warn "HASH: [$key] => [$val]\n";
     }
 }
 
@@ -2378,22 +2378,22 @@ sub Version ($)
 
     if ( not $ret  and  /^.+[-_]v?([\d.]+[_-]?rc.*)/i )
     {
-        $debug > 2  and  warn "$id: exotic 2 [$_]\n";
-        $ret = $1;
+	$debug > 2  and  warn "$id: exotic 2 [$_]\n";
+	$ret = $1;
     }
 
     if ( ! $ret  and  /^([a-z_-]*[A-Za-z])([\d.]*\d)/i )
     {
-        $debug > 2  and  warn "$id: exotic 3 [$_]\n";
-        $ret = $2;         # foo4.16.0.70
+	$debug > 2  and  warn "$id: exotic 3 [$_]\n";
+	$ret = $2;         # foo4.16.0.70
     }
 
     unless ( $ret )
     {
-        $debug > 2  and  warn "$id: else [$_]\n";
-        # Exotic version like foo-R31b
-        my @words = split '[-_][vV]?';
-        $ret = $words[-1];
+	$debug > 2  and  warn "$id: else [$_]\n";
+	# Exotic version like foo-R31b
+	my @words = split '[-_][vV]?';
+	$ret = $words[-1];
     }
 
     $debug  and  warn "$id: RET $ARG => [$ret]\n";
@@ -2435,19 +2435,19 @@ sub Package ($)
 
     if ( $version )
     {
-        # Regexp quote "1.1" => "1\.1"
-        $version =~ s,([?.+*]),[$1],g;
+	# Regexp quote "1.1" => "1\.1"
+	$version =~ s,([?.+*]),[$1],g;
     }
 
     $debug  and  warn "$id: VER [$version] ARG [$ARG]";
 
     if (  $version  and  s/[_-]?$version.*// )
     {
-        s/_/-/g;
+	s/_/-/g;
     }
     else
     {
-        $ARG = "";
+	$ARG = "";
     }
 
     $debug  and  warn "$id: RET [$ARG]";
@@ -2509,15 +2509,15 @@ sub FileScanWantedGeneral ()
 
     if ( $FILE_REGEXP_PRUNE  and  $path =~ /$FILE_REGEXP_PRUNE/ )
     {
-        $debug  and  warn "$id: PRUNE $path [$MATCH]\n";
-        $File::Find::prune = 1;
-        return;
+	$debug  and  warn "$id: PRUNE $path [$MATCH]\n";
+	$File::Find::prune = 1;
+	return;
     }
 
     if ( $FILE_REGEXP  and  $path !~ /$FILE_REGEXP/ )
     {
-        $debug > 4  and  warn "$id: no match $FILE_REGEXP\n";
-        return;
+	$debug > 4  and  warn "$id: no match $FILE_REGEXP\n";
+	return;
     }
 
     $debug > 2  and  warn "$id: PUSH $path\n";
@@ -2526,11 +2526,11 @@ sub FileScanWantedGeneral ()
 
     if ( -d $path )
     {
-        push @FILE_DIR_LIST, $path;
+	push @FILE_DIR_LIST, $path;
     }
     else
     {
-        push @FILE_FILE_LIST, $path;
+	push @FILE_FILE_LIST, $path;
     }
 }
 
@@ -2558,14 +2558,14 @@ sub FileScanWantedM4 ()
 
     if ( @FILE_ALL_LIST )
     {
-        $File::Find::prune = 1;     # Already found .m4, skip search
-        return
+	$File::Find::prune = 1;     # Already found .m4, skip search
+	return
     }
 
     if ( $path =~ /\.m4$/ )
     {
-        push @FILE_ALL_LIST, $path;
-        $File::Find::prune = 1
+	push @FILE_ALL_LIST, $path;
+	$File::Find::prune = 1
     }
 }
 
@@ -2593,9 +2593,9 @@ sub FileScanMain ($ @)
 
     if ( $debug )
     {
-        print "$id: FILE_REGEXP: $FILE_REGEXP dirs: @ARG "
-            , "FILE_REGEXP_PRUNE: $FILE_REGEXP_PRUNE\n"
-            ;
+	print "$id: FILE_REGEXP: $FILE_REGEXP dirs: @ARG "
+	    , "FILE_REGEXP_PRUNE: $FILE_REGEXP_PRUNE\n"
+	    ;
     }
 
     not @ARG   and  die "$id: No directories to search";
@@ -2603,13 +2603,13 @@ sub FileScanMain ($ @)
     @FILE_ALL_LIST = @FILE_FILE_LIST = @FILE_DIR_LIST = ();
 
     find(
-            {
-                wanted         => \&FileScanWantedGeneral
-                , follow       => 1
-                , follow_skip  => 1
-             }
-             , @ARG
-        );
+	    {
+		wanted         => \&FileScanWantedGeneral
+		, follow       => 1
+		, follow_skip  => 1
+	     }
+	     , @ARG
+	);
 
     $debug > 1 and  warn "$id: RETURN [@FILE_ALL_LIST]\n";
 
@@ -2672,25 +2672,25 @@ sub FileRead ($;$)
 
     open my $FILE, "<", $file  or do
     {
-        warn "$id: Cannot open file [$file] $ERRNO";
-        return;
+	warn "$id: Cannot open file [$file] $ERRNO";
+	return;
     };
 
     my @lines;
 
     if ( $mode )
     {
-        $debug  and  print "$id: read mode ARRAY\n";
-        @lines = <$FILE>;
-        $debug  and  printf "$id: input line count %d\n", scalar @lines;
+	$debug  and  print "$id: read mode ARRAY\n";
+	@lines = <$FILE>;
+	$debug  and  printf "$id: input line count %d\n", scalar @lines;
     }
     else
     {
-        $debug  and  print "$id: read mode STRING\n";
+	$debug  and  print "$id: read mode STRING\n";
 
-        local $INPUT_RECORD_SEPARATOR;
-        undef $INPUT_RECORD_SEPARATOR;   # Fast slurp mode
-        $ARG = <$FILE>;
+	local $INPUT_RECORD_SEPARATOR;
+	undef $INPUT_RECORD_SEPARATOR;   # Fast slurp mode
+	$ARG = <$FILE>;
     }
 
     close $FILE;
@@ -2787,11 +2787,11 @@ sub ListSearch ($$)
 
     for ( @$aref )
     {
-        if ( /$regexp/xo )
-        {
-            $ret = $ARG;
-            last;
-        }
+	if ( /$regexp/xo )
+	{
+	    $ret = $ARG;
+	    last;
+	}
     }
 
     $debug  and  print "$id: RET [$ret]\n";
@@ -2832,19 +2832,19 @@ sub MakefileDestdirSupport ($; $)
 
     for my $file ( @files )
     {
-        $ARG = FileRead $file;
+	$ARG = FileRead $file;
 
-        $debug  and  warn "$id: Processing $file\n";
+	$debug  and  warn "$id: Processing $file\n";
 
-        #   DESTDIR =
-        #   $(INSTALL_PROGRAM) foo $(DESTDIR)$(bindir)/$(binprefix)foo
+	#   DESTDIR =
+	#   $(INSTALL_PROGRAM) foo $(DESTDIR)$(bindir)/$(binprefix)foo
 
-        if ( /^[^#]* DESTDIR \s* = \s*$|^[^#]+ [$] [{(] DESTDIR/mx )
-        {
-            $debug  and  warn "$id: Found $file\n";
-            $ret = $file;
-            last;
-        }
+	if ( /^[^#]* DESTDIR \s* = \s*$|^[^#]+ [$] [{(] DESTDIR/mx )
+	{
+	    $debug  and  warn "$id: Found $file\n";
+	    $ret = $file;
+	    last;
+	}
     }
 
     my $code = $ret ? 0 : 1;
@@ -2853,7 +2853,7 @@ sub MakefileDestdirSupport ($; $)
 
     if ( $exit )
     {
-        exit $code;
+	exit $code;
     }
 
     $ret;
@@ -2903,11 +2903,11 @@ sub BinPkgListing ($)
     #   => This is the return answer from the function
 
     join "\n", sort
-        map
-        {
-            $ARG = "/$ARG" unless m,^/,;
-            $ARG;
-        } grep ! m{/$}, split '\n';
+	map
+	{
+	    $ARG = "/$ARG" unless m,^/,;
+	    $ARG;
+	} grep ! m{/$}, split '\n';
 }
 
 # ****************************************************************************
@@ -2955,25 +2955,25 @@ sub CygcheckParse ($)
 
     if ( /\A(\S+)\s*^(.*)\Z/ms )
     {
-        $bin = $1;
-        $ARG = $2;
+	$bin = $1;
+	$ARG = $2;
 
-        $bin =~ s,^.+[\\/],,;         # Remove path
+	$bin =~ s,^.+[\\/],,;         # Remove path
 
-        while ( m,^\s*(.+[\\/](\S+)),gm )
-        {
-            my ($path, $lib) = ($1, $2);
+	while ( m,^\s*(.+[\\/](\S+)),gm )
+	{
+	    my ($path, $lib) = ($1, $2);
 
-            $path = lc $path;
-            $path =~ s,\\,/,g;
+	    $path = lc $path;
+	    $path =~ s,\\,/,g;
 
-            # h:/unix-root/u/dev/null - Cannot open
+	    # h:/unix-root/u/dev/null - Cannot open
 
-            next if m,/dev/null, ;
+	    next if m,/dev/null, ;
 
-            push @list, $path;
-            $debug  and  warn "$id: Found $path\n";
-        }
+	    push @list, $path;
+	    $debug  and  warn "$id: Found $path\n";
+	}
     }
 
     $debug  and  warn "$id: RET list [$bin] [@list]\n";
@@ -3018,9 +3018,9 @@ sub CygcheckFilter (@)
 
     if ( $SYSTEMROOT )      # WinNT/2k
     {
-        my $path = $SYSTEMROOT;
-        $path =~ s,\\,/,g;
-        $ignore .= "|$path";
+	my $path = $SYSTEMROOT;
+	$path =~ s,\\,/,g;
+	$ignore .= "|$path";
     }
 
     $debug  and  warn "$id: ignore [$ignore]\n";
@@ -3029,36 +3029,36 @@ sub CygcheckFilter (@)
 
     for ( @list )
     {
-        if ( /$ignore/io )
-        {
-            $debug  and  warn "$id: IGNORE $ARG\n";
-            next
-        }
+	if ( /$ignore/io )
+	{
+	    $debug  and  warn "$id: IGNORE $ARG\n";
+	    next
+	}
 
-        #   h:\unix-root\u\usr\X11R6\bin\cygX11-6.dll
-        #     h:\unix-root\u\bin\cygcygipc-2.dll
-        #   h:\unix-root\u\usr\X11R6\bin\cygXaw-7.dll
-        #     h:\unix-root\u\usr\X11R6\bin\cygXext-6.dll
-        #     h:\unix-root\u\usr\X11R6\bin\cygXmu-6.dll
-        #       h:\unix-root\u\usr\X11R6\bin\cygXt-6.dll
-        #         h:\unix-root\u\usr\X11R6\bin\cygICE-6.dll
-        #         h:\unix-root\u\usr\X11R6\bin\cygSM-6.dll
-        #     h:\unix-root\u\usr\X11R6\bin\cygXpm-4.dll
+	#   h:\unix-root\u\usr\X11R6\bin\cygX11-6.dll
+	#     h:\unix-root\u\bin\cygcygipc-2.dll
+	#   h:\unix-root\u\usr\X11R6\bin\cygXaw-7.dll
+	#     h:\unix-root\u\usr\X11R6\bin\cygXext-6.dll
+	#     h:\unix-root\u\usr\X11R6\bin\cygXmu-6.dll
+	#       h:\unix-root\u\usr\X11R6\bin\cygXt-6.dll
+	#         h:\unix-root\u\usr\X11R6\bin\cygICE-6.dll
+	#         h:\unix-root\u\usr\X11R6\bin\cygSM-6.dll
+	#     h:\unix-root\u\usr\X11R6\bin\cygXpm-4.dll
 
-        if ( /X11/i )
-        {
-            $hash{'Xorg-base'} = 1;
-            next;
-        }
+	if ( /X11/i )
+	{
+	    $hash{'Xorg-base'} = 1;
+	    next;
+	}
 
-        s/cygwin1\.dll/cygwin/;
+	s/cygwin1\.dll/cygwin/;
 
-        #  Normally the packages are delivered in libXXXX-1.1.tar.bz2
-        #  but the compiled libraries include cyg* prefix.
+	#  Normally the packages are delivered in libXXXX-1.1.tar.bz2
+	#  but the compiled libraries include cyg* prefix.
 
-        $debug  and  warn "$id: hash $ARG\n";
+	$debug  and  warn "$id: hash $ARG\n";
 
-        $hash{$ARG} = 1;
+	$hash{$ARG} = 1;
     }
 
     my @ret = sort keys %hash;
@@ -3123,59 +3123,59 @@ sub CygcheckDependencies ($)
 
     for my $file (@files)
     {
-        -d $file  and  next;   # Skip directories
+	-d $file  and  next;   # Skip directories
 
-        my $cygfile = PathToCygwin $file;
-        my ($builddir, $rel) = ( $file =~ m,(^.*)/\.inst/(.*), );
+	my $cygfile = PathToCygwin $file;
+	my ($builddir, $rel) = ( $file =~ m,(^.*)/\.inst/(.*), );
 
-        #   Some packages use pathc like: /usr/src/build/try/aewm++
-        #   Must use \Q ... \E
+	#   Some packages use pathc like: /usr/src/build/try/aewm++
+	#   Must use \Q ... \E
 
-        if ( $cygfile =~ m,^\Q$pwd\E/(.*), )
-        {
-            $file = $1;     # Make relative
-        }
-        elsif ( $builddir
-                and  -l $builddir
-                and  $pwd =~ m,\.inst$,
-              )
-        {
-            #   it's a symbolic link.
-            #   file /build/rdesktop/rdesktop-1.3.0/.inst/usr/bin/rdesktop.exe
-            #   pwd  /build/rdesktop/rdesktop/.inst
+	if ( $cygfile =~ m,^\Q$pwd\E/(.*), )
+	{
+	    $file = $1;     # Make relative
+	}
+	elsif ( $builddir
+		and  -l $builddir
+		and  $pwd =~ m,\.inst$,
+	      )
+	{
+	    #   it's a symbolic link.
+	    #   file /build/rdesktop/rdesktop-1.3.0/.inst/usr/bin/rdesktop.exe
+	    #   pwd  /build/rdesktop/rdesktop/.inst
 
-            $file = $rel;
-        }
+	    $file = $rel;
+	}
 
-        #   It's too bad that File::Find reports symbolically linked executable
-        #   files without extension.
-        #
-        #   program -> real.exe
-        #
-        #   This is reported as "real" not "real.exe". The problem is that
-        #   'cygcheck' needs that extension. Fix it here.
+	#   It's too bad that File::Find reports symbolically linked executable
+	#   files without extension.
+	#
+	#   program -> real.exe
+	#
+	#   This is reported as "real" not "real.exe". The problem is that
+	#   'cygcheck' needs that extension. Fix it here.
 
-        if ( $file !~ /\.\S+$/  and  -f "$file.exe" )
-        {
-            $file = "$file.exe";
-            $debug > 2  and  warn "$id: Fixed by adding .exe to $file\n";
-        }
+	if ( $file !~ /\.\S+$/  and  -f "$file.exe" )
+	{
+	    $file = "$file.exe";
+	    $debug > 2  and  warn "$id: Fixed by adding .exe to $file\n";
+	}
 
-        my $cmd = qq(/usr/bin/cygcheck "$file");
+	my $cmd = qq(/usr/bin/cygcheck "$file");
 
-        $debug  and  warn "$id: [SHELL CALL] $cmd\n";
-        $ARG = join '', qx($cmd);
+	$debug  and  warn "$id: [SHELL CALL] $cmd\n";
+	$ARG = join '', qx($cmd);
 
-        if ( /Cannot open/i )
-        {
-            warn "$id: [ERROR] $pwd cygcheck reports: $ARG\n";
-            next;
-        }
+	if ( /Cannot open/i )
+	{
+	    warn "$id: [ERROR] $pwd cygcheck reports: $ARG\n";
+	    next;
+	}
 
-        $debug   and  warn "$id: [$file] =>\n$ARG";
+	$debug   and  warn "$id: [$file] =>\n$ARG";
 
-        my($bin, @list) = CygcheckParse $ARG;
-        $hash{$bin} = \@list if $bin;
+	my($bin, @list) = CygcheckParse $ARG;
+	$hash{$bin} = \@list if $bin;
     }
 
     $debug  and  warn "$id: RET [", join(' ', %hash), "]\n";
@@ -3221,10 +3221,10 @@ sub FileSearchFromPackages ($)
 
     if ( ! -d $dir )
     {
-        #  If cache has not been generated, skip this.
+	#  If cache has not been generated, skip this.
 
-        $debug   and  print "$id: [WARN] Cannot search $dir for matches\n";
-        return;
+	$debug   and  print "$id: [WARN] Cannot search $dir for matches\n";
+	return;
     }
 
     #   If we have already been here, the @static Array already exists.
@@ -3232,17 +3232,17 @@ sub FileSearchFromPackages ($)
 
     unless ( @staticArray )
     {
-        opendir my $DIR, $dir   or  do{ warn "$id: $dir $ERRNO"; return };
+	opendir my $DIR, $dir   or  do{ warn "$id: $dir $ERRNO"; return };
 
-        for my $file ( readdir $DIR )
-        {
-            my $path = "$dir/$file";
+	for my $file ( readdir $DIR )
+	{
+	    my $path = "$dir/$file";
 
-            $debug  and  print "$id: Reading $path\n";
+	    $debug  and  print "$id: Reading $path\n";
 
-            ! -f $path  and  next;
-            push @staticArray, FileRead $path, -array;
-        }
+	    ! -f $path  and  next;
+	    push @staticArray, FileRead $path, -array;
+	}
     }
 
     #  The content is tar listing, search from it.
@@ -3252,11 +3252,11 @@ sub FileSearchFromPackages ($)
 
     if ( $ret  and  $ret =~ m,/([^/:\s]+):, )
     {
-        #  The package name suffices, extract it
-        #  gsl-1.4-2.tar.bz2 => gsl
+	#  The package name suffices, extract it
+	#  gsl-1.4-2.tar.bz2 => gsl
 
-        $ret = $1;
-        $ret =~ s/-\d.+//;
+	$ret = $1;
+	$ret =~ s/-\d.+//;
     }
 
     $debug  and  print "$id: RET: [$ret]\n";
@@ -3289,10 +3289,10 @@ sub CygcheckDepsList (%)
 
     while ( my($key, $ref) = each %hash )
     {
-        my @list = CygcheckFilter @$ref;
+	my @list = CygcheckFilter @$ref;
 
-        #  Use hash to filter out duplicates
-        @ret{@list} = @list x (1)  if @list;
+	#  Use hash to filter out duplicates
+	@ret{@list} = @list x (1)  if @list;
     }
 
     my @ret = sort keys %ret;
@@ -3330,8 +3330,8 @@ sub CygcheckDepsNeeded ($$)
 
     unless ( grep /cygwin/i, @$deps )
     {
-        warn "$id: [FIX] 'requires: cygwin' is missing\n";
-        push @need, "cygwin";
+	warn "$id: [FIX] 'requires: cygwin' is missing\n";
+	push @need, "cygwin";
     }
 
     #   Anything missing? Compare if the lists differ.
@@ -3341,41 +3341,41 @@ sub CygcheckDepsNeeded ($$)
 
     my %rename =
     (
-        'cygipc-\d' => 'cygipc'
+	'cygipc-\d' => 'cygipc'
     );
 
     local $ARG;
 
     for (@$deps)
     {
-        $debug  and  warn "$id: ORIG [$ARG]\n";
+	$debug  and  warn "$id: ORIG [$ARG]\n";
 
-        s,^.+/,,;                           # Remove path component
+	s,^.+/,,;                           # Remove path component
 
-        $ARG = lc  unless /xfree|Xorg/i;
+	$ARG = lc  unless /xfree|Xorg/i;
 
-        for ( my($pkg, $changed) = each %rename )
-        {
-            $ARG =~ s/$pkg/$changed/;
-        }
+	for ( my($pkg, $changed) = each %rename )
+	{
+	    $ARG =~ s/$pkg/$changed/;
+	}
 
-        my $search = $ARG;                  # Can't use $ARG in grep()
-        my @found  = grep /$search/i, @$orig;
+	my $search = $ARG;                  # Can't use $ARG in grep()
+	my @found  = grep /$search/i, @$orig;
 
-        $debug  and  warn "$id: test [$ARG] found [@found]\n";
+	$debug  and  warn "$id: test [$ARG] found [@found]\n";
 
-        unless ( @found )
-        {
-            #  Try harder to find correct library. What package provides
-            #  this *.dll?
+	unless ( @found )
+	{
+	    #  Try harder to find correct library. What package provides
+	    #  this *.dll?
 
-            my $package = FileSearchFromPackages $ARG;
+	    my $package = FileSearchFromPackages $ARG;
 
-            $ARG = $package  if $package;
+	    $ARG = $package  if $package;
 
-            push @need, $ARG;
-            $hash{$ARG}++;
-        }
+	    push @need, $ARG;
+	    $hash{$ARG}++;
+	}
     }
 
     $debug  and  warn "$id: ORIG [@$orig] NEED [@need]\n";
@@ -3411,8 +3411,8 @@ sub CygcheckDepsCheckSetup ($$; $)
 
     unless ( /$regexp/oi )
     {
-        warn "$id:  [WARN] Cannot find 'requires:' line from $file\n";
-        return;
+	warn "$id:  [WARN] Cannot find 'requires:' line from $file\n";
+	return;
     }
 
     #   requires: cygwin libncurses
@@ -3428,28 +3428,28 @@ sub CygcheckDepsCheckSetup ($$; $)
 
     if ( @need )
     {
-        unless ( $update )
-        {
-            print "$file needs more dependency lines for require: @need\n";
-            return;
-        }
+	unless ( $update )
+	{
+	    print "$file needs more dependency lines for require: @need\n";
+	    return;
+	}
 
-        #  Remove paths with map()
+	#  Remove paths with map()
 
-        my $depline = join ' ', sort map { s,^.+/,,; $ARG } @all;
-        my $replace = "requires: $depline";
+	my $depline = join ' ', sort map { s,^.+/,,; $ARG } @all;
+	my $replace = "requires: $depline";
 
-        unless ( s/$regexp/$replace/i )
-        {
-            die "$id: Cannot replace $file with [$replace]";
-        }
+	unless ( s/$regexp/$replace/i )
+	{
+	    die "$id: Cannot replace $file with [$replace]";
+	}
 
-        FileWrite $file, $ARG;
-        print "[UPDATED] $file => $replace\n";
+	FileWrite $file, $ARG;
+	print "[UPDATED] $file => $replace\n";
     }
     else
     {
-        print "[OK] $file contains dependencies [@all]\n";
+	print "[OK] $file contains dependencies [@all]\n";
     }
 }
 
@@ -3487,8 +3487,8 @@ sub CygcheckDepsCheckReadme ($$; $)
 
     unless ( /$regexp/ogsmi )
     {
-        warn "$id: Cannot find line 'Runtime requirements:' from $file";
-        return 1;
+	warn "$id: Cannot find line 'Runtime requirements:' from $file";
+	return 1;
     }
 
     my $match = $1;
@@ -3498,7 +3498,7 @@ sub CygcheckDepsCheckReadme ($$; $)
 
     while ( $match =~ /^\s*(\S.*)/gm )
     {
-        push @deps, $1;
+	push @deps, $1;
     }
 
     $debug  and  warn "$id: DEPS [@deps]\n";
@@ -3509,33 +3509,33 @@ sub CygcheckDepsCheckReadme ($$; $)
 
     if ( @need )
     {
-        unless ( $update )
-        {
-            print "$file needs more dependency lines for require: @need\n";
-            return;
-        }
+	unless ( $update )
+	{
+	    print "$file needs more dependency lines for require: @need\n";
+	    return;
+	}
 
-        for my $line (@all)
-        {
-            $line =~ s/^\s+//;
-            $line =~ s/\s+$//;
-            $line = "  $line\n";
-        }
+	for my $line (@all)
+	{
+	    $line =~ s/^\s+//;
+	    $line =~ s/\s+$//;
+	    $line = "  $line\n";
+	}
 
-        my $replace = "Runtime requirements:\n"
-           . join '', sort map { s,\S+/,,; $ARG } @all;
+	my $replace = "Runtime requirements:\n"
+	   . join '', sort map { s,\S+/,,; $ARG } @all;
 
-        unless ( s/$regexp/$replace/smi )
-        {
-            die "$id: Cannot replace $file with [$replace]";
-        }
+	unless ( s/$regexp/$replace/smi )
+	{
+	    die "$id: Cannot replace $file with [$replace]";
+	}
 
-        FileWrite $file, $ARG;
-        print "[UPDATED] $file => $replace\n";
+	FileWrite $file, $ARG;
+	print "[UPDATED] $file => $replace\n";
     }
     else
     {
-        print "[OK] $file contains dependencies [@all]\n";
+	print "[OK] $file contains dependencies [@all]\n";
     }
 }
 
@@ -3574,7 +3574,7 @@ sub CygcheckDepsCheckMain ($$)
 
     unless ( -f $setup  and  -f $readme )
     {
-        die "$id: No SETUP [$setup] or README [$readme]";
+	die "$id: No SETUP [$setup] or README [$readme]";
     }
 
     $debug  and  warn "$id: $setup $readme\n";
@@ -3583,21 +3583,21 @@ sub CygcheckDepsCheckMain ($$)
 
     if ( %hash )
     {
-        my @deps = CygcheckDepsList %hash;
+	my @deps = CygcheckDepsList %hash;
 
-        push @deps, "m4"  if $m4;
+	push @deps, "m4"  if $m4;
 
-        CygcheckDepsCheckSetup  $setup,  \@deps, -update;
-        CygcheckDepsCheckReadme $readme, \@deps, -update;
+	CygcheckDepsCheckSetup  $setup,  \@deps, -update;
+	CygcheckDepsCheckReadme $readme, \@deps, -update;
     }
     elsif ( $m4 )
     {
-        CygcheckDepsCheckSetup  $setup,  [ "m4" ], -update;
-        CygcheckDepsCheckReadme $readme, [ "m4" ], -update;
+	CygcheckDepsCheckSetup  $setup,  [ "m4" ], -update;
+	CygcheckDepsCheckReadme $readme, [ "m4" ], -update;
     }
     else
     {
-        print "$id: Nothing to do, no *.exe or *.dll found in $instdir\n";
+	print "$id: Nothing to do, no *.exe or *.dll found in $instdir\n";
     }
 }
 
@@ -3641,11 +3641,11 @@ sub ReadMeFilesIncluded ($ $)
 
     s
     {
-        (Files\s+ included\s+ in\s+ the\s+ binary \s+ [^\r\n]+)
-        \s*
-        (?:^ \s+ \S+ [\r\n]+)+
-        .*?
-        (-----)
+	(Files\s+ included\s+ in\s+ the\s+ binary \s+ [^\r\n]+)
+	\s*
+	(?:^ \s+ \S+ [\r\n]+)+
+	.*?
+	(-----)
     }
     {$1\n\n$files\n\n$2}smx;
 
@@ -3666,11 +3666,11 @@ sub ReadMeFilesIncluded ($ $)
 #       $file           location to package.README
 #       $pkg            Package name
 #       $ver            Version N.N
-#       $rel		Release N
+#       $rel            Release N
 #
 #   RETURN VALUES
 #
-#	None. Processed file content is written back to $file
+#       None. Processed file content is written back to $file
 #
 # ****************************************************************************
 
@@ -3686,8 +3686,21 @@ sub UpdateAnnouncement ($$$$)
     my $orig = FileRead $file or die "$ERRNO";
     local $ARG = $orig;
 
-    my $vid	= "$ver-$rel";				# version id
-    my $iso8601 = Date(-utc => 1);
+    my $vid     = "$ver-$rel";                          # version id
+    my $iso8601 = Date(-utc => "on");
+
+    my $rest;
+
+    if ( /(New \s+ package | Updated): .*? (?<rest> \s* --+ .*)/mxi )
+    {
+	$rest = $+{rest};
+    }
+
+    s
+    < ^(?<header> Subject: \s*)
+       New package:
+    >
+    <$+{header}Updated:>mxi;
 
     s
     < ^Subject: \s*
@@ -3696,7 +3709,15 @@ sub UpdateAnnouncement ($$$$)
        (?<ver>  \S+)
        (?<rest>  .*)
     >
-    <Subject: Updated: $+{pkg} $vid$+{rest}>mx;
+    <Subject: Updated: $+{pkg} $vid$rest>mxi;
+
+    #  Delete this line
+
+    s< ^Subject: \s* New \s+ Package: .* \r? \n ><>mxi;
+
+    #  Update Copyright information.
+
+    $ARG = UpdateYears($ARG);
 
     unless ( length $file == length $ARG )
     {
@@ -3716,7 +3737,7 @@ sub UpdateAnnouncement ($$$$)
 #   INPUT PARAMETER HASH
 #
 #       str => $str     String
-#	tag => value	Hash values: -pkg, -ver, -rel
+#       tag => value    Hash values: -pkg, -ver, -rel
 #
 #   RETURN VALUES
 #
@@ -3729,16 +3750,16 @@ sub UpdateNewVersionStanza (%)
     my $id          = "$LIB.UpdatePackageTags";
     my %hash        = @ARG;
 
-    local $ARG	    = $hash{-str};
-    my $pkg	    = $hash{-pkg};
-    my $ver	    = $hash{-ver};
-    my $rel	    = $hash{-rel};
-    my $name	    = $hash{-name}  || $systemName;
+    local $ARG      = $hash{-str};
+    my $pkg         = $hash{-pkg};
+    my $ver         = $hash{-ver};
+    my $rel         = $hash{-rel};
+    my $name        = $hash{-name}  || $systemName;
 
     $debug  and  warn "$id: pkg [$pkg] ver [$ver] rel [$rel]\n";
 
-    my $vid	= "$ver-$rel";				# version id
-    my $iso8601 = Date(-utc => 1);
+    my $vid     = "$ver-$rel";                          # version id
+    my $iso8601 = Date(-utc => "on");
 
     my $stanza =
 "----- version $vid -----
@@ -3748,11 +3769,11 @@ sub UpdateNewVersionStanza (%)
 
     if ( $name )
     {
-        $stanza =~ s,(Firstname Lastname),$name,;
+	$stanza =~ s,(Firstname Lastname),$name,;
     }
     else
     {
-        warn "$id: [WARN] Can't update 'name'. No Env. vars NAME or EMAIL";
+	warn "$id: [WARN] Can't update 'name'. No Env. vars NAME or EMAIL";
     }
 
     unless ( /^-.*version.*$vid/m )
@@ -3773,12 +3794,12 @@ sub UpdateNewVersionStanza (%)
 #   INPUT PARAMETER HASH
 #
 #       str => $str     String
-#	tag => value	Hash values to replace.
+#       tag => value    Hash values to replace.
 #
 #   ENVIRONMENT
 #
-#	NAME
-#	EMAIL
+#       NAME
+#       EMAIL
 #
 #   RETURN VALUES
 #
@@ -3791,10 +3812,10 @@ sub UpdatePackageTags (%)
     my $id          = "$LIB.UpdatePackageTags";
     my %hash        = @ARG;
 
-    local $ARG	    = $hash{-str};
-    my $pkg	    = $hash{-pkg};
-    my $ver	    = $hash{-ver};
-    my $rel	    = $hash{-rel};
+    local $ARG      = $hash{-str};
+    my $pkg         = $hash{-pkg};
+    my $ver         = $hash{-ver};
+    my $rel         = $hash{-rel};
 
     $debug  and  warn "$id: pkg [$pkg] ver [$ver] rel [$rel]\n";
 
@@ -3803,9 +3824,9 @@ sub UpdatePackageTags (%)
     my $fullpkg = "$pkg-$ver-$rel";
 
     s,\QPKG-VER-REL\E,fullpkg,g
-        or  s,\Q<PKG>-VER-REL\E,$fullpkg,g
-        or  s,\Q<PKG>-<VER>-<REL>\E,$fullpkg,g
-        ;
+	or  s,\Q<PKG>-VER-REL\E,$fullpkg,g
+	or  s,\Q<PKG>-<VER>-<REL>\E,$fullpkg,g
+	;
 
     s,(unpack\s*).*[\d.-]+\d,$1$pkg-$ver-$rel,;
 
@@ -3843,16 +3864,16 @@ sub UpdatePackageTags (%)
 #   DESCRIPTION
 #
 #       Update Copyright from environment values NAME and EMAIL.
-#	'Cygwin port maintained by:', YYYY, YYYY-MM-DD, <Fistname Lastname>.
+#       'Cygwin port maintained by:', YYYY, YYYY-MM-DD, <Fistname Lastname>.
 #
 #   INPUT PARAMETER HASH
 #
-#	$str		String
+#       $str            String
 #
 #   ENVIRONMENT
 #
-#	NAME
-#	EMAIL
+#       NAME
+#       EMAIL
 #
 #   RETURN VALUES
 #
@@ -3867,7 +3888,7 @@ sub UpdateYears ($)
 
     #   Dates and all that
 
-    my $iso8601 = Date(-utc => 1);
+    my $iso8601 = Date(-utc => "on");
     my $YYYY    = 1900 + (gmtime time)[5];
 
     s,[<]?YYYY-MM-DD[>]?,$iso8601,;
@@ -3880,12 +3901,12 @@ sub UpdateYears ($)
 
     if ( $name  and  $email )
     {
-        $email =~ s,[<>],,g;
-        s,(Cygwin port maintained by:).*,$1 $name <$email>,;
+	$email =~ s,[<>],,g;
+	s,(Cygwin port maintained by:).*,$1 $name <$email>,;
     }
     else
     {
-        warn "[WARN] Can't update 'maintained by'. No Env. vars NAME or EMAIL";
+	warn "[WARN] Can't update 'maintained by'. No Env. vars NAME or EMAIL";
     }
 
     s,[<]?Firstname\s+Lastname[>]?,$name,g;
@@ -3912,13 +3933,13 @@ sub UpdateYears ($)
 #
 #   INPUT PARAMETERS
 #
-#	$type		If "split", then list of files are retrieved
-#			by splitting the @list on space.
+#       $type           If "split", then list of files are retrieved
+#                       by splitting the @list on space.
 #       @list           list of file names.
 #
 #   RETURN VALUES
 #
-#	None. Files are replaces in place.
+#       None. Files are replaces in place.
 #
 # ****************************************************************************
 
@@ -3929,27 +3950,27 @@ sub FileFix ($@)
     my @list = @ARG;
 
     $debug  and
-        warn "$id: INPUT A \@list: @list";
+	warn "$id: INPUT A \@list: @list";
 
 
     if ($type =~ /split/i )
     {
-        @list = map { split /\s+/ } @list;
+	@list = map { split /\s+/ } @list;
     }
 
     $debug  and
-        warn "$id: INPUT B \@list: @list";
+	warn "$id: INPUT B \@list: @list";
 
     for my $file (@list)
     {
-	$file =~ /\S/  or  next;		# Drop empty strings
+	$file =~ /\S/  or  next;                # Drop empty strings
 
 	my $str = FileRead $file  or next;
 	my $len = length $ARG;
 
 	$str = UpdateYears $str;
 
-	unless ( $len = length $str )		# Changes
+	unless ( $len = length $str )           # Changes
 	{
 	    FileWrite $file, $str;
 	}
@@ -3970,11 +3991,11 @@ sub FileFix ($@)
 #       $file           location to package.README
 #       $pkg            Package name
 #       $ver            Version N.N
-#       $rel		Release N
+#       $rel            Release N
 #
 #   RETURN VALUES
 #
-#	None. Processed file content is written back to $file
+#       None. Processed file content is written back to $file
 #
 # ****************************************************************************
 
@@ -3984,7 +4005,7 @@ sub ReadmeFix ($ $$$)
     my($file, $pkg, $ver, $rel) = @ARG;
 
     $debug  and
-        warn "$id: INPUT file [$file] pkg $pkg, ver $ver, rel $rel\n";
+	warn "$id: INPUT file [$file] pkg $pkg, ver $ver, rel $rel\n";
 
     ! -f $file  and  die "$id: No file [$file]";
     $pkg  or  die "$id: No argument: PACKAGE";
@@ -4055,23 +4076,23 @@ sub DiffToExclude ( $ )
 
     for ( @list )
     {
-        next if /CYGWIN-PATCHES/;         #   Yes, include this
+	next if /CYGWIN-PATCHES/;         #   Yes, include this
 
-        if ( /^Only in ([^:]+): +(.+)/i )
-        {
-            my $dirpart  = $1;
-            my $item     = $2;      # File or directory
-            my $join     = "$dirpart/$item";
+	if ( /^Only in ([^:]+): +(.+)/i )
+	{
+	    my $dirpart  = $1;
+	    my $item     = $2;      # File or directory
+	    my $join     = "$dirpart/$item";
 
-            $join =~ s,^\./,,;  # Don't use ./
+	    $join =~ s,^\./,,;  # Don't use ./
 
-            #   Don't check object or library files
-            #   They are excluded anyway
+	    #   Don't check object or library files
+	    #   They are excluded anyway
 
-            next if $item =~ /\.(l?[ao]|dll)/;
+	    next if $item =~ /\.(l?[ao]|dll)/;
 
-            $seen{$item}++;
-        }
+	    $seen{$item}++;
+	}
     }
 
     print join ' ', map {$ARG = "--exclude=$ARG"; $ARG } keys %seen;
@@ -4106,7 +4127,7 @@ sub CVSinfo ( $ )
 
     unless ( $dir and -d $dir )
     {
-        die "$id: Invalid directory [$dir]";
+	die "$id: Invalid directory [$dir]";
     }
 
     my %hash;
@@ -4171,7 +4192,7 @@ sub CygwinSetupIniEntry ( $ )
 
     if ( /(@.*?)^\s*$/sm )
     {
-        $ret = $1;
+	$ret = $1;
     }
 
     $ret;
@@ -4225,7 +4246,7 @@ sub CygwinSetupIniUpdate ( $ $ )
 
     unless ( $version )
     {
-        die "$id: Cannot read version number from [$release]";
+	die "$id: Cannot read version number from [$release]";
     }
 
 
@@ -4328,9 +4349,9 @@ sub TestDriverCygcheckParse ()
 usr/bin/termidx.exe
      h:\unix-root\u\bin\cygwin1.dll
        G:\WINNT\system32\ADVAPI32.DLL
-         G:\WINNT\system32\NTDLL.DLL
-         G:\WINNT\system32\KERNEL32.DLL
-         G:\WINNT\system32\RPCRT4.DLL
+	 G:\WINNT\system32\NTDLL.DLL
+	 G:\WINNT\system32\KERNEL32.DLL
+	 G:\WINNT\system32\RPCRT4.DLL
      h:\unix-root\u\bin\cygncurses7.dll
 EOF
 
@@ -4400,57 +4421,57 @@ sub TestDriverDebian ()
 export DH_COMPAT=3
 
 clean:
-        dh_testdir
-        dh_testroot
-        dh_clean
+	dh_testdir
+	dh_testroot
+	dh_clean
 
-        find . -name "*.pyc" -exec rm -f {} \;
+	find . -name "*.pyc" -exec rm -f {} \;
 
 install: build
-        dh_testdir
-        dh_testroot
-        dh_clean -k
-        dh_installdirs -i usr/bin
-        dh_installdirs -i usr/lib/ask
-        dh_installdirs -i usr/share/man/man1
-        dh_installdirs -i usr/share/ask
-        dh_installdirs -i usr/share/ask/samples
-        dh_installdirs -i usr/share/ask/templates
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs -i usr/bin
+	dh_installdirs -i usr/lib/ask
+	dh_installdirs -i usr/share/man/man1
+	dh_installdirs -i usr/share/ask
+	dh_installdirs -i usr/share/ask/samples
+	dh_installdirs -i usr/share/ask/templates
 
-        # Add here commands to install the package into debian/ask.
-        install -m 755 ask.py asksetup.py askversion.py utils/asksenders.py $(CU
+	# Add here commands to install the package into debian/ask.
+	install -m 755 ask.py asksetup.py askversion.py utils/asksenders.py $(CU
 RDIR)/debian/ask/usr/bin
 
-        install -m 644 askconfig.py   $(CURDIR)/debian/ask/usr/lib/ask
-        install -m 644 asklock.py     $(CURDIR)/debian/ask/usr/lib/ask
-        install -m 644 asklog.py      $(CURDIR)/debian/ask/usr/lib/ask
-        install -m 644 askmail.py     $(CURDIR)/debian/ask/usr/lib/ask
-        install -m 644 askmain.py     $(CURDIR)/debian/ask/usr/lib/ask
-        install -m 644 askmessage.py  $(CURDIR)/debian/ask/usr/lib/ask
-        install -m 644 askremote.py   $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 askconfig.py   $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 asklock.py     $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 asklog.py      $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 askmail.py     $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 askmain.py     $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 askmessage.py  $(CURDIR)/debian/ask/usr/lib/ask
+	install -m 644 askremote.py   $(CURDIR)/debian/ask/usr/lib/ask
 
-        install -m 644 samples/*   $(CURDIR)/debian/ask/usr/share/ask/samples
-        install -m 644 templates/* $(CURDIR)/debian/ask/usr/share/ask/templates
+	install -m 644 samples/*   $(CURDIR)/debian/ask/usr/share/ask/samples
+	install -m 644 templates/* $(CURDIR)/debian/ask/usr/share/ask/templates
 
-        ## Manpages are installed using "install", as dh_installman gets
-        ## confused with the .py extension (despite the correct .TH line)
+	## Manpages are installed using "install", as dh_installman gets
+	## confused with the .py extension (despite the correct .TH line)
 
-        gzip --best docs/*.1
-        install -m 644 docs/*.1.gz $(CURDIR)/debian/ask/usr/share/man/man1
+	gzip --best docs/*.1
+	install -m 644 docs/*.1.gz $(CURDIR)/debian/ask/usr/share/man/man1
 
 binary-indep: install
-        dh_testdir -i
-        dh_testroot -i
-        dh_installdocs -i docs/*.html docs/*.css docs/*.pdf docs/*.txt
-        #dh_installman -A docs/ask.py.1 docs/asksetup.py.1
-        dh_installchangelogs ChangeLog -i
-        dh_installdebconf
-        dh_compress -i
-        dh_fixperms -i
-        dh_installdeb -i
-        dh_gencontrol -i
-        dh_md5sums -i
-        dh_builddeb -i
+	dh_testdir -i
+	dh_testroot -i
+	dh_installdocs -i docs/*.html docs/*.css docs/*.pdf docs/*.txt
+	#dh_installman -A docs/ask.py.1 docs/asksetup.py.1
+	dh_installchangelogs ChangeLog -i
+	dh_installdebconf
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
 
 binary: binary-indep
 .PHONY: build clean binary-arch binary install configure
@@ -4493,8 +4514,8 @@ sub Main (;@)
 
     if ( @ARG and $ARG[0] =~ /help/ )
     {
-        shift @ARG;
-        Help(@ARG);
+	shift @ARG;
+	Help(@ARG);
     }
     else
     {

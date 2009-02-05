@@ -18,7 +18,7 @@
 #
 #   Description
 #
-#	 Rules for maintenance
+#	 Rules for install and maintenance
 
 ifneq (,)
     This makefile requires GNU Make.
@@ -50,6 +50,7 @@ lib/dyndns.1: $(PL)
 # Rule: man: generate manual page
 man: cygbuild-rebuild.1
 
+# clean: clean temporary files
 clean:
 	# clean
 	-rm -f *.tmp *.\#* *[#~] */*[#~]
@@ -91,6 +92,7 @@ install-template:
 	$(INSTALL_BIN) -d $(SHAREDIR)/template
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_TPL) $(SHAREDIR)/template
 
+# install: install bin, lib, data,man, etc and templates
 install: all \
 	 install-bin \
 	 install-lib \
@@ -99,6 +101,7 @@ install: all \
 	 install-etc \
 	 install-template
 
+# install-symlink: [developer] install in place; e.g. version control checkout
 install-symlink:
 	# Maintainer only target. Install using symlinks.
 	$(INSTALL_BIN) -d $(BINDIR)
@@ -117,6 +120,9 @@ install-symlink:
 	ln -s $$(pwd)/lib $(SHAREDIR)/lib
 	ln -s $$(pwd)/template $(SHAREDIR)/template
 
-.PHONY: clean distclean realclean install
+help:
+	@egrep "^# [-a-z]+:" Makefile | sort | sed 's/# //'
+
+.PHONY: clean distclean realclean install help
 
 # End of file

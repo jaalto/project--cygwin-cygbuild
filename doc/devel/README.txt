@@ -92,6 +92,7 @@ Dependencies
         o   Wget                            any version
         o   Python                          any version
         o   Standard programs: ls, etc.     any version
+	o   lndir command from Xorg packges any version
 
         This program runs solely with Free Software. It does not rely
         on any component of non-Free Software.
@@ -104,20 +105,28 @@ Information for developers
 
 	FIXME: This information is not complete
 
-    Policy for documenting changes
+    Policies
 
-        All changes are documented using Emacs editor and standard
-        package *add-log.el*, which provides command `C-x' `4' `a' to
-        record a change at point. Emacs will pick up the main
-        `ChangeLog' file and open an entry there. An example:
+	CODING STYLE for *.pl and *.sh FILES
 
-            * Makefile: (TOP LEVEL): Added new variable $USER
+	- Indentation: 4
+	- soft-tabs: spaces used for indentation.
+	- line-up braces
 
-        All version control commit message have following convention,
-	where the first line is short and informative description. It
-	starts with a filename chaged followed by colon. Longer
-	description, separated by empty line, may follow (but not
-	required). And example:
+	DOCUMENTING CHANGES
+
+        All changes are documented using Emacs editor which provides
+        command `C-x' `4' `a' to record a change at point. Emacs will
+        pick up the main `ChangeLog' file and open an entry there. The
+        changes are recorded in active tense (Add), no in past tense
+        (Added). An example:
+
+            * Makefile: (top level): Add new variable $USER.
+
+        All version control commit message have following convention.
+	If the change involves multiple files, the main file is
+	mentioned. Longer description, separated by empty line, may
+	follow (but not required). And example:
 
 	    <filename>: <one line change description>
 
@@ -126,53 +135,15 @@ Information for developers
 
     Makefiles
 
-	To see all make targets, run command:
+        The common files are in separate directory `mk/' from where
+        they are included The list targets:
 
-	    make help-dev
-
-        The make files are in separate directory `etc/makefile' from
-        where they are included to main `Makefile'. File are:
-
-            Makefile        The main controller.
-            id.mk           Maintainer information (variables)
-            vars.mk         General variables
-            unix.mk         Common targets (clean, install etc.)
-            cygwin.mk       Cygwin specific targets (making Net releases)
-            net*.mk         Network connection targets
-
-    To convert into installable Cygwin binary package
-
-        First, make world release. It is a preliminary preparation step:
-
-            make release-world
-
-        After that Cygwin binary and source packages can be made. The
-        first command will make the Cygwin binary package and the
-        `list-cygwin' will show the content of the made package. The
-        Cygwin source package (not really needed) can be made with
-        'make release-cygwin-source'.
-
-            make RELEASE=1 release-cygwin-bin
-            make list-cygwin
-
-        There is also command 'make publish-cygwin'. See RELEASEDIR
-        variable in etc/makefile/* for more information.
-
-    Source packages
-
-        See make target `release-cygwin-source'.
-
-    Exporting archive
-
-        There is a make target `release-world' that makes a tar.gz
-        file from checkout. Should that ever be needed. This target
-        can be used to make a backup of the project without version
-        control insformation and temporary files.
+	    make help
 
     Converting text files into HTML
 
-        In order to convert text files (README) into HTML, free
-        program *t2html.pl* is needed. See
+        In order to convert text files like README into HTML, Open
+        Source program *t2html.pl* is needed. See
         http://perl-text2html.sourceforge.net/
 
 	    make doc doc-readme
