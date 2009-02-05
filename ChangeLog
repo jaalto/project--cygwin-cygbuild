@@ -9,6 +9,8 @@
 	(CygbuildPostinstallWriteMain): Assign command line argument
 	$1 to variable dest.
 	(CygbuildCommandMain): Correct -d option without numeric argument.
+	(CygbuildCmdConfMain): Move 'configure command' message.
+	(CygbuildCmdConfAutomake): Simplify if-statement.
 
 2009-02-04  Jari Aalto  <jari.aalto@cante.net>
 

@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0205.1027"
+CYGBUILD_VERSION="2009.0205.1057"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -8271,20 +8271,23 @@ function CygbuildConfPerlMain()
 
 function CygbuildCmdConfAutomake()
 {
-     if [ ! -f configure ] && [ -f makefile.am ]; then
-        if [ -f "bootstrap" ]; then
-            CygbuildEcho "-- No ./configure but looks like automake." \
-                         "Running ./bootstrap"
+    [ ! -f configure ]  ||  return 0
+    [ -f makefile.am ]  ||  return 0
 
-            ./bootstrap
+    if [ ! -f "bootstrap" ]; then
+	CygbuildEcho "-- [WARN] makefile.am but no 'bootstrap' file"
+    else
+	CygbuildEcho "-- No ./configure but looks like automake." \
+		     "Running ./bootstrap"
 
-            if [ -f configure ]; then
-                CygbuildVerb "-- ./configure appeared."
-            else
-                CygbuildEcho "-- [ERROR] No ./configure appeared."
-                return 1
-            fi
-        fi
+	./bootstrap
+
+	if [ -f configure ]; then
+	    CygbuildVerb "-- ./configure appeared."
+	else
+	    CygbuildEcho "-- [ERROR] No ./configure appeared."
+	    return 1
+	fi
     fi
 }
 
@@ -8295,13 +8298,13 @@ function CygbuildCmdConfMain()
     local dummy=$(pwd)      # For debugger
     local status=0
 
-    CygbuildEcho "== Configure command"
-
     if ! CygbuildIsBuilddirOk ; then
         CygbuildVerb "-- Hm, no shadow yet. Running it now."
         CygbuildCmdShadowDelete
         CygbuildCmdShadowMain || return $?
     fi
+
+    CygbuildEcho "== Configure command"
 
     CygbuildPushd
 
