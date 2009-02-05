@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0205.1014"
+CYGBUILD_VERSION="2009.0205.1027"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6363,6 +6363,8 @@ function CygbuildPostinstallWriteMain()
 
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LC_ALL=C
+dest=\$1
+
 set -e
 "	>  $file || return 1
     fi
@@ -9583,16 +9585,16 @@ fromdir=/etc/defaults
 for i in $list
 do
     src=\$fromdir/\$i
-    dest=/\$i
+    destdir=\$dest/\$i
 
-    [ -e \$dest ] && continue
+    [ -e \$destdir ] && continue
 
     if [ -d \$src ] ; then
-	install -d -m 755 \$dest
+	install -d -m 755 \$destdir
 	continue
     fi
 
-    install -m 644 \$src \$dest
+    install -m 644 \$src \$destdir
 done
 "
 
@@ -10871,8 +10873,7 @@ function CygbuildCommandMain()
             -d|--debug)
 		shift
                 if [[ "$1" != [0-9] ]]; then
-                    CygbuildWarn "-- [WARN] Debug level" \
-                        " not numeric [$1]. Adjusting to 1"
+                    CygbuildDie "-- [ERROR] Debug level not numeric [$1]."
                 else
                     OPTION_DEBUG=$1             # global-def
                     shift

@@ -4,6 +4,11 @@
 	CYGBUILD_FILE_MANIFEST_TO from 'manifest.lst' to 'manifest-to.lst'.
 	(CygbuildIsDirMatch): New.
 	(CygbuildInstallExtraManual): Support CYGWIN-PATCHES/man directory.
+	(CygbuildInstallPostinstallPartEtc): Change variable `dest'
+	to `destdir'. Use command line arg `dest'.
+	(CygbuildPostinstallWriteMain): Assign command line argument
+	$1 to variable dest.
+	(CygbuildCommandMain): Correct -d option without numeric argument.
 
 2009-02-04  Jari Aalto  <jari.aalto@cante.net>
 
