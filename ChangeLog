@@ -1,3 +1,8 @@
+2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before `cd'
+	(optimization).
+
 2009-02-05  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl (UpdateAnnouncement): Improve call to Date().

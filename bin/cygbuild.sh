@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0205.1057"
+CYGBUILD_VERSION="2009.0205.1423"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1189,11 +1189,14 @@ function CygbuildIsDirMatch()
     local dir="$1"  # ARG 1   = directory
     shift 1	    # ARG 2.. = list of globs
 
+    [ "$dir"    ] || return 1
+    [ -d "$dir" ] || return 1
+
     local element
 
     CygbuildPushd
 
-	cd $dir &&
+	cd $dir 2> /dev/null &&
 	for element in $*
 	do
 	    if [ -e "$element" ]; then
@@ -10804,6 +10807,7 @@ function CygbuildCommandMain()
     unset OPTION_PREFIX_MAN         # global-def
     unset OPTION_RELEASE            # global-def
     unset OPTION_SIGN               # global-def
+    unset OPTION_VC_PACKAGE         # global-def FIXME: unused
     unset verbose                   # global-def
     unset test                      # global-def
 
@@ -11003,7 +11007,7 @@ function CygbuildCommandMain()
 
     # ........................................ determine environment ...
 
-    if [ "$verbose" ] && [ ! "$OPT_VC_PACKAGE" ]; then
+    if [ "$verbose" ] && [ ! "$OPTION_VC_PACKAGE" ]; then
 
         local vctype
         CygbuildVersionControlType > $retval
