@@ -1,3 +1,10 @@
+2009-02-06 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/Makefile (man): Add cygbuild.1
+	(doc): New target.
+	(cygbuild.1): New target.
+	(clean): Clean manual pages.
+
 2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* doc/index.html: (Install from Version Control): correct
