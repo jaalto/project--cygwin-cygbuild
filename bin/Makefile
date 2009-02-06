@@ -39,21 +39,23 @@ INSTALL_BIN	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
 INSTALL_SUID	= $(INSTALL) -m 4755
 
-all: man
+all: doc
 
 cygbuild-rebuild.1: cygbuild-rebuild.pod
 	pod2text $? > $@
 
-lib/dyndns.1: $(PL)
-	perl $? --Help-man > $@
+cygbuild.1: lib/cygbuild.pl
+	pod2text $? > $@
 
-# Rule: man: generate manual page
-man: cygbuild-rebuild.1
+doc: man
+
+# man: generate manual page
+man: cygbuild.1 cygbuild-rebuild.1
 
 # clean: clean temporary files
 clean:
 	# clean
-	-rm -f *.tmp *.\#* *[#~] */*[#~]
+	-rm -f *.tmp *.\#* *[#~] */*[#~] *.1
 
 distclean: clean
 
@@ -101,7 +103,7 @@ install: all \
 	 install-etc \
 	 install-template
 
-# install-symlink: [developer] install in place; e.g. version control checkout
+# install-symlink: install in place; e.g. version control checkout
 install-symlink:
 	# Install using symlinks.
 	$(INSTALL_BIN) -d $(BINDIR)
