@@ -1,3 +1,10 @@
+2009-02-06 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/Makefile (man): Add cygbuild.1
+	(doc): New target.
+	(cygbuild.1): New target.
+	(clean): Clean manual pages.
+
 2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* doc/index.html: (Install from Version Control): correct
@@ -19,6 +26,7 @@
 	* doc/Makefile (help): New target. Document other targets.
 
 	* bin/Makefile: (help): New target. Document other targets.
+	(install-symlink): Adjust comment.
 
 	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before
 	`cd'.
@@ -65,11 +73,6 @@
 
 	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe): Improve
 	external option read message.
-
-2009-01-31  Jari Aalto  <jari.aalto@cante.net>
-
-	* bin/lib/cygbuild.pl: (HELP::Other commands): Add Missing B<>
-	to `almostall' =item POD line.
 
 2008-12-05  Jari Aalto  <jari.aalto@cante.net>
 

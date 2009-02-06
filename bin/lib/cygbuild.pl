@@ -2,7 +2,7 @@
 #
 #   cygbuild.pl --- A Perl library for Cygwin Net Release packager
 #
-#       Copyright (C) 2003-2008 Jari Aalto
+#       Copyright (C) 2003-2009 Jari Aalto
 #
 #   License
 #
@@ -2137,7 +2137,7 @@ gpg(1)
 
 =head1 AUTHOR
 
-Copyright (C) 2003-2008 Jari Aalto. This program is free software; you
+Copyright (C) 2003-2009 Jari Aalto. This program is free software; you
 can redistribute and/or modify program under the terms of Gnu General
 Public license v2 or, at your option, any later version.
 

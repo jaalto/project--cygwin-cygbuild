@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 #
-#	Copyright (C) 2003-2008 Jari Aalto
+#	Copyright (C) 2003-2009 Jari Aalto
 #
 #	This program is free software; you can redistribute it and/or
 #	modify it under the terms of the GNU General Public License as
@@ -34,11 +34,11 @@ install:
 	$(MAKE) -C doc install
 	$(MAKE) -C bin install
 
-# install-symlink: [developer] install in place; from version control checkout
+# install-symlink: install in place; from version control checkout
 install-symlink:
 	$(MAKE) -C bin install-symlink
 
-# install-test: [developer] make test install to tmp/
+# install-test: [maintenance] make test install to tmp/
 install-test:
 	# Rule install-test - for Maintainer only
 	mkdir -p tmp
@@ -46,7 +46,7 @@ install-test:
 	make DESTDIR=`pwd`/tmp prefix=/. install
 	@echo "find tmp -type f | sort"
 
-# www: [developer] Publish doc/ directory's WWW documentation
+# www: [maintenance] Publish doc/ directory's WWW documentation
 www:
 	# Rule www - for Maintainer only
 	$(MAKE) -C doc www

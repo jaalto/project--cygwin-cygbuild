@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#       Copyright (C) 2003-2008 Jari Aalto
+#       Copyright (C) 2003-2009 Jari Aalto
 #
 #   License
 #

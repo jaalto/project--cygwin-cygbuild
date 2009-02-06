@@ -42,7 +42,7 @@ manual/index.txt: $(PL)
 index.txt: index.html
 	lynx -dump $? > $@
 
-# doc: generate documentation from source files
+# doc: [maintenence] generate documentation from source files
 doc: index.txt manual/index.html manual/index.txt
 
 install-index:
@@ -71,7 +71,7 @@ install: all install-index	\
 	install-devel		\
 	install-license
 
-# www: copy web pages to ../../<project>-www
+# www: [maintenance] copy web pages to ../../<project>-www
 www: doc
 	name=$$(basename $$(cd .. && pwd)); \
 	to=../../$$name-www; \
