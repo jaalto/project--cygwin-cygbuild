@@ -1,4 +1,4 @@
-2009-08-06    <mervi@6715KLOY>
+2009-08-06    Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/Makefile (install-man): Call target 'man'.
 	(INSTALL_OBJS_MAN1): Remove unneeded lib/*.1
