@@ -3498,6 +3498,9 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhichCheck make || 	CygbuildDie "[FATAL] $id: make not in PATH"
     CygbuildWhichCheck gcc  ||  CygbuildDie "[FATAL] $id: gcc not in PATH"
     CygbuildWhichCheck perl ||  CygbuildDie "[FATAL] $id: perl not in PATH"
+
+    CygbuildWhichCheck file ||  CygbuildDie "[FATAL] $id: file(1) not in PATH." \
+	Install package 'file'"
 }
 
 function CygbuildIsArchiveScript()
