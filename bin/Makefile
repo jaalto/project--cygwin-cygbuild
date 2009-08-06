@@ -28,7 +28,7 @@ include ../mk/common.mk
 
 PL		   = lib/cygbuild.pl
 INSTALL_OBJS_BIN   = *.sh
-INSTALL_OBJS_MAN1  = *.1 lib/*.1
+INSTALL_OBJS_MAN1  = *.1
 INSTALL_OBJS_LIB   = $(PL) lib/*.sh
 INSTALL_OBJS_DATA  = data/*.lst
 INSTALL_OBJS_ETC   = etc/*.conf
@@ -66,7 +66,7 @@ install-etc:
 	$(INSTALL_BIN) -d $(ETCDIR)
 	$(INSTALL_BIN)	  $(INSTALL_OBJS_ETC) $(ETCDIR)
 
-install-man:
+install-man: man
 	# install-man
 	$(INSTALL_BIN) -d $(MANDIR1)
 	$(INSTALL_DATA)	  $(INSTALL_OBJS_MAN1) $(MANDIR1)
