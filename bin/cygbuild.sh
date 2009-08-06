@@ -10834,7 +10834,7 @@ function CygbuildCommandMain()
         isgetopt=""
 
         CygbuildIsGbsCompat ||
-	CygbuildDie "$id: 'getopt' (from package util-linux) not in PATH." \
+	CygbuildDie "$id: [FATAL] 'getopt' (from package util-linux) not in PATH." \
 	    "Cannot parse options."
     fi
 

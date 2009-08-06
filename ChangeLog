@@ -3,6 +3,9 @@
 	* bin/Makefile (install-man): Call target 'man'.
 	(INSTALL_OBJS_MAN1): Remove unneeded lib/*.1
 
+	* bin/cygbuild.sh: (CygbuildCommandMain):
+	Display word FATAL if getopt is not available.
+
 2009-02-06 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/Makefile (man): Add cygbuild.1
