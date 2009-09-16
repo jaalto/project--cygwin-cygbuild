@@ -4,6 +4,8 @@
 	(CygbuildMatchGlob): New.
 	(CygbuildDefineGlobalCommands): Add missing double quote.
 	(CygbuildSrcDirCheck): Adjust message.
+	(CygbuildCmdDownloadUpstream): change external
+	command name from 'mywebget' to 'pwget'.
 
 2009-08-06    Jari Aalto  <jari.aalto@cante.net>
 
