@@ -127,7 +127,9 @@ function CygbuildPopd()
 
 function CygbuildWhich()
 {
-    # returns path name
+    # returns path name. Do NOT use which(1) under Cygwin.
+    # it does not find programs that are symlinks
+
     [ "$1" ] && type -p "$1" 2> /dev/null
 }
 
@@ -6293,7 +6295,7 @@ function CygbuildCmdDownloadUpstream ()
 {
     local id="$0.$FUNCNAME"
     local PRG="pwget"
-    local bin=$(type -p $PRG)
+    local bin=$(CygbuildWhich $PRG)
 
     CygbuildEcho "-- Upstream download: checking for new versions..."
 
