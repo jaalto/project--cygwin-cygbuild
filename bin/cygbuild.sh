@@ -221,6 +221,16 @@ function CygbuildStrToRegexpSafe()
     echo $str
 }
 
+function CygbuildMatchGlob()
+{
+    case "$2" in
+	$1) return 0
+	    ;;
+	*)  return 1
+	    ;;
+    esac
+}
+
 function CygbuildMatchRegexp()
 {
     #   Argument 1: regexp
@@ -2330,7 +2340,7 @@ function CygbuildIsBuilddirOk()
     if [ "$builddir" ] && [ -d "$builddir" ]; then
 
 	#   some package only contain TOP level directories, so we must
-	#   peek inside $builddir/*/* to see if it's symlink (made by
+	#   peek inside $builddir/*/* to see if it is symlink, (made by
 	#   shadow)
 
 	local item
@@ -3499,8 +3509,8 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhichCheck gcc  ||  CygbuildDie "[FATAL] $id: gcc not in PATH"
     CygbuildWhichCheck perl ||  CygbuildDie "[FATAL] $id: perl not in PATH"
 
-    CygbuildWhichCheck file ||  CygbuildDie "[FATAL] $id: file(1) not in PATH." \
-	Install package 'file'"
+    CygbuildWhichCheck file ||	CygbuildDie "[FATAL] $id: file(1) not in PATH." \
+	"Install package 'file'"
 }
 
 function CygbuildIsArchiveScript()
@@ -4040,8 +4050,8 @@ function CygbuildSrcDirCheck()
     local ver=${dir##*-}
 
     if  ! CygbuildIsNumberLike "$ver" ; then
-	CygbuildWarn "
-$id: [ERROR] Cannot determine plain numeric VERSION (format: N.N)
+	CygbuildWarn "\
+$id: [ERROR] Cannot determine plain numeric VERSION (N.N)
 
 The directory $dir
 does not look like package-VERSION. Variables cannot be contructed.
@@ -4057,10 +4067,9 @@ You have options:
 - If the package does not extract to package-NN.NN/ make a symbolic link
   and chdir into it: ln --symbolic foo3.3alpha3 foo-3.3.1.3; cd  foo-3.3.1.3/
 
-A VERSION must be present either in package name or in directory name
+A VERSION must be present either in package name or in directory name"
 
-"
-	exit 1
+	exit 0
     fi
 }
 
@@ -4159,7 +4168,7 @@ TO USE CYGBUILD FOR MAKING Cygwin Net Releases
 	To check install: check
 	To package      : package source-package
 	To sign         : package-sign
-	To publish      : publish (copy files to publish area
+	To publish      : publish; copy files to publish area
 	All phases      : all
 	All, no finish  : almostall
 

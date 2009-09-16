@@ -1,3 +1,10 @@
+2009-09-16  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildMatchGlob): New.
+	(CygbuildDefineGlobalCommands): Add missing double quote.
+	(CygbuildSrcDirCheck): Adjust message.
+
 2009-08-06    Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/Makefile (install-man): Call target 'man'.
