@@ -6293,7 +6293,7 @@ function CygbuildCmdDownloadUpstream ()
 {
     local id="$0.$FUNCNAME"
     local PRG="pwget"
-    local bin=$(which $PRG)
+    local bin=$(type -p $PRG)
 
     CygbuildEcho "-- Upstream download: checking for new versions..."
 

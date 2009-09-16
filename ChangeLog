@@ -5,7 +5,8 @@
 	(CygbuildDefineGlobalCommands): Add missing double quote.
 	(CygbuildSrcDirCheck): Adjust message.
 	(CygbuildCmdDownloadUpstream): change external
-	command name from 'mywebget' to 'pwget'.
+	command name from 'mywebget' to 'pwget'. Use
+	'type -p', not which(1).
 
 2009-08-06    Jari Aalto  <jari.aalto@cante.net>
 
