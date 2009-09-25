@@ -1311,9 +1311,52 @@ function CygbuildFileCmpReplaceIfDiffer ()
     fi
 }
 
+CygbuildFileSizeRead ()
+{
+    local file=$1
+
+    if [ ! "$file" ] || [ ! -f $file ]; then
+        return 1
+    fi
+
+    local stat=$STAT
+
+    if [ "$stat" ]; then
+        $stat --format=%s
+        return $?
+    fi
+
+    # Traditional method. Parse ls(1) listing.
+
+    set -- $(ls -l $file)
+    local count=$#
+
+    # ... 650752 Sep 25 08:09 /home/foo/file.txt
+    local col=$(( count - 4 ))      # From the right
+
+    # ... 650752 2002-02-04 08:09 /home/foo/file.txt
+    # But sometimes the listing is different
+
+    local datecol=$(( count - 2 ))
+    local date=${@:datecol:1}
+
+    if [[ "$date" == *-* ]]; then
+        col=$(( count - 3 ))
+    fi
+
+    local size=${@:col:1}
+
+    if [[ ! "$size" == [0-9]* ]]; then
+        CygbuildWarn "-- [WARNING] Internal error, can't parse: $*"
+        return 1
+    fi
+
+    echo $size
+}
+
 function CygbuildFileSize ()
 {
-    file="$1"
+    local file="$1"
 
     if [ ! "$file" ] || [ ! -f $file ]; then
 	return 1
@@ -1325,9 +1368,8 @@ function CygbuildFileSize ()
     local ls=$(ls -la $file)
 
     if [[ ! "$ls" == *-\>* ]]; then
-	set -- $ls
-	echo ${@:(-5):1}
-	return 0
+	CygbuildFileSizeRead "$file"
+	return $?
     fi
 
     #  It is a symbolic link. Find out real path.
@@ -1355,8 +1397,7 @@ function CygbuildFileSize ()
 	[ "$dir" ]    && { cd $dir    || return 1; }
 	[ "$symdir" ] && { cd $symdir || return 1; }
 
-	set -- $(ls -la $file)
-	echo ${@:(-5):1}
+	CygbuildFileSizeRead "$file"
     )
 }
 
@@ -3448,6 +3489,10 @@ function CygbuildDefineGlobalCommands()
     RUBYBIN=$prefix/ruby                            # global-def
 
     # ............................................ optional features ...
+
+    STAT=                                           # global-def
+    CygbuildPathBinFast stat > $retval
+    [ -s $retval ] && STAT=$(< $retval)
 
     CYGCHECK=
     CygbuildWhich cygcheck > $retval

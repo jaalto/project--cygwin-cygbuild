@@ -1,5 +1,11 @@
 2009-09-25  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands): Define
+	command stat(1) in variable STAT.
+	(CygbuildFileSizeRead): New. Use stat(1) where available.
+	(CygbuildFileSize); use more robust
+	`CygbuildFileSizeRead'.
+
 	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
 	Correct ls -l output handling: Read file sizes correctly.
 

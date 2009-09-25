@@ -1682,7 +1682,7 @@ function CygbuildCmdInstallCheckBinFiles()
 		# ... 650752 2002-02-04 08:09 /home/foo/file.txt
 		# But sometimes the listing is different
 
-		local datecol=$(( count - 3 ))
+		local datecol=$(( count - 2 ))
                 local date=${@:datecol:1}
 
 		if [[ "$date" == *-* ]]; then
@@ -1691,13 +1691,13 @@ function CygbuildCmdInstallCheckBinFiles()
 
                 local size=${@:col:1}
 
-		if [[ "$size" == [0-9]* ]]; then
+		if [[ ! "$size" == [0-9]* ]]; then
+		    CygbuildWarn "-- [WARNING] Internal error, can't parse: '$str'"
+		else
 		    if [[ $size -gt $maxsize ]]; then
 			CygbuildEcho "-- [NOTE] Big file, need " \
 			     "dynamic linking? $size $file"
 		    fi
-		else
-		    CygbuildWarn "-- [WARNING] Internal error, can't parse: '$str'"
 		fi
             fi
         fi
