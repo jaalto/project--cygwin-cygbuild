@@ -1,3 +1,8 @@
+2009-09-25  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
+	Correct ls -l output handling: Read file sizes correctly.
+
 2009-09-16  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
