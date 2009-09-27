@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0925.0942"
+CYGBUILD_VERSION="2009.0925.0944"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1322,7 +1322,7 @@ CygbuildFileSizeRead ()
     local stat=$STAT
 
     if [ "$stat" ]; then
-        $stat --format=%s
+        $stat --format=%s "$file"
         return $?
     fi
 
@@ -6884,7 +6884,7 @@ function CygbuildMakefileRunInstallPythonFix()
     if [ "$rmlist" ]; then
 	list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
 	rm $rmlist
-	CygbuildEcho "-- Recompiling python files [may take a while...]"
+	CygbuildEcho "-- Recompiling python files (may take a while...)"
 	CygbuildPythonCompileFiles $list
     fi
 }

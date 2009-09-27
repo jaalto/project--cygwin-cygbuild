@@ -1,3 +1,8 @@
+2009-09-27  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
+	Adjust 'may take a while..." message.
+
 2009-09-25  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands): Define

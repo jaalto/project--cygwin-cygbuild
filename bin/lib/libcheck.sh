@@ -2125,9 +2125,11 @@ function CygbuildCmdInstallCheckEverything ()
     [ "$verbose" ] &&
 	CygbuildCmdInstallCheckMakefiles
 
-    CygbuildCmdInstallCheckTempFiles         || stat=$?
-    CygbuildCmdInstallCheckInfoFiles         || stat=$?
 
+    CygbuildCmdInstallCheckTempFiles         || stat=$?
+set -x
+    CygbuildCmdInstallCheckInfoFiles         || stat=$?
+set +x
     [ "$verbose" ] &&
 	CygbuildCmdInstallCheckTexiFiles     || stat=$?
 
@@ -2150,7 +2152,7 @@ function CygbuildCmdInstallCheckEverything ()
     CygbuildCmdInstallCheckSymlinkExe        || stat=$?
     CygbuildCmdInstallCheckCygpatchDirectory || stat=$?
 
-    CygbuildEcho "-- Check finished. Please verify messages above."
+    CygbuildEcho "-- Check finished. Please verify possible messages."
 
     return $stat
 }
