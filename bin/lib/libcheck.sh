@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#   libcheck.sh -- Library of checking functions fot cygbuild
+#   libcheck.sh -- Library of check functions for cygbuild
 #
 #       Copyright (C) 2003-2009 Jari Aalto
 #
@@ -1640,6 +1640,7 @@ function CygbuildCmdInstallCheckBinFiles()
 	-a ! -path "*benchmark*"    \
 	-a ! -path "*version*"      \
 	-a ! -path "*.egg*"         \
+	-a ! -path "*site-packages*" \
         > $retval.find
 
     [ -s "$retval.find" ] || return 0
@@ -1667,7 +1668,7 @@ function CygbuildCmdInstallCheckBinFiles()
             [ -s "$retval" ] && str=$(< $retval)
 
             if [ "$str" ]; then
-                CygbuildEcho "-- [NOTE] Binary name clash?" \
+                CygbuildEcho "-- [NOTE] Binary name clash [$name]?" \
                              "Already exists ${str/$srcdir\//}"
                 # status=1
             fi
@@ -2099,21 +2100,23 @@ function CygbuildCmdInstallCheckEverything ()
 {
     local stat=0
 
-    [ "$verbose" ] &&
+    if [ "$verbose" ] ; then
 	CygbuildCmdInstallCheckFSFaddress
+    fi
 
     CygbuildCmdInstallCheckLineEndings
 
-    [ "$verbose" ] &&
+    if [ "$verbose" ] ; then
 	CygbuildCmdInstallCheckMakefiles
-
+    fi
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
 
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
 
-    [ "$verbose" ] &&
+    if [ "$verbose" ] ; then
 	CygbuildCmdInstallCheckTexiFiles     || stat=$?
+    fi
 
     CygbuildCmdInstallCheckShellFiles        || stat=$?
     CygbuildCmdInstallCheckReadme            || stat=$?
@@ -2122,8 +2125,9 @@ function CygbuildCmdInstallCheckEverything ()
     CygbuildCmdInstallCheckPkgDocdir         || stat=$?
     CygbuildCmdInstallCheckDocdir            || stat=$?
 
-    [ "$verbose" ] &&
+    if [ "$verbose" ] ; then
 	CygbuildCygcheckLibraryDepSourceMain || stat=$?
+    fi
 
     CygbuildCmdInstallCheckBinFiles          || stat=$?
     CygbuildCmdInstallCheckSymlinks          || stat=$?

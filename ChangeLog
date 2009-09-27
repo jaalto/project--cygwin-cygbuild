@@ -4,6 +4,8 @@
 	Ignore *.dll and *.pyc files and others. Change
 	for loop to more efficient while loop which preferves
 	file names correctly. Use stat(1) to read file size.
+	(CygbuildCmdInstallCheckEverything): Use real if-statements.
+	This fixes 'stat' value settings.
 
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
 	Adjust 'may take a while..." message.
