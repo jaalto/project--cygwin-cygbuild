@@ -13,6 +13,7 @@
 	with spaces.
 	(CygbuildFileSize): Add quotes.
 	(CygbuildInstallFixInterpreterGeneric): Improve message.
+	(CygbuildProgramVersion): Do not announce URL by default.
 
 2009-09-25  Jari Aalto  <jari.aalto@cante.net>
 
