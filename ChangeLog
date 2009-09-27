@@ -12,6 +12,7 @@
 	(CygbuildFileSizeRead): Improve handling of file names
 	with spaces.
 	(CygbuildFileSize): Add quotes.
+	(CygbuildInstallFixInterpreterGeneric): Improve message.
 
 2009-09-25  Jari Aalto  <jari.aalto@cante.net>
 
