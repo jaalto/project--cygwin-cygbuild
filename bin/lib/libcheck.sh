@@ -1591,23 +1591,23 @@ function CygbuildCmdInstallCheckBinFiles()
 
     #  All exe files must have +x permission
 
-    find -L $dir            \
-    '(' -name \*.sh         \
-        -o -name \*.exe     \
+    find -L "$dir"          \
+    '(' -name "*.sh"        \
+        -o -name "*.exe"    \
         -o -name "*.dll"    \
         -o -name "*.sh"     \
         -o -name "*.pl"     \
         -o -name "*.py"     \
         -o -name "*.rb"     \
     ')'                     \
-    -a '(' -path "*python*site-pacages*" ')' -prune \
-    -a \! -perm +111 -ls    \
+    -a ! -path "*python*site-pacages*" \
+    -a ! -perm +111 -ls     \
     > $retval
 
-    if [ -s $retval ]; then
+    if [ -s "$retval" ]; then
         CygbuildWaen "-- [WARN] Some executables may have" \
                      "missing permission +x"
-        cat $retval
+        cat "$retval"
         # status=1
     fi
 
@@ -1620,13 +1620,12 @@ function CygbuildCmdInstallCheckBinFiles()
         installed="installed"
     fi
 
-    local file
     local docdir="$CYGBUILD_DOCDIRCYG_FULL"
 
     #   FIXME: Currently every file in /bin is supposed to be executable
     #   This may not be always true?
 
-    find -L $dir -type f	    \
+    find -L "$dir" -type f	    \
 	'('			    \
 	   -path "*/bin/*"	    \
 	   -o -path "*/sbin/*"	    \
@@ -1641,18 +1640,21 @@ function CygbuildCmdInstallCheckBinFiles()
 	-a ! -path "*benchmark*"    \
 	-a ! -path "*version*"      \
 	-a ! -path "*.egg*"         \
-        > $retval
+        > $retval.find
 
-    [ -s $retval ] || return 0
+    [ -s "$retval.find" ] || return 0
+
+    local file
 
     while read file
     do
+        [ -d "$file" ] && continue
+
         if [ -h "$file" ]; then
             CygbuildPathResolveSymlink "$file" > $retval &&
             file=$(< $retval)
         fi
 
-        local str=""
         local name=${file##*/}              # remove path
         local _file=${file/$srcdir\/}       # relative path
 
@@ -1660,8 +1662,9 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [ ! "$installed" ]; then
 
-            CygbuildWhich $name > $retval
-            [ -s "$retval"x ] && str=$(< $retval)
+	    local str
+            CygbuildWhich "$name" > $retval
+            [ -s "$retval" ] && str=$(< $retval)
 
             if [ "$str" ]; then
                 CygbuildEcho "-- [NOTE] Binary name clash?" \
@@ -1675,42 +1678,20 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [[ "$file" != *X11* ]]; then
 
-            ls -l "$file" > $retval
-            [ -s "$retval" ] && str=$(< $retval)
+            local size=$(stat --format=%s "$file")
 
-            if [ "$str" ]; then
-
-                set -- $str
-		local count=$#
-
-		# ... 650752 Sep 25 08:09 /home/foo/file.txt
-		local col=$(( count - 4	))	# From the right
-
-		# ... 650752 2002-02-04 08:09 /home/foo/file.txt
-		# But sometimes the listing is different
-
-		local datecol=$(( count - 2 ))
-                local date=${@:datecol:1}
-
-		if [[ "$date" == *-* ]]; then
-		    col=$(( count - 3 ))
-		fi
-
-                local size=${@:col:1}
-
-		if [[ ! "$size" == [0-9]* ]]; then
-		    CygbuildWarn "-- [WARNING] Internal error, can't parse: '$str'"
-		else
-		    if [[ $size -gt $maxsize ]]; then
-			CygbuildEcho "-- [NOTE] Big file, need " \
-			     "dynamic linking? $size $file"
-		    fi
+	    if [[ ! "$size" == [0-9]* ]]; then
+		CygbuildWarn "-- [WARNING] Internal error, can't read size: '$file'"
+	    else
+		if [[ $size -gt $maxsize ]]; then
+		    CygbuildEcho "-- [NOTE] Big file, need " \
+			 "dynamic linking? $size $file"
 		fi
             fi
         fi
 
 	if [[ "$file" == *.@(py|pl|rb) ]]; then
-	    CygbuildWarn "-- [WARN] Drop extension from $_file"
+	    CygbuildWarn "-- [WARN] Should not have extension in $_file"
 	fi
 
         #   Sometimes package includes compiled binaries for Linux.
@@ -1720,6 +1701,7 @@ function CygbuildCmdInstallCheckBinFiles()
         #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
         #   stripped
 
+	local str
         file "$file" > $retval
         [ -s "$retval" ] && str=$(< $retval)
 
@@ -1760,46 +1742,39 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildEcho "-- [ERROR] setup.hint may need Ruby dependency" \
                  "for $name"
             status=1
-
-        fi
-
-        # ................................................ Perl libs ...
+	fi
 
         if [[ "$str" == *perl*   ]]; then
             head -1 "$file" > $retval.1st
 
-            if ! $EGREP --quiet "$plbin([ \t]|$)" $retval.1st
+            if ! $EGREP --quiet "$plbin([ \t]|$)" "$retval.1st"
             then
                 CygbuildWarn "-- [WARN] possibly wrong Perl call" \
-                     "in $_file: $(cat $retval.1st)"
+                     "in $_file:" $(cat "$retval.1st")
             fi
 
 	    CygbuildCmdInstallCheckLibrariesPerl "$file"
-	fi
 
-        # .............................................. Python libs ...
+        elif [[ "$str" == *python* ]]; then
 
-        if [[ "$str" == *python* ]]; then
             head -1 "$file" > $retval.1st
 
-            if ! $EGREP --quiet "$pybin([ \t]|$)" $retval.1st
+            if ! $EGREP --quiet "$pybin([ \t]|$)" "$retval.1st"
             then
                 CygbuildWarn "-- [WARN] possibly wrong Python call" \
-                     "in $_file: $(cat $retval.1st)"
+                     "in $_file:" $(cat "$retval.1st")
             fi
 
 	    CygbuildCmdInstallCheckLibrariesPython "$file"
-	fi
 
-        # ................................................ Ruby libs ...
+        elif [[ "$str" == *ruby* ]]; then
 
-        if [[ "$str" == *ruby* ]]; then
             head -1 "$file" > $retval.1st
 
-            if ! $EGREP --quiet "$rbbin([ \t]|$)" $retval.1st
+            if ! $EGREP --quiet "$rbbin([ \t]|$)" "$retval.1st"
             then
                 CygbuildWarn "-- [WARN] possibly wrong Ruby call" \
-                     "in $_file: $(cat $retval.1st)"
+                     "in $_file:" $(cat "$retval.1st")
             fi
 
 	    CygbuildCmdInstallCheckLibrariesRuby "$file"
@@ -1812,10 +1787,10 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildEcho "-- $name: $str"
 
             #   Show library dependencies
-            [[ $file == *.exe ]] && CygbuildCygcheckMain $file
+            [[ $file == *.exe ]] && CygbuildCygcheckMain "$file"
         fi
 
-    done  < $retval
+    done  < "$retval.find"
 
     return $status
 }
