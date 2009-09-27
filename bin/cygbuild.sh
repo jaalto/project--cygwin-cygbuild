@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0927.0724"
+CYGBUILD_VERSION="2009.0927.1059"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1315,7 +1315,7 @@ CygbuildFileSizeRead ()
 {
     local file=$1
 
-    if [ ! "$file" ] || [ ! -f $file ]; then
+    if [ ! "$file" ] || [ ! -f "$file" ]; then
         return 1
     fi
 
@@ -1328,20 +1328,31 @@ CygbuildFileSizeRead ()
 
     # Traditional method. Parse ls(1) listing.
 
+    local info=$(ls -l "$file")
+
+    # remove FILENAME, because that distracts POSITION
+    # .. 650752 2002-02-04 08:09 /home/foo/picture 14.png
+    # => 650752 2002-02-04 08:09
+
+    info=${info%$file}
+
     set -- $(ls -l $file)
     local count=$#
 
-    # ... 650752 Sep 25 08:09 /home/foo/file.txt
-    local col=$(( count - 4 ))      # From the right
+    # ... 650752 Sep 25 08:09
+    local col=$(( count - 3 ))      # From the right
 
     # ... 650752 2002-02-04 08:09 /home/foo/file.txt
     # But sometimes the listing is different
 
-    local datecol=$(( count - 2 ))
+    # FIXME: Won't work with file that contain spaces
+    # .. 650752 2002-02-04 08:09
+
+    local datecol=$(( count - 1 ))
     local date=${@:datecol:1}
 
     if [[ "$date" == *-* ]]; then
-        col=$(( count - 3 ))
+        col=$(( count - 2 ))
     fi
 
     local size=${@:col:1}
@@ -1358,14 +1369,14 @@ function CygbuildFileSize ()
 {
     local file="$1"
 
-    if [ ! "$file" ] || [ ! -f $file ]; then
+    if [ ! "$file" ] || [ ! -f "$file" ]; then
 	return 1
     fi
 
     #  This could be a symbolic link, check it
     #  lrwxrwxrwx 1 root root  27 2004-05-04 10:45  vmlinuz -> boot/vmlinuz-...
 
-    local ls=$(ls -la $file)
+    local ls=$(ls -la "$file")
 
     if [[ ! "$ls" == *-\>* ]]; then
 	CygbuildFileSizeRead "$file"

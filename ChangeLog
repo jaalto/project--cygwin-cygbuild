@@ -7,6 +7,8 @@
 
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
 	Adjust 'may take a while..." message.
+	(CygbuildFileSizeRead): Improve handling of file names
+	with spaces.
 
 2009-09-25  Jari Aalto  <jari.aalto@cante.net>
 
