@@ -1679,7 +1679,10 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [[ "$file" != *X11* ]]; then
 
-            local size=$(stat --format=%s "$file")
+	    CygbuildFileSizeRead "$file" > $retval
+
+            local size
+	    [ -s "$retval" ] && size=$(< "$retval")
 
 	    if [[ ! "$size" == [0-9]* ]]; then
 		CygbuildWarn "-- [WARNING] Internal error, can't read size: '$file'"
