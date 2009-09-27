@@ -86,7 +86,7 @@ function CygbuildCmdInstallCheckInfoFiles()
     local dir="$instdir"
 
     find -L $dir -name dir -o -name "*.info" > $retval
-    [ -s $retval ] && notes=$(< $retval)
+    [ -s "$retval" ] && notes=$(< $retval)
 
     #   If there are *.info files, then there must be postinstall
     #   script to call install-info.
@@ -94,7 +94,7 @@ function CygbuildCmdInstallCheckInfoFiles()
     local notes
 
     find -L $dir -name dir -o -name "*.info" > $retval
-    [ -s $retval ] && notes=$(< $retval)
+    [ -s "$retval" ] && notes=$(< $retval)
 
     if [ "$notes" ]; then
         local file="$SCRIPT_POSTINSTALL_CYGFILE"
@@ -160,7 +160,7 @@ function CygbuildCmdInstallCheckPerlFile ()
     #	    Constant subroutine main::DEBUG redefined at /usr/lib/perl5/5.8/constant.pm line 103.
 
     grep --invert-match 'at /usr/lib/perl[0-9]/' $retval > $retval.tmp &&
-    mv --force $retval.tmp $retval
+    mv --force "$retval.tmp" "$retval"
 
     [ -s "$retval" ] || return 0
 
@@ -198,13 +198,14 @@ function CygbuildCmdInstallCheckPerlFile ()
     local binpath=$(< $retval)
 
     local plpath="$PERL_PATH"
-    local newfile=$retval.fix.$name
+    local newfile="$retval.fix.$name"
 
     if ! echo $binpath | $EGREP --quiet '^#![[:space:]]*/' ; then
 
         CygbuildWarn \
             "-- [NOTE] $name incorrect or missing bang-slash line, fixing it"
-	cat $retval
+
+	cat "$retval"
 
 	#   Replace first line.
 
@@ -248,7 +249,7 @@ function CygbuildCmdInstallCheckPythonFile ()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pypath="$PYTHON_PATH"
-    local newfile=$retval.fix.$name
+    local newfile="$retval.fix.$name"
     local name=${file##*/}
 
     $EGREP '^#! */' $file | head -1 > $retval
@@ -281,7 +282,7 @@ function CygbuildCmdInstallCheckShellFiles ()
 
     file $dir/bin/* $dir/sbin/* 2> /dev/null > $retval
 
-    [ -s $retval ] || return 0
+    [ -s "$retval" ] || return 0
 
     local file rest
 
@@ -347,17 +348,17 @@ function CygbuildCmdInstallCheckShFile ()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local _file=${file#$srcdir/}
 
-    $shell -nx $file > $retval
+    $shell -nx "$file" > $retval
     [ -s "$retval" ] || return 0
 
     CygbuildEcho "-- Checking $shell -nx: $_file"
-    cat $retval
+    cat "$retval"
 }
 
 function CygbuildCmdInstallCheckReadme()
 {
     local id="$0.$FUNCNAME"
-    local retva=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local dummy=$(pwd)                    # For debug
     local dir=$instdir
     local readme="$PKG*.README"
@@ -393,7 +394,7 @@ function CygbuildCmdInstallCheckReadme()
     $EGREP --line-number --ignore-case --regexp="$tags" \
         $path /dev/null > $retval
 
-    [ -s $retval ] && notes=$(< $retval)
+    [ -s "$retval" ] && notes=$(< $retval)
 
     if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
         CygbuildWarn "-- [WARN] Tags found: $tags"
@@ -412,7 +413,7 @@ function CygbuildCmdInstallCheckReadme()
 
     $EGREP --line-number --regexp="$tags" $path /dev/null > $retval
 
-    [ -s $retval ] && notes=$(< $retval)
+    [ -s "$retval" ] && notes=$(< $retval)
 
     if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
         CygbuildWarn "-- [WARN] Tags found: $tags"
@@ -433,7 +434,7 @@ function CygbuildCmdInstallCheckReadme()
     local rever
 
     CygbuildStrToRegexpSafe "$VER" > $retval
-    [ -s $retval ] && rever=$(< $retval)
+    [ -s "$retval" ] && rever=$(< $retval)
 
     local sversion=$rever-${REL:-1}                 # search version
 
@@ -443,7 +444,7 @@ function CygbuildCmdInstallCheckReadme()
         --regexp="-- +(version +)?($PKG-)?$sversion +--" \
         $path /dev/null > $retval
 
-    [ -s $retval ] && notes=$(< $retval)
+    [ -s "$retval" ] && notes=$(< $retval)
 
     if [[ ! "$notes" ]]; then
         local version=$VER-${REL:-1}
@@ -665,12 +666,13 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
 {
     local path=${1:-/dev/null}
     local re="$PKG"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   Make case insensitive search for package name in ldesc / first line.
     #   Make sure libraries start with cyg* and not the old lib*
 
     CygbuildStrToRegexpSafe "$PKG" > $retval
-    [ -s $retval ] && re=$(< $retval)
+    [ -s "$retval" ] && re=$(< $retval)
 
     #	Ignore compression utilities, whose name is same as the compression
     #	extension.
@@ -1411,18 +1413,18 @@ function CygbuildCmdInstallCheckDocdir()
     local ignore="*@(AUTHORS)"
     local status=0
     local minsize=100
-    local file size _file
+    local file
 
     while read file
     do
         [[ "$file" == $ignore ]] && continue
 	[ -h "$file"	       ] && continue   # Ignore symlinks
 
-        size=0
-        _file=${file/$srcdir\//}
+        local size=0
+        local _file=${file/$srcdir\//}
 
-        CygbuildFileSize $file > $retval.size
-        [ -s $retval.size ] && size=$(< $retval.size)
+        CygbuildFileSize "$file" > $retval.size
+        [ -s "$retval.size" ] && size=$(< $retval.size)
 
         if [ $size = 0 ] ; then
             CygbuildWarn "-- [WARN] empty file $_file"
@@ -1625,22 +1627,27 @@ function CygbuildCmdInstallCheckBinFiles()
     #   This may not be always true?
 
     find -L $dir -type f	    \
-	\(			    \
+	'('			    \
 	   -path "*/bin/*"	    \
 	   -o -path "*/sbin/*"	    \
 	   -o -path "*/lib/*"	    \
            -o -path "*/share/$PKG*" \
 	   -o -path "*/usr/games/*" \
-	\)			    \
+	')'			    \
+        -a ! -name "*.dll"          \
+	-a ! -name "*.pyc"          \
+	-a ! -name "_*.py"          \
+	-a ! -path "*test*"         \
+	-a ! -path "*benchmark*"    \
+	-a ! -path "*version*"      \
+	-a ! -path "*.egg*"         \
         > $retval
-
-    local list=$(< $retval)
 
     [ -s $retval ] || return 0
 
-    for file in $list
+    while read file
     do
-        if [ -h $file ]; then
+        if [ -h "$file" ]; then
             CygbuildPathResolveSymlink "$file" > $retval &&
             file=$(< $retval)
         fi
@@ -1654,7 +1661,7 @@ function CygbuildCmdInstallCheckBinFiles()
         if [ ! "$installed" ]; then
 
             CygbuildWhich $name > $retval
-            [ -s $retval ] && str=$(< $retval)
+            [ -s "$retval"x ] && str=$(< $retval)
 
             if [ "$str" ]; then
                 CygbuildEcho "-- [NOTE] Binary name clash?" \
@@ -1668,8 +1675,8 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [[ "$file" != *X11* ]]; then
 
-            ls -l $file > $retval
-            [ -s $retval ] && str=$(< $retval)
+            ls -l "$file" > $retval
+            [ -s "$retval" ] && str=$(< $retval)
 
             if [ "$str" ]; then
 
@@ -1714,7 +1721,7 @@ function CygbuildCmdInstallCheckBinFiles()
         #   stripped
 
         file "$file" > $retval
-        [ -s $retval ] && str=$(< $retval)
+        [ -s "$retval" ] && str=$(< $retval)
 
         local name=${file##*.inst}
 	local plbin="$PERLBIN"
@@ -1808,7 +1815,7 @@ function CygbuildCmdInstallCheckBinFiles()
             [[ $file == *.exe ]] && CygbuildCygcheckMain $file
         fi
 
-    done
+    done  < $retval
 
     return $status
 }
@@ -2127,9 +2134,9 @@ function CygbuildCmdInstallCheckEverything ()
 
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
-set -x
+
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
-set +x
+
     [ "$verbose" ] &&
 	CygbuildCmdInstallCheckTexiFiles     || stat=$?
 

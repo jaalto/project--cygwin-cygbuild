@@ -1,5 +1,10 @@
 2009-09-27  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
+	Ignore *.dll and *.pyc files and others. Change
+	for loop to more efficient while loop which preferves
+	file names correctly.
+
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
 	Adjust 'may take a while..." message.
 
