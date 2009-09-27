@@ -48,7 +48,7 @@ CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0927.1059"
+CYGBUILD_VERSION="2009.0927.1319"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1319,10 +1319,8 @@ CygbuildFileSizeRead ()
         return 1
     fi
 
-    local stat=$STAT
-
-    if [ "$stat" ]; then
-        $stat --format=%s "$file"
+    if [ "$STAT" ]; then
+        $STAT --format=%s "$file"
         return $?
     fi
 
@@ -1359,7 +1357,7 @@ CygbuildFileSizeRead ()
 
     if [[ ! "$size" == [0-9]* ]]; then
         CygbuildWarn "-- [WARNING] Internal error, can't parse: $*"
-        return 1
+        return 100
     fi
 
     echo $size
