@@ -50,7 +50,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0927.1346"
+CYGBUILD_VERSION="2009.0927.2314"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10725,17 +10725,30 @@ function CygbuildFileReleaseGuess()
 
 function CygbuildProgramVersion()
 {
-    local code="$1"
-    local str="$CYGBUILD_VERSION"
-    str="$str (C) $CYGBUILD_AUTHOR"
-    str="$str License: $CYGBUILD_LICENSE"
-    str="$str Homepage: $CYGBUILD_HOMEPAGE_URL"
+    local exitcode="$1"
+    shift
+    local short="$2"
+    shift
+
+    local str
+
+    if [ "$short" ]; then
+	str="$CYGBUILD_NAME "
+    fi
+
+    str="$str$CYGBUILD_VERSION"
+
+    if [ ! "$short" ]; then
+	str="$str (C) $CYGBUILD_AUTHOR"
+	str="$str License: $CYGBUILD_LICENSE"
+	str="$str Homepage: $CYGBUILD_HOMEPAGE_URL"
+    fi
 
     local tag="##"
 
-    if [ "$code" ] ; then
-	echo $str
-	exit $code
+    if [ "$exitcode" ] ; then
+	echo "$str"
+	exit $exitcode
     else
 	if [[ "$*" == *@( -C|--color)* ]]; then
 	    echo -e "$CYGBUILD_COLOR_BLACK1$tag $str$CYGBUILD_COLOR_RESET"
@@ -10849,7 +10862,7 @@ function CygbuildCommandMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildProgramVersion '' "$*"
+    CygbuildProgramVersion '' 'short' "$*"
     CygbuildDefineGlobalScript
     CygbuildBootVariablesGlobalEtcMain
 
