@@ -45,10 +45,12 @@
 #       o   cygcheck is a MingW application and output conatains CRLF
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
+CYGBUILD_AUTHOR="Jari Aalto"
+CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0927.1341"
+CYGBUILD_VERSION="2009.0927.1346"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10724,7 +10726,10 @@ function CygbuildFileReleaseGuess()
 function CygbuildProgramVersion()
 {
     local code="$1"
-    local str="$CYGBUILD_NAME $CYGBUILD_VERSION"
+    local str="$CYGBUILD_VERSION"
+    str="$str (C) $CYGBUILD_AUTHOR"
+    str="$str License: $CYGBUILD_LICENSE"
+    str="$str Homepage: $CYGBUILD_HOMEPAGE_URL"
 
     local tag="##"
 
