@@ -50,7 +50,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0927.2314"
+CYGBUILD_VERSION="2009.0929.2211"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1588,7 +1588,7 @@ function CygbuildChmodDo()
 
 function CygbuildChmodExec()
 {
-    CygbuildChmodDo ugo+x "$@"
+    CygbuildChmodDo u=rwx,go+x "$@"
 }
 
 CygbuildObjDumpLibraryDepList ()
@@ -6397,13 +6397,12 @@ function CygbuildPostinstallWriteStanza()
     local file="$SCRIPT_POSTINSTALL_CYGFILE"
     local stanza="#:$type"
 
-    if CygbuildGrepCheck "^[# ]*$stanza" $file ; then
+    if CygbuildGrepCheck "^[# ]*$stanza" "$file" ; then
 	 CygbuildVerb "-- Skip, existing stanza found: $type"
 	return 0
     fi
 
-    echo -e "$stanza\n$str" >> $file || return 1
-    CygbuildChmodExec $file
+    echo -e "$stanza\n$str" >> "$file" || return 1
 }
 
 function CygbuildPostinstallWriteMain()
@@ -6446,6 +6445,10 @@ set -e
     fi
 
     CygbuildPostinstallWriteStanza "$type" "$str"
+    local stat=$?
+
+    CygbuildChmodExec "$file"
+    return $stat
 }
 
 function CygbuildPreRemoveWrite()
@@ -9880,8 +9883,8 @@ function CygbuildInstallCygwinPartPostinstall()
     local dest=$SCRIPT_POSTINSTALL_FILE
 
     if [ -f "$file" ]; then
-	local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
 	local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
+	local scriptInstallBin="$INSTALL_SCRIPT $INSTALL_BIN_MODES"
 
 	local tofile="$dest/$PKG.sh"
 
@@ -9889,7 +9892,7 @@ function CygbuildInstallCygwinPartPostinstall()
 		     "directory ${tofile#$srcdir/}"
 
 	$scriptInstallDir $dest
-	$scriptInstallFile $file $tofile
+	$scriptInstallBin $file $tofile
     fi
 }
 
