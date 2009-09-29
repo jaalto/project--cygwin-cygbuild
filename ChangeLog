@@ -1,3 +1,8 @@
+2009-09-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCommandMain): Add
+	alias 'dirs' to 'mkdirs' command.
+
 2009-09-28  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildProgramVersion): Add
