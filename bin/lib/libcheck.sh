@@ -1605,7 +1605,7 @@ function CygbuildCmdInstallCheckBinFiles()
     > $retval
 
     if [ -s "$retval" ]; then
-        CygbuildWaen "-- [WARN] Some executables may have" \
+        CygbuildWarn "-- [WARN] Some executables may have" \
                      "missing permission +x"
         cat "$retval"
         # status=1
