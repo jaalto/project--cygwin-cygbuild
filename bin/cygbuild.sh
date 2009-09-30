@@ -684,6 +684,8 @@ function CygbuildBootVariablesGlobalCacheGenerate()
 function CygbuildBootVariablesGlobalCachePerlGenerate()
 {
     [ "$PERL_VERSION" ] || return 1
+
+    local dir="$CYGBUILD_PROG_LIBPATH"
     local file="$dir/perl-${PERL_VERSION}.lst"
 
     CygbuildBootVariablesGlobalCacheGenerate perl "$file"
@@ -712,6 +714,8 @@ function CygbuildBootVariablesGlobalCachePerl()
 function CygbuildBootVariablesGlobalCachePythonGenerate()
 {
     [ "$PYTHON_VERSION" ] || return 1
+
+    local dir="$CYGBUILD_PROG_LIBPATH"
     local file="$dir/perl-${PYTHON_VERSION}.lst"
 
     CygbuildBootVariablesGlobalCacheGenerate python "$file"
@@ -737,6 +741,8 @@ function CygbuildBootVariablesGlobalCachePython()
 function CygbuildBootVariablesGlobalCacheRubyGenerate()
 {
     [ "$RUBY_VERSION" ] || return 1
+
+    local dir="$CYGBUILD_PROG_LIBPATH"
     local file="$dir/perl-${RUBY_VERSION}.lst"
 
     CygbuildBootVariablesGlobalCacheGenerate perl "$file"
