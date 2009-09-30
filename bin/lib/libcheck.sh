@@ -905,14 +905,14 @@ function CygbuildPerlLibraryDependsGuess()
 function CygbuildPerlLibraryDependsMain()
 {
     local cache="$CYGBUILD_CACHE_PERL_FILES"
-set -x
+
     if [ "$cache" ] && [ -s "$cache" ]; then
 	:
     else
 	# Try to generate cache
 	CygbuildBootVariablesGlobalCachePerlGenerate
     fi
-set +x
+
     if [ "$cache" ] && [ -s "$cache" ]; then
 	CygbuildPerlLibraryDependsCache "$@"
     else
@@ -965,6 +965,13 @@ function CygbuildCmdInstallCheckLibrariesPerl()
 function CygbuildPythonLibraryDependsCache()
 {
     local cache="$CYGBUILD_CACHE_PYTHON_FILES"
+
+    if [ "$cache" ] && [ -s "$cache" ]; then
+	:
+    else
+	# Try to generate cache
+	CygbuildBootVariablesGlobalCachePythonGenerate
+    fi
 
     [ -f "$cache" ] || return 0
 
