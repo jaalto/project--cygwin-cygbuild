@@ -2,6 +2,9 @@
 
 	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
 	Correct *Waen() call to *Warn().
+	(CygbuildCmdInstallCheckSetupHintDependExists): search
+	for exact library match. On failure, show close library
+	matches.
 
 	* bin/cygbuild.sh: Call CygbuildChmodExec().
 	Return correct status.

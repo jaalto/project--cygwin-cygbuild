@@ -731,11 +731,16 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
 
     for lib in $(< $retval)	# Break line on space to get LIBs
     do
-        if $EGREP --quiet --files-with-matches "$lib" "$database"
+        if $EGREP --quiet --files-with-matches "\<$lib\>" "$database"
         then
             CygbuildEcho "-- OK requires: $lib"
         else
-            CygbuildWarn "-- [ERROR] requires: '$lib' package not installed"
+            CygbuildWarn "-- [ERROR] requires: '$lib' package not installed." \
+		         "Close matches, if any, below."
+
+	    ${AWK:-awk} '$1 ~ re {
+		print "   " $1
+	    }' re="$lib"  "$database"
         fi
     done
 }
