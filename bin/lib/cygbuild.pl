@@ -146,19 +146,19 @@ B<CASE A)> to build Cygwin Net Release from a package that includes a
 standard C<./configure> script, the quick path for porting would be in
 the fortunate case:
 
-    $ export NAME="Firstname Lastname"
-    $ export EMAIL="foo@example.com"
+    export NAME="Firstname Lastname"   # An example in Bash syntax
+    export EMAIL="foo@example.com"
 
     ... make a project directory
 
-    $ mkdir -p /tmp/package
-    $ cd /tmp/package
-    $ wget http://example.com/package-N.N.tar.gz
-    $ tar -zxvf package-N.N.tar.gz
+    mkdir -p /tmp/package
+    cd /tmp/package
+    wget http://example.com/package-N.N.tar.gz
+    tar -zxvf package-N.N.tar.gz
 
     ... source has now been unpacked, go there
 
-    $ cd package-N.N/
+    cd package-N.N/
 
     ... If this is the first port ever, it is better to run commands
     ... individually to see possible problems.
@@ -167,31 +167,34 @@ the fortunate case:
     ... -p "pass phrase" to commands 'package', 'source-package' and
     ... 'publish'. Option -r marks "release 1".
 
-    $ cygbuild -r 1 makedirs
-    $ cygbuild -r 1 files
-    $ cygbuild -r 1 readmefix       # Fill in CYGWIN/package.README
-    $ cygbuild -r 1 shadow          # prepare sources to .build/build
-    $ cygbuild -r 1 configure
-    $ cygbuild -r 1 make
-    $ cygbuild -r 1 -v -t install   # "verbose test mode" first
-    $ cygbuild -r 1 install         # The "real" install
-    $ find .inst/ -print            # Verify install structure
-    $ cygbuild -r 1 -v check        # Do install integrity check
-    $ cygbuild -r 1 package         # Make Net install binary
-    $ cygbuild -r 1 source-package  # Make Net install source
-    $ cygbuild -r 1 publish         # Copy files to publish area (if any)
+    cygbuild -r 1 makedirs
+    cygbuild -r 1 files
+    cygbuild -r 1 readmefix       # Fill in CYGWIN/package.README
+    cygbuild -r 1 shadow          # prepare sources to .build/build
+    cygbuild -r 1 configure
+    cygbuild -r 1 make
+    cygbuild -r 1 -v -t install   # "verbose test mode" first
+    cygbuild -r 1 install         # The "real" install
+
+    find .inst/ -print            # Verify install structure
+
+    cygbuild -r 1 -v check        # Do install integrity check
+    cygbuild -r 1 package         # Make Net install binary
+    cygbuild -r 1 source-package  # Make Net install source
+    cygbuild -r 1 publish         # Copy files to publish area (if any)
 
 There is also shortcut 'import', which runs all steps up till 'make'
 
-    $ cygbuild -r 1 import
+    cygbuild -r 1 import
     ...  Package is configured. Did it succeed? Run test install
-    $ cygbuild --release 1 --verbose --test install
+
+    cygbuild --release 1 --verbose --test install
     ...  If ok, continue just like in the example above
 
-To make this easier, an alias will help.
+To make this easier, an alias (example in Bash) will help.
 
-    $ alias cb="cygbuild --color --sign $GPGKEY --release"
-    $ cb 1 import
+    alias cb="cygbuild --color --sign $GPGKEY --release"
+    cb 1 import
     ...
 
 B<CASE B)> If the downloaded Cygwin source release package is
