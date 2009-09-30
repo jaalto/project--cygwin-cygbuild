@@ -48,6 +48,7 @@
 	(CygbuildBootVariablesGlobalMain): Add *.ex to variable
 	'cygbuild_opt_exclude_tmp_files'.
 	(CygbuildFindLowlevel): Add *.ex.
+	(CygbuildCommandMainCheckSpecial): Add alias lspatch.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 

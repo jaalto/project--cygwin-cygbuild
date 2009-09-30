@@ -10903,7 +10903,7 @@ function CygbuildCommandMainCheckSpecial()
 	    -V|--Version|--version)
 		CygbuildProgramVersion 0
 		;;
-	    patch-list|plist)
+	    patch-list|plist|lspatch)
 		CygbuildPatchFileList CYGWIN-PATCHES
 		exit 0
 		;;
