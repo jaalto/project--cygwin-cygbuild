@@ -1131,8 +1131,18 @@ function CygbuildRubyLibraryList()
 
 function CygbuildRubyLibraryDependsMain()
 {
+    local id="$0.$FUNCNAME"
+    local cache="$CYGBUILD_CACHE_RYBY_FILES"
+
+    if [ "$cache" ] && [ -s "$cache" ]; then
+	:
+    else
+	# Try to generate cache
+	CygbuildBootVariablesGlobalCacheRubyGenerate
+    fi
+
     : # FIXME: TODO
-    echo $*
+    echo "$id: NOT IMPLEMENTED. Args: $*"
 }
 
 function CygbuildCmdInstallCheckLibrariesRuby()

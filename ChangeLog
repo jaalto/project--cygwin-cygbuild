@@ -8,6 +8,7 @@
 	tail/head command to use --lines=N option.
 	(CygbuildCmdInstallCheckBinFiles): Correct *Waen() call to
 	(CygbuildPythonLibraryDependsCache): Generate cache.
+	(CygbuildRubyLibraryDependsMain): Generate cache.
 
 	*Warn().
 	(CygbuildCmdInstallCheckSetupHintDependExists): search
