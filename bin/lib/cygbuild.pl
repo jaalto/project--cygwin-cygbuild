@@ -2170,7 +2170,11 @@ sub Help (;@)
     }
     else
     {
-	pod2text $PROGRAM_NAME;
+        # FIXME: Perl 5.x bug.
+        # Can't use string ("") as a symbol ref while "strict refs" in use at /usr/lib/perl5/5.10/Pod/Text.pm line 249.
+	# pod2text $PROGRAM_NAME;
+
+        exec qq(pod2text $PROGRAM_NAME);
     }
 }
 
