@@ -19,33 +19,8 @@ ifneq (,)
 This makefile requires GNU Make.
 endif
 
-DESTDIR		=
-prefix		= /usr
-exec_prefix	= $(prefix)
-man_prefix	= $(prefix)/share
-
-PACKAGE		= lv
-INSTALL		= /usr/bin/install
-INSTALL_BIN	= $(INSTALL) -m 755
-INSTALL_SUID	= $(INSTALL) -m 4755
-INSTALL_DATA	= $(INSTALL) -m 644
-
-OBJDIR		   = src
-INSTALL_OBJS_BIN   = $OBJDIR/$(PACKAGE)
-INSTALL_OBJS_MAN1  = *.1
-INSTALL_OBJS_SHARE =
-INSTALL_OBJS_ETC   =
-
-BINDIR		= $(DESTDIR)$(exec_prefix)/bin
-SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
-LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
-MANDIR1		= $(DESTDIR)$(man_prefix)/man/man1
-MANDIR5		= $(DESTDIR)$(man_prefix)/man/man5
-MANDIR8		= $(DESTDIR)$(man_prefix)/man/man8
-
-SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
-DOCDIR		= $(DESTDIR)$(prefix)/share/doc
-
+PACKAGE		= name
+OBJDIR		= src
 EXE		= $(OBJDIR)/$(PACKAGE)
 
 all: $(EXE)
@@ -62,18 +37,9 @@ distclean:
 realclean:
 	$(MAKE) -C $(OBJDIR) realclean
 
-install-man:
-	# install-man
-	$(INSTALL_BIN) -d $(MANDIR1)
-	$(INSTALL_DATA) $(INSTALL_OBJS_MAN1) $(MANDIR1)
+install: all
+	$(MAKE) -C $(OBJDIR) install
 
-install-bin:
-	# install-bin
-	$(INSTALL_BIN) -d $(BINDIR)
-	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
-
-install: all install-bin install-man
-
-.PHONY: clean distclean realclean install install-bin install-man
+.PHONY: clean distclean realclean install
 
 # End of file

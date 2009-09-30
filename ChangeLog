@@ -1,5 +1,8 @@
 2009-09-30  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/template/Makefile.redirect.ex: Remove extra variables
+	and shape up.
+
 	* bin/lib/cygbuild.pl (Help): Work around Perl bug in
 	pod2text. Change option presentation to notation
 	'-o, --option'.
