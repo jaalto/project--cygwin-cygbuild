@@ -664,7 +664,7 @@ function CygbuildBootVariablesGlobalCachePerl()
     if [ -s "$file" ]; then
 	CYGBUILD_CACHE_PERL_FILES="$file"                       # global-def
     else
-	CygbuildVerb "-- [WARN] No Perl cache avalable."
+	CygbuildVerb "-- [WARN] No Perl cache available."
     fi
 }
 
