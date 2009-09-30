@@ -348,7 +348,8 @@ function CygbuildIsGbsCompat()
 
 function CygbuildMsgFilter()
 {
-    if [ ! "$OPTION_COLOR" ] || [ ! -f "$PERLBIN" ]; then
+    if [ ! "$OPTION_COLOR" ] || [ ! "$PERLBIN" ] || [ ! -f "$PERLBIN" ]
+    then
 	cat                                             # Pass through
 	return 0
     fi
@@ -646,6 +647,21 @@ function CygbuildBootVariablesGlobalShareSet()
 
     CYGBUILD_SHARE_DIR="$dir"                                   #global-def
     CYGBUILD_TEMPLATE_DIR_MAIN="$CYGBUILD_SHARE_DIR/template"   #global-def
+}
+
+function CygbuildBootVariablesGlobalCachePerlGenerate()
+{
+    local id="$0.$FUNCNAME"
+    local file="$dir/perl-${PERL_VERSION}.lst"
+
+    if [ ! "$CYGCHECK" ]; then
+	CygbuildWarn "[WARN] cygcheck(1) not in PATH"
+	return 1
+    fi
+
+    $CYGCHECK -l perl | ${PERLBIN:-perl} -pe 's,\r,,' > "$file"
+
+    [ -s "$file" ]
 }
 
 function CygbuildBootVariablesGlobalCachePerl()

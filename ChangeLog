@@ -20,6 +20,7 @@
 	(CygbuildBootVariablesGlobalCachePython): Correct typo.
 	(CygbuildHelpShort): Adjust layout.
 	(CygbuildHelpLong): Move exit command to correct place.
+	(CygbuildBootVariablesGlobalCachePerlGenerate): New.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 
