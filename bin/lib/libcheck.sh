@@ -194,7 +194,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         return 1
     fi
 
-    head -1 "$file" > $retval
+    head --lines=1 "$file" > $retval
     local binpath=$(< $retval)
 
     local plpath="$PERL_PATH"
@@ -252,7 +252,7 @@ function CygbuildCmdInstallCheckPythonFile ()
     local newfile="$retval.fix.$name"
     local name=${file##*/}
 
-    $EGREP '^#! */' $file | head -1 > $retval
+    $EGREP '^#! */' $file | head --lines=1 > $retval
     local binpath=$(< $retval)
 
     if [ ! "$binpath" ]; then
@@ -751,7 +751,7 @@ function CygbuildCmdInstallCheckSetupHintCategory()
     local path=${1:-/dev/null}
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    head -1 $instdir/usr/bin/* > "$retval" 2> /dev/null
+    head --lines=1 $instdir/usr/bin/* > "$retval" 2> /dev/null
 
     local package
 
@@ -905,7 +905,14 @@ function CygbuildPerlLibraryDependsGuess()
 function CygbuildPerlLibraryDependsMain()
 {
     local cache="$CYGBUILD_CACHE_PERL_FILES"
-
+set -x
+    if [ "$cache" ] && [ -s "$cache" ]; then
+	:
+    else
+	# Try to generate cache
+	CygbuildBootVariablesGlobalCachePerlGenerate
+    fi
+set +x
     if [ "$cache" ] && [ -s "$cache" ]; then
 	CygbuildPerlLibraryDependsCache "$@"
     else
@@ -1754,7 +1761,7 @@ function CygbuildCmdInstallCheckBinFiles()
 	fi
 
         if [[ "$str" == *perl*   ]]; then
-            head -1 "$file" > $retval.1st
+            head --lines=1 "$file" > $retval.1st
 
             if ! $EGREP --quiet "$plbin([ \t]|$)" "$retval.1st"
             then
@@ -1766,7 +1773,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
         elif [[ "$str" == *python* ]]; then
 
-            head -1 "$file" > $retval.1st
+            head --lines=1 "$file" > $retval.1st
 
             if ! $EGREP --quiet "$pybin([ \t]|$)" "$retval.1st"
             then
@@ -1778,7 +1785,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
         elif [[ "$str" == *ruby* ]]; then
 
-            head -1 "$file" > $retval.1st
+            head --lines=1 "$file" > $retval.1st
 
             if ! $EGREP --quiet "$rbbin([ \t]|$)" "$retval.1st"
             then

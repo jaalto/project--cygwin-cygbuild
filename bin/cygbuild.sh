@@ -766,6 +766,7 @@ function CygbuildBootVariablesGlobalCacheSet()
 {
     CygbuildBootVariablesGlobalCachePerl   "$1"
     CygbuildBootVariablesGlobalCachePython "$1"
+    CygbuildBootVariablesGlobalCacheRuby   "$1"
 }
 
 function CygbuildBootVariablesGlobalLibSet()
@@ -2571,7 +2572,7 @@ function CygbuildPathResolveSymlink()
 	#
 
 	/usr/bin/namei $abs \
-	    | tail -3 \
+	    | tail --lines=3 \
 	    | $EGREP --ignore-case ' l .* -> ' \
 	    > $retval
 
@@ -8682,7 +8683,7 @@ function CygbuildCmdBuildStdMakefile()
 		[ -s $retval ] && env=$(< $retval)
 
 		#   Display version information before compiling
-		gcc --version | head -1
+		gcc --version | head --lines=1
 
 		[ "$verbose" ] && set -x
 
@@ -9902,7 +9903,7 @@ function CygbuildInstallFixInterpreterMain()
 
 	local _file=${file#$srcdir/}       # relative path
 
-	head -1 "$file" > $retval 2> /dev/null
+	head --lines=1 "$file" > $retval 2> /dev/null
 
 	if $EGREP --quiet "perl" $retval &&
 	 ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
@@ -10310,7 +10311,7 @@ function CygbuildStripCheck()
 
     find -L "$dir" \
 	-type f '(' -name "*.exe" -o -name "*dll" ')' \
-	| head -1 \
+	| head --lines=1 \
 	> $retval
 
     local file
@@ -10341,7 +10342,7 @@ function CygbuildStripCheck()
 
     local saved="$IFS"
     local IFS=" "
-	nm $file 2>&1 | head -1 > $retval
+	nm $file 2>&1 | head --lines=1 > $retval
 	set -- $(< $retval)
     IFS="$saved"
 
@@ -10557,7 +10558,7 @@ function CygbuildCmdFinishMain()
 
 	    CygbuildPushd
 		#   Display *-src package and binary package
-		cd "$TOPDIR" && ls --all -lt | head -3 | sed 's/^/   /'
+		cd "$TOPDIR" && ls --all -lt | head --lines=3 | sed 's/^/   /'
 	    CygbuildPopd
 	fi
 

@@ -4,14 +4,18 @@
 	pod2text. Change option presentation to notation
 	'-o, --option'.
 
-	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
-	Correct *Waen() call to *Warn().
+	* bin/lib/libcheck.sh: (top level): change all
+	tail/head command to use --lines=N option.
+	(CygbuildCmdInstallCheckBinFiles): Correct *Waen() call to
+	*Warn().
 	(CygbuildCmdInstallCheckSetupHintDependExists): search
 	for exact library match. On failure, show close library
 	matches.
+	(CygbuildPerlLibraryDependsMain): Generate Perl cache.
 
-	* bin/cygbuild.sh: Call CygbuildChmodExec().
-	Return correct status.
+	* bin/cygbuild.sh:  (top level): change all
+	tail/head command to use --lines=N option.
+	(CygbuildChmodExec): Return correct status.
 	(CygbuildPostinstallWriteStanza): remove
 	CygbuildChmodExec(). Add more quoting.
 	(CygbuildInstallCygwinPartPostinstall): Install
