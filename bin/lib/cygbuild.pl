@@ -115,7 +115,7 @@ cygbuild - Cygwin source and binary package build script
 
     cygbuild [options] [-r RELEASE] CMD [CMD ...]
 
-=head1 QUICK OVERVIEW
+=head1 DESCRIPTION - A QUICK OVERVIEW
 
 The directories used in the program are as follows:
 
