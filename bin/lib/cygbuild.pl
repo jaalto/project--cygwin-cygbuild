@@ -231,17 +231,17 @@ files, documentation files etc. The default value is C<./.inst>.
 PATH where ready Cygwin Net Release packages and patch files are put.
 etc. The default value is C<./.sinst>.
 
-=item B<-d|--debug LEVEL>
+=item B<-d, --debug LEVEL>
 
 Turn on debug. Usually means running external shell files with -x
 enabled.
 
-=item B<-e|--email EMAIL>
+=item B<-e, --email EMAIL>
 
 Set email address. This effectively sets variable C<CYGBUILD_EMAIL>
 that is used in B<[readmefix]> command.
 
-=item B<-g|--gbs>
+=item B<-g, --gbs>
 
 Activate g-b-s compatibility mode -- that is -- behave like Cygwin Build
 Script. This changes behavior and command in the following manner:
@@ -256,7 +256,7 @@ location <./sinst>.
 
 =back
 
-=item B<-f|--file FILE>
+=item B<-f, --file FILE>
 
 Specify package file and version, like C<foo-1.11.tar.gz> from which the
 VERSION and possible RELEASE numbers can be derived. This option is needed
@@ -305,43 +305,43 @@ program knows about the special port:
 
     cygbuild --release 1 --install-usrlocal CMD ...
 
-=item B<-l|--lzma>
+=item B<-l, --lzma>
 
 Use lzma compression instead of default package compression. This
 affects the manual pages and the usr/share/doc/*/ content.
 
-=item B<-p|--passphrase "PASS PHRASE">
+=item B<-p, --passphrase "PASS PHRASE">
 
 Signing pass phrase. In multiuser environment, consider security carefully
 before using this option.
 
-=item B<-r|--release RELEASE>
+=item B<-r, --release RELEASE>
 
 This option is required option by almost all commands.
 
 Specify build release: 1, 2, 3 etc. If this is word "date", then derive
 build number from date(1) in format YYYYMMDDHHMM
 
-=item B<-s|--sign SIGNKEY>
+=item B<-s, --sign SIGNKEY>
 
 GPG key to use for signing. It is best to use the hexadecimal unique key
 id to avoid picking the wrong key from key ring. See C<gpg --list-keys>.
 
-=item B<-t|--test>
+=item B<-t, --test>
 
 Run in test mode. This option is respected when B<[install]> command is
 run: no actual changes or install is done. This is good way to check that
 Makefile doesn't mistakenly install to system directories.
 
-=item B<-v|--verbose>
+=item B<-v, --verbose>
 
 Print more informational messages.
 
-=item B<-V|--version|--Version>
+=item B<-V, --version|--Version>
 
 Print version number.
 
-=item B<-x|--no-strip>
+=item B<-x, --no-strip>
 
 Do not strip executables or check strip status before command B<[package]>.
 Use this option if package contains only interpreted files like Perl,
