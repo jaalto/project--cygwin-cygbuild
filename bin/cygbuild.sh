@@ -658,7 +658,7 @@ function CygbuildBootVariablesGlobalCachePerl()
     #   Set Perl package content cache. This is needed to check if
     #   modules are Standard perl or from CPAN.
 
-    local file="$dir/perl-$PERL_VERSION.lst"
+    local file="$dir/perl-${PERL_VERSION}.lst"
     CYGBUILD_CACHE_PERL_FILES=                                  # global-def
 
     if [ -s "$file" ]; then
@@ -675,7 +675,7 @@ function CygbuildBootVariablesGlobalCachePython()
 
     [ "$PYTHON_VERSION" ] || CygbuildDefineGlobalPythonVersion
 
-    local file="$dir/python-$PYTHON_VERSION.lst"
+    local file="$dir/python-${PYTHON_VERSION}.lst"
     CYGBUILD_CACHE_PYTHON_FILES=                                # global-def
 
     if [ -s "$file" ]; then
