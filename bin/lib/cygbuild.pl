@@ -185,13 +185,13 @@ There is also shortcut 'import', which runs all steps up till 'make'
 
     $ cygbuild -r 1 import
     ...  Package is configured. Did it succeed? Run test install
-    $ cygbuild -r 1 -v -t install
+    $ cygbuild --release 1 --verbose --test install
     ...  If ok, continue just like in the example above
 
 To make this easier, an alias will help.
 
-    $ alias cb="cygbuild --color --sign $GPGKEY"
-    $ cb -r 1 import
+    $ alias cb="cygbuild --color --sign $GPGKEY --release"
+    $ cb 1 import
     ...
 
 B<CASE B)> If the downloaded Cygwin source release package is
