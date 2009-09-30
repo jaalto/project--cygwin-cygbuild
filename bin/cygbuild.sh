@@ -1697,13 +1697,13 @@ CygbuildCygcheckLibraryDepListFull ()
     #                    $(NF)
 
     $bin -v "$file" |
-	awk -F\\ '
-	    / +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
-		str = $(NF);
-		sub(" .*", "", str);
-		print str;
-	    }' |
-	sort --unique
+    awk -F\\ '
+	/ +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
+	    str = $(NF);
+	    sub(" .*", "", str);
+	    print str;
+	}' |
+    sort --unique
 }
 
 CygbuildCygcheckLibraryDepList ()
