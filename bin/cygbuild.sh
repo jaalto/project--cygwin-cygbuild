@@ -50,7 +50,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.0929.2211"
+CYGBUILD_VERSION="2009.0930.0823"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10406,19 +10406,19 @@ function CygbuildCmdFilesWrite()
 	fi
     done
 
-    local unpack="*@(cygwin-announce.mail.tmp)"                 # remove *.tmp
+    local unpack="*@(cygwin-announce.mail.ex)"                 # remove *.tmp
     local dir
 
     for dir in $trydirs
     do
 	[ ! -d "$dir" ] && continue
 
-	for file in $dir/*.tmp
+	for file in $dir/*.ex
 	do
 	    [ ! -f "$file" ] && continue
 
 	    local name=${file##*/}      # /path/to/file.sh.tmp => file.sh.tmp
-	    local plain=${name%.tmp}    # file.sh.tmp => file.sh
+	    local plain=${name%.ex}     # file.sh.ex => file.sh
 	    local dest="$todir/$plain"
 
 	    if [ -f "$dest" ]; then
