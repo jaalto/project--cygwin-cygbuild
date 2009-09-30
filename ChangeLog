@@ -41,6 +41,13 @@
 	(CygbuildDefineGlobalPerlVersion): Return status.
 	(CygbuildCmdFilesWrite): Use *.ex, not *.tmp extension.
 	(CygbuildInstallPackageDocs): Improve debug.
+	(CygbuildCmdMkpatchMain): Verify destination patch
+	directory.
+	(CYGBUILD_INSTALL_IGNORE): Add *.ex.
+	(CYGBUILD_IGNORE_FILE_TYPE): Add .ex.
+	(CygbuildBootVariablesGlobalMain): Add *.ex to variable
+	'cygbuild_opt_exclude_tmp_files'.
+	(CygbuildFindLowlevel): Add *.ex.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 

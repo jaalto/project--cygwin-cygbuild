@@ -894,6 +894,7 @@ function CygbuildBootVariablesGlobalMain()
     *MT
     *.bak
     *.BAK
+    *.ex
     *.in
     *.orig
     *.rej
@@ -951,7 +952,7 @@ function CygbuildBootVariablesGlobalMain()
 
     CYGBUILD_IGNORE_FILE_TYPE="\
 *@(python*/site-packages*\
-|*.pyc|*.pm|.tmpl|.tmp|.dll)"
+|*.pyc|*.pm|.ex|.tmpl|.tmp|.dll)"
 
     CYGBUILD_IGNORE_ETC_FILES="\
 *@(preremove|postinstall|bash_completion.d)*"
@@ -1017,6 +1018,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.bak \
      --exclude=*.cvsignore \
      --exclude=*.dvi \
+     --exclude=*.ex \
      --exclude=*.log \
      --exclude=*.orig \
      --exclude=*.eps  \
@@ -1625,6 +1627,7 @@ function CygbuildFindLowlevel()
 	-a ! -name "RCS"                \
 	-a ! -name "_MTN"               \
 	-a ! -name "*.tmp"              \
+	-a ! -name "*.ex"               \
 	-a ! -name "*[#]*"              \
 	-a ! -name "*~"                 \
 	-a ! -name "*.orig"             \
@@ -6035,6 +6038,14 @@ function CygbuildCmdMkpatchMain()
     local origpkgdir="$origdir/$PKG-$VER-orig"
     local out=$FILE_SRC_PATCH
 
+    local destdir=${FILE_SRC_PATCH%/*}
+
+    if [ ! -d "$destdir" ]; then
+	CygbuildEcho "-- [ERROR] No destination patch directory." \
+	             "Run [mkdirs]: $destdir"
+	return 1
+    fi
+
     local diffopt="$CYGBUILD_DIFF_OPTIONS"
     local diffscript=$SCRIPT_DIFF_CYGFILE
     local prescript=$SCRIPT_DIFF_BEFORE_CYGFILE
@@ -6238,8 +6249,10 @@ function CygbuildCmdMkpatchMain()
 	    local dummy="pwd: $(pwd)"    # For debugging
 	    local dummy="out: $out"      # For debugging
 
-	    TZ=UTC0 \
-		diff $diffopt $exclude $extraDiffOpt \
+	    TZ=UTC0 diff \
+		$diffopt \
+		$exclude \
+		$extraDiffOpt \
 		"$difforig" "$diffsrc" \
 		> $out
 
@@ -9167,6 +9180,7 @@ function CygbuildInstallPackageDocs()
 
 	    if [ "$tarOptInclude" ] || [ "$dir" ] || [ "$extradir" ]
 	    then
+
 		dummy="tarOptExclude: $tarOptExclude"
 
 		tar $optExclude \
