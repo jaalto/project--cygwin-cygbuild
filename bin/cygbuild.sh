@@ -4188,6 +4188,9 @@ function CygbuildHelpShort()
     bin=${bin##*/}      # Delete path
 
     echo "
+NAME
+    cygbuild - Cygwin source and binary package build script
+
 SYNOPSIS
     $bin [option] CMD ...
 
