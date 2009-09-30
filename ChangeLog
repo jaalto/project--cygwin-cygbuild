@@ -1,5 +1,8 @@
 2009-09-30  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl (Help): Work around Perl bug in
+	pod2text.
+
 	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
 	Correct *Waen() call to *Warn().
 	(CygbuildCmdInstallCheckSetupHintDependExists): search
@@ -15,6 +18,7 @@
 	(CygbuildBootVariablesGlobalCachePerl): Correct typo.
 	(CygbuildBootVariablesGlobalCachePython): Correct typo.
 	(CygbuildHelpShort): Adjust layout.
+	(CygbuildHelpLong): Move exit command to correct place.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 

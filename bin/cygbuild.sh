@@ -4290,19 +4290,20 @@ function CygbuildHelpLong()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local exit="$1"
-
+set -x
     [ ! "$CYGBUILD_STATIC_PERL_MODULE" ] &&
     CygbuildBootVariablesGlobalShareMain
 
     local lib="$CYGBUILD_STATIC_PERL_MODULE"
-
-    if [ "$lib" ] && [ -d "$lib" ]; then
+set +x
+    if [ "$lib" ] && [ -f "$lib" ]; then
 	perl $lib help
 	[ "$exit" ] && exit $exit
     else
-	CygbuildHelpShort $exit
-	CygbuildWarn "[ERROR] Cannot find long help page." \
-	     "Need full install of $CYGBUILD_HOMEPAGE_URL"
+	CygbuildHelpShort
+	CygbuildWarn "[WARN] No standard manual page available." \
+	     "Possibly not a full installation of $CYGBUILD_HOMEPAGE_URL"
+	exit $exit
     fi
 }
 
