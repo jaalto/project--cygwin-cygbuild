@@ -681,7 +681,7 @@ function CygbuildBootVariablesGlobalCachePython()
     if [ -s "$file" ]; then
 	CYGBUILD_CACHE_PYTHON_FILES="$file"                     # global-def
     else
-	CygbuildVerb "-- [WARN] No Pythin cache available: $file"
+	CygbuildVerb "-- [WARN] No Python cache available: $file"
     fi
 }
 
@@ -4188,35 +4188,73 @@ function CygbuildHelpShort()
     bin=${bin##*/}      # Delete path
 
     echo "
-Version $CYGBUILD_VERSION <$CYGBUILD_HOMEPAGE_URL>
-Call syntax: $bin [option] CMD ...
+SYNOPSIS
+    $bin [option] CMD ...
 
-  -c|--color            Activate colors
-  -d|--debug LEVEL      Debug mode with numeric LEVEL
-  -r|--release RELEASE  Mandatory option for packaging related commands
-  -t|--test             Run in test mode
-  -v|--verbose          More verbose messages
-  -V|--version          Print version information
+OPTIONS
+    -c, --color            Activate colors
+    -d, --debug LEVEL      Debug mode with numeric LEVEL
+    -h, --help             Short help. Long help requires full install.
+    -r, --release RELEASE  Mandatory option for packaging related commands
+    -t, --test             Run in test mode
+    -v, --verbose          More verbose messages
+    -V, --version          Print version information
 
-  -h|--help             Short help. Long help requires full install.
+    GPG support options
 
-  GPG support options
-
-  -s KEY                Sign files with KEY
-  -p \"pass phrase\"      Pass phrase. If not given, it is asked from command
-			line.
+    -s KEY                Sign files with KEY
+    -p \"pass phrase\"      Pass phrase. If not given, it is asked from command
+			  line.
 
 DESCRIPTION
+    Cygbuild is a tool for making, building and maintaining source and
+    binary packages under Windows/Cygwin platform. Modeled somewhat after
+    the same principles as Debian packaging tool dh_make(1).
 
-Cygbuild is a tool for making, building and maintaining source and
-binary packages under Windows/Cygwin platform. Modelled somewhat after
-dh_make(1) that is used to manage Debian packages.
+    FOR CYGBUILD CONTROLLED INSTALLABLE SOURCE PACKAGE
 
-TO USE CYGBUILD FOR MAKING Cygwin Net Releases
+    Testing the source build
+    ------------------------
 
-    The CMD can be one of the following. The full description can be
-    read from the manual page. Commands are listed in order of
-    execution:
+    If you have downloaded a Cygwin source package, like
+    package-N.N-RELEASE-src.tar.gz, it might contain at these files:
+
+	foo-N.N-RELEASE-src.tar.bz2
+	foo-N.N-RELEASE*.patch
+	foo-N.N-RELEASE.sh
+
+    Run the included shell script:
+
+	./foo-N.N-RELEASE.sh --verbose --color all
+
+    The command 'all' is used for testing the integrity of source
+    build and will try to build binary packages. If everything
+    succeeds, it runs command 'finish' which removes the unpacked
+    source directory.
+
+    Testing the source build - step by step
+    ---------------------------------------
+
+    To see the results of source compilation, the commands can be run
+    one by one:
+
+        #  Compile from sources
+	./foo-N.N-RELEASE.sh --verbose --color prep conf make install
+
+	#  Verify the installation structure
+	cd foo-N.N/
+	find .inst/
+
+	#  Remove the test build directory
+	cd ..
+	rm -rf foo-N.N/
+
+    HOW TO USE CYGBUILD FOR MAKING Cygwin Net Releases
+
+    Full development installation of Cygbuild is needed to develop
+    source packages. The CMD can be one of the following. The detailed
+    description of each command can be found from the manual page.
+    Commands are listed here in order of execution:
 
 	<precondition: cd /to/package/foo-N.N/>
 
@@ -4230,46 +4268,19 @@ TO USE CYGBUILD FOR MAKING Cygwin Net Releases
 	All phases      : all
 	All, no finish  : almostall
 
-CYGBUILD CONTROLLED SOURCE PACKAGE
+BUGS
+    The long --help option consults a separate manual. To read it, a
+    full cygbuild installation is needed.
 
-  Testing the source builds
-
-    If you have downloaded a Cygwin source package, like
-    package-N.N-RELEASE-src.tar.gz, it should contain at least these
-    files:
-
-	foo-N.N-RELEASE-src.tar.bz2
-	foo-N.N-RELEASE*.patch
-	foo-N.N-RELEASE.sh
-
-    Run included shell script:
-
-	$ ./foo-N.N-RELEASE.sh -v -c all
-
-    In essence, command 'all' is used for testing the integrity of
-    source build and will try to build binary packages. If everything
-    succeeded, it runs command 'finish' which removes the unpacked
-    source directory.
-
-  Testing the source builds - step by step
-
-    To see the results of source compilation, the commands must to be run
-    one by one are:
-
-	$ ./foo-N.N-RELEASE.sh -v -c prep conf make install
-	$ cd foo-N.N/
-	$ find .inst/
-	$ cd ..
-	$ rm -rf foo-N.N/
-
-NOTES
-
-    The long --help option consults a separate manual. To read it, full
-    cugbuild installation is needed.
-
-    For more information about porting packages to Cygwin, read
+STANDARDS
+    For more information about porting guidelines for Cygwin, see
     <http://cygwin.com/setup.html>.
-"
+
+AUTHOR
+    Copyright (C) $CYGBUILD_AUTHOR
+    Released under $CYGBUILD_LICENSE
+    Version $CYGBUILD_VERSION
+    Homepage <$CYGBUILD_HOMEPAGE_URL>"
 
     [ "$exit" ] && exit $exit
 }
