@@ -207,12 +207,12 @@ be used to check the binary build:
 
 =over 4
 
-=item B<-b|--bzip2>
+=item B<-b, --bzip2>
 
 Use bzip2 compression instead of default package compression. This
 affects the manual pages and the usr/share/doc/*/ content.
 
-=item B<-c|--color>
+=item B<-c, --color>
 
 Activate colors in displayed messages.
 
