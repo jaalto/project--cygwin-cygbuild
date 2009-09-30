@@ -1,0 +1,24 @@
+Cygbuild - A porting tool for making Cygwin net releases
+--------------------------------------------------------
+
+Install instructions
+
+    Standard install
+
+        The /usr/local is the default install location:
+
+            make [prefix=/usr] install
+
+    Running in place
+
+        It is not mandatory to install anything after unpack or
+        version control checkout. The program will search needed
+        files, provided that a) it is called by absolute name:
+
+	    alias cb="/path/to/cygbuild.sh --color -s $GPGKEY"
+	    cb <command and option ...>
+
+	or b) package's bin/ directory is added to environment
+        variable PATH.
+
+End of file

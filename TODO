@@ -1,0 +1,19 @@
+Cygbuild - A porting tool for making Cygwin net releases
+--------------------------------------------------------
+
+In order of priority; highest first.
+
+Features than contain code, but are not incomplete:
+
+- Library packaging is *untested* and probably won't
+  give expected results. The code needs real
+  tests to properly generate *doc, *lib and *devel packages.
+
+- Packaging from Version control checkout is *not* working.
+  The plan was sketched long time ago.
+
+Features that are planned:
+
+- Use gpg-agent (if running) for querying passwords.
+
+End of file

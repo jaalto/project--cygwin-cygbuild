@@ -1,3 +1,1796 @@
+2009-09-30  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (Help): Work around Perl bug in
+	pod2text. Change option presentation to notation
+	'-o, --option'.
+
+	* bin/lib/libcheck.sh: (top level): change all
+	tail/head command to use --lines=N option.
+	(CygbuildCmdInstallCheckBinFiles): Correct *Waen() call to
+	(CygbuildPythonLibraryDependsCache): Generate cache.
+	(CygbuildRubyLibraryDependsMain): Generate cache.
+
+	*Warn().
+	(CygbuildCmdInstallCheckSetupHintDependExists): search
+	for exact library match. On failure, show close library
+	matches.
+	(CygbuildPerlLibraryDependsMain): Generate Perl cache.
+
+	* bin/cygbuild.sh:  (top level): change all
+	tail/head command to use --lines=N option.
+	(CygbuildChmodExec): Return correct status.
+	(CygbuildPostinstallWriteStanza): remove
+	CygbuildChmodExec(). Add more quoting.
+	(CygbuildInstallCygwinPartPostinstall): Install
+	with modes 755, not 644.
+	(CygbuildBootVariablesGlobalCachePerl): Correct typo.
+	(CygbuildBootVariablesGlobalCachePython): Correct typo.
+	(CygbuildHelpShort): Adjust layout.
+	(CygbuildHelpLong): Move exit command to correct place.
+	(CygbuildBootVariablesGlobalCachePerlGenerate): New.
+	(CygbuildCygcheckLibraryDepListFull): Fix indentation.
+	(CygbuildBootVariablesGlobalCachePythonGenerate): New.
+	(CygbuildBootVariablesGlobalCacheGenerate): New.
+	(CygbuildDefineGlobalRubyVersion): New.
+	(CygbuildBootVariablesGlobalCacheRubyGenerate): New.
+	(CygbuildBootVariablesGlobalCacheRuby): New.
+	(CygbuildDefineGlobalPythonVersion): Return status
+	(CygbuildDefineGlobalPerlVersion): Return status.
+
+2009-09-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCommandMain): Add
+	alias 'dirs' to 'mkdirs' command.
+
+2009-09-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildProgramVersion): Add
+	option 'short'.
+
+2009-09-27  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
+	Ignore *.dll and *.pyc files and others. Change
+	for loop to more efficient while loop which preferves
+	file names correctly. Use stat(1) to read file size.
+	(CygbuildCmdInstallCheckEverything): Use real if-statements.
+	This fixes 'stat' value settings.
+
+	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
+	Adjust 'may take a while..." message.
+	(CygbuildFileSizeRead): Improve handling of file names
+	with spaces.
+	(CygbuildFileSize): Add quotes.
+	(CygbuildInstallFixInterpreterGeneric): Improve message.
+	(CygbuildProgramVersion): Do not announce URL by default.
+	(CYGBUILD_AUTHOR): New variable.
+	(CYGBUILD_LICENSE): New variable.
+	(CygbuildProgramVersion): Display CYGBUILD_AUTHOR
+	and CYGBUILD_LICENSE
+
+2009-09-25  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands): Define
+	command stat(1) in variable STAT.
+	(CygbuildFileSizeRead): New. Use stat(1) where available.
+	(CygbuildFileSize); use more robust
+	`CygbuildFileSizeRead'.
+
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
+	Correct ls -l output handling: Read file sizes correctly.
+
+2009-09-16  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildMatchGlob): New.
+	(CygbuildDefineGlobalCommands): Add missing double quote.
+	(CygbuildSrcDirCheck): Adjust message.
+	(CygbuildCmdDownloadUpstream): change external
+	command name from 'mywebget' to 'pwget'. Use
+	'type -p', not which(1).
+
+2009-08-06    Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/Makefile (install-man): Call target 'man'.
+	(INSTALL_OBJS_MAN1): Remove unneeded lib/*.1
+
+	* bin/cygbuild.sh: (CygbuildCommandMain):
+	Display word FATAL if getopt is not available.
+	(CygbuildDefineGlobalCommands): Check that file(1)
+	utility exists.
+
+2009-02-06 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/Makefile (man): Add cygbuild.1
+	(doc): New target.
+	(cygbuild.1): New target.
+	(clean): Clean manual pages.
+
+2009-02-05 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* doc/index.html: (Install from Version Control): correct
+	'make install-etc' to 'make install-symlink'
+
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Call UpdateYears().
+
+	* Makefile: (help): New target.
+	(install-symlink): New target.
+
+	* TODO: Add headings: incomplete, planned.
+
+	* README: (Important files): Update directory information.
+
+	* doc/devel/README.txt: (Information for developers): Clean up
+	section.
+	(Policies): Update. Add CODING STYLE.
+
+	* doc/Makefile (help): New target. Document other targets.
+
+	* bin/Makefile: (help): New target. Document other targets.
+	(install-symlink): Adjust comment.
+
+	* bin/cygbuild.sh (CygbuildIsDirMatch): Check directory before
+	`cd'.
+	(CygbuildCommandMain): Add getopt safeguards. If 'getopt' is not
+	available, options cannot be parsed. If `CygbuildIsGbsCompat', do
+	not run `CygbuildBootVariablesGlobalShareMain'.
+	(CygbuildTreeSymlinkCopy): Simplify 'lndir' error message.
+	(CygbuildDefineGlobalCommands): Verify that commands make, gcc. perl
+	are in PATH.
+	(CygbuildMsgFilter): Use cat if perl is not available.
+
+2009-02-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Improve call to Date().
+	(UpdateNewVersionStanza): Improve call to Date().
+	(UpdateYears): Improve call to Date().
+	(UpdateAnnouncement): Delete 'New Package' line.
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Correct
+	CYGBUILD_FILE_MANIFEST_TO from 'manifest.lst' to 'manifest-to.lst'.
+	(CygbuildIsDirMatch): New.
+	(CygbuildInstallExtraManual): Support CYGWIN-PATCHES/man directory.
+	(CygbuildInstallPostinstallPartEtc): Change variable `dest'
+	to `destdir'. Use command line arg `dest'.
+	(CygbuildPostinstallWriteMain): Assign command line argument
+	$1 to variable dest.
+	(CygbuildCommandMain): Correct -d option without numeric argument.
+	(CygbuildCmdConfMain): Move 'configure command' message.
+	(CygbuildCmdConfAutomake): Simplify if-statement.
+
+2009-02-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/cygwin-announce.mail.tmp (License): Add Copyright
+	line.
+
+	* bin/template/install-after.sh.tmp
+	(top level): Correct argument order in synapsis.
+	(main): Fix positional arguments.
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call message about
+	calling $scriptAfter.
+
+2009-02-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe): Improve
+	external option read message.
+
+2008-12-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCommandMain): Suggest 'util-linux' package
+	of 'getopt' is not available.
+
+2008-11-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildInstallFixEtcdirInstall): Rewrite
+	.inst/etc handling for preremove and postinstall.
+
+2008-11-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES): Document
+	new file CYGWIN-PATCHES/mandir.
+
+	* bin/cygbuild.sh: (CygbuildPatchApplyMaybe): Check
+	content of done-patch.tmp in more detail. The old cygbuild
+	versions did not record PATH names. Offer support for
+	backward compatibility in case of 'unpatch' so that that
+	both 'path/file.patch' and 'file.patch' records are removed.
+	(CygbuildIsCplusplusPackage): Add 'g++' check for Makefiles.
+	(CygbuildPatchApplyRun): Signal 'Unpatching' during
+	--reverse patch.
+	(CygbuildDefineGlobalMain): New EXTRA_MANDIR_FILE 'mandir'.
+	(CygbuildInstallExtraManual): Add support for reading manual pages
+	from subdirectory CYGWIN-PATCHES/manpages.
+	(CygbuildDefineGlobalMain): Make SCRIPT_BUILD_CYGFILE and
+	SCRIPT_CONFIGURE_CYGFILE absolute.
+	(CygbuildCommandMain): from command
+	'repackage-all|repackage|repkg', remove publish.
+	(CygbuildCmdPublishExternal): Use standard two dash(--) in output.
+
+	* etc/template/preremove.sh.tmp Add --verbose to rm(1) command.
+
+2008-10-24  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdFixFilesReadme):
+	Rewrite logid. Remove else.
+	(CygbuildCmdFixFilesAnnounce): New.
+
+	* etc/lib/cygbuild.pl (ReadmeFix): Before file write, check
+	length of $orig, not $file.
+	(UpdateAnnouncement): New.
+	(TestDriverUpdateAnnouncement): New.
+
+2008-08-21  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl (UpdatePackageTags): Change
+	placeholder text to '$placeholder'
+
+2008-08-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildDllToLibName): Correct 'cyg'
+	prefix handling. Add zlib special case.
+	(CygbuildDefineVersionVariables): Improve error message.
+	(CygbuildInstallCygwinPartMain): Improve error message.
+	(CygbuildFilePackageGuessMain): New variable 'ext'. Rewrite
+	archive extension regexp.
+	(top level::CYGBUILD_SRCPKG_URL): Change to use
+	mirrors.eu.kernel.org
+
+2008-08-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl: (HELP::Patch management
+	commands::patch/unpatch): Document that *.patch files are sorted.
+
+	* etc/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles): Remove
+	*.pyc.
+
+	* bin/cygbuild.sh:
+	(CygbuildDefineGlobalCommand): Improve error messages.
+	(CygbuildCmdDownloadUpstream): Announce mywebget.pl URL
+	is program was not found. Drop *.pl extension. Improve
+	error message if CYGWIN-PATCHES/ not found.
+
+2008-05-08  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterGeneric):
+	Handle '/usr/bin/env interpreter' shebang lines better.
+
+2008-03-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/libcheck.sh: (CygbuildCmdInstallCheckEverything): New.
+
+	* bin/cygbuild.sh
+	-- Relocate massive amount of functions to libcheck.sh.
+	(CygbuildCmdInstallCheckMain): Rewritten. Move
+	logic to `CygbuildCmdInstallCheckEverything'.
+	(CygbuildInstallFixInterpreterMain): At beginning, chnage incorrect
+	variable debinition pybin to `rbbin'. This error caused all
+	python file to have ruby interpreters.
+	(CygbuildTarOptionCompress): Return --gzip, --bzip2, not j, z.
+	(CygbuildCmdPkgDevelStandardBin): Make taropt more readable.
+	(CygbuildCmdPkgDevelStandardMain): Remove unuset tar variable
+	statements.
+	(CygbuildExtractTar): Make tar options more readable.
+	(CygbuildPod2man): Set mansect to 1 if empty. Add new arg 3,
+	Destdir.
+
+2008-03-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/Makefile.tmp (BINDIR): Remove extra /bin.
+
+2008-03-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdStripMain): Use plain find,
+	which is faster. Convert for-loop to while loop. Change
+	Support filenames with spaces.
+	(CygbuildStripCheck): All -L to find.
+
+2008-03-17  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdDownloadCygwinPackage): Return
+	error code instead of die if cannot download.
+	(CygbuildCommandMainCheckSpecial): Remove created directory
+	if download failed.
+
+2008-03-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl: (HELP::Patch management commands):
+	Document new command [patch-list].
+
+	* bin/cygbuild.sh (CygbuildPerlLibraryList): Remove var SORT.
+	(CygbuildObjDumpLibraryDepList): Remove var SORT.
+	(CygbuildCygcheckLibraryDepListFull): Remove var SORT.
+	(CygbuildCygcheckLibraryDepMain): Show also objdump results.
+	(CygbuildDefineGlobalCommands): Define GPGOPT.
+	(CygbuildGPGsignFiles): Use GPGOPT.
+	(CygbuildGPGverify): Use GPGOPT.
+	(CygbuildDllToLibName): new.
+	(CygbuildCygcheckLibraryDepMain): Use objdump result and
+	`CygbuildDllToLibName'.
+	(CygbuildPatchFileList): Was CygbuildPatchList.
+	(CygbuildFindLowlevel): New.
+	(CygbuildPatchFileList): Use CygbuildFindLowlevel
+	(CygbuildCommandMainCheckSpecial): New command [patch-list].
+	(CygbuildCygcheckLibraryDepMain): Adjust objdump handling.
+	(CygbuildDefineGlobalCommands): Move prefix of perl, python
+	and ruby from /usr/bin to /bin.
+
+2008-03-13  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	-- Move all checking functions to separate library:
+	   etc/lib/libcheck.sh. Commit: 1eb59c7
+	(CygbuildBootVariablesGlobalMain): Move
+	CYGBUILD_SETUP_HINT_CATEGORY to libcheck.sh
+	(CygbuildCmdInstallCheckMain): Use libcheck.sh
+	(CygbuildInstallPackageDocs): Adjust docdirguess.
+	(CygbuildPatchList): Use `CygbuildFindDo'.
+
+	* etc/lib/libcheck.sh: New file.
+	(CygbuildCygcheckLibraryDepSourceMake): Fix regexp
+
+	* Makefile
+	(FROM_ETC_LIB): New
+	(OBJS_ETC_LIB): New.
+	(install-lib-symlinks): New.
+	(install-share-lib): New.
+	(install-share): Add install-share-lib.
+	(install-in-place): Add install-lib-symlinks.
+
+	[ commit: fb2dca2]
+
+	* bin/cygbuild.sh: (CygbuildCygcheckLibraryDepSource): Add
+	xmlto, asciidoc check. Add *.mk search.
+	(CygbuildCmdInstallCheckBinFiles): Add /usr/games.
+	(CygbuildInstallFixFileExtensions): Add /usr/games. Ignore
+	find error (no directories to search).
+	(CygbuildCmdInstallCheckDirStructure): Add /usr/games.
+	(CygbuildInstallExtraManualCompress): Support space in
+	file names.
+	(CygbuildCygcheckLibraryDepReadme): Use `CygbuildDetermineReadmeFile'.
+	(CygbuildCygcheckLibraryDepSourceMake): New.
+	(CygbuildCygcheckLibraryDepSourceMain): Renames. Was
+	`CygbuildCygcheckLibraryDepSource'.
+	(CygbuildCygcheckLibraryDepSourcePython): New.
+
+2008-03-12  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl
+	(top level): Drop 'use 5.004'. Prototypes are standard in Perl.
+	(UpdateNewVersionStanza): New.
+	(ReadmeFix): Call `UpdateNewVersionStanza'.
+	(HELP): Add export NAME and EMAIL examples to the beginning.
+	Adjust "Case A".
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
+	Update CYGBUILD_INSTALL_IGNORE
+	(CygbuildCygcheckLibraryDepSource): Improve getopt regexp.
+	Correct python grep statement. New logic.
+	(CygbuildCmdInstallCheckBinFiles): Add lib/ and /share/PKG.
+	(CygbuildInstallFixFileExtensions): Correct find call.
+	Add handling for manual pages.
+	(CygbuildCmdInstallCheckBinFiles): Add Ruby library support.
+	(CygbuildInstallFixInterpreterMain): Add Ruby support. Change
+	to use recursive find. Include lib/ and share/ directories.
+	(CygbuildInstallFixInterpreterGeneric): New.
+	(CygbuildRubyLibraryList): New.
+	(CygbuildDefineGlobalCommands): Add RUBYBIN
+	(CygbuildInstallFixInterpreterMain): Correct find -type call.
+	(CygbuildConfOptionAdjustment): Fix detection of extra configure
+	options.
+	(CygbuildCygcheckMain): Simplify function.
+	(CygbuildDefineGlobalCommands): emove CYGPATH. Not needed.
+	(CygbuildAskYes): Fix return status.
+	(CygbuildInstallPackageDocs): Handle filenames with spaces.
+	(CygbuildMakefileRunInstallCygwinOptions): Fix DOCDIR setting.
+
+2008-03-11  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl:
+	-- Chnage all open command to 3-parameter form.
+	(HELP::Packaging commands): Update
+	`readmefix' command documentation.
+	(UpdateYears): New.
+	(UpdatePackageTags): New.
+	(FileWrite): Add binmode. Add debug.
+
+	* etc/template/Makefile.redirect.tmp (EXE): Add missing target ending
+	colon.
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckCygpatchDirectory):
+	Chnage find(1) call to `CygbuildFindDo'.
+	(CygbuildFindDo): Add more ignores. Like temporary,
+	monotone VCS and patch reject files.
+	(CygbuildCmdInstallCheckFSFaddress): New.
+	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckFSFaddress'.
+	(CygbuildCmdReadmeFixMain): Completely rewritten.
+	(CygbuildCmdFixFilesReadme): New.
+	(CygbuildCmdFixFilesOther): New.
+	(CygbuildCmdReadmeFixFile): Completely rewritten.
+	(CygbuildCmdPerlModuleCall): Renamed. Was `CygbuildCmdReadmeFixFile'.
+	(CygbuildCmdFixFilesOther): Convert to recursive search.
+	(CygbuildCygcheckLibraryDepSource): Search for getopt. Add
+	option --with-filename to grep calls.
+	(CygbuildCmdDownloadUpstream): Use default for DIR_CYGPATCH.
+	(CygbuildCommandMainCheckSpecial): Move download command here.
+	(CygbuildCmdDownloadUpstream): Rewrote.
+
+2008-03-09  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/install-after.sh.tmp: Document new arguments
+	to program: PRG and VER.
+
+	* bin/cygbuild.sh: (CygbuildGPGverify): Add to gpg call:
+	--no-permission-warning --no-secmem-warning --no-mdc-warning
+	(CygbuildCmdConfMain): Remove option -r from autoconf call.
+	No such options exists.
+	(CygbuildDefineVersionVariables): check for disk read error.
+	(CygbuildCmdInstallMain): Send PKG and VER to install-after.sh
+	(CygbuildBootVariablesGlobalMain): Add to config.guess, config.sub
+	`cygbuild_opt_exclude_cache_files'.
+	(CygbuildPatchApplyRun): Make sure patch target files are writable.
+
+2008-03-08  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl: (HELP::TROUBLESHOOTING). Add
+	section `Porting and Python os.rename'.
+	(PACKAGE MAINTENANCE COMMANDS::Other commands): Remove
+	command [shadow].
+	(OPTIONAL EXTERNAL FILES): Rephrase initial paragraph.
+
+	* bin/cygbuild.sh:
+	(CygbuildInstallFixDocdirInstall): Ensure that target directory for
+	tar move exists.
+	(CygbuildInstallFixFileExtensions): check documentation for
+	filenames.
+	(CygbuildIsCygwin): New.
+	(CygbuildIsLinux): New.
+	(CygbuildCygcheckLibraryDepSource): Rewrite logic. Detect SMTPSERVER
+	(CygbuildFindDo): Exclude version control directories.
+	(CygbuildTreeSymlinkCopy): Use `CygbuildFindDo'.
+	(CygbuildInstallPackageInfo): Use `CygbuildFindDo'.
+	(CygbuildTarDirectory): Simplify `status' check.
+	(CygbuildPatchApplyRun): Use `CygbuildIsCygwin' to check if
+	--binary option is needed.
+	(CygbuildTreeSymlinkCopy): Add missing continuation marker to
+	call `CygbuildFindDo'.
+	(CygbuildCommandMain): Remove command [reshadow].
+
+	* etc/template/setup.py.tmp: New file.
+
+2008-03-07  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl: Remove option -P|--prefix. Unneeded.
+
+	* bin/cygbuild.sh:
+	-- change variable $OPTION_PREFIX to OPTION_PREFIX_MODE
+	(CygbuildCmdMkpatchMain): Remove j or z
+	option check. Convert tar options to --long format.
+	(CygbuildTarDirectory): Fix tar directory detection. If there
+	were files that conatined spaces, the function failed. Moving
+	$(NF) to column $6 fixes this. Remove j or z option check.
+	Convert tar options to --long format.
+	(CygbuildInstallFixDocdirInstall): Convert tar options to
+	--long format.
+	(CygbuildCmdDownloadCygwinPackage): Remove j or z option check.
+	(CygbuildCommandMain): Remove option -P|--prefix. Unneeded.
+	(CygbuildMakefileRunInstallMain): Rename. Was
+	`CygbuildMakefileRunInstall'. Obey --install-prefix option.
+	(CygbuildMakefilePrefixCheck): Rewrite logic how to
+	detect prefix= and PREFIX=.
+	(CygbuildBootVariablesGlobalCachePython): New. Add
+	CYGBUILD_CACHE_PYTHON_FILES.
+	(CygbuildDefineGlobalPythonVersion): New.
+	(CygbuildPythonLibraryDependsCache): New.
+	(CygbuildPerlLibraryDependsCache): Improve lib search regexp.
+	(CygbuildCmdInstallCheckPythonLibraries): New.
+	(CygbuildPythonLibraryList): New.
+	(CygbuildCmdInstallCheckBinFiles): Add python library check.
+	Moved Perl library code check to its own case. Removed
+	`continue' from file extension check if-statement.
+	(CygbuildCmdInstallCheckPerlLibraries): Sort dependencies.
+	(CygbuildBootVariablesGlobalMain): From
+	`cygbuild_opt_exclude_object_files' remove *.egg-info. This is
+	essential Python install information file.
+	(CygbuildCygcheckLibraryDepAdjustOld): Remove unused function.
+	(CygbuildStripCR): new.
+	(CygbuildCygcheckMain): Check is cygcheck is available.
+	(CygbuildPythonCheckImport): New.
+	(CygbuildPythonLibraryDependsMain): New.
+	(CygbuildBootVariablesGlobalMain): Remove *.egg-info from
+	from cygbuild_opt_exclude_object_files
+	(CygbuildMakefileRunInstallPythonFix): Remove subshell call.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Remove subshell call.
+	(CygbuildInstallFixPermissions): New.
+	(CygbuildInstallFixMain): Use `CygbuildInstallFixPermissions'.
+
+2008-03-06  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/lib/cygbuild.pl: (HELP::Contributing packages): Fix
+	ITP message example.
+	(GPG EXAMPLES): Cosmetic chnages.
+
+	* bin/cygbuild.sh:
+	-- Change Verb() calls to Warn() calls near [WARN] messages.
+	(CygbuildCmdAllMain): Remove interactive
+	step if signatures failed.
+	(top level): Chnage var+value into POSIX var:+value format.
+	Change -s (short) options in cat, diff ln, mv, rm, tar etc. to
+	--long options.
+	(CygbuildCmdInstallCheckShFile): New.
+	(CygbuildCmdInstallCheckShellFiles): Add cases for Bourne and
+	Bourne-Again.
+	(CygbuildCmdInstallCheckPythonFile): Add arg FILE check.
+	(CygbuildCmdInstallCheckPerlFile): Add arg FILE check.
+	(CygbuildTarDirectory): Remove subshell from `wc' call. Remove
+	`cut' command.
+	(CygbuildInstallFixInterpreterPerl): Remove extra `set' command
+	near `wc'.
+	(CygbuildCmdAllMain): Add back signature verification and
+	interactive question.
+	(CygbuildCmdGPGVerifyMain): Add support for OPTION_FORCE.
+	(CygbuildPatchList): Simplify call to find command.
+	(CygbuildBootVariablesGlobalMain): Remove call to
+	`CygbuildIsGbsCompat'. Always call
+	`CygbuildBootVariablesGlobalShareMain'
+	(CygbuildBootVariablesId): If GBS, set correct CYGBUILD_PROG_LIBPATH.
+	(CygbuildIsDestdirSupported): Return immediately if no perl module.
+	Remove unneeded variable `out'.
+	(CygbuildTreeSymlinkCopy): Ignore version control directories.
+	(CygbuildCmdInstallCheckShellFiles): Pass -O extglob to bash checks.
+	(CygbuildCommandMainCheckSpecial): Correct regexp to detect command
+	`cygsrc'.'
+	(CygbuildCmdDownloadCygwinPackage9: Improve error message if package
+	was not found.
+	(CygbuildConfCC): Correct retval.log.1 to retval.log
+	(CygbuildInstallFixInfoInstall): Correct install to /etc/defaults.
+	(CygbuildInstallFixDocdirInstall): Correct /usr/share/doc/<pkg>/
+	relocation code.
+
+2008-03-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* README: (Dependencies): Remove.
+
+	* doc/README.txt: (Information for developers): Delete obsolete
+	Sourceforge information. Document commit message convention.
+	(Dependencies): Moved from top level REAME here.
+
+	* doc/cygbuild-rebuild.pod: Move location from bin/
+
+	* etc/data/etc/data/perl-5.8.8.lst: New file.
+
+	* etc/lib/cygbuild.pl: Move location from bin/
+	(HELP::QUICK OVERVIEW): Present import command.
+	(SYNOPSIS): Add brackets around -r. Not mandatory any more.
+
+	* bin/cygbuild.sh: (CygbuildDefineGlobalCommands):
+	Define GPG, WGET conditionally.
+	(CygbuildGPGavailableCheck): Change from negative tests
+	to positive tests.
+	(CygbuildCmdDownloadCygwinPackage): Rewrite WGET test.
+	(CygbuildCommandMain): Move `CygbuildDefineGlobalCommands'
+	here from CygbuildCommandMain().
+	(CygbuildCmdDownloadCygwinPackage): Rewite wget test.
+	(CygbuildDefineGlobalCommands): Remove variable BASH.
+	(CygbuildPathBinFast): Fix serious error. Return 1 if
+	path is not found.
+	(CygbuildMatchPatternList): Renamed. Was
+	`CygbuildMatchBashPatternList'.
+	(CygbuildBootVariablesId): Set CYGBUILD_PROG_PATH by searching
+	PATH as last resort.
+	(CygbuildCmdConfMain): Use CygbuildIsPerlPackage.
+	Add Python handling.
+	(CygbuildInstallCygwinPartMain): Improve error message.
+	(CygbuildBootVariablesGlobalCacheSet): Display message only
+	if verbose mode is on.
+	(CygbuildCmdMkdirs): Display message only
+	if verbose mode is on.
+	(CygbuildCommandMain::import): Add readmefix and move mkdir command.
+	(CygbuildCmdConfMain): Display message inly under verbose mode.
+	(CygbuildCmdInstallFinishMessage): Suggest sort. Handle test mode
+	differently.
+	(CygbuildBootVariablesGlobalCacheSet): Whole new logic. Remove
+	dependency to 'cygcheck -l perl'.
+	(CygbuildBootVariablesGlobalCachePerl): New.
+	(CygbuildBootVariablesGlobalLibSet): Set perl cache.
+	(CygbuildBootVariablesGlobalShareDir): New.
+	(CygbuildExitIfNoDir); Renamed. Was CygbuildExitNoDir.
+	(CygbuildExitIfNoFile); Renamed. Was CygbuildExitNoFile.
+	(CygbuildBootVariablesGlobalShareMain): Correct variable dir
+	at the end of function.
+	(CygbuildProgramVersion): Use ## prefix in non-color mode too.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Correct refactored FIND.
+	(CygbuildCmdInstallCheckSetupHintDependExists): Under Linux, do not
+	check the install database.
+	(CygbuildHelpLong): Remove unneeded *.pl check.
+	(CygbuildHelpSourcePackage): Remove unneeded *.pl check.
+	(CygbuildPerlModuleLocation): Remove unneeded *.pl check.
+	(CygbuildCmdDependCheckMain): Remove unneeded *.pl check.
+	(CygbuildMakeRunInstallFixPerlMain): Streamline code.
+	(CygbuildIsDestdirSupported): Remove unneeded *.pl check.
+	(CygbuildCommandPath): Remove. Not used any more.
+	(CygbuildPerlModuleLocation): Remove. Not used any more.
+	(CygbuildBootVariablesGlobalLibSet): Display warning if *.pl
+	not found.
+	(CygbuildBootVariablesId): Remove PATH setting. Trust user.
+	New variable CYGBUILD_PROG_LIBPATH.
+	(CygbuildCmdInstallCheckDocdir): Ignore image files.
+	(CygbuildCmdInstallCheckSetupHintDependExists): Correct
+	installed.db check.
+	(CygbuildCmdInstallCheckPerlLibraries): Display message only
+	if depends found.
+	(CygbuildCmdInstallCheckPerlFile): Display message only
+	if perl notes found. Replace bang-slash line in better way
+	by using tail command.
+	(CygbuildCmdInstallCheckPerlLibraries): Adjust displayed
+	message.
+	(CygbuildInstallFixInterpreterPerl): Use variable retval.
+	(CygbuildInstallFixInterpreterPython): Use variable retval.
+	(CygbuildInstallFixPerlPacklist): Use variable retval.
+	(CygbuildDefineGlobalCommands): New variables PERLBIN PYTHONBIN.
+	(CygbuildInstallFixInterpreterMain): Use PERLBIN PYTHONBIN.
+	(CygbuildCmdInstallCheckBinFiles): Use PERLBIN PYTHONBIN.
+	(CygbuildInstallFixInterpreterPython): Use PYTHONBIN.
+	(CygbuildInstallFixInterpreterPerl): Display diff message
+	only under verbose. Detect and fix multiple shebang lines.
+	(CygbuildCmdInstallCheckPerlFile): Ignore warnigns from Perl base.
+	Display perl warnings only under verbose.
+	(CygbuildPatchList): Correct refactor leak SORT.
+	(CygbuildPatchCheck): Correct refactor leak SORT.
+	(CygbuildBootVariablesGlobalMain): Do not call
+	`CygbuildBootVariablesGlobalShareMain' when running GBS.
+
+	[ commit: 21c6baa ]
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalCacheSet): Move
+	message. Clear CYGBUILD_CACHE_PERL_FILES if no cache can be set.
+	(CygbuildPerlLibraryDependsCache): Check cache variable.
+
+	[ commit: 0a6b221..6cc78b6 ]
+
+	* bin/cygbuild.sh: REFACTORING: Convert all $LS, $MV etc.
+	variables into regular calls in series of commits.
+
+	[ up to commit: 0a6b221 ]
+
+	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Remove key id
+	and use $GPGKEY variable in example.
+
+	* README: Adjust short description.
+	(Version control information): Add new topic.
+	(Version control information): Moved from INSTALL.
+	(Dependencies): Moved from INSTALL.
+
+	* INSTALL: (Install instructions): Mention /usr/local and
+	prefix= setting. Remove verything but install instructions.
+
+	* Makefile: (install-etc-main-symlink): disable installing
+	/etc/cygbuild/programs.conf. No longer used.
+	(PL): Update location to etc/lib
+	($(DOCDIR)/cygbuild-rebuild.1): Update location to
+	doc/cygbuild-rebuild.pod.
+	(install-in-place): Remove target `install-etc-main-symlink'.
+	(FROM_ETC_DATA): New.
+	(OBJS_ETC_DATA): New.
+	(ETCDIR_DATA): New.
+	(install-etc-dir-template): Add data/
+	(install-etc-dir-structure): Renamed. Was `install-etc-dir-template'.
+	(install-etc): Add `install-etc-data'.
+	(install-in-place): Remove `install-man'.
+	(install-template-symlinks): Renamed. Was `install-etc-template-symlink'.
+	(install-share-data): Renamed. Was `install-etc-data'.
+	(install-share-template): Renamed. Was `install-etc-template'.
+	(install-share): Renamed. Was `install-etc'.
+	(install-data-symlinks): New.
+	(install-dir-structure): Renamed. Was `install-etc-dir-structure'.
+
+	* bin/cygbuild.sh: (CygbuildInstallFixInterpreterPerl): Improve
+	perl replace code. Display message only if something was done.
+	(CygbuildInstallFixInterpreterMain): Move message to function
+	`CygbuildInstallFixInterpreterPerl'.
+	(CygbuildDefineGlobalCommands): Disable loading configuration
+	file.
+	(CygbuildBootVariablesGlobalEtcSet): Remove
+	CYGBUILD_CONFIG_PROGRAMS (/etc/programs.conf).
+	(CygbuildVersionControlType): Mention why ARCH and RCS are
+	not tested.
+
+2008-03-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::LIBRARY USAGE): Remove initial
+	boot call.
+	(TROUBLESHOOTING): Adjust paragraph wording.
+	(Perl and double install is needed): Removed.
+	(Install commands): Remove traces of --init-db option.
+	(MISCELLANEOUS::Use of hardlinks): Add new topic.
+	(MISCELLANEOUS::setup.hint should list all dependencies): Add new
+	topic.
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckBinFiles): Add
+	bash and gawk dependency check.
+	(CygbuildIsDarcsPackage): New.
+	(CygbuildIsMonotonePackage): New.
+	(CygbuildVersionControlType): Add Monotone, Darcs detection.
+	(CygbuildMain): Under CYGBUILD_LIB, boot few variables.
+	(CygbuildCmdInstallCheckPerlFile): Add cp -l check.
+	(CygbuildCmdInstallCheckShellFiles): Activate function.
+	Funtion was unused due to file name bug in for-loop.
+	(CygbuildCmdInstallCheckPerlFile): Use relative filenames in
+	messages.
+	(CygbuildFindDo): New.
+	(CygbuildBootVariablesGlobalMain): Adjust CYGBUILD_FIND_EXCLUDE.
+	(CygbuildCmdInstallCheckTexiFiles): New.
+	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckTexiFiles'.
+	(CygbuildCygcheckLibraryDepGrepTraditonal): Use variable CYGCHECK
+	(CygbuildDefineGlobalCommands): Move CYGCHECK and CYGPATH to
+	the beginning.
+	(CygbuildPostinstallWriteMain): Add comment about '#:<stanza>'
+	to postinstall.sh
+	(CygbuildNoticeDevel): New.
+	(CygbuildCmdPackageBinMain): Remove unneeded status variable.
+	Call CygbuildNoticeDevel.
+	(CygbuildMakefilePrefixIsStandard): Chnage + to * in regext.
+	This finds prefix=value.
+
+2008-03-03  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain): Add
+	VERSION file to variable cygbuild_opt_exclude_tmp_files.
+	(CygbuildMakefilePrefixCheck): Adjust grep to find prefix=
+	(CygbuildCmdFilesWrite): Fix variable name from 'to' to 'todir'.
+	(CygbuildPatchList): Ignore */tmp/* directories.
+	(CygbuildConfOptionAdjustment): Notify about --with and --without
+	options in ./configure.
+	(CygbuildCmdBuildStdMakefile): move set -x call.
+	(CygbuildInstallFixEtcdirInstall): Add --quiet to egrep.
+	(CygbuildBootVariablesGlobalCacheSet): Add
+	CYGBUILD_CACHE_PERL_FILES.
+	(CygbuildDefineGlobalPerl): New.
+	(CygbuildDefineGlobalCommands): Define CYGPATH, CYGCHECK.
+	(CygbuildPerlLibraryDependsGuess): New
+	(CygbuildPerlLibraryDependsMain): Rewrite.
+	(CygbuildPerlLibraryDependsCache): New. Use
+	CYGBUILD_CACHE_PERL_FILES.
+	(CygbuildPerlLibraryList): Improve regexp to ignore comment lines.
+
+2008-03-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildIsMakefileCstandard): New.
+	(CygbuildIsMakefileCstandard): Restore from revno:40a593c
+	(CygbuildIsCplusplusPackage): Restore from revno:40a593c
+	(CygbuildBootVariablesGlobalMain): Add perllocal.pod
+	to variable CYGBUILD_TAR_EXCLUDE.
+	(CygbuildCygcheckLibraryDepMain): Add prefix 'depends: '
+	to all messages.
+
+2008-03-01  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (dir): (CygbuildMakefileRunInstallCygwinOptions):
+	Fix reading of variable makefile.
+	(CygbuildMakefilePrefixCheck): Improve prefix check.
+	(CygbuildMakefilePrefixIsStandard): Improve prefix check.
+	(CygbuildBootVariablesId): Adjust PATH setting.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Improve postinstall
+	snippet.
+	(CygbuildInstallFixEtcdirInstall): Disregard pre/postinstall
+	directory.
+	(CygbuildCmdInstallCheckDocdir): Remeove head(1); won't work
+	on image files.
+	(CygbuildInstallFixInterpreterMain): Tighten regexp.
+	(CygbuildInstallFixInterpreterPerl): Improce substitution.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Add -E to grep call.
+
+2008-02-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::OPTIONS): Remove --init-pkgdb and
+	--nomore-space.
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallFinishMessage): Restore
+	old code that used pwd. This is correct in packaging scripts.
+	(CygbuildIsRubyPackage): New.
+	(CygbuildMakefileRunInstallRubyMain): New.
+	(CygbuildCmdBuildMain): Add ruby support.
+	(CygbuildCmdCleanMain): Add ruby support.
+	(CygbuildCmdShadowMain): Add ruby support.
+	(CygbuildCmdConfMain): Add ruby support.
+	(CygbuildConfRubyMain): New.
+	(CygbuildDefineGlobalPackageDatabase): Remove
+	(CygbuildBootVariablesGlobalCacheSet): Remove CYGBUILD_CACHE_PAKAGES.
+	(CygbuildCommandMain): Remove options --init-pkgdb,
+	--nomore-space. Add option --lzma.
+	(CygbuildCompressManualPage): New.
+	(CygbuildBootVariablesGlobalMain): Add lzma, lzop, rzip to
+	cygbuild_opt_exclude_archive_files
+	(CygbuildFileTypeByExtension): Add Ruby.
+	(CygbuildCygcheckMainOld): Remove.
+	(CygbuildCmdInstallCheckBinFiles): Add Ruby.
+	(CygbuildIsMakefileCplusplus): Remove.
+	(CygbuildIsCplusplusPackage): Remove.
+	(CygbuildBootVariablesGlobalMain): Add RPM *.spec to
+	CYGBUILD_INSTALL_IGNORE.
+	(CygbuildInstallPackageDocs): Fix error in include and exclude
+	treatment.
+	(CygbuildCmdInstallCheckDocdir): Correct empty file check.
+	(CygbuildPostinstallWriteStanza): New.
+	(CygbuildPostinstallWriteMain): Rewrite logic. Add new input
+	argument STANZA.
+	(CygbuildInstallPostinstallPartEtc): Rename. Was
+	`CygbuildInstallDefaultsPostinstall'.
+	(CygbuildInstallFixInfoInstall): New.
+	(CygbuildInstallFixMain). Use CygbuildInstallFixInfoInstall.
+	(CygbuildInstallPostinstallPartInfo): New.
+	(CygbuildBootVariablesGlobalMain); Update
+	CYGBUILD_SETUP_HINT_CATEGORY according to setup.exe
+
+2008-02-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: Add support for new option
+	cygbuild-no-docdir-guess.
+	(CygbuildExitIfEmpty): New.
+	(CygbuildMakefileRunInstallCygwinOptions): Check missing
+	Makefile. Adjust PREFIX for perl installs.
+	(CygbuildMakefileRunInstall): Change 'docdir' from /usr/share/doc/PKG
+	to package specific /usr/share/doc/PKG-VER.
+	(CygbuildConfPerlMain): Read configure.env.options.
+	Display Perl call with --verbose.
+	(CygbuildCommandMain): Improve command 'import'.
+	(CygbuildPod2man): Fix call to date(1).
+	(CygbuildCommandMainCheckSpecial): Support multiple packages with
+	command cygsrc.
+	(CygbuildStrToRegexpSafe): Add characters: ()[].
+
+	* etc/template/install.tar.options.tmp: Add new options
+	--exclude=cygbuild-no-docdir-guess
+
+	* bin/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES::install.tar.options)
+	Document new option cygbuild-no-docdir-guess
+
+2008-02-27  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallDefaultsPostinstall): Escape
+	variable correcly, so the postinstall file contains contains the
+	name, not the value.
+	(CygbuildInstallPackageDocs): Use relative paths for ../examples
+	as necessary.
+
+2008-02-26  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildMakefileRunInstall): Remove call to
+	`CygbuildDebianRules2MakefileMaybe'.
+	(CygbuildDebianRules2MakefileMaybe): Remove.
+	(CygbuildDebianRules2Makefile): Remove.
+	(CygbuildMakefileRunInstall): Notify about missing makefile.
+	(CygbuildInstallPackageDocs): Install also directories
+	examples, example and sample.
+
+	* bin/cygbuild.pl (DebianRulesInstalldirs): Remove.
+	(DebianRulesInstall): Remove.
+	(DebianRulesProcess): Remove.
+	(DebianMakefile): Remove.
+	(DebianRulesMain): Remove.
+	(CygbuildInstallFixPermissions): Incorrect variable at the end.
+	Use `readList'.
+	(CygbuildMakefilePrefixCheck): Grep more files.
+	(CygbuildMakefileRunInstallCygwinOptions): correct
+	variable name verb to verbose.
+
+2008-02-25  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildDefineGlobalScript): Use
+	`CygbuildVersionInfo' instead of unreliable bash substitution
+	code.
+	(CygbuildDefineVersionVariables): Remove exit and return
+	error code.
+	(CygbuildDefineVersionVariables): Remove extra code from end.
+	Die if `CygbuildDefineVersionVariables' fails.
+	(CygbuildCmdInstallCheckBinFiles): Warn about .py and .pl
+	exensions.
+	(CygbuildDefineGlobalScript): Adjust SCRIPT_PKGVER.
+
+2008-02-24  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPod2man): Add --release to pod2man.
+	(CygbuildCygcheckMain): Make sure slashes are correct.
+	(CygbuildInstallPackageDocs): Streamline function. If there
+	is no doc/ dir, still run the install if --include option is set.
+	(CygbuildIsDirEmpty): Remove die call.
+	(CygbuildFileConvertToUnix): Ignore *.rtf etc
+
+2008-02-22  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (OPTIONAL EXTERNAL FILES::manualpage.1.pod):
+	Rename. Was manualpage.pod. Explain basics of manual page
+	sections.
+
+	* bin/cygbuild.sh:
+	(CygbuildBootVariablesGlobalMain) Add *.{rej,bak,tmp} to
+	CYGBUILD_INSTALL_IGNORE.
+	(CygbuildInstallPackageDocs): Comment out
+	pattern match code and use solely CYGBUILD_INSTALL_IGNORE.
+	files.
+	(CygbuildInstallFixDocdirInstall): Protect regexp with
+	`CygbuildStrToRegexpSafe'.
+	(CygbuildInstallFixDocdirInstall): Add --test mode support.
+	(CygbuildCmdFilesWrite): Add unpack support for template files.
+	E.g. install cygwin-announce.mail.tmp as cygwin-announce.mail.
+	(CygbuildInstallFixDocdirInstall): Return of nothing to do.
+	(CygbuildInstallExtraMain): Add `CygbuildMakeRunInstallFixPerlManpage'.
+	(CygbuildPerlLibraryDepends): New.
+	(CygbuildPerlLibraryList): New.
+	(CygbuildCmdInstallCheckPerlLibraries): New.
+	(CygbuildCmdInstallCheckBinFiles): Use
+	`CygbuildCmdInstallCheckPerlLibraries'.
+	(CygbuildCmdDownloadCygwinPackage): Rename. Was
+	`CygbuildCmdGetSource'. Download binary package too.
+	(CygbuildCommandMain): Add option --dir to command 'cygsrc'.
+	(CygbuildCommandMainCheckSpecial): Renamed. Was
+	`CygbuildCommandMainCheckHelp'.
+	(CygbuildCmdDownloadCygwinPackage): Check wget error status.
+	(CygbuildCmdDownloadCygwinPackage): add MODE argument to
+	select only binary package download.
+	(CygbuildBootVariablesGlobalMain): Remove *.ps from
+	`cygbuild_opt_exclude_tmp_files'.
+
+2008-02-21  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (top level): Remove old BASH test and change
+	to more reliable process substitution test.
+	(CygbuildPatchApplyMaybe): Add 2nd argument MSG.
+	(CygbuildCmdPrepMain): Move message 'applying included patches ...'
+	to the `CygbuildPatchApplyMaybe'. Improve error code handling
+	after `CygbuildPatchApplyMaybe'.
+	(CygbuildMakefileRunClean): Remove unused function.
+	(CygbuildCmdCleanMain): write messages only during verbose.
+	(CygbuildHelpShort): Correct option -C to -c. Rephrase few
+	paragrahs.
+	(CygbuildIsSourceUnpacked): New.
+	(CygbuildCmdPrepPatch): Use `CygbuildIsSourceUnpacked'. Remove
+	extra rm *.o call.
+	(CygbuildPatchApplyRun): Add 'local opt', which causes nasty bug
+	During source package 'prep' phase.
+	(CygbuildCmdInstallCheckReadme): Shorten path names in messages.
+
+2008-02-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildVersionInfo): Fix small error
+	in version detection: foo1.2b was interpreted as [foo 1.2], not
+	[foo 1.2b].
+	(CygbuildMakefileName): Add few more guesses for the makefile.
+	(CygbuildMakefilePrefixIsStandard): Reduce guessed to $@ and *.mk.
+	Add error checking for empty files.
+	(CygbuildMakefileRunInstall): Send makefile name to
+	`CygbuildMakefilePrefixCheck' and `CygbuildMakefilePrefixIsStandard'.
+	(CygbuildMakefilePrefixCheck): Add input arg MAKEFILE and throw away
+	Makefile name guessing code.
+	(CygbuildCmdMkpatchMain): Check unpatch failure.
+	(CygbuildDefineGlobalCompile): Remove C++ autodetections.
+	(CygbuildPatchPrefixStripCountFromFilename): Return error code.
+	(CygbuildPatchPrefixStripCountFromContent): Return error code.
+	Improve -p1 detection.
+	(CygbuildMatchRemoveWord): New.
+	(CygbuildBootVariablesGlobalMain): Remove --binary from CYGBUILD_PATCH_OPT,
+	Under Cygwin it is legal only if destination file has CRLF.
+	(CygbuildPatchApplyRun): Use `CygbuildFileIsCRLF' to set patch
+	option --binary
+	(CygbuildFileIsCRLF): Check that FILE exists.
+	(CygbuildCmdInstallPatchVerify): New
+	(CygbuildCmdInstallMain): Use `CygbuildCmdInstallPatchVerify'
+	(CygbuildMsgFilter): Show patch patch in different color.
+
+2008-02-19  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdReadmeRemoveFileSection): Remove
+	awk edit. Moved to perl library.
+	(CygbuildBootVariablesGlobalMain): Add --binary to CYGBUILD_PATCH_OPT.
+	(CygbuildPatchApplyMaybe): Fix problem with `unpatch' where not
+	all files ere patched.
+	(CygbuildBootVariablesGlobalMain): Remove
+	`cygbuild_opt_exclude_cygbuild'.
+	(CygbuildCmdPkgSourceCvsMain): Remove.
+	(CygbuildCmdPkgSourceMain): Remove version contol handling.
+	(CygbuildCommandMain): Remove --checkout option.
+	(CygbuildCmdPkgSourceCvsdiff): Remove.
+	(CygbuildBootVariablesGlobalMain): Remove CYGBUILD_CVSDIFF_OPTIONS.
+	Move CYGBUILD_DIFF_OPTIONS opions to new variable
+	`cygbuild_opt_exclude_cache_files'.
+	(CygbuildCmdConfMain): Add case for configure.in
+	(CygbuildCmdReadmeFixFile): Remove binpkg tar `CygbuildExitNoFile' call.
+	(CygbuildCmdReadmeFixMain): Remove binpkg tar file check.
+	(CygbuildDefineGlobalMain): Change SCRIPT_CONFIGURE_CYGFILE and
+	SCRIPT_BUILD_CYGFILE use relative paths.
+
+	* bin/cygbuild.pl (ReadmeFix): Add Copyright year update.
+	Remove 'files included...' section.
+	(HELP::OPTIONS): Remove --checkout option and related documentation.
+	Change -C to -c (color) short option.
+	(HELP::Other commands::download): Update perl webget project URL.
+	(PackageCVScoScript): Remove.
+	(PackageCVSmain): Remove.
+	(ReadmeFix): Add missing \n to 'Files included in' substitution.
+
+2008-02-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::Packaging commands): Remove functionality
+	no longer presend in command `readmefix.
+
+	* etc/template/package.README (Language): Typo in word
+	'Licensed ...'. Corrected to Licensed.
+
+	* etc/template/build.env.options.tmp: Remove obsolte file.
+
+	* bin/cygbuild.sh:
+	(CygbuildDefineGlobalMain): Remove obsolete EXTRA_BUILD_ENV_OPTIONS.
+	(CygbuildCmdBuildStdMakefile): Do not use EXTRA_BUILD_ENV_OPTIONS.
+	(CygbuildCmdPkgSourceStandard): Tighten regexp to *not*
+	include binary package in src package.
+	(CygbuildCmdBuildStdMakefile): Display Gcc version information.
+	(CygbuildCmdInstallCheckManualPages): Verify integrity of
+	compressed files.
+	(CygbuildCmdReadmeRemoveFileSection): New
+	(CygbuildCmdReadmeFixFile): Call `CygbuildCmdReadmeRemoveFileSection'
+	(CygbuildFileCmpReplaceIfDiffer): New.
+
+2008-02-17  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/patch-after.sh.tmp: New.
+
+	* etc/template/patch-before.sh.tmp: New.
+
+	* bin/cygbuild.pl: (HELP::Other commands): Change
+	getsrc command to cygsrc.
+
+	* bin/cygbuild.sh (CygbuildBootVariablesId): Remove unused
+	CVS based variables.
+	(CygbuildCommandMain): Change getsrc command to cygsrc.
+	(CygbuildFileConvertCRLF): New
+	(CygbuildFileConvertLF): New.
+	(CygbuildFileIsCRLF): New.
+	(CygbuildDefineGlobalMain): Define SCRIPT_PATCH_BEFORE,
+	SCRIPT_PATCH_AFTER
+	(CygbuildBootFunctionExport): Export new functions.
+
+2008-02-16  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/etc/programs.conf: Replace EGREPP with EGREP.
+
+	* bin/cygbuild.pl: (HELP::Patch management commands::patch):
+	Document new behavior that patches are searches recursively.
+	Mention about the use of sequential number in patch filenames.
+
+	* bin/cygbuild.sh:
+	-- Replace all EGREPP with EGREP.
+	(CygbuildPatchList): New. Find any *patch
+	recursively.
+	(CygbuildPatchApplyMaybe): Use `CygbuildPatchList'.
+	(CygbuildInstallFixEtcdirInstall): Ignore cd call error.
+	(CygbuildPatchApplyRun): Display patch name always.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Loose dot from file
+	extension check so that *patch matches both .dpatch and .patch.
+	(CygbuildCmdInstallCheckDirStructure): Fix empty dir check.
+	(CygbuildCmdInstallCheckDocdir): Warn about missing doc/PKG dir.
+	(CygbuildInstallPackageDocs): Add files: Copyright, Install
+	(CygbuildBootVariablesGlobalMain): Remove 'debian' from
+	variable `cygbuild_opt_exclude_dir'.
+	(CygbuildCmdInstallCheckDocdir): Correct typo in find command
+	that cause error: -type: command not found
+	(CygbuildCmdInstallCheckLineEndings): Ignore error after head(1).
+	(CygbuildCmdInstallCheckSetupHintFieldNames): Renamed. Was
+	`CygbuildCmdInstallCheckSetupHintFields'.
+	(CygbuildBootVariablesGlobalMain): New variable
+	`CYGBUILD_SETUP_HINT_CATEGORY'.
+	(CygbuildCmdInstallCheckSetupHintFieldCategory): New.
+	(CygbuildCmdInstallCheckSetupHintMain): Use
+	`CygbuildCmdInstallCheckSetupHintFieldCategory'.
+	(CygbuildCmdReadmeFixMain): Check missing archive and suggest
+	running command `package'.
+	(CygbuildPatchListDisplay): Fix displayed names.
+	(CygbuildPatchCheck): Display files first, then directories.
+	(CygbuildPatchList): Sort the patches. Ignore version controlled
+	directories.
+
+2008-02-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallDirClean): New.
+	(CygbuildCmdInstallFinishMessage): New.
+	(CygbuildInstallFixDocdirInstall): New.
+	(CygbuildInstallFixEtcdirInstall): New.
+	(CygbuildInstallFixEtcdirPostinstall): New.
+	(CygbuildDefineGlobalMain): Define $DIR_ETC_GENERAL
+	(CygbuildInstallFixMain): Use `CygbuildInstallFixDocdirInstall'
+	and `CygbuildInstallFixEtcdirInstall'.
+	(CygbuildInstallFixDocdirInstall): Remove empty directories.
+	(CygbuildCmdInstallCheckDirStructure): Check that there are no
+	files in tolevel usr/share usr/lib.
+	(CygbuildConfCC): Always include users' options from
+	configure.options. Do not clear e.g. --datadir. Move call
+	`CygbuildFileReadOptionsMaybe' after the libtool check.
+	(CygbuildCmdInstallMain): Move postinstall call to end.
+	(CygbuildInstallFixEtcdirInstall): Support test mode.
+	(CygbuildInstallFixDocdirInstall): Support test mode. Fix
+	nasty bug where variables weremixed up with the environment.
+	(CygbuildInstallFixEtcdirPostinstall): change cp(1) to
+	install(1) in postinstall script.
+	(CygbuildInstallFixDocdirInstall): Better doc/ check with ls(1).
+	Exclude Cygwin dir from doc/ check.
+	(CygbuildInstallFixEtcdirPostinstall): Correct /etc/default/<files> to
+	/etc/defaults/etc/<files>
+	(CygbuildInstallDefaultsPostinstall): Rename. Was
+	`CygbuildInstallFixEtcdirPostinstall'. Make more general.
+	(CygbuildCmdBuildStdMakefile): Show make call if -v option is set.
+	(CygbuildShellEnvironenment): Fix bug where 'list' was newer
+	filled in.
+	(CygbuildPostinstallWrite): Shorten pathname in warning message.
+
+	* etc/template/package.README (Build instructions): Change
+	<PKG>-<VER>-<REL>-src to more generic <PKG>-*-src
+	(layout): Make all '------' lines equal lenght.
+
+	* bin/cygbuild.pl (Package): Delete trailing slash from 'package-'
+	name.
+	(ReadmeFix): Don't call ReadMeFilesIncluded().
+
+2008-02-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::Packaging commands::publish): Document
+	new PACKAGE argument sent to external publish command.
+
+	* bin/cygbuild.sh: (CygbuildMakefilePrefixIsStandard): New.
+	(CygbuildMakefileRunInstallCygwinOptions): Use
+	`CygbuildMakefilePrefixIsStandard' and change automatically
+	to PREFIX if prefix= is not detected.
+	(CygbuildCmdReadmeFixFile): Adjust message display only
+	in verbose mode.
+	(CygbuildMakefileRunInstall): Remove debug `exit' calls.
+	(CygbuildPatchListDisplay): Remove unnecessary `cat'. Add sort -u.
+	(CygbuildCommandMain): Add alias `pcheck'
+	(CygbuildVersionInfo): Improve parsing packages like
+	foo_0.4.0-test5
+	(CygbuildCmdPublishSignature): Delete trailing slash from
+	input arg `dest'.
+	(CygbuildCmdPublishExternal): Send $PKG to external publish
+	program.
+	(CygbuildReadmeReleaseMatchCheck): Improve release check.
+	(CygbuildMakefileRunInstall): check PREFIX for Makefiles.
+	(CygbuildMakefileRunInstallCygwinOptions): Change input argument
+	`pfx' to accept raw syntax `prefix=<value>'.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Add PKG to
+	.postinstall_append to make the file unique.
+	(CygbuildCmdInstallCheckSetupHintQuotes): New.
+	(CygbuildCmdInstallCheckSetupHintMain): Use
+	`CygbuildCmdInstallCheckSetupHintQuotes'.
+	(CygbuildMakefileRunInstallCygwinOptions): Display
+	make command if option -v is set.
+	(CygbuildIsDirEmpty): New.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Refactor how
+	the postinstall script does things. Use
+	/usr/share/perl/cygwin-pods.
+	(CygbuildBootVariablesGlobalMain): Add [#~] to
+	CYGBUILD_SHADOW_TOPLEVEL_IGNORE).
+	(CygbuildCmdBuildStdMakefile): Fix message.
+
+2008-01-31  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain):
+	Fix typo at in variable `cygbuild_opt_exclude_version_control'.
+
+2008-01-26  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (cygbuild_opt_exclude_version_control):
+	Add ignore pattern for quilt's state directories.
+
+2007-12-21  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl (Version): Support foo1.2.3
+	(Package): Support foo1.2.3
+
+	* bin/cygbuild.sh: (CygbuildCygcheckLibraryDepListFull): New,
+	replaces `CygbuildObjDumpLibraryDepList'.
+	(CygbuildCygcheckLibraryDepMain): Use
+	`CygbuildCygcheckLibraryDepListFull'.
+	(CygbuildCygcheckLibraryDepMain): Add error checking.
+	(CygbuildCygcheckLibraryDepGrepPgkNamesMain): Add error checking.
+	(CygbuildVersionInfo): Support foo1.2.3
+	(CygbuildFilePackageGuessFromDirectory): Loosend version check.
+	(CygbuildCmdInstallCheckPkgDocdir); Ignore certain files.
+	(CygbuildHelpShort): Mention long options.
+	(CygbuildInstallTaropt2type): New.
+	(CygbuildInstallPackageDocs): Improve treatment of
+	CYGWIN-PATCHES/install.tar.options
+	(CygbuildInstallPackageInfo): Ignore .sinst
+	(CygbuildTreeSymlinkCopy): Remove egrep and use find -prune.
+	Delete *.dll *.la *.so if included in original package.
+	(CygbuildConfCC): Adjust --option list output (perl call).
+
+2007-12-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::QUICK OVERVIEW): Mention command
+	`almostall'.
+
+	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
+	Check manual page location and fix it if needed.
+	(CygbuildInstallPackageInfo): chnage mkdir(1) to install(1).
+	(CygbuildCmdInstallCheckManualPages): Improve missing manual
+	page check.
+	(CygbuildMakefileRunInstall): Always run
+	`CygbuildMakefilePrefixCheck'
+	(CygbuildCommandMain): Use quotes.
+	(CygbuildHelpLong): Call `CygbuildBootVariablesGlobalShareMain'
+	and use $CYGBUILD_STATIC_PERL_MODULE
+	(CygbuildCygbuildDefineGlobalSrcOrigGuess): Support *.tgz *.tbz
+	(CygbuildTarOptionCompress): Support *.tbz
+	(CygbuildInstallPackageDocs): Obey directory references
+	like --include=contrib/* and create needed directory.
+	(CygbuildCygcheckMain): Send cygcheck output forward.
+	(CygbuildCmdInstallCheckPkgDocdir): Add contrib/ dir check.
+
+2007-12-19  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckDirStructure):
+	Ignore /etc/X11/app-defaults
+	(CygbuildCmdInstallCheckSetupHintDependExists): Restore
+	for..in and remove while..do.
+
+2007-12-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildCmdPkgDevelStandardDev): Remove
+	process substitution.
+	(CygbuildCmdInstallCheckDirEmpty): Remove process substitution.
+	(CygbuildCmdInstallMain): Send path to custom install script.
+	(CygbuildLibInstallEnvironment): Add quotes.
+	(CygbuildDefineEnvClear): Unset INCLUDE_PATH
+	(CygbuildShellEnvironenment): Remove INCLUDE_PATH
+	(CygbuildCmdStripMain): Strip also *.so.
+	(CygbuildObjDumpLibraryDepList): New.
+	(CygbuildCygcheckMain: New implementation.
+	(CygbuildCygcheckLibraryDepGrepTraditonal): New.
+	(CygbuildCmdInstallMain): Send absolute path to external install
+	script.
+	(CygbuildBootVariablesId): Add CYGBUILD_PROG_FULLPATH
+	(CygbuildBootVariablesGlobalMain): Add *.dll to
+	CYGBUILD_MATCH_FILE_EXE
+	(CygbuildInstallFixPermissions): New implementation.
+
+2007-12-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallMain): Feed messages from
+	install-after.sh through `CygbuildMsgFilter'.
+	(CygbuildMsgFilter): Treat >> and --- messages. Ner perl $ENV
+	implemantation.
+	(CygbuildBootVariablesGlobalColors): Add more color variations.
+	(CygbuildCmdInstallCheckBinFiles): Fix 'Binary name clash' message.
+
+2007-12-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/postinstall.sh.tmp (InstallConffiles): Add cmp(1).
+	(CygbuildDefineGlobalMain): Rename CYGBUILD_FILE_MANIFEST_TO and
+	CYGBUILD_FILE_MANIFEST_FROM
+	(CygbuildInstallCygwinPartMain): Treat new postinstall-manifest.lst
+	(CygbuildCmdInstallCheckPkgDocdir): Renamed. Was
+	`CygbuildCmdInstallCheckDocPages'.
+	(CygbuildCmdInstallCheckDocdir): New.
+	(CygbuildCmdInstallCheckMain): Use `CygbuildCmdInstallCheckDocdir'.
+	(CygbuildFileSize): New.
+	(CygbuildCmdInstallCheckSetupHintSdesc): Check that starting
+	sentence is capitalized.
+	(CygbuildPatchApplyMaybe): Fine tune message display. Unpatch: exit
+	immediately is there is no CYGWIN-PATCHES/done-patch.tmp. Adjust
+	verbose during 'GBS compat' mode.
+	(CygbuildCmdInstallMain): Display relative paths.
+	(CygbuildDefineGlobalMain): Use absolute path for
+	CYGPATCH_DONE_PATCHES_FILE
+	(CygbuildShellEnvironenment): Empty INCLUDE_PATH during compile
+	to make sure the environment is clean.
+
+2007-12-13  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdBuildPython): Change to
+	use `CygbuildRunPythonSetupCmd' will will print less output.
+	(CygbuildRunPythonSetupCmd): On error dispay results.
+	(CygbuildCmdInstallMain): Send $0 to custom
+	CUGWIN-PATCHES/instal.sh
+
+2007-12-12  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildConfPerlMain): Remove SITEPREFIX
+	(CygbuildMakeRunInstallFixPerlManpage): improve POD to manpage
+	conversion.
+	(WasLibraryInstallMakefile): New.
+	(WasLibraryInstall): Use `WasLibraryInstallMakefile'.
+
+2007-12-08  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	-- Comment out all `CygbuildPerlModuleLocation' calls and
+	   use $CYGBUILD_STATIC_PERL_MODULE
+	(CygbuildCommandMain): Add option -F|--force.
+	(CygbuildCmdPkgDevelStandard): Move manual pages from
+	devel-lib to devel-dev. Rewrote devel-dev. Split function.
+	(CygbuildCmdPkgDevelStandardDev): New.
+	(CygbuildCmdPkgDevelStandardLib): New. Fix version number.
+	(CygbuildCmdPkgDevelStandardBin): New.
+	(CygbuildCmdPkgDevelStandardDoc): New.
+
+2007-12-07  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	-- Add `trap' to clean temporary files.
+	(CygbuildCmdInstallCheckMain): Fix status code assignment.
+	(CygbuildCygcheckLibraryDepGrepPgkNames): Check
+	missing cache file better.
+	(CygbuildCmdGetSource): Now handles multiple patches
+	in Cygwin Net release source packages. Detect *.cygport
+	(CygbuildCmdConfAutomake): Simplify.
+	(CygbuildCmdConfMain): Run `CygbuildCmdConfAutomake' inside
+	.build, not $srcdir.
+	(CygbuildCmdPkgDevelStandard): Improve manual page search.
+	Add color support. Add bin package support
+	(CygbuildCmdPackageBinMain): New
+	(CygbuildCmdPackageDevMain): New
+	(WasLibraryInstall): New
+	(CygbuildCommandMain): Change indentation level in for-command loop.
+	(CygbuildReadmeReleaseMatchCheck): Do not display error
+	if CYGWIN/<pkg>.README is not found.
+
+2007-12-05  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh
+	(CygbuildInstallPackageDocs): Fix --test more behavior. Do not
+	run the tar command.
+	(CygbuildInstallExtraBinFiles): New. Treat CYGWIN-PATCHES/bin
+	(CygbuildCmdInstallCheckMakefiles): New. Try to detect use of
+	static libraries.
+	(CygbuildConfCC): Warn about static library linking during
+	./configure
+	(CygbuildReadmeReleaseMatchCheck): Use relative path in message
+	(CygbuildCmdInstallCheckSetupHintMain): Broke long function
+	into pieces. Now also uses `CygbuildMsgFilter' everywhere to
+	display colored errors.
+	(CygbuildCmdInstallCheckSetupHintCategory): New. Improve
+	Perl and Python checks.
+	(CygbuildCmdInstallCheckSetupHintDependExists): New (split).
+	Chnage [OK] to plain OK.
+	(CygbuildCmdInstallCheckSetupHintLdesc): New (split)
+	(CygbuildCmdInstallCheckSetupHintSdesc): New (split)
+	(CygbuildCmdInstallCheckSetupHintFields): Completely new.
+	(CygbuildMsgFilter): Do not print() if there is no output.
+	Remove `unset' and add `local' declarations.
+	(CygbuildCmdInstallCheckDirEmpty): Add [0-9] to detect all
+	numeric content.
+
+2007-12-03  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl (BinPkgListing): Add support for *.gz
+	tar file.
+	(HELP::OPTIONS): Document -C|--color option.
+	(HELP::OPTIONAL EXTERNAL DIRECTORIES):
+	New topic. Document new feature CYGWIN-PATCHES/bin.
+
+	* bin/cygbuild.sh (CygbuildRunShell): Less output.
+	Collect python output to file and dispay them only
+	if verbose is set.
+	(CygbuildBootVariablesGlobalMain):
+	`cygbuild_opt_exclude_version_control' add .mtn.
+	`cygbuild_opt_exclude_version_control' add INSTALL.
+	(CygbuildPatchCheck): Display relative path to patch file.
+	(CygbuildBootVariablesGlobalMain):
+	`CYGBUILD_INSTALL_IGNORE' added ABOUT_NLS, README.mingw32
+	(CygbuildInstallPackageDocs): Fix missing quotes from
+	`CYGBUILD_INSTALL_IGNORE'.
+	(CygbuildCmdStripMain): Add '**' start message.
+	(CygbuildInstallExtraManualCompress): Ignore already compressed
+	files.
+	(CygbuildPatchCheck): Use relative patch in messages.
+	(CygbuildCmdShadowDelete): Write message only if verbose on.
+	(CygbuildCmdShadowMain): Display relative paths.
+	(CygbuildCommandMain): New command line option -C|--color and
+	new variable OPTION_COLOR.
+	(CygbuildBootVariablesGlobalMain): Define CYGBUILD_COLOR_*
+	variables.
+	(CygbuildEcho): New
+	(CygbuildMsgFilter): New. Support colored messages.
+	(CygbuildProgramVersion): prepend '-- ' to output.
+	(CygbuildProgramVersion): Add color support
+	(CygbuildHelpShort): Remove non-essential option -x, -m and
+	add new option -C.
+	(CygbuildMsgFilter): Treat FATAL texts.
+
+2007-12-02  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl (ReadmeFix): Correct tags like: YYYY-MM-DD,
+	Firstname Lastname and YYYY.
+
+	* bin/cygbuild.sh:
+	- Adjust indentation of all messages to '-- '
+	(CygbuildCmdInstallCheckBinFiles):
+	Check 1st line Perl and Python interpreter correctness.
+	(CygbuildInstallFixInterpreterPerl): New.
+	(CygbuildInstallFixInterpreterPython): New
+	(CygbuildInstallFixInterpreterMain): New
+	(CygbuildInstallFixPerlPacklist): New
+	(CygbuildInstallFixMain): Use
+	`CygbuildInstallFixInterpreterMain' and
+	`CygbuildInstallFixPerlPacklist'.
+	(CygbuildCmdAllMain): New.
+	(CygbuildCommandMain): New command 'almostall'.
+	Changed command 'upstream-download' to 'download'
+	(Help): Document 'almostall'.
+	(CygbuildBootVariablesGlobalMain): New variable
+	`cygbuild_opt_exclude_other'. Update variable
+	`cygbuild_opt_exclude_auto_files'.
+	(CygbuildWhichCheck); New.
+	(CygbuildRunIfExist): New.
+	(CygbuildPatchDiffstat): New.
+	(CygbuildGPGsignFiles): Display relative filename
+	(CygbuildGPGsignFiles): Adjust output messages.
+
+2007-11-30  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/install.tar.options.tmp: Remove Copyright
+	template.
+
+	* etc/template/upstream.perl-webget: Remove Copyright
+	template.
+
+	* etc/template/setup.hint: Adjust comments
+
+	* bin/cygbuild.sh:
+	(CygbuildBootVariablesGlobalMain):
+	CYGBUILD_DIFF_OPTIONS: Ignore config.status.
+	(CygbuildCommandMain): Add alias 'pchk' as 'patch-check'.
+	(CygbuildCmdInstallCheckSetupHint):
+	Fix 'setup.hint category should include...'. The
+	awk variable 'line' was replaced with correct '$0'.
+	(CygbuildConfPerlMain):
+	Read user options from CYGWIN-PATCHES/configure.options.
+	Add INSTALLDIRS=vendor and set correct PREFIX=/usr
+	(CygbuildInstallFixPermissions): Wrong syntax FIND => $FIND
+	(CygbuildMakeRunInstallFixPerl): Impre error checking of
+	perllocal.pod
+	(CygbuildMakeRunInstallFixPerlManpage): New.
+
+2007-11-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/postinstall.sh.tmp (InstalInfo): Added quotes
+	and removed extra $(ls ...) call. Not neeed in for-loop.
+
+2007-11-06  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:(CygbuildCmdInstallCheckSetupHintx):
+	Improve ldesc: double quote check.
+
+2007-11-04  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckSetupHint):
+	Add check for finding double quotes from ldesc: portion.
+
+2007-10-29  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildVersionInfo): Add support for
+	foo_V1.1, foo-1.1-rc1
+	* bin/cygbuild.pl (Version): Add support for
+	foo_V1.1, foo-1.1-rc1
+
+2007-10-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/package.README: Remove 'Other version' tag
+	from the end.
+
+2007-10-27  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/Makefile.tmp (install): Replace
+	$(PACKAGE) target with 'all'.
+	(EXE): Fix rule to use $OBJS, not $SRCS
+
+2007-10-26  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallExtraManualCompress):
+	Remove find(1) calls from if-statements. This fixes bug,
+	where function got stalled, because there was no files
+	to compress.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Ignore
+	*.tmp and *[#~] files from whitespace check.
+	(CygbuildMakefileRunInstall): If there is no Makefile,
+	Call CygbuildNoticeBuilddirMaybe() first.
+	(CygbuildCmdInstallCheckDirStructure): Added /use/share/
+	content check.
+
+2007-10-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/*: Change all 'Your Name' phrases to
+	'Firstname Lastname'.
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckReadme): Search
+	phrase 'Firstname Lastname'.
+	(CygbuildConfCC): Change variable $conf from srcdir to
+	builddir.
+	(CygbuildCmdConfMain): Handle autoreconf case better.
+	(CygbuildBootVariablesGlobalMain): Add .git and
+	.darcs to CYGBUILD_SHADOW_TOPLEVEL_IGNORE.
+
+2007-10-01  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckShellFiles):
+	shorten message by using relative path. Display symlink destination.
+	Correct for-loop to check only files.
+	(CygbuildCmdInstallCheckSetupHint): Correct variable name 'retval'.
+	Added 'category:' line check.
+	(CygbuildDefineGlobalCommands): Rewrote perl and python handling.
+	Define variables PERL_VERSION, PYTHON_VERSION, PYTHON_LIBDIR.
+	(CygbuildSetLDPATHpython): Use PYTHON_LIBDIR.
+	(CygbuildPatchApplyMaybe): if there is no *.patch, ignore ls(1)
+	message.
+	(CygbuildBootVariablesGlobalMain):
+	cygbuild_opt_exclude_object_files: exclude *egg-info
+	(CygbuildPatchCheck): Adjusted regexp to check *.c files.
+	Display file name in message 'patch contains files'.
+	(CygbuildInstallFixPermissions): New.
+	(CygbuildChmodExec): Change +x to ugo+x.
+	(CygbuildChmodDo): New.
+
+2007-09-30  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildPatchApplyMaybe): Unpatch files
+	in reverse order.
+
+2007-09-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckReadme):
+	Corrected version regexp.
+	(CygbuildCmdInstallCheckLibFiles): Fix call to cygcheck function.
+	(CygbuildReadmeReleaseMatchCheck): Impreoved awk gsub() regexp.
+	(CygbuildInstallFixMain): New.
+	(CygbuildInstallFixMandir): New.
+	(CygbuildCmdInstallCheckLibFiles): Comment out one echo.
+
+2007-09-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/postinstall.sh.tmp (InstallConffiles): Use 'egrep -E'
+	and better regexp to ignore also empty lines.
+
+	* bin/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES::
+	preremove-manifest-from.lst): Correct #PKGDIR to $PKGDIR.
+
+	* bin/cygbuild.sh: (CygbuildVersionInfo): Rewrote substitution
+	commands. Now Debian special *.orig extension is handled correctly.
+	(CygbuildCommandMain::repackage-all,repackage-bin): Remove check
+	commands.
+	(CygbuildRunShell): Removed 'cd'. Run in current directory.
+	(CygbuildSetLDPATHpython): More careful LD_LIBRARY_PATH and
+	$LD_RUN_PATH treatment.
+	(CygbuildCmdInstallCheckDirStructure): Added /etc check
+	(CygbuildShellEnvironenment): Define DESTDIR and prefix.
+	(CygbuildCmdInstallCheckManualPages): Tighten manual page directory
+	check.
+
+2007-09-19  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/template/install.tar.options.tmp: Mention
+	--exclude=cygbuild-no-docdir-install
+
+	* bin/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES::diff.options):
+	Clarify paragraphs.
+	(HELP::OPTIONAL EXTERNAL FILES::install.tar.options): Document
+	--exclude=cygbuild-no-docdir-install
+
+	* etc/template/Makefile.tmp (clean): Added comments next
+	to targets.
+	(ETCDIR): Remove extra $.
+
+	* bin/cygbuild.sh: (CygbuildFileReadOptionsMaybe):
+	Shorten displayed message.
+	(CygbuildCmdBuildMain): Shorten displayed message.
+	(CygbuildInstallPackageDocs): Support new option
+	'cygbuild-no-docdir-install'.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Ignore *.orig* files.
+	(CygbuildMatchBashPatternList): Moved to primitives.
+	(CygbuildIsMakefileCplusplus): Change \t to [[:space:]].
+	(CygbuildMakefilePrefixCheck): Change \t to [[:space:]].
+	(CygbuildCmdInstallCheckCygpatchDirectory): Change \t to [[:space:]].
+	(MakefileUsesRedirect): Change \t to [[:space:]].
+	(CygbuildInstallPackageDocs): Add option --dereference to tar,
+	so that documentation is copied 'as is'.
+	(CygbuildCmdInstallCheckSetupHint): Convert PKG into safe regexp
+	before testing words from 'ldesc:'.
+	(CygbuildPatchApplyMaybe): Use grep option --fixed-strings to
+	match already applied patches. Fixed $continue variable name
+	which caused reapplying already applied patch.
+	(CygbuildIsCplusplusPackage): New.
+	(CygbuildMakefileName): Fix "$@" handling.
+	(CygbuildDefineGlobalCompile): Fix C++ code check and definition
+	of 'ccache g++'.
+	(CygbuildDefineGlobalMain): Remove  call to
+	`CygbuildDefineGlobalCompile'. It is too early when package
+	may not be even unpacked yet (Cygwin source pacakging GBS).
+	(CygbuildCmdBuildMain): Call `CygbuildDefineGlobalCompile'
+
+2007-09-18  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/etc/programs.conf (EGREP): Replace option
+	--perl-regexp with --extended-regexp.
+	(EGREPP): New.
+
+	* bin/cygbuild.sh:
+	- Fix source package generation with version number like
+	  foo-0.3+git20070827
+	(CygbuildCmdMkpatchMain): Shorten
+	paths in messages.
+	(CygbuildStrToRegexpSafe): New
+	(CygbuildCmdInstallCheckReadme): Use `CygbuildStrToRegexpSafe'.
+	(CygbuildCmdPkgSourceStandard): Use `CygbuildStrToRegexpSafe'.
+	(CygbuildFilePackageGuessMain): Use `CygbuildStrToRegexpSafe'.
+	(CygbuildDefineGlobalCommands): EGREP Replace option
+	--perl-regexp with --extended-regexp. New variable EGREPP.
+	(CygbuildHelpSourcePackage): Cosmetic change to displayed
+	message.
+	(CygbuildIsSourceProgram): New.
+	(CygbuildIsGbsCompat): Use `CygbuildIsSourceProgram'
+	(CygbuildPerlModuleLocation): Use `CygbuildIsSourceProgram'
+
+2007-09-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	- Converted all \< and \> in egrep calls to perl syntax \b.
+	(CygbuildCmdMkpatchMain): Force unapplying local patches, no
+	matter what while taking the diff.
+	(CygbuildPatchApplyMaybe): Added call argument modifiers options
+	'-force', '-quiet' and '-nostat'.
+	(CygbuildPatchCheck): Removed message that lists applied
+	patches.
+	(CygbuildPatchListDisplay): New.
+	(CygbuildCommandMain::patch-check): Call `CygbuildPatchListDisplay'.
+
+2007-09-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl: (HELP::OPTIONS): Document new option --bzip2.
+
+	* etc/etc/programs.conf (GREP): Changed --extended-regexp
+	to --perl-regexp. Needed for TAB \t in regexps.
+
+	* bin/cygbuild.sh:
+	- Check CYGWIN-PATCHES/* for trailing whitespace.
+	- Shorted many messages relative to srcdir.
+	(CygbuildCygcheckMain): Renamed. Was
+	`CygbuildCygcheck'.
+	(CygbuildCygcheckLibraryDepMain): Exit immediately if
+	no library dependencies found.
+	(CygbuildCmdInstallCheckSymlinkExe): Renamed. Was
+	`CygbuildCmdInstallSymlinkExe'.
+	(CygbuildCmdInstallCheckCygpatchDirectory): New.
+	(CygbuildCmdInstallCheckMain): Use
+	`CygbuildCmdInstallCheckTrailingWspc'.
+	(CygbuildPatchApplyRun): Improved handling of additional options
+	by using $@.
+	(CygbuildPatchApplyMaybe): Improved patch/unpatch and error
+	checking in case the commands were called multiple times.
+	Show the full patch command only if --verbose is set.
+	(CygbuildCmdInstallCheckDirStructure): Changer ERROR
+	to WARN if /bin was found.
+	(CygbuildInstallExtraManual): The *.N.pod pages are converted
+	into *.N. Delete these generated pages after the install.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Display file in error:
+	Possible unfilled template line
+	(CygbuildCmdInstallCheckSymlinks): Fix iWARN indentation: 2 more
+	spaces to the right.
+	(CygbuildCmdInstallCheckCygpatchDirectory): Adjust 'your name'
+	regexp by leaving out [<] test.
+	(CygbuildInstallPackageDocs): Adjust indentation of message
+	'Fixing permission'
+	(CygbuildVersionInfo): once again fix version number handling
+	with multiple word names: one-two-three-N.N.
+
+2007-09-13  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	- Added new option --bzip2 to choose *.bz2 compression.
+	(CygbuildDefineGlobalCommands): GZIP
+	incorrectly defined as 'bzip'. New variable BZIP.
+	(CygbuildCompress): New. Support both gzip and bzip2.
+	(CygbuildInstallExtraManualCompress): Call `CygbuildCompress'
+	(CygbuildProgramVersion): New.
+	(CygbuildCommandMain): Added getop handling for --bzip2 and
+	treatment in while loop to set OPTION_BZIP. Removed
+	options -V|--version that are already handled in
+	`CygbuildCommandMainCheckHelp'. Call `CygbuildProgramVersion'.
+	Don't call `CygbuildReadmeReleaseMatchCheck' when GBS mode
+	in on (when running the *.sh source script).
+	(CygbuildGPGverify): Added missing backslash from comand
+	continuation at gpg --verify. The log file appeared empty and caused
+	message 'FAILED! Signature not published'.
+
+2007-09-11  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.pl (Version): Support exotic version number like
+	foo-R31b.tar.gz
+
+	* bin/cygbuild.sh
+	- Fix "perl: warning: Setting locale failed" by defininf LC_ALL=C
+	  in suitable places.
+	(CygbuildMakefileRunInstallPythonMain): Set
+	prefix to /usr, not /usr/share. Rewrote input argument
+	handling to use shift and $@.
+	(CygbuildCmdInstallCheckDirStructure): Warn about deprecated
+	X11R6 directory.
+	(CygbuildVersionInfo): Support exotic version number like
+	foo-R31b.tar.gz
+	(CygbuildBootVariablesGlobalEtcMain): Check GBS compat and do
+	not require ETC to be installed.
+	(CygbuildCmdInstallCheckDirEmpty): New.
+	(CygbuildVersionInfo): Greatly simplified the version explode
+	code.
+	(CygbuildIsNumberLike): Relax regexp not to include leading anchor.
+	(CygbuildCmdInstallCheckReadme): README file name checking
+	simplified.
+	(CygbuildCommandMain): Move `CygbuildDefineGlobalScript'
+	to the beginning.
+	(CygbuildCmdBuildStdMakefile): Renamed, was
+	`CygbuildCmdBuildMainMakefile'
+	(CygbuildCmdPrepMain): Move `CygbuildCmdPrepPatch' call inside
+	`CygbuildCmdPrepIsUnpacked'.
+	(CygbuildDefineGlobalScript): Moved initialization of variables
+	here.
+	(CygbuildHelpSourcePackage): Message improved for no-build-source.
+	(CygbuildSrcDirLocation): Improved recognition.
+
+2007-09-10  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildCmdInstallCheckSymlinks); New.
+
+2007-09-07  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	- Moved many function to the beginning as "primitives"
+	- Added initial support to run program under Linux
+	(CygbuildPerlModuleLocation): Check
+	'in place installation'. If user has just unpacked the sources
+	or uses a VCS checkout, then determine the Perl library location.
+	(CygbuildBootVariablesGlobal): New variable
+	CYGBUILD_PERL_MODULE_NAME
+	(CygbuildBootVariablesGlobalCacheSet): New.
+	(CygbuildBootVariablesGlobalCacheMain): New.
+	(CygbuildBootVariablesGlobalShareSet): New.
+	(CygbuildBootVariablesGlobalShareMain): New.
+	(CygbuildBootVariablesGlobalEtcSet): New.
+	(CygbuildBootVariablesGlobalEtcMain): New.
+	(CygbuildBootVariablesGlobalLibSet): New.
+	(CygbuildBootVariablesGlobal): Moved functionality to new
+	functions above.
+	(CygbuildBootVariablesGlobalMain): Renamed. Was
+	`CygbuildBootVariablesGlobal'
+	(CygbuildBootVariablesId): New variables CYGBUILD_PROG_PATH and
+	CYGBUILD_PROG_NAME
+	(CygbuildTemplatePath): Removed.
+	(CygbuildCmdFilesMain): Removed call to `CygbuildTemplatePath'
+	and used $CYGBUILD_TEMPLATE_DIR_MAIN
+
+	* bin/cygbuild.sh: Send 2 additional arguments to
+	CYGBUILD_PUBLISH_BIN: version and release.
+
+	* bin/cygbuild.pl: (HELP::Packaging commands::publish). Document
+	that CYGBUILD_PUBLISH_BIN now takes 5 arguments instead of previous
+	3.
+
+2007-09-06  Jari Aalto  <jari.aalto@cante.net>
+
+	* etc/etc/programs.conf: Arrange all entries in alphabetical
+	order. Added missing GPG variable.
+
+	* bin/cygbuild.sh (CygbuildBootVariablesId): Put quotes around
+	$PATH
+	(CygbuildDefineGlobalCommands): Removed /usr/local special
+	case for GPG.
+
+2007-09-01 Sat  Jari Aalto  <jari dot aalto A T cante dot net>
+
+	* bin/cygbuild.sh (function CygbuildDefineGlobalCommands()): 1.937
+	Streamlines. The PATH makes sure /usr/bin programs are used.
+	(function CygbuildCygcheckLibraryDepGrepPgkNames()): 1.937
+	Completely rewritten. Now uses solely awk. The new implemention
+	is simpler and faster.
+	(top level::CYGBUILD_HOMEPAGE_URL): Updated to freshmeat.
+
 2007-08-30 Thu  Jari Aalto  <jari dot aalto A T cante dot net>
 
 	* etc/template/install.tar.options.tmp: 1.4 Added example for new
@@ -21,6 +1814,10 @@
 	parameter $type, which control if exclude or include is wanted.
 	(function CygbuildInstallPackageDocs()): 1.937 Support new
 	--include from install.tar.options
+	(function CygbuildPatchPrefixStripCountFromContent()): 1.937
+	Removed `mercurical' variable and replaced with generic one.
+	(CygbuildInstallPackageDocs): Use builddir, not srcdir for
+	installation source directory.
 
 2007-08-29 Wed  Jari Aalto  <jari dot aalto A T cante dot net>
 
@@ -1228,7 +3025,7 @@
 	   mistakes are reposted.
 
 	* etc/template/package.README (Mailing List:): 1.17 typo:
-	Licence => License:
+	License => License:
 
 	* bin/cygbuild.pl (Help::CYGWIN PACKAGE POLICY NOTES): 1.223 New
 	heading 1. Wrote topic 'Music file formats *.mp3, *.ogg etc.'
@@ -2652,7 +4449,7 @@
 	* Makefile (install-etc-main): 1.22 Added missing paren.
 	(install-etc-template): 1.22 Added missing paren.
 
-	* index.html (Mailing list): 1.28 Chnaged licence from
+	* index.html (Mailing list): 1.28 Chnaged license from
 	www.opencontent.org to creativecommons.org
 
 	* etc/template/configure.sh.tmp (function Configure()): 1.11
@@ -3328,7 +5125,7 @@
 	Fixed ignoring -d command line option.
 
 	* etc/template/package.README (Upstream contact:): 1.11 Added
-	'Licence:' tag
+	'License:' tag
 
 2004-03-09 Tue  Jari Aalto  <jari aalto A T poboxes dt com>
 

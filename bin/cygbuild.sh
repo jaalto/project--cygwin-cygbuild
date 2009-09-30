@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-#   cygbuild.sh --- A generic Cygwin Net Release package builder script
+#   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2007 Jari Aalto
+#       Copyright (C) 2003-2009 Jari Aalto
 #
-#   Copyright
+#   License
 #
 #       This program is free software; you can redistribute it and/or
 #       modify it under the terms of the GNU General Public License as
@@ -15,15 +15,24 @@
 #       WITHOUT ANY WARRANTY; without even the implied warranty of
 #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #       General Public License for more details.
+#
+#       You should have received a copy of the GNU General Public License
+#       along with program. If not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#       02110-1301, USA.
+#
 #       Visit <http://www.gnu.org/copyleft/gpl.html>
 #
 #   WARNING
 #
-#       If this the name of the file is not "cygbuild" or
-#       "cygbuild.sh", then it has been auto-generated and you are
-#       looking at the result of packaging script. IN THAT CASE YOU
-#       SHOULD NOT TRY TO USE THIS FILE FOR ANYTING ELSE THAN CALLING
-#       COMMANDS LIKE "all" or "-h" TO BUILD THE CYGWIN BINARY PACKAGE
+#       If the name of the file is not "cygbuild" or "cygbuild.sh",
+#       then it has been auto-generated and you are looking at the
+#       result of packaging script. IN THAT CASE YOU SHOULD NOT TRY TO
+#       USE THIS PROGRAM FOR ANYTING ELSE THAN CALLING PROGRAM WITH ONE OF:
+#
+#           -h
+#           all
+#           almostall
 #
 #   Code notes
 #
@@ -31,74 +40,23 @@
 #       o   Global variables ARE_LIKE_THIS and local variables are areLikeThis
 #       o   GNU programs are required. grep(1), egrep(1), awk(1) etc.
 #
-#   MISCELLANEOUS SCRATCHBOARD
+#   Other notes
 #
-#     Packages without a patch file?
-#
-#        http://sources.redhat.com/ml/cygwin-apps/2003-01/msg00248.html
-#
-#     Preremove and others
-#
-#        Preremove is to do things like removing cached rebased .dll
-#        files etc - things you can only do while the rest of your
-#        package is installed. postremove is to do cleanup that you
-#        cannot do while the rest of your package is installed.
-#
-#     Other notes
-#
-#       Daniel Reed <n@ml.org> writes 2003-10-14 in cygwin-apps-L
-#       http://sources.redhat.com/ml/cygwin-apps/2002-07/msg00144.html
-#
-#       prefix=/usr/X11R6
-#       includedir=${prefix}/include    # /usr/X11R6/include
-#       sysconfdir=/etc
-#       localstatedir=/var
-#
-#       exec_prefix=${prefix}
-#       bindir=${exec_prefix}/bin       # /usr/X11R6/bin
-#       libdir=${exec_prefix}/lib       # /usr/X11R6/lib
-#
-#       datadir=/usr/share
-#       pkgdatadir=${datadir}/${PACKAGE_TARNAME}-${PACKAGE_VERSION}
-#                                       # /usr/share/tcm-2.20
-#       docdir=${datadir}/doc           # /usr/share/doc
-#       pkgdocdir=${docdir}/${PACKAGE_TARNAME}-${PACKAGE_VERSION}
-#                                       # /usr/share/doc/tcm-2.20
-#       cygdocdir=${docdir}/Cygwin      # /usr/share/doc/Cygwin
-#       mandir=${datadir}/man           # /usr/share/man
-#       man1dir=${mandir}/man1          # /usr/share/man/man1
-#
-#
-#       If you use:
-#       --prefix=/usr/X11R6 \
-#       --sysconfdir=/etc \
-#       --libexecdir=/usr/lib \
-#       --localstatedir=/var \
-#       --datadir=/usr/share \
-#       --mandir='${datadir}/man' \
-#       --infodir='${datadir}/info'
-#
-#       or:
-#       --prefix=/usr \
-#       --exec-prefix=/usr/X11R6 \
-#       --includedir=/usr/X11R6/include \
-#       --sysconfdir=/etc \
-#       --libexecdir=/usr/lib \
-#       --localstatedir=/var \
-#       --mandir='${datadir}/man' \
-#       --infodir='${datadir}/info'
-#
-#       everything should end up in the proper place. The last few lines in
-#       both are because mandir and infodir default to ${prefix}/man and
-#       ${prefix}/info, libexec defaults to ${exec_prefix}/libexec,
-#       sysconfdir defaults to ${prefix}/etc, and localstatedir defaults to
-#       ${prefix}/var.
-#       not sure if this is what existing X packages use, but this seems
-#       to be the latest reference to paths from the archive.
+#       o   cygcheck is a MingW application and output conatains CRLF
 
-CYGBUILD_HOMEPAGE_URL="http://cygbuild.sourceforge.net/"
-CYGBUILD_VERSION="2007.0830.1518"
+CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
+CYGBUILD_AUTHOR="Jari Aalto"
+CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
+
+#  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
+CYGBUILD_VERSION="2009.0929.2211"
+
+#  Used by the 'cygsrc' command to download official Cygwin packages
+#  http://cygwin.com/packages
+
+CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
+"http://mirrors.eu.kernel.org/sourceware/cygwin"}
 
 #######################################################################
 #
@@ -108,42 +66,421 @@ CYGBUILD_NAME="cygbuild"
 
 #   Check correct shell and detect user mistakes like this:
 #
-#       sh ./our-file.sh
+#       sh ./program.sh
 #
 #   The following will succeed under bash, but will give error under sh
+#
+#   NOTE: In some places the sh is copy of bash (or symlink), but bash
+#   would still restrict it to certain features. The simplistic test
+#   is not enough. See bash manual anc section "INVOCATION".
+#
+#       eval "[[ 1 ]]" > /dev/null
+#
+#   The process substitution tested will fail in bash running as
+#   "sh" mode.
+#
+#    eval ": <(:)" > /dev/null
 
-    eval "[[ 1 ]]" 2> /dev/null
+[ "$BASH" = "/usr/bin/bash" ] || [ "$BASH" = "/bin/bash" ] ||
+{
+    prg="$0"
 
-#   Check result, do we need to exchange shell?
+    # If we did not find ourselves, most probably we were run as
+    # 'sh PROGRAM' in which case we are not to be found in the path.
 
-    if [ "$?" != "0" ] ; then
-
-	prg="$0"
-
-	# If we did not find ourselves, most probably we were run as
-        # 'sh # COMMAND' in which case we are not to be found in the path.
-
-	if [ -f "$prg" ]; then
-	    [ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
-	fi
-
-        echo $CYGBUILD_ID >&2
-        echo "$0 [FATAL] Called with wrong shell. This is a bash script" >&2
-        exit 1
+    if [ -f "$prg" ]; then
+	[ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
     fi
 
-shopt -s extglob      # Use extra pattern matching options
+    echo "$0 [FATAL] $prg called with wrong shell: needs bash" >&2
+    exit 1 ;
+}
 
-LC_ALL=C              # So that sort etc. works as expected.
+shopt -s extglob    # Use extra pattern matching options
+set -o pipefail     # status comes from the failed pipe command
+
+LC_ALL=C            # So that sort etc. works as expected.
 LANG=C
+
+#######################################################################
+#
+#       Primitives
+#
+#######################################################################
+
+function CygbuildAskYes()
+{
+    echo -n -e "$* (y/N) "
+    local ans
+    read ans
+
+    [[ "$ans" == [yY]* ]]
+}
+
+function CygbuildPushd()
+{
+    pushd . > /dev/null
+}
+
+function CygbuildPopd()
+{
+    popd > /dev/null
+}
+
+function CygbuildWhich()
+{
+    # returns path name. Do NOT use which(1) under Cygwin.
+    # it does not find programs that are symlinks
+
+    [ "$1" ] && type -p "$1" 2> /dev/null
+}
+
+function CygbuildWhichCheck()
+{
+    # Ignore return values (path name)
+    [ "$1" ] && CygbuildWhich "$1" > /dev/null
+}
+
+function CygbuildRun()
+{
+    ${test:+echo} "$@"
+}
+
+function CygbuildRunIfExist()
+{
+    [ "$1" ] && CygbuildWhichCheck "$1" && "$@"
+}
+
+function CygbuildDate()
+{
+    date "+%Y%m%d%H%M"
+}
+
+function CygbuildStripCR ()
+{
+    sed -e "s,\r,,"
+}
+
+function CygbuildPathBinFast()
+{
+    #   ARG 1: binary name
+    #   ARG 2: possible additional search path like /usr/local/bin
+
+    local bin="$1"
+    local try="${2%/}"      # Delete trailing slash
+
+    #   If it's not in these directories, then just use
+    #   plain "cmd" and let bash search whole PATH
+
+    if [ -x /usr/bin/$bin ]; then
+	echo /usr/bin/$bin
+    elif [ -x /usr/sbin/$bin ]; then
+	echo /usr/sbin/$bin
+    elif [ -x /bin/$bin ]; then
+	echo /bin/$bin
+    elif [ -x /sbin/$bin ]; then
+	echo /sbin/$bin
+    elif [ "$try" ] && [ -x $try/$bin ]; then
+	echo $try/$bin
+    else
+	return 1
+    fi
+}
+
+function CygbuildTarOptionCompress()
+{
+    local id="$0.$FUNCNAME"
+
+    #   Return correct packaging command based on the filename
+    #   .tar.gz or .tgz     => "z" option
+    #   .bz2                => "j" option
+
+    # FIXME: lzma
+
+    case "$1" in
+	*.tar.gz|*.tgz)   echo "--gzip" ;;
+	*.bz2|*.tbz*)     echo "--bzip2" ;;
+	*)                return 1 ;;
+    esac
+}
+
+function CygbuildStrToRegexpSafe()
+{
+    # Just quick conversion
+    local str="$1"
+
+    [ "$str" ] || return 1
+
+    str=${str//\[/\\[}
+    str=${str//\]/\\]}
+
+    str=${str//./[.]}
+    str=${str//+/[+]}
+    str=${str//\*/[*]}
+    str=${str//\?/[?]}
+
+    str=${str//\(/[(]}
+    str=${str//\)/[)]}
+
+    echo $str
+}
+
+function CygbuildMatchGlob()
+{
+    case "$2" in
+	$1) return 0
+	    ;;
+	*)  return 1
+	    ;;
+    esac
+}
+
+function CygbuildMatchRegexp()
+{
+    #   Argument 1: regexp
+    #   Argument 2: string to match
+
+    if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
+	[[ $2 =~ $1 ]]
+    else
+	echo "$2" | $EGREP --quiet "$1"
+    fi
+}
+
+function CygbuildMatchPatternRemoveWord()
+{
+    local pattern="$1"
+    shift
+
+    local item new
+
+    for item in "$@"
+    do
+	[[ "$item" == $pattern ]] && continue
+
+	new="$new $item"
+    done
+
+    echo $new
+}
+
+function CygbuildMatchPatternList()
+{
+    local str="$1"
+
+    [ ! "$str" ] && return 1
+
+    shift
+    local ret=1    # Suppose no match by default
+    local match
+
+    #   In for loop, the patterns in $list
+    #   would expand to file names without 'noglob'.
+
+    set -o noglob
+
+	for match in $*
+	do
+	    if  [[ "$str" == $match ]]; then
+		ret=0
+		break
+	    fi
+	done
+
+    set +o noglob
+
+    return $ret
+}
+
+function CygbuildIsEmpty()
+{
+    CygbuildMatchRegexp '^[ \t]*$' "$1"
+}
+
+function CygbuildIsNumber()
+{
+    CygbuildMatchRegexp '^[0-9]+$' "$1"
+}
+
+function CygbuildIsNumberLike()
+{
+    CygbuildMatchRegexp '[0-9]' "$1"
+}
+
+function CygbuildIsCygwin()
+{
+    [ -d /cygdrive/c ]
+}
+
+function CygbuildIsLinux()
+{
+    [ -d /boot/vmlinuz ]
+}
+
+#######################################################################
+#
+#       Primitives 2
+#
+#######################################################################
+
+function CygbuildIsSourceProgram ()
+{
+    # Check "the packaging script" foo-N.N.sh
+
+    [[ $0 == *[0-9]* ]]
+}
+
+function CygbuildIsSourceUnpacked ()
+{
+    [ -f $DIR_CYGPATCH/$PKG.README ]
+}
+
+function CygbuildIsGbsCompat()
+{
+    [ "$OPTION_GBS_COMPAT" ] || CygbuildIsSourceProgram
+}
+
+#######################################################################
+#
+#       Error functions
+#
+#######################################################################
+
+function CygbuildMsgFilter()
+{
+    if [ ! "$OPTION_COLOR" ] || [ ! "$PERLBIN" ] || [ ! -f "$PERLBIN" ]
+    then
+	cat                                             # Pass through
+	return 0
+    fi
+
+    local topic="$CYGBUILD_COLOR_BLACK1"
+    local error="$CYGBUILD_COLOR_RED1"
+    local fatal="$CYGBUILD_COLOR_RED1R"
+    local warn="$CYGBUILD_COLOR_RED"
+    local info="$CYGBUILD_COLOR_PURPLE"
+    local msg="$CYGBUILD_COLOR_BLUE"
+    local em="$CYGBUILD_COLOR_BLUE1"
+    local note="$CYGBUILD_COLOR_BLUEU"
+    local external="$CYGBUILD_COLOR_PINK"
+    local end="$CYGBUILD_COLOR_RESET"
+
+    export topic error error fatal warn info msg note external end
+
+    local str=$(
+	$PERLBIN -ane '
+	    exit 0 unless /\S/;
+
+	    eval "\$$_ = q($ENV{$_});" for
+	      qw(topic error error fatal warn info
+		 msg note external end);
+
+	    $e = $end;
+
+	    s,^(==.*),$topic$1$e, ;
+	    s,(.*ERROR.*),$error$1$e, ;
+	    s,(.*FATAL.*),$fatal$1$e, ;
+	    s,(.*WARN.*),$warn$1$e, ;
+	    s,(.*(?:INFO|NOTE).*),$info$1$e, ;
+	    s,^(>>.*),$external$1$e, ;
+	    s,^--- ([^[].*?:)(.*),-- $note$1$msg$2$e, ;
+
+	    s{^(-- [^[].+ \s+ < \s+)
+		(\S+/\S+) \s* $
+	     }
+	     {$msg$1$external$2$e}x    or
+	    s,^(-- [^[].*),$msg$1$e, ;
+
+	    print;
+    ')
+
+    if [ "$str" ]; then
+	echo -e "$str"
+    fi
+}
+
+function CygbuildEcho()
+{
+    if [ "$OPTION_COLOR" ]; then
+	echo -e "$*" | CygbuildMsgFilter
+    else
+	echo -e "$*"
+    fi
+}
+
+function CygbuildVerb()
+{
+    if [ "$verbose" ] && [ "$1" ]; then
+	CygbuildEcho "$*"
+    fi
+}
+
+function CygbuildWarn()
+{
+    CygbuildEcho "$*" >&2
+}
+
+function CygbuildVerbWarn()
+{
+    if [ "$verbose" ] ; then
+	CygbuildWarn "$*"
+    fi
+}
+
+function CygbuildExit()
+{
+    local code=${1:-1}
+    shift
+
+    if [ $# -gt 0 ]; then
+	CygbuildWarn "$@"
+    fi
+
+    exit $code
+}
+
+function CygbuildDie()
+{
+    CygbuildExit 1 "$@"
+}
+
+function CygbuildExitIfNoDir()
+{
+    local dir="$1"
+    shift
+
+    if [ ! "$dir" ] || [ ! -d "$dir" ]; then
+	CygbuildDie "$@"
+    fi
+}
+
+function CygbuildExitIfNoFile()
+{
+    local file="$1"
+    shift
+
+    if [ ! -f "$file" ]; then
+	CygbuildDie "$@"
+    fi
+}
+
+function CygbuildExitIfEmpty()
+{
+    if [ ! "$1" ]; then
+	shift
+	CygbuildDie "$@"
+    fi
+}
+
+#######################################################################
+#
+#       VARIABLES
+#
+#######################################################################
 
 function CygbuildBootVariablesId()
 {
-    #######################################################################
-    #
-    #       Public ENVIRONMENT VARIABLES: User settings
-    #
-    #######################################################################
+    #   Public ENVIRONMENT VARIABLES: User settings
 
     #   These variables are used only when command [publish] is run.
     #   The ready bin and source packages are either:
@@ -153,35 +490,16 @@ function CygbuildBootVariablesId()
     #      $CYGBUILD_PUBLISH_DIR. Separate subdirectories are created for
     #      each published package before copying files.
 
-    CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}
+    CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}        # global-def
     CYGBUILD_PUBLISH_DIR=${CYGBUILD_PUBLISH_DIR:-"/usr/src/cygwin-packages"}
 
-    #######################################################################
-    #
-    #       Private: program startup and name
-    #
-    #######################################################################
+    TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}               # global-def
+    TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
 
-    #  Be cautious with the PATH. Putting /bin etc. first make finding
-    #  programs faster.
+    #   Private: program startup and name
 
-    PATH=/bin:/sbin:/usr/bin:/usr/local/bin:$PATH
-    TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}
-
-    if [ "" ]; then  # Disabled, work for CVS Id strings only
-
-        CYGBUILD_VERSION=${CYGBUILD_ID##*,v[ ]}
-        CYGBUILD_VERSION=${CYGBUILD_VERSION%%[ ]*}
-
-        #   This could be more easily done in sed or awk, but it is faster to use
-        #   bash to convert YYYY/MM/DD into ISO8601 format YYYY-MM-DD
-
-        CYGBUILD_DATE=${CYGBUILD_ID#*.[0-9][0-9][0-9][ ]}   # Delete leading
-        CYGBUILD_DATE=${CYGBUILD_DATE%%[ ]*}                # And trailing
-        CYGBUILD_DATE=${CYGBUILD_DATE//\//-}       # And substitute / with -
-    fi
-
-    CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_DATE $CYGBUILD_VERSION"
+    CYGBUILD_PROGRAM="Cygbuild $CYGBUILD_VERSION"           # global-def
+    CYGBUILD_DIR_CYGPATCH_RELATIVE="CYGWIN-PATCHES"         # global-def
 
     #  Function return values are stored to files, because bash cannot call
     #  function with parameters in running shell environment. The only way to
@@ -201,16 +519,85 @@ function CygbuildBootVariablesId()
     #       FunctionName "param" > $retval
     #       local val=$(< $retval)
 
-    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}$$"
+    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$"
+    local retval="$CYGBUILD_RETVAL"
+
+    CYGBUILD_PROG_NAME=${0##*/}                             # global-def
+
+    if [[ "$0" == */* ]]; then
+	CYGBUILD_PROG_PATH=$(cd ${0%/*} && pwd)             # global-def
+    else
+	CygbuildWhich "$CYGBUILD_PROG_NAME" > $retval
+	CYGBUILD_PROG_PATH=$(< $retval)
+    fi
+
+    local path="$CYGBUILD_PROG_PATH"
+
+    #   Depends how program is installed.
+
+    CYGBUILD_PROG_LIBPATH=                                  # global-def
+
+    if [[ "$CYGBUILD_PROG_NAME" == *-[0-9].sh ]]    # GBS: foo-N.N-1.sh
+    then
+
+	#   Secondary
+	[ -d /usr/share/cygbuild ] &&
+	CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
+
+	#   Primary
+	[ -d /usr/local/share/cygbuild ] &&
+	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
+
+    elif [[ "$path" == /usr/local* ]]; then
+	CYGBUILD_PROG_LIBPATH=/usr/local/share/cygbuild
+    elif [[ "$path" == /usr/bin* ]]; then
+	CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
+    fi
+
+    CYGBUILD_PROG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
+}
+
+function CygbuildDefineGlobalPerlVersion()
+{
+    PERL_VERSION=$(                                 # global-def
+	perl --version |
+	awk '
+	    /This is perl/ {
+		ver = $4;
+		sub("v", "", ver);
+		print ver;
+	    }
+	'
+    )
+
+    [ "$PERL_VERSION" ]
+}
+
+function CygbuildDefineGlobalPythonVersion()
+{
+    PYTHON_VERSION=$(                               # global-def
+	python -V 2>&1 |
+	awk '{print $2}'
+    )
+
+    [ "$PYTHON_VERSION" ]
+}
+
+function CygbuildDefineGlobalRubyVersion()
+{
+    #  ruby 1.8.7 (2009-06-12 patchlevel 174)
+
+    RUBY_VERSION=$(                               # global-def
+	ruby --version 2>&1 |
+	awk '{print $1}'
+    )
+
+    [ "$RUBY_VERSION" ]
 }
 
 function CygbuildBootVariablesCache()
 {
-    #######################################################################
-    #
-    #       Private: CACHE VARIABLES; remember last function call values
-    #
-    #######################################################################
+    #   Private: CACHE VARIABLES; remember last function call values
 
     # path to module cygbuild.pl
     declare -a CYGBUILD_STATIC_PERL_MODULE
@@ -223,56 +610,272 @@ function CygbuildBootVariablesCache()
     declare CYGBUILD_STATIC_VER_STRING=""
 }
 
-function CygbuildBootVariablesGlobal ()
+function CygbuildBootVariablesGlobalEtcSet()
 {
-    #######################################################################
+    local dir="$1"
+
+    CYGBUILD_ETC_DIR="$dir"                                     #global-def
+    CYGBUILD_TEMPLATE_DIR_USER="$CYGBUILD_ETC_DIR/template"     #global-def
+    CYGBUILD_CONFIG_MAIN="$CYGBUILD_ETC_DIR/cygbuild.conf"      #global-def
+}
+
+function CygbuildBootVariablesGlobalEtcMain()
+{
+    local id="$0.$FUNCNAME"
+    local dir=/etc/cygbuild
+
+    if [ -d "$dir" ]; then
+	CygbuildBootVariablesGlobalEtcSet $dir
+	return 0
+    fi
+
+    #   from current location?
+
+    local tmp="$CYGBUILD_PROG_PATH"
+
+    [ "$tmp" ]    || CygbuildDie "[FATAL] $id: a:No directory found at $dir"
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: b:No directory found at $tmp"
+
+    #  This is the source archive structure
     #
-    #       Private: Unpack sript variables
-    #
-    #######################################################################
+    #  ROOT
+    #  |
+    #  +-bin/
+    #  +-etc/template/
 
-    #   If this file is named like foo-2.1-1.sh then this is part of
-    #   the source archive. These variables get set during Main()
+    tmp=${tmp%/*}  # One directory up (from bin/)
+    tmp="$tmp/etc/etc"
 
-    SCRIPT_FULLPATH=         # /path/to/foo-2.1-1.sh
-    SCRIPT_FILENAME=         # foo-2.1-1.sh
-    SCRIPT_PKGVER=           # foo-2.1
-    SCRIPT_PACKAGE=          # foo
-    SCRIPT_VERSION=          # 2.1
-    SCRIPT_RELEASE=          # 1
+    if [ -d "$tmp" ]; then
+	CygbuildBootVariablesGlobalEtcSet "$tmp"
+    elif CygbuildIsGbsCompat ; then
+	#  Ignore. The cygbuild full suite is not installed
+	:
+    else
+	#  This is fatal only when trying to build sources
+	CygbuildDie "[FATAL] $id: No ETC directory found"
+    fi
+}
 
-    #######################################################################
-    #
-    #       Private: directories
-    #
-    #######################################################################
+function CygbuildBootVariablesGlobalShareSet()
+{
+    local dir="$1"
 
-    #   From this directory the [files] command copies template files.
-    #   Don't change. The location is in cygbuild's Makefile 'install'
-    #   target as well.
+    CYGBUILD_SHARE_DIR="$dir"                                   #global-def
+    CYGBUILD_TEMPLATE_DIR_MAIN="$CYGBUILD_SHARE_DIR/template"   #global-def
+}
 
-    CYGBUILD_ETC_DIR=/etc/cygbuild
-    CYGBUILD_CONFIG_PROGRAMS=$CYGBUILD_ETC_DIR/programs.conf
-    CYGBUILD_TEMPLATE_DIR_USER=$CYGBUILD_ETC_DIR/template
-    CYGBUILD_CONFIG_MAIN=$CYGBUILD_ETC_DIR/cygbuild.conf
+function CygbuildBootVariablesGlobalCacheGenerate()
+{
+    local package="$1"
+    local file="$2"
 
-    CYGBUILD_SHARE_DIR=/usr/share/cygbuild
-    CYGBUILD_TEMPLATE_DIR_MAIN=$CYGBUILD_SHARE_DIR/template
+    if [ ! "$CYGCHECK" ]; then
+	CygbuildWarn "[WARN] cygcheck(1) not in PATH." \
+	             "Cannot make cache: $package"
+	return 1
+    fi
 
-    local tmp=$CYGBUILD_SHARE_DIR/lib/cygbuild.pl
-    [ -f "$tmp" ] && CYGBUILD_STATIC_PERL_MODULE=$tmp
+    $CYGCHECK -l $package | ${PERLBIN:-perl} -pe 's,\r,,' > "$file"
 
-    CYGBUILD_CACHE_DIR=/var/cache/cygbuild
-    CYGBUILD_CACHE_PAKAGES=$CYGBUILD_CACHE_DIR/packages
+    [ -s "$file" ]
+}
 
+function CygbuildBootVariablesGlobalCachePerlGenerate()
+{
+    [ "$PERL_VERSION" ] || return 1
+
+    local dir="$CYGBUILD_PROG_LIBPATH"
+    local file="$dir/perl-${PERL_VERSION}.lst"
+
+    CygbuildBootVariablesGlobalCacheGenerate perl "$file"
+}
+
+function CygbuildBootVariablesGlobalCachePerl()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerlVersion || return 1
+
+    #   Set Perl package content cache. This is needed to check if
+    #   modules are Standard perl or from CPAN.
+
+    local file="$dir/perl-${PERL_VERSION}.lst"
+    CYGBUILD_CACHE_PERL_FILES=                                  # global-def
+
+    if [ -s "$file" ]; then
+	CYGBUILD_CACHE_PERL_FILES="$file"                       # global-def
+    else
+	CygbuildVerb "-- [WARN] No Perl cache available: $file"
+    fi
+}
+
+function CygbuildBootVariablesGlobalCachePythonGenerate()
+{
+    [ "$PYTHON_VERSION" ] || return 1
+
+    local dir="$CYGBUILD_PROG_LIBPATH"
+    local file="$dir/perl-${PYTHON_VERSION}.lst"
+
+    CygbuildBootVariablesGlobalCacheGenerate python "$file"
+}
+
+function CygbuildBootVariablesGlobalCachePython()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    [ "$PYTHON_VERSION" ] || CygbuildDefineGlobalPythonVersion || return 1
+
+    local file="$dir/python-${PYTHON_VERSION}.lst"
+    CYGBUILD_CACHE_PYTHON_FILES=                                # global-def
+
+    if [ -s "$file" ]; then
+	CYGBUILD_CACHE_PYTHON_FILES="$file"                     # global-def
+    else
+	CygbuildVerb "-- [WARN] No Python cache available: $file"
+    fi
+}
+
+function CygbuildBootVariablesGlobalCacheRubyGenerate()
+{
+    [ "$RUBY_VERSION" ] || return 1
+
+    local dir="$CYGBUILD_PROG_LIBPATH"
+    local file="$dir/perl-${RUBY_VERSION}.lst"
+
+    CygbuildBootVariablesGlobalCacheGenerate perl "$file"
+}
+
+function CygbuildBootVariablesGlobalCacheRuby()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    [ "$RUBY_VERSION" ] || CygbuildDefineGlobalRubyVersion || return 1
+
+    #   Set package content cache. This is needed to check if
+    #   modules are Standard Ruby
+
+    local file="$dir/perl-${RUBY_VERSION}.lst"
+    CYGBUILD_CACHE_RUBY_FILES=                                  # global-def
+
+    if [ -s "$file" ]; then
+	CYGBUILD_CACHE_RUBY_FILES="$file"                       # global-def
+    else
+	CygbuildVerb "-- [WARN] No Ruby cache available: $file"
+    fi
+}
+
+function CygbuildBootVariablesGlobalCacheSet()
+{
+    CygbuildBootVariablesGlobalCachePerl   "$1"
+    CygbuildBootVariablesGlobalCachePython "$1"
+    CygbuildBootVariablesGlobalCacheRuby   "$1"
+}
+
+function CygbuildBootVariablesGlobalLibSet()
+{
+    local dir="$1"
+
+    CYGBUILD_PERL_MODULE_NAME="cygbuild.pl"                     #global-def
+    local tmp="$dir/$CYGBUILD_PERL_MODULE_NAME"                 #global-def
+
+    if [ -f "$tmp" ]; then
+	CYGBUILD_STATIC_PERL_MODULE="$tmp"                      #global-def
+    else
+	CygbuildVerb "-- [WARN] Not found $tmp"
+    fi
+}
+
+function CygbuildBootVariablesGlobalShareDir()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    CygbuildExitIfNoDir "$dir" \
+	CygbuildDie "$id: [ERROR] Internal error. No DIR argument"
+
+    CygbuildBootVariablesGlobalShareSet "$dir"
+    CygbuildBootVariablesGlobalCacheSet "$dir/data"
+    CygbuildBootVariablesGlobalLibSet   "$dir/lib"
+}
+
+function CygbuildBootVariablesGlobalShareMain()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$CYGBUILD_PROG_LIBPATH"
+
+    if [ "$dir" ] && [ -d "$dir" ]; then
+	CygbuildBootVariablesGlobalShareDir "$dir"
+	return 0
+    fi
+
+    #   Not installed site wide but probably run-in-place. Determine
+    #   paths relative to the program location.
+
+    local tmp="$CYGBUILD_PROG_PATH"
+
+    [ "$tmp" ]    || CygbuildDie "[FATAL] $id: a:No directory found at $dir"
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: b:No directory found at $tmp"
+
+    tmp=${tmp%/*}  # One directory up (from bin/)
+    dir="$tmp/etc/template"
+
+    [ -d "$tmp" ] || CygbuildDie "[FATAL] $id: c:No directory found at $tmp"
+
+    dir="$tmp/etc"
+
+    CygbuildBootVariablesGlobalShareDir "$dir"
+}
+
+function CygbuildBootVariablesGlobalCacheMain()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.cache"
+    local path=$CYGBUILD_PROG_PATH
+    local dir=/var/cache/cygbuild
+
+    CYGBUILD_CACHE_DIR="$dir"                                   #global-def
+}
+
+function CygbuildBootVariablesGlobalColors()
+{
+    CYGBUILD_COLOR_BLACK="\033[00;30m"    # basic
+    CYGBUILD_COLOR_BLACK1="\033[01;30m"   # bold
+    CYGBUILD_COLOR_BLACKR="\033[07;30m"   # reverse
+    CYGBUILD_COLOR_RED="\033[00;31m"
+    CYGBUILD_COLOR_RED1="\033[01;31m"
+    CYGBUILD_COLOR_RED1U="\033[04;31m"    # underline
+    CYGBUILD_COLOR_RED1R="\033[07;31m"    # reverse
+    CYGBUILD_COLOR_GREEN="\033[00;32m"    # not readable in cygwin rxvt
+    CYGBUILD_COLOR_GREEN1="\033[01;32m"   # not readable in cygwin rxvt
+    CYGBUILD_COLOR_BROWN="\033[00;33m"    # barely readable in cygwin rxvt
+    CYGBUILD_COLOR_YELLOW="\033[01;33m"   # not readable in cygwin rxvt
+    CYGBUILD_COLOR_BLUE="\033[00;34m"
+    CYGBUILD_COLOR_BLUEU="\033[04;34m"    # underline
+    CYGBUILD_COLOR_BLUER="\033[07;34m"    # reverse
+    CYGBUILD_COLOR_BLUE1="\033[01;34m"
+    CYGBUILD_COLOR_PURPLE="\033[00;35m"
+    CYGBUILD_COLOR_PINK="\033[01;35m"
+    CYGBUILD_COLOR_PINKU="\033[04;35m"    # underline
+    CYGBUILD_COLOR_PINK2="\033[05;35m"    #
+    CYGBUILD_COLOR_PINKR="\033[07;35m"    # reverse
+    CYGBUILD_COLOR_CYAN="\033[00;36m"     # not readable in cygwin rxvt
+    CYGBUILD_COLOR_CYAN1="\033[01;36m"    # not readable in cygwin rxvt
+    CYGBUILD_COLOR_GRAY="\033[00;37m"     # not readable in cygwin rxvt
+    CYGBUILD_COLOR_WHITE="\033[01;37m"    # not readable in cygwin rxvt
+
+    CYGBUILD_COLOR_RESET="\033[00m"       # reset to teminal default
+}
+
+function CygbuildBootVariablesGlobalMain()
+{
     #  Like: <file>.$CYGBUILD_SIGN_EXT
     CYGBUILD_GPG_SIGN_EXT=.sig
 
-    #######################################################################
-    #
     #       Private: install options and other variables
-    #
-    #######################################################################
 
     #  This variable holds bash match expressions for files to exclude
     #  from original sources while copying the user documentation to
@@ -280,22 +883,42 @@ function CygbuildBootVariablesGlobal ()
     #
     #  E.g. BCC_MAKEFILE, WCC_MAKEFILE, Makefile.am ... => drop
     #
-    #  Note: This variable lists bash '==' tests to exlude files that contain
-    #  BIG letters. See separate tar exclude variable for all other files.
+    #  Note: This variable lists bash '==' pattern tests to exlude
+    #  files that contain BIG letters. See separate tar exclude
+    #  variable for all other files.
 
     CYGBUILD_INSTALL_IGNORE="
-    *Makefile* *makefile* *MAKEFILE* *CVS *RCS *MT
-    *.bak *.BAK *.in
-    *MANIFEST
-    *VMS*
-    *CHANGES-*
-    *README.vms
-    *README.hp*
-    *README.*bsd*
-    *INSTALL.unx
-    *INSTALL.unix
-    *RISC-*
+    *Makefile* *makefile* *MAKEFILE*
+    *CVS
+    *RCS
+    *MT
+    *.bak
+    *.BAK
+    *.in
+    *.orig
+    *.rej
+    *.tmp
+    *.TMP
     *.TST
+    *.spec
+    *ABOUT-NLS
+    *CHANGES-*
+    *INSTALL
+    *INSTALL.[Uu]nix
+    *INSTALL.unx
+    *INSTALL.[Ww]indows
+    *MANIFEST
+    *PACKAGE
+    *README.*bsd*
+    *README.OS2
+    *README.hp*
+    *README.mingw32
+    *README.vms
+    *README.DOS
+    *RISC-*
+    *VERSION
+    *VMS*
+    *[~#]
     "
 
     #  This variable holds bash match expressions for files to exclude
@@ -303,14 +926,16 @@ function CygbuildBootVariablesGlobal ()
     #  componen match of the file. Files are find(1) collected under
     #  install directory.
 
-    CYGBUILD_IGNORE_ZERO_LENGTH="*+(__init__.py)"
+    CYGBUILD_IGNORE_ZERO_LENGTH="*@(__init__.py)"
 
     #   This is egrep(1) match for files found in toplevel. Case sensitive.
 
     CYGBUILD_SHADOW_TOPLEVEL_IGNORE="\
-[.](build|s?inst)\
-|(CVS|RCS|MT|[.]svn|[.]bzr|[.]hg)$\
+[.](build|s?inst|tmp)\
+|(CVS|RCS|MT|[.](svn|bzr|hg|git|darcs))$\
 |[.]([oa]|exe|la|dll)$\
+|[.]#\
+|[#~]$\
 "
 
     #   Accept X11 manual pages: package.1x
@@ -341,31 +966,30 @@ function CygbuildBootVariablesGlobal ()
     #   .svn = See http://subversion.tigris.org/
     #   .bzr = bazaar-ng http://bazaar-ng.org/
     #   .hg  = Mercurical http://www.serpentine.com/mercurial
-    #   MT   = See http://www.venge.net/monotone/
+    #   MT   = and .mtn; See http://www.venge.net/monotone/
+    #   .pc  = Quilt's (patch management) state directory
     #
     #   The lowercase variables are used only in this section.
     #   The uppercase variables are globals used in functions.
 
     cygbuild_opt_exclude_version_control="\
+     --exclude=*,v \
+     --exclude=.bzr \
+     --exclude=.bzrignore \
+     --exclude=.cvsignore \
+     --exclude=.darcs \
+     --exclude=.git \
+     --exclude=.hg \
+     --exclude=.hgignore \
+     --exclude=.mtn \
+     --exclude=.pc \
+     --exclude=.quilt \
+     --exclude=.svn \
+     --exclude=.svnignore \
      --exclude=CVS \
      --exclude=MT \
      --exclude=RCS \
      --exclude=SCCS \
-     --exclude=*,v \
-     --exclude=.git \
-     --exclude=.bzr \
-     --exclude=.hg \
-     --exclude=.svn \
-     --exclude=.cvsignore \
-     --exclude=.svnignore \
-     --exclude=.hgignore \
-     --exclude=.bzrignore \
-    "
-
-    #  This is template file, do not include in patch.
-
-    cygbuild_opt_exclude_cygbuild="\
-      --exclude=vc-cvs-checkout.sh\
     "
 
     #   RCS and CVS version control tags cause conflicts in patches.
@@ -385,7 +1009,8 @@ function CygbuildBootVariablesGlobal ()
      --ignore-matching-lines=[$]State.*[$] \
     "
 
-    # joe(1) editor leaves DEADJOE files on non-clean exit.
+    #   joe(1) editor leaves DEADJOE files on non-clean exit.
+    #   Ruby uses .config
 
     cygbuild_opt_exclude_tmp_files="\
      --exclude=*.BAK \
@@ -394,7 +1019,6 @@ function CygbuildBootVariablesGlobal ()
      --exclude=*.dvi \
      --exclude=*.log \
      --exclude=*.orig \
-     --exclude=*.ps  \
      --exclude=*.eps  \
      --exclude=*.rej \
      --exclude=*.stackdump \
@@ -406,17 +1030,27 @@ function CygbuildBootVariablesGlobal ()
      --exclude=.[~#]* \
      --exclude=.emacs_[0-9]* \
      --exclude=.nfs* \
+     --exclude=.config \
      --exclude=[~#]* \
      --exclude=a.out \
      --exclude=core \
      --exclude=DEADJOE \
+     --exclude=VERSION \
     "
 
-    #  GNU automake files
+    #  GNU automake and yacc files
     cygbuild_opt_exclude_auto_files="\
      --exclude=*.in \
      --exclude=*.am \
+     --exclude=ylwrap \
+     --exclude=depcomp \
+     --exclude=ltmain.sh \
+     --exclude=install-sh \
+     --exclude=mkinstalldirs \
+     --exclude=missing \
+     --exclude=mdate-sh \
     "
+
     cygbuild_opt_exclude_info_files="\
      --exclude=*.info \
      --exclude=*.info-[0-9] \
@@ -453,6 +1087,7 @@ function CygbuildBootVariablesGlobal ()
      --exclude=*.a \
      --exclude=*.la \
      --exclude=*.sa \
+     --exclude=*.so \
      --exclude=*.dll \
      --exclude=*.dll.a \
     "
@@ -461,10 +1096,14 @@ function CygbuildBootVariablesGlobal ()
      --exclude=*.[zZ] \
      --exclude=*.arj \
      --exclude=*.bz2 \
+     --exclude=*.lzma \
+     --exclude=*.lzop \
+     --exclude=*.rzip \
      --exclude=*.gz \
      --exclude=*.rar \
      --exclude=*.tar \
      --exclude=*.tbz \
+     --exclude=*.tbz2 \
      --exclude=*.tgz \
      --exclude=*.zip \
      --exclude=*.zoo \
@@ -474,14 +1113,16 @@ function CygbuildBootVariablesGlobal ()
      --exclude=.build \
      --exclude=.inst \
      --exclude=.sinst \
-     --exclude=debian \
      --exclude=tmp \
     "
 
     #  1) When making snapshot copy of the original sources to elsewhere.
     #  2) when building Cygwin Net Release source and binary packages
+    #
+    #  perllocal.pod  is taken card by the postinstall (appending to the file)
 
     CYGBUILD_TAR_EXCLUDE="\
+     --exclude=perllocal.pod \
      $cygbuild_opt_exclude_dir \
      $cygbuild_opt_exclude_object_files \
      $cygbuild_opt_exclude_tmp_files \
@@ -516,23 +1157,14 @@ function CygbuildBootVariablesGlobal ()
      $cygbuild_opt_exclude_version_control \
     "
 
-    CYGBUILD_CVSDIFF_OPTIONS="\
-     --unified \
-     --recursive \
-     --new-file \
-     --ignore-all-space \
-     --ignore-blank-lines \
-     $opt_ignore_version_control \
-     --exclude=config.* \
+    cygbuild_opt_exclude_cache_files="\
+     --exclude=config.guess \
+     --exclude=config.sub \
+     --exclude=config.cache \
+     --exclude=config.status \
+     --exclude=config.log \
      --exclude=*.cache \
-     $cygbuild_opt_exclude_archive_files \
-     $cygbuild_opt_exclude_library_files \
-     $cygbuild_opt_exclude_object_files \
-     $cygbuild_opt_exclude_bin_files \
-     $cygbuild_opt_exclude_dir \
-     $cygbuild_opt_exclude_tmp_files \
-     $cygbuild_opt_exclude_version_control \
-     $cygbuild_opt_exclude_cygbuild\
+     --exclude=autom4te.cache \
     "
 
     CYGBUILD_DIFF_OPTIONS="\
@@ -545,9 +1177,7 @@ function CygbuildBootVariablesGlobal ()
      --exclude=*.Plo \
      --exclude=*.Tpo \
      --exclude=*.Po \
-     --exclude=config.cache \
-     --exclude=config.log \
-     --exclude=*.cache \
+     $cygbuild_opt_exclude_cache_files \
      $cygbuild_opt_exclude_archive_files \
      $cygbuild_opt_exclude_library_files \
      $cygbuild_opt_exclude_object_files \
@@ -555,7 +1185,6 @@ function CygbuildBootVariablesGlobal ()
      $cygbuild_opt_exclude_dir \
      $cygbuild_opt_exclude_tmp_files \
      $cygbuild_opt_exclude_version_control \
-     $cygbuild_opt_exclude_cygbuild\
     "
 
     #  --forward  Ignore patches that seem to be reversed
@@ -579,11 +1208,6 @@ function CygbuildBootVariablesGlobal ()
     "
 
     CYGBUILD_FIND_EXCLUDE="\
-     -name .build \
-     -name .inst \
-     -name .sinst \
-     -name debian \
-     -name tmp \
      -name *[#~]* \
      -name *.bak \
      -name *.orig \
@@ -593,7 +1217,7 @@ function CygbuildBootVariablesGlobal ()
     #   A bash [[ ]] match pattern to check which files are executables
     #   and would need chmod 755
 
-    CYGBUILD_MATCH_FILE_EXE="*.+(pl|py|sh|bash|ksh|zsh)"
+    CYGBUILD_MATCH_FILE_EXE="*.@(pl|py|sh|bash|ksh|zsh)"
 }
 
 function CygbuildBootFunctionExport()
@@ -604,13 +1228,13 @@ function CygbuildBootFunctionExport()
     #   and refer to these functions
 
     export -f CygbuildCmdPrepPatch
-    export -f CygbuildMakeRunInstallFixPerl
-    export -f CygbuildPostinstallWrite
+    export -f CygbuildMakeRunInstallFixPerlMain
     export -f CygbuildVersionInfo
     export -f CygbuildDetermineReadmeFile
     export -f CygbuildLibInstallEnvironment
     export -f CygbuildCmdPublishToDir
     export -f CygbuildPatchFindGeneratedFiles
+    export -f CygbuildPod2man
 }
 
 #######################################################################
@@ -628,7 +1252,7 @@ function CygbuildLibInstallEnvironment()
     #
     #   Include it as a first call:
     #
-    #       CygbuildLibEnvironmentInstall $* && InstallUsingMake && ..
+    #       CygbuildLibEnvironmentInstall "$@" && InstallUsingMake && ..
 
     instdir=${1:-""}      # ROOT DIR passed to script
     instdir=${instdir%/}  # Delete trailing slash
@@ -636,16 +1260,16 @@ function CygbuildLibInstallEnvironment()
     export instdir
     export exec_instdir=$instdir
 
-    export bindir=$instdir/usr/bin
-    export includedir=$instdir/usr/include
-    export libdir=$instdir/usr/lib
-    export infodir=$instdir/usr/share/info
-    export datadir=$instdir/usr/share
-    export mandir=$instdir/usr/share/man
-    export localstatedir=/var
-    export includedir=$instdir/include
+    export bindir="$instdir/usr/bin"
+    export includedir="$instdir/usr/include"
+    export libdir="$instdir/usr/lib"
+    export infodir="$instdir/usr/share/info"
+    export datadir="$instdir/usr/share"
+    export mandir="$instdir/usr/share/man"
+    export localstatedir="/var"
+    export includedir="$instdir/include"
 
-    export docdir=$instdir/$CYGBUILD_DOCDIR_FULL
+    export docdir="$instdir/$CYGBUILD_DOCDIR_FULL"
 
     export infobin="/usr/bin/install-info"
 
@@ -656,94 +1280,284 @@ function CygbuildLibInstallEnvironment()
 
 #######################################################################
 #
-#       Error functions
-#
-#######################################################################
-
-function CygbuildVerb()
-{
-    if [ "$verbose" ] && [ "$1" ]; then
-        echo -e "$*"
-    fi
-}
-
-function CygbuildVerbWarn()
-{
-    if [ "$verbose" ] ; then
-        echo -e "$@" >&2
-    fi
-}
-
-function CygbuildWarn()
-{
-    echo -e "$@" >&2
-}
-
-function CygbuildExit()
-{
-    local code=${1:-1}
-    shift
-
-    if [ $# -gt 0 ]; then
-        CygbuildWarn "$@"
-    fi
-
-    exit $code
-}
-
-function CygbuildDie()
-{
-    CygbuildExit 1 "$@"
-}
-
-function CygbuildExitNoDir()
-{
-    local dir="$1"
-    shift
-
-    if [[ ! -d "$dir" ]]; then
-        CygbuildDie "$@"
-    fi
-}
-
-function CygbuildExitNoFile()
-{
-    local file="$1"
-    shift
-
-    if [[ ! -f "$file" ]]; then
-        CygbuildDie "$@"
-    fi
-}
-
-#######################################################################
-#
 #       Utility functions
 #
 #######################################################################
 
-function CygbuildAskYes()
+function CygbuildIsDirMatch()
 {
-    echo -n -e "$* (y/N) "
-    local ans
-    read ans
+    local dir="$1"  # ARG 1   = directory
+    shift 1         # ARG 2.. = list of globs
 
-    [[ "$ans" == [yN]* ]]
+    [ "$dir"    ] || return 1
+    [ -d "$dir" ] || return 1
+
+    local element
+
+    CygbuildPushd
+
+	cd $dir 2> /dev/null &&
+	for element in $*
+	do
+	    if [ -e "$element" ]; then
+		CygbuildPopd
+		return 0
+	    fi
+	done
+
+    CygbuildPopd
+
+    return 1
 }
 
-function CygbuildPushd()
+function CygbuildIsDirEmpty()
 {
-    pushd . > /dev/null
+    local dir="$1"
+
+    [ "$dir"    ] || return 1
+    [ -d "$dir" ] || return 1
+
+    local file
+
+    for file in $dir/.* $dir/*
+    do
+	[ -e "$file" ]              || continue
+	[[ "$file" == */@(.|..) ]]  && continue
+	return 1
+    done
+
+    return 0
 }
 
-function CygbuildPopd()
+function CygbuildFileConvertCRLF ()
 {
-    popd > /dev/null
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    [ "$file" ]      || return 0
+    [ ! -s "$file" ] || return 0
+
+    if [ ! -f "$file" ]; then
+	CygbuildWarn "$id: Not a file '$file'
+	return 1
+    fi
+
+    tr -d '\015' < "$file" > "$retval" &&
+    mv "$retval" "$file"
 }
 
-function CygbuildRun()
+function CygbuildFileConvertLF ()
 {
-    ${test+echo} "$@"
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    [ "$file" ]      || return 0
+    [ ! -s "$file" ] || return 0
+
+    if [ ! -f "$file" ]; then
+	CygbuildWarn "$id: Not a file '$file'
+	return 1
+    fi
+
+#    awk '{ printf "%s\r\n", $0}' "$file" > "$retval" &&
+    sed 's/$/\r/' "$file" &&
+    mv "$retval" "$file"
+
+}
+
+function CygbuildFileIsCRLF ()
+{
+    local ctrlM=$'\015'
+
+    [ "$1"    ] &&
+    [ -f "$1" ] &&
+    $EGREP --quiet --files-with-matches "[$ctrlM]" "$1" 2> /dev/null
+}
+
+function CygbuildFileCmpDiffer ()
+{
+    cmp "$1" "$2" > /dev/null 2>&1
+    [ "$?" = "1" ]          # 0 = same, 1 = differ, 2 = error
+}
+
+function CygbuildFileCmpReplaceIfDiffer ()
+{
+    local from="$1"
+    local to="$2"
+    local msg="$3"
+
+    if [ -s "$from" ] &&
+       [ -s "$to"   ] &&
+       CygbuildFileCmpDiffer "$from" "$to"
+    then
+	CygbuildVerb "$msg"
+	mv "$from" "$to"
+    fi
+}
+
+CygbuildFileSizeRead ()
+{
+    local file=$1
+
+    if [ ! "$file" ] || [ ! -f "$file" ]; then
+        return 1
+    fi
+
+    if [ "$STAT" ]; then
+        $STAT --format=%s "$file"
+        return $?
+    fi
+
+    # Traditional method. Parse ls(1) listing.
+
+    local info=$(ls -l "$file")
+
+    # remove FILENAME, because that distracts POSITION
+    # .. 650752 2002-02-04 08:09 /home/foo/picture 14.png
+    # => 650752 2002-02-04 08:09
+
+    info=${info%$file}
+
+    set -- $(ls -l $file)
+    local count=$#
+
+    # ... 650752 Sep 25 08:09
+    local col=$(( count - 3 ))      # From the right
+
+    # ... 650752 2002-02-04 08:09 /home/foo/file.txt
+    # But sometimes the listing is different
+
+    # FIXME: Won't work with file that contain spaces
+    # .. 650752 2002-02-04 08:09
+
+    local datecol=$(( count - 1 ))
+    local date=${@:datecol:1}
+
+    if [[ "$date" == *-* ]]; then
+        col=$(( count - 2 ))
+    fi
+
+    local size=${@:col:1}
+
+    if [[ ! "$size" == [0-9]* ]]; then
+        CygbuildWarn "-- [WARNING] Internal error, can't parse: $*"
+        return 100
+    fi
+
+    echo $size
+}
+
+function CygbuildFileSize ()
+{
+    local file="$1"
+
+    if [ ! "$file" ] || [ ! -f "$file" ]; then
+	return 1
+    fi
+
+    #  This could be a symbolic link, check it
+    #  lrwxrwxrwx 1 root root  27 2004-05-04 10:45  vmlinuz -> boot/vmlinuz-...
+
+    local ls=$(ls -la "$file")
+
+    if [[ ! "$ls" == *-\>* ]]; then
+	CygbuildFileSizeRead "$file"
+	return $?
+    fi
+
+    #  It is a symbolic link. Find out real path.
+    #  FIXME: this does not handle multiple indirections, only one
+    #  FIXME: Look CygbuildPathResolveSymlink
+
+    local dir
+
+    if [[ "$file" == */* ]]; then
+	 dir=${file%/*}
+    fi
+
+    set -- $ls
+
+    local file=${@:(-1):1}
+    local symdir
+
+    if [[ "$file" == */* ]]; then
+	 symdir=${file%/*}
+    fi
+
+    local file=${file%%*/}
+
+    (
+	[ "$dir" ]    && { cd $dir    || return 1; }
+	[ "$symdir" ] && { cd $symdir || return 1; }
+
+	CygbuildFileSizeRead "$file"
+    )
+}
+
+function CygbuildPythonCheckImport()
+{
+    local id="$0.$FUNCNAME"
+
+    #   Returns list of import targets that are not known
+    #   Do not look under site-packages
+
+    python -c '
+
+import sys
+sys.path.remove("/usr/lib/python2.5/site-packages")
+
+verbose = sys.argv[1]
+
+def Check(list):
+    for name in list:
+	if verbose:
+	    print >>sys.stderr, ("Check %s" % name)
+	try:
+	    __import__(name)
+	except ImportError:
+	    print name
+
+Check(sys.argv[2:])
+
+    ' "${debug:+1}" "$@"
+}
+
+function WasLibraryInstallMakefile ()
+{
+    local file
+
+    for file in Makefile makefile */{Makefile,makefile}
+    do
+	[ -f "$file" ] || continue
+
+	if $EGREP --quiet "^[^#]+(cp|chmod|install).*\<lib[a-z0-9]+\." $file
+	then
+	    return 0
+	fi
+    done
+
+    return 1
+}
+
+function WasLibraryInstall ()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    WasLibraryInstallMakefile && return 0
+
+    if [ -d .inst ]; then
+	find .inst -type f     \
+	    -name "*.a"         \
+	    -o -name "*.la"     \
+	    -o -name "*.dll*"   \
+	    > $retval 2> /dev/null
+
+	[ -s "$retval" ]
+    else
+	return 1
+    fi
 }
 
 function CygbuildFileDeleteLine ()
@@ -753,8 +1567,8 @@ function CygbuildFileDeleteLine ()
     local tmp="$file.$$.tmp"
 
     if [ "$regexp" ] && [ -e "$file" ]; then
-        $EGREP --invert-match --regexp="$regexp" $file > $tmp &&
-        $MV $tmp $file
+	$EGREP --invert-match --regexp="$regexp" $file > $tmp &&
+	mv $tmp $file
     fi
 }
 
@@ -763,9 +1577,9 @@ function CygbuildFileDaysOld ()
     local file="$1"
 
     if [ -f "$file" ]; then
-        echo -n $file | $PERL -ane "print -M"
+	echo -n $file | perl -ane "print -M"
     else
-        return 1
+	return 1
     fi
 }
 
@@ -774,28 +1588,196 @@ function CygbuildGrepCheck()
     local regexp="$1"
     shift
 
-    $EGREP --ignore-case            \
-           --files-with-matches     \
-           --regexp="$regexp"       \
-           "$@" /dev/null           \
-           > /dev/null 2>&1
+    $EGREP --quiet                  \
+	   --ignore-case            \
+	   --files-with-matches     \
+	   --regexp="$regexp"       \
+	   "$@"                     \
+	   > /dev/null 2>&1
+}
+
+function CygbuildFindLowlevel()
+{
+    local arg="$1"
+    shift
+
+    find -L $arg                        \
+	-type d                         \
+	    '('                         \
+	    -name ".bzr"                \
+	    -o -name ".git"             \
+	    -o -name ".hg"              \
+	    -o -name ".darcs"           \
+	    -o -name ".svn"             \
+	    -o -name ".mtn"             \
+	    -o -name "CVS"              \
+	    -o -name "RCS"              \
+	    -o -name "_MTN"             \
+	    ')'                         \
+	-prune                          \
+	-a ! -name ".bzr"               \
+	-a ! -name ".git"               \
+	-a ! -name ".hg"                \
+	-a ! -name ".darcs"             \
+	-a ! -name ".svn"               \
+	-a ! -name ".mtn"               \
+	-a ! -name "CVS"                \
+	-a ! -name "RCS"                \
+	-a ! -name "_MTN"               \
+	-a ! -name "*.tmp"              \
+	-a ! -name "*[#]*"              \
+	-a ! -name "*~"                 \
+	-a ! -name "*.orig"             \
+	-a ! -name "*.rej"              \
+	-a ! -name "*.bak"              \
+	"$@"
+}
+
+function CygbuildFindDo()
+{
+    local arg="$1"
+    shift
+
+    CygbuildFindLowlevel "$arg"         \
+	-o -type d                      \
+	    '('                         \
+	    -name ".inst"               \
+	    -o -name ".sinst"           \
+	    -o -name ".build"           \
+	    -o -name "debian"           \
+	    -o -name "CYGWIN-PATCHES"   \
+	    ')'                         \
+	-prune                          \
+	-a ! -name ".inst"              \
+	-a ! -name ".sinst"             \
+	-a ! -name ".build"             \
+	-a ! -name "debian"             \
+	-a ! -name "CYGWIN-PATCHES"     \
+	"$@"
+}
+
+function CygbuildChmodDo()
+{
+    local mode="$1"
+    shift
+
+    local file
+
+    for file in "$@"
+    do
+	[ -f "$file" ] || continue
+	chmod ugo+x "$file" || return $?
+    done
 }
 
 function CygbuildChmodExec()
 {
-    local bin
+    CygbuildChmodDo u=rwx,go+x "$@"
+}
 
-    for bin in "$@"
+CygbuildObjDumpLibraryDepList ()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ]; then
+	CygbuildWarn "$0: [ERROR] Missing argument FILE"
+	return 1
+    fi
+
+    #   objdump lists only those that the binary is linked against.
+    #   Traditionally setup.hint lists *all* dependencies.
+
+    objdump -p "$file" |
+	awk '
+	    /KERNEL32|cygwin1.dll/ {
+		next;
+	    }
+	    /DLL Name:/ {
+		hash[$(NF)];
+	    }
+	    END{
+		for (name in hash)
+		{
+		    print name;
+		}
+	    }' |
+	 sort          # No need for --unique; awk uses hash
+}
+
+CygbuildDllToLibName ()
+{
+    # cygncurses-8.dll => libncurses8
+
+    local lib ver
+
+    for lib in "$@"
     do
-        if [ -f "$bin" ] && [ ! -x "$bin" ]; then
-            chmod +x $bin
-        fi
+	lib=${lib%.dll}
+	ver=
+
+	if [[ "$lib" == *-* ]]; then
+	    ver=${lib##*-}
+	fi
+
+	lib=${lib%-*}
+	lib=lib${lib#cyg}
+
+	lib=$lib$ver
+
+	# Special cases:
+
+	case "$lib" in
+	    libz) lib=zlib ;;
+	esac
+
+	echo $lib
     done
+}
+
+CygbuildCygcheckLibraryDepListFull ()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ]; then
+	CygbuildWarn "$0: [ERROR] Missing argument FILE"
+	return 1
+    fi
+
+    local bin="cygcheck"
+    CygbuildWhich "$bin" > $retval
+
+    if [ ! -s $retval ] ; then
+	CygbuildWarn "$0: $bin not found. Skipped"
+	return 1
+    fi
+
+    bin=$(< $retval)
+
+    #  /usr/bin/spamprobe.exe - os=4.0 img=1.0 sys=4.0
+    #    D:\cygwin\bin\cygpng12.dll - os=4.0 img=1.0 sys=4.0
+    #      "cygpng12.dll" v0.0 ts=2006/11/6 1:32
+    #      D:\cygwin\bin\cygwin1.dll (already done)
+    #                    ===========================
+    #                    $(NF)
+
+    $bin -v "$file" |
+    awk -F\\ '
+	/ +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
+	    str = $(NF);
+	    sub(" .*", "", str);
+	    print str;
+	}' |
+    sort --unique
 }
 
 CygbuildCygcheckLibraryDepList ()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
 
     # $data file includes output of cygcheck:
@@ -810,125 +1792,137 @@ CygbuildCygcheckLibraryDepList ()
     #   D:\cygwin\bin\cygfreetype-6.dll
     #     D:\cygwin\bin\cygz.dll
 
-    $AWK -F\\ \
+    awk -F\\ \
     '
-        ! /cygwin.*dll/ {
-            next;
-        }
+	! /cygwin.*dll/ {
+	    next;
+	}
 
-        /cygwin1.dll/ {
-            if ( match($0, "^ +") > 0 )
-            {
-                #  How much initial indentation there is
-                minus = RLENGTH;
-            }
-            next;
-        }
+	/cygwin1.dll/ {
+	    if ( match($0, "^ +") > 0 )
+	    {
+		#  How much initial indentation there is
+		minus = RLENGTH;
+	    }
+	    next;
+	}
 
-        /dll/ {
-            file  = $(NF);
-            space = "";
+	/dll/ {
+	    file  = $(NF);
+	    space = "";
 
-            if ( match($0, "^ +") > 0 )
-            {
-                space = substr($0, RSTART, RLENGTH - minus);
-            }
+	    if ( match($0, "^ +") > 0 )
+	    {
+		space = substr($0, RSTART, RLENGTH - minus);
+	    }
 
-            print space file;
-        }
+	    print space file;
+	}
     ' "$file"
-}
-
-CygbuildCygcheckLibraryDepSource ()
-{
-    local id="$0.$FUNCNAME"
-
-    #  Sometimes programs have direct shell calls like
-    #
-    #  execvp("/bin/diff")
-
-    if $FIND $builddir -name "*.c" -o -name "*.cc" |
-       $EGREP "^[^/]*exec[a-z]* *\("
-    then
-        CygbuildWarn "-- [WARN] External shell call detected. More dependencies"
-          "may be needed. (an example: binutils)"
-    fi
-}
-
-function CygbuildCygcheckLibraryDepAdjustOld()  # NOT USED
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local file="$1"     # modifes file directly
-
-    local setup="$DIR_CYGPATCH/setup.hint"
-    local list lib
-
-    # You *CAN*T tell all these deps from the indented level
-    # See discussion
-    # http://cygwin.com/ml/cygwin-apps/2007-08/msg00215.html
-    #
-    # D:\cygwin\bin\cygintl-8.dll
-    #   D:\cygwin\bin\cygiconv-2.dll
-
-    $SED 's/ \+/- /' "$file" > $retval  # convert leading spaces to "-"
-
-    while read minus lib
-    do
-        if [ "$minus" = "-" ]; then
-            list="$list $lib"
-            CygbuildFileDeleteLine "$lib" "$file" || return 1
-        fi
-    done < $retval
-
-    for lib in $list
-    do
-        if $EGREP --quiet "^ *requires:.*\<$lib" $setup ; then
-            CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
-        fi
-    done
 }
 
 function CygbuildCygcheckLibraryDepAdjust()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"  # modifes file directly
 
     local setup="$DIR_CYGPATCH/setup.hint"
     local list lib
 
-    for lib in $(< $file)
+    while read lib
     do
 
       #  libintl already requires iconv
 
       if [[ "$lib" == *iconv* ]] && $EGREP --quiet 'intl' $file
       then
-          CygbuildFileDeleteLine "$lib" "$file" || return 1
+	  CygbuildFileDeleteLine "$lib" "$file" || return 1
 
-          if $EGREP --quiet "^ *requires:.*\<$lib" $setup ; then
-              CygbuildWarn "-- [NOTE] setup.hint maybe unnecessary depends $lib"
-          fi
+	  if $EGREP --quiet "^ *requires:.*\b$lib" $setup ; then
+	      CygbuildWarn "-- [NOTE] setup.hint maybe" \
+			   "unnecessary depends $lib"
+	  fi
       fi
+    done < $file
+}
+
+function CygbuildDetermineReadmeFile()
+{
+    local id="$0.$FUNCNAME"
+    local ret file
+
+    for file in  $DIR_CYGPATCH/$PKG.README  \
+		 $DIR_CYGPATCH/README
+    do
+	#   install first found file
+	if [ -f "$file" ]; then
+	    ret=$file
+	    break
+	fi
     done
+
+    if [ "$ret" ]; then
+	echo $ret
+    else
+	return 1
+    fi
+}
+
+function CygbuildDetermineDocDir()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="${1%/}"      # delete trailing slash
+
+    CygbuildExitIfNoDir \
+	"$dir" "$id: [FATAL] Call parameter DIR does not exist [$dir]"
+
+    local ret=""
+    local try=""
+
+    #   Examples: http:://wwww.fprot.org/ uses doc_ws
+    #   There must be trailing slash, because DIR may be a symlink and
+    #   the content is important.
+
+    if ls -F $dir/ |
+       $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
+    then
+	while read try
+	do
+	    try=$dir/$try           # Absolute path
+	    if [ -d "$try" ]; then
+		ret=${try%/}        # Delete trailing slash
+		break
+	    fi
+	done < $retval
+    fi
+
+    echo $ret
 }
 
 function CygbuildCygcheckLibraryDepReadme()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
-    local readme="$DIR_CYGPATCH/$PKG.README"
     local lib
 
-    for lib in $(< $file)
+    CygbuildDetermineReadmeFile > $retval
+    local readme=$(< $retval)
+
+    if [ ! "$readme" ]; then
+	CygbuildWarn "$id: [ERROR] Can't set REAME filename"
+	return 1
+    fi
+
+    while read lib
     do
-        if ! $EGREP --quiet " \<$lib" $readme
-        then
-            CygbuildWarn "-- [ERROR] $PKG.README does not mention $lib"
-        fi
-    done
+	if ! $EGREP --quiet " \<$lib" $readme
+	then
+	    CygbuildWarn "-- [ERROR] $PKG.README does not mention $lib"
+	fi
+    done < $file
 }
 
 CygbuildCygcheckLibraryDepSetup ()
@@ -939,93 +1933,189 @@ CygbuildCygcheckLibraryDepSetup ()
 
     #  Check that all are listed
 
-    for lib in $(< $file)
+    while read lib
     do
-        if ! $EGREP --quiet "^ *requires:.*\<$lib\>" $setup
-        then
-            CygbuildWarn "-- [ERROR] setup.hint lacks $lib"
-        fi
-    done
+	if ! $EGREP --quiet "^ *requires:.*\b$lib\b" $setup
+	then
+	    CygbuildWarn "-- [ERROR] setup.hint lacks $lib"
+	fi
+    done < $file
 }
 
-function CygbuildCygcheckLibraryDepGrepPgkNames()
+function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
 {
+    #   NOTE: informational messages are written to stderr
+    #   because this function returns list of depends.
+
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"  # list of library names
+    local cache="$2"
 
-    local cache=/var/cache/cygbug/package/list/file.lst
-
-    if [ ! -f $cache ]; then
-        CygbuildWarn "-- [NOTE] Cache not found $cache"
-        return 1
+    if [ ! "$file" ] || [ ! -e "$file" ]; then
+	CygbuildDie "[FATAL] $id: empty 'file' argument"
     fi
 
     # Cache lines in format: <package path>:<tar listing>.
     # Here is example of the "path":
     # .../release/X11/xorg-x11-bin-dlls/xorg-x11-bin-dlls-6.8.99.901-1.tar.bz2
-    #
-    # In some situations, --mmap yields better performance.
-
-    $SED 's/ \+//' "$file" > $retval.fgrep  # Remove space at front
-    $EGREP --mmap -f $retval.fgrep $cache > $retval.grep
-
-    if [ -s $retval.grep ]; then
-        #  Glue these to gether in order to preserve indentation level
-        #  "  cygiconv-2.dll  ...libiconv/libiconv2/libiconv2-1.11-1.tar.bz2"
-
-        paste "$file" $retval.grep > $retval.results
-    fi
 
     #   Always depends on this
 
     echo "cygwin" > $retval.collect
 
-    #   write messages to stderr
+    tr '\n' ',' < $file > $retval
 
-    local lib
+    [ -s $retval ] || return 1
 
-    while read lib
-    do
-        printf "   %-25s" $lib >&2
+    local list=$(< $retval)
 
-        $AWK -F: \
-        '
-          $0 ~ re {
+    local lib list
+    awk -F: \
+    '
+	function setup(val, name, space, i, len) {
+	    len = split(liblist, arr, ",");
 
-            space = "";
+	    #  Convert "A,  B,C, D" into
+	    #  re = "(A|B|C)$"
 
-            if ( match($0, "^ +") > 0 )
-            {
-                space = substr($0, RSTART, RLENGTH - minus);
-            }
+	    for (i=1; i < len ; i++)
+	    {
+		val   = arr[i];
+		name  = val;
+		space = "";
 
-            path=$1;
-            gsub(".*/", "", path);
-            gsub("-[0-9].*", "", path);
+		if ( match (val, "^ +") > 0 )
+		{
+		    space = substr(val, 1, RLENGTH);
+		}
 
-            print space path;
-          }
-        ' re="$lib" $retval.results > $retval.tmp
+		if ( match (val, "[^ ]+") > 0 )
+		{
+		    name = substr(val, RSTART, RLENGTH);
+		}
 
-        if [ -s $retval.tmp ]; then
-            cat $retval.tmp >&2
-            cat $retval.tmp >> $retval.collect
-        else
-            CygbuildWarn " ... can't find depends package"
-        fi
+		HASH[name] = space;
 
-    done < $file
+		if ( add )
+		{
+		    RE = RE "|" name;
+		}
+		else
+		{
+		    RE  = name;
+		    add = 1;
+		}
+#print i " VAL [" val "] space [" space "] RE [" RE "]";
+	    }
+
+	    if ( length(RE) > 0 )
+	    {
+		RE = "(" RE ")$";
+	    }
+	}
+
+	{
+	    if ( ! boot )
+	    {
+		setup();
+		boot = 1;
+	    }
+
+	    if ( match($0, RE) > 0 )
+	    {
+		lib   = substr($0, RSTART, RLENGTH);
+		space = HASH[lib];
+
+		path=$1;
+		gsub(".*/", "", path);
+		gsub("-[0-9].*", "", path);
+
+		DEPENDS[lib]   = path;
+		DEP_SPACE[lib] = space;  # Save indentation information
+	    }
+	}
+
+	END {
+	    for (name in HASH)
+	    {
+		dep = DEPENDS[name];
+
+		if ( dep == "" )
+		{
+		    dep ="[WARN] determine depends";
+		}
+
+		printf("%-25s %s\n", name, dep);
+	    }
+	}
+
+    ' liblist="$list" $cache > $retval.tmp
+
+    if [ -s $retval.tmp ]; then
+	sed 's/^/   /' $retval.tmp >&2
+	awk '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
+    fi
 
     [ -s $retval.collect ] && cat $retval.collect
+}
+
+CygbuildCygcheckLibraryDepGrepTraditonal()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    if [ ! "$CYGCHECK" ]; then
+	CygbuildVerb "-- [NOTE] cygcheck not available. Skipped"
+	return 1
+    fi
+
+    local file
+
+    for file in "$@"
+    do
+	if [[ ! "$file" == /* ]]; then
+	    CygbuildWhich "$file" > $retval
+	    [ -s $retval ] && file=$(< $retval)
+	fi
+
+	if [ ! -f "$file" ]; then
+	    CygbuildWarn "-- [WARN] No such file: $file"
+	    continue
+	fi
+
+	# xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
+	$CYGCHECK -f $file | sed -e 's,-[0-9].*,,'
+
+    done | sort --unique
+}
+
+CygbuildCygcheckLibraryDepGrepPgkNamesMain()
+{
+    local file="$1"
+    local cache="/var/cache/cygbug/package/list/file.lst"
+
+    if [ ! "$file" ]; then
+	CygbuildDie "$0: Missing arg1 FILE"
+    fi
+
+#    if [ -f $cache ]; then
+#        CygbuildCygcheckLibraryDepGrepPgkNamesCache "$file" "$cache"
+#    else
+	CygbuildCygcheckLibraryDepGrepTraditonal cygwin1.dll $(< $file)
+#    fi
 }
 
 function CygbuildCygcheckLibraryDepMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
-    local data="$2"
+    local datafile="$2"
+
+    if [ ! -f "$file" ]; then
+	CygbuildDie "$0: Missing arg1 FILE"
+    fi
 
     local setup="$DIR_CYGPATCH/setup.hint"
 
@@ -1034,51 +2124,73 @@ function CygbuildCygcheckLibraryDepMain()
     #   2) use fgrep to get all lines matchíng the dlls
     #   3) process the fgrep results to extract package name
 
-    echo "-- Trying to resolve depends for $file"
+    CygbuildEcho "-- Trying to resolve depends for" ${file#$srcdir/}
 
-    CygbuildCygcheckLibraryDepList   "$data" > $retval
-    CygbuildCygcheckLibraryDepSource
+    # old methods
+    # CygbuildCygcheckLibraryDepList "$datafile" > "$retval"
 
-    if CygbuildCygcheckLibraryDepGrepPgkNames $retval > $retval.pkglist
+    CygbuildCygcheckLibraryDepListFull "$file" > "$retval"
+
+    if [ ! -s $retval ]; then
+	CygbuildEcho "-- No dependencies other than cygwin found"
+	return 0
+    fi
+
+    if CygbuildCygcheckLibraryDepGrepPgkNamesMain \
+       "$retval" > "$retval.pkglist"
     then
-        CygbuildCygcheckLibraryDepReadme $retval.pkglist
-        CygbuildCygcheckLibraryDepAdjust $retval.pkglist
+	CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
+	# CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
 
-        echo "   DEPENDS SUMMARY:"
-        $SED 's/^ \+//' $retval.pkglist | $SORT -u | $SED 's/^/   /'
+	sed 's/^ \+//' "$retval.pkglist" |
+	    sort --unique |
+	    sed 's/^/   depends: /'
 
-        CygbuildCygcheckLibraryDepSetup $retval.pkglist
+	CygbuildObjDumpLibraryDepList "$file" > "$retval.obj"
+
+	[ -s "$retval.obj" ] || return 0
+
+	CygbuildDllToLibName $(< $retval.obj) > "$retval.libnames"
+
+	CygbuildEcho "-- Objdump direct dependencies"
+	cat "$retval.obj"
+
+	CygbuildCygcheckLibraryDepSetup  "$retval.libnames"
+	CygbuildCygcheckLibraryDepReadme "$retval.libnames"
     fi
 }
 
-function CygbuildCygcheck()
+function CygbuildCygcheckMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local file path
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dummy="$*"                    # For debug
+    local file
+
+    [ "$CYGCHECK" ] || return 0
 
     for file in "$@"
     do
-        if /usr/bin/cygpath --windows "$file" > $retval
-        then
-            path=$(< $retval)
-            /usr/bin/cygcheck $path | tee $retval
+	file=${file#$srcdir/}           # Make relative path
 
-            CygbuildCygcheckLibraryDepMain "$path" "$retval"
-        fi
+	CygbuildEcho "-- Wait, listing depends"
+	$CYGCHECK "$file" # | tee $retval 2> /dev/null
+
+	CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
 }
 
 function CygbuildCheckRunDir()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  Do just a quick sweep, nothing extensive
 
-    if [[ "$(pwd)" == *+(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
+    if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
-        CygbuildWarn "-- [WARN] Current directory is not source ROOT"
+	CygbuildWarn "-- [WARN] Current directory is not source ROOT $srcdir"
+	return 1
     fi
 }
 
@@ -1100,28 +2212,52 @@ function CygbuildVersionInfo()
     #       /usr/src/build/neon/foo-NN.NN/.build/tmp/verify
     #
 
-    echo -n "$str" | $PERL -e \
+    echo -n "$str" | perl -e \
     '
-        $_  = <>;
-        s,.+/,,;
-        s,(-src)?(\.orig)?\.(tar\.(gz|bz2)|zip|t[gb]z),,;
+	$_  = <>;
+	s,.+/,,;
+	s,\.(tar\.(gz|bz2|lzma|lzop)|zip|t[gb]z)$,,;
+	s,\.orig$,,;
+	s,-src$,,;
 
-        # Remove release number (if any)
-        # e.g. xterm-299, where 229 is NOT a release to be removed
+	# Remove release number (if any)
+	# e.g. xterm-299, where 229 is NOT a release to be removed
 
-        s,([_-]\d.*)-[0-9]+$,$1,;
+	if ( /^(.+)-v?(\d|1\d?)$/i )
+	{
+	    $_   = $1;
+	    $rel = $2;
+	}
 
-        @a = (/^(.+?)[-_](\d.*)/);
+	@a = /^(.+)[-_]v?([\d.]+[_-]?rc.*)/i;
 
-        if ( @a )
-        {
-            print qq(@a\n);
-        }
-        elsif ( @a = ( m,/([^/]+)-([\d.]+\d)-?(\d+)*, ) )
-        {
-            print qq(@a\n);
-        }
-    ' || exit 1
+	#  foo_0.4.0-test5
+	#  foo-1.3.0-rc1
+
+	@a = /^(.+)[-_]v?(\d\.\d.*)/i unless @a;
+
+	@a = /^(.+)[-_]v?(.*\d.*)/i unless @a;
+
+	if ( @a )
+	{
+	    push @a, $rel if $rel;
+	    print qq(@a\n);
+	    exit 0;
+	}
+
+	# foo4.16.0.70
+
+	@a = /^([a-z_-]*[A-Za-z])([\d.]*\d.*)/i ;
+
+	if ( @a )
+	{
+	    push @a, $rel if $rel;
+	    print qq(@a\n);
+	    exit 0;
+	}
+
+	exit 123;
+    '
 }
 
 function CygbuildDefileInstallVariables()
@@ -1141,8 +2277,8 @@ function CygbuildDefileInstallVariables()
     local prefix_libexec=${10:-"lib"}
 
     if [[ "$prefix" == /* ]]; then
-        CygbuildDie "[ERROR] Can't use abosolute prefix value: $prefix" \
-               "the install will always happen into subdirectory .sinst/"
+	CygbuildDie "[ERROR] Can't use abosolute prefix value: $prefix" \
+	       "the install will always happen into subdirectory .sinst/"
     fi
 
     #   Do not add trailing slash. The exports are needed because variables
@@ -1200,37 +2336,37 @@ function CygbuildDefineVersionVariables()
     local -a arr
 
     if [ "$CYGBUILD_STATIC_VER_STRING" = "$str" ]; then
-        arr=( ${CYGBUILD_STATIC_VER_ARRAY[*]} )
+	arr=( ${CYGBUILD_STATIC_VER_ARRAY[*]} )
     else
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
-        CygbuildVersionInfo "$str" > $retval
+	local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-        arr=( $(< $retval) )
+	if ! CygbuildVersionInfo "$str" > $retval ; then
+	    CygbuildDie "-- [ERROR] Not inside directory package-N.N/" \
+		"Can't read version info: $str"
+	fi
 
-        dummy="${arr[*]}"  #  For debugging
+	[ -s $retval ] ||
+	    CygbuildDie "$id: Can't read disk version info: $str"
 
-        CYGBUILD_STATIC_VER_ARRAY=( ${arr[*]} )
+	arr=( $(< $retval) )
+	dummy="${arr[*]}"  #  For debugging
+
+	CYGBUILD_STATIC_VER_ARRAY=( ${arr[*]} )
     fi
 
     local count=${#arr[*]}
 
     if [[ $count -gt 1 ]]; then
-        CYGBUILD_STATIC_VER_PACKAGE=${arr[0]}
-        CYGBUILD_STATIC_VER_VERSION=${arr[1]}
-        CYGBUILD_STATIC_VER_RELEASE=${arr[2]}
-        CYGBUILD_STATIC_VER_STRING="$str"
+	CYGBUILD_STATIC_VER_PACKAGE=${arr[0]}
+	CYGBUILD_STATIC_VER_VERSION=${arr[1]}
+	CYGBUILD_STATIC_VER_RELEASE=${arr[2]}
+	CYGBUILD_STATIC_VER_STRING="$str"
     fi
 
     #  Return status: Do we have the VERSION?
 
-    local digit2="[0-9][0-9]"
-    local yyyy=$digit2$digit2
-    local mm=$digit2
-    local dd=$digit2
-
-    [[ "$CYGBUILD_STATIC_VER_VERSION" == [0-9]* ]] ||
-    [[ "$CYGBUILD_STATIC_VER_VERSION" == $yyyy$mm$dd*  ]]
+    [[ "$CYGBUILD_STATIC_VER_VERSION" == *[0-9]* ]]
 }
 
 function CygbuildStrRemoveExt()
@@ -1243,10 +2379,13 @@ function CygbuildStrRemoveExt()
     local str="$1"
 
     str=${str##*/}          # Remove path
-    str=${str%.tar.bz2}
     str=${str%.tar.gz}
+    str=${str%.tar.bz2}
+    str=${str%.tar.lzma}
+    str=${str%.tar.lzop}
     str=${str%.tgz}
     str=${str%.tbz2}
+    str=${str%.tbz}
     str=${str%-src}
     str=${str%.orig}
 
@@ -1263,9 +2402,9 @@ function CygbuildStrPackage()
     local str="$1"
 
     if CygbuildDefineVersionVariables $str ; then
-        echo $CYGBUILD_STATIC_VER_PACKAGE
+	echo $CYGBUILD_STATIC_VER_PACKAGE
     else
-        CygbuildDie "$id: [FATAL] CygbuildDefineVersionVariables($str) failed."
+	CygbuildDie "$id: [FATAL] CygbuildDefineVersionVariables($str) failed."
     fi
 }
 
@@ -1279,9 +2418,9 @@ function CygbuildStrVersionRelease()
     local str="$1"
 
     if CygbuildDefineVersionVariables $str ; then
-        if [ "$CYGBUILD_STATIC_VER_RELEASE" ]; then
-            echo $CYGBUILD_STATIC_VER_VERSION-$CYGBUILD_STATIC_VER_RELEASE
-        fi
+	if [ "$CYGBUILD_STATIC_VER_RELEASE" ]; then
+	    echo $CYGBUILD_STATIC_VER_VERSION-$CYGBUILD_STATIC_VER_RELEASE
+	fi
     fi
 }
 
@@ -1295,7 +2434,7 @@ function CygbuildStrRelease()
     local str="$1"
 
     if CygbuildDefineVersionVariables $str ; then
-        echo $CYGBUILD_STATIC_VER_RELEASE
+	echo $CYGBUILD_STATIC_VER_RELEASE
     fi
 }
 
@@ -1309,68 +2448,8 @@ function CygbuildStrVersion()
     local str="$1"
 
     if CygbuildDefineVersionVariables $str ; then
-        echo $CYGBUILD_STATIC_VER_VERSION
+	echo $CYGBUILD_STATIC_VER_VERSION
     fi
-}
-
-function CygbuildMatchRegexp()
-{
-    #   Argument 1: regexp
-    #   Argument 2: string to match
-
-    if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
-        [[ $2 =~ $1 ]]
-    else
-        echo "$2" | $EGREP -q "$1"
-    fi
-}
-
-function CygbuildMatchBashPatternList()
-{
-    local str="$1"
-
-    [ ! "$str" ] && return 1
-
-    shift
-    local ret=1    # Suppose no match by default
-    local match
-
-    #   In for loop, the patterns in $list
-    #   would expand to file names without 'noglob'.
-
-    set -o noglob
-
-        for match in $*
-        do
-            if  [[ "$str" == $match ]]; then
-                ret=0
-                break
-            fi
-        done
-
-    set +o noglob
-
-    return $ret
-}
-
-function CygbuildIsGbsCompat()
-{
-    [ "$OPTION_GBS_COMPAT" ]
-}
-
-function CygbuildIsEmpty()
-{
-    CygbuildMatchRegexp '^[ \t]*$' "$1"
-}
-
-function CygbuildIsNumber()
-{
-    CygbuildMatchRegexp '^[0-9]+$' "$1"
-}
-
-function CygbuildIsNumberLike()
-{
-    CygbuildMatchRegexp '^[0-9]' "$1"
 }
 
 function CygbuildIsSrcdirOk()
@@ -1380,15 +2459,15 @@ function CygbuildIsSrcdirOk()
     #  Verify that the source root is well formed package-N.N/
 
     if [ "$srcdir" ]; then
-        if [[ $srcdir == *-*[0-9]* ]]; then
-            :
-        elif [[ $srcdir == *-*[0-9]*.orig ]]; then
-            #   Accept Debian orignal packages
-            :
-        else
-            [ "$exitmsg" ] && CygbuildDie "$exitmsg"
-            return 1
-        fi
+	if [[ $srcdir == *-*[0-9]* ]]; then
+	    :
+	elif [[ $srcdir == *-*[0-9]*.orig ]]; then
+	    #   Accept Debian orignal packages
+	    :
+	else
+	    [ "$exitmsg" ] && CygbuildDie "$exitmsg"
+	    return 1
+	fi
     fi
 }
 
@@ -1398,73 +2477,42 @@ function CygbuildIsBuilddirOk()
 
     if [ "$builddir" ] && [ -d "$builddir" ]; then
 
-        #   some package only contain TOP level directories, so we must
-        #   peek inside $builddir/*/* to see if it's symlink (made by
-        #   shadow)
+	#   some package only contain TOP level directories, so we must
+	#   peek inside $builddir/*/* to see if it is symlink, (made by
+	#   shadow)
 
-        local item
+	local item
 
-        for item in $builddir/* $builddir/*/*
-        do
-            [ ! -f "$item" ] && continue
+	for item in $builddir/* $builddir/*/*
+	do
+	    [ ! -f "$item" ] && continue
 
-            if [ -h $item ]; then       # First symbolic link means OK
-                return 0
-            fi
-        done
+	    if [ -h $item ]; then       # First symbolic link means OK
+		return 0
+	    fi
+	done
     fi
 
     return 1
 }
 
-function CygbuildDate()
-{
-    date "+%Y%m%d%H%M"
-}
-
-function CygbuildPathBinFast()
-{
-    #   ARG 1: binary name
-    #   ARG 2: possible additional search path like /usr/local/bin
-
-    local bin="$1"
-    local try="${2%/}"      # Delete trailing slash
-
-    local dir
-
-    #   If it's not in these directories, then just use
-    #   plain "cmd" and let bash search whole PATH
-
-    if [ -x /usr/bin/$bin ]; then
-        echo /usr/bin/$bin
-    elif [ -x /usr/sbin/$bin ]; then
-        echo /usr/sbin/$bin
-    elif [ -x /bin/$bin ]; then
-        echo /bin/$bin
-    elif [ -x /sbin/$bin ]; then
-        echo /sbin/$bin
-    elif [ "$try" ] && [ -x $try/$bin ]; then
-        echo $try/$bin
-    else
-        echo $bin
-    fi
-}
-
 function CygbuildPathResolveSymlink()
 {
+    #   FIXME: Check the logic if it's correct
+
     #   Try to resolve symbolic link.
     #   THIS IS VERY SIMPLE, NOT RECURSIVE if additional
     #   support programs were not available
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local bin="$1"
     local path="."
 
     if [[ $bin == */* ]]; then
-        path=${bin%/*}
-        bin=${bin##*/}
+	path=${bin%/*}
+	bin=${bin##*/}
     fi
 
     local abs="$path/$bin"
@@ -1472,113 +2520,108 @@ function CygbuildPathResolveSymlink()
 
     if [[ ! -h $abs  &&  $abs == /*  ]]; then
 
-        try="$abs"
+	try="$abs"
 
     elif [[ ! -h $abs  &&  ($abs == ./* || $abs == ../*) ]]; then
 
-        #   No need for external program, we can find out
-        #   this by ourself
+	#   No need for external program, we can find out
+	#   this by ourself
 
-        local path=${bin%/*}
-        local name=${bin##*/}
+	local path=${bin%/*}
+	local name=${bin##*/}
 
-        try=$(cd $path; pwd)/$name
+	try=$(cd $path; pwd)/$name
 
     elif [[ "" && -x /usr/bin/chase ]]; then
 
-        #  DISABLED for now.
+	#  DISABLED for now.
 
-        /usr/bin/chase "$abs" > $retval
+	/usr/bin/chase "$abs" > $retval
 
-        [ -s $retval ] && try=$(< $retval)
+	[ -s $retval ] && try=$(< $retval)
 
     elif [ -x /usr/bin/readlink ]; then
 
-        #  readlink is unreliable, because it doesn't return path, if the
-        #  path is not a symlink. It returns empty.
+	#  readlink is unreliable, because it doesn't return path, if the
+	#  path is not a symlink. It returns empty.
 
-        /usr/bin/readlink "$abs" > $retval
+	/usr/bin/readlink "$abs" > $retval
 
-        if [ -s $retval ]; then
-            try=$(< $retval)
+	if [ -s $retval ]; then
+	    try=$(< $retval)
 
-            if [ "$try" ] && [[ ! "$try" == */* ]]; then
-                try=$path/$try
-            fi
-        fi
+	    if [ "$try" ] && [[ ! "$try" == */* ]]; then
+		try=$path/$try
+	    fi
+	fi
 
     elif [[ "" && -x /usr/bin/namei ]]; then
 
-        # DISABLED. The output of name cannot be easily parsed,
-        # because it doesn't output single path, but a tree notation.
-        #
-        # d /
-        # d usr
-        # d src
-        # d build
-        # d build
-        # d xloadimage
-        # l xloadimage-4.1 -> xloadimage.4.1
-        #   d xloadimage.4.1
-        # d .inst
-        # d usr
-        # d share
-        # d man
-        # d man1
-        # l xsetbg.1 -> xloadimage.1
-        #   - xloadimage.1
-        #
+	# DISABLED. The output of name cannot be easily parsed,
+	# because it doesn't output single path, but a tree notation.
+	#
+	# d /
+	# d usr
+	# d src
+	# d build
+	# d build
+	# d xloadimage
+	# l xloadimage-4.1 -> xloadimage.4.1
+	#   d xloadimage.4.1
+	# d .inst
+	# d usr
+	# d share
+	# d man
+	# d man1
+	# l xsetbg.1 -> xloadimage.1
+	#   - xloadimage.1
+	#
 
-        /usr/bin/namei $abs \
-            | tail -3 \
-            | $EGREP -i ' l .* -> ' \
-            > $retval
+	/usr/bin/namei $abs \
+	    | tail --lines=3 \
+	    | $EGREP --ignore-case ' l .* -> ' \
+	    > $retval
 
-        if [ -s $retval ]; then
-            local -a arr
-            arr=( $(< $retval) )
+	if [ -s $retval ]; then
+	    local -a arr
+	    arr=( $(< $retval) )
 
-            local count=${#arr[*]}
+	    local count=${#arr[*]}
 
-            if [ "$count" = "4" ]; then
-                try=${arr[3]}
-            fi
-        fi
+	    if [ "$count" = "4" ]; then
+		try=${arr[3]}
+	    fi
+	fi
     fi
 
     if [ "$try" ]; then
-        echo "$try"
+	echo "$try"
     else
-        return 1
+	return 1
     fi
-}
-
-function CygbuildWhich()
-{
-    type -p "$1" 2> /dev/null
 }
 
 function CygbuildPathAbsoluteSearch()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local bin="$1"
 
     if [ ! "$bin" ]; then
-        CygbuildWarn "$id: [ERROR] parameter 'bin' is empty"
-        return 1
+	CygbuildWarn "$id: [ERROR] parameter 'bin' is empty"
+	return 1
     fi
 
     if [[ "$bin" != */* ]]; then
 
-        local tmp
+	local tmp
 
-        CygbuildWhich $bin > $retval &&
-        tmp=$(< $retval)
+	CygbuildWhich $bin > $retval &&
+	tmp=$(< $retval)
 
-        #   Perhaps the file was not executable
-        [ "$tmp" ] && bin=$tmp
+	#   Perhaps the file was not executable
+	[ "$tmp" ] && bin=$tmp
     fi
 
     local try
@@ -1587,7 +2630,7 @@ function CygbuildPathAbsoluteSearch()
     [ -s $retval ] && try=$(< $retval)
 
     if [ "$try" ]; then
-        bin="$try"
+	bin="$try"
     fi
 
     echo $bin
@@ -1599,82 +2642,35 @@ function CygbuildPathAbsolute()
     local p="$1"
 
     if [ "$p" ] && [ -d "$p" ]; then
-        p=$(cd $p; pwd)
+	p=$(cd $p && pwd)
 
     elif [[ "$p" == /*  &&  -f "$p" ]]; then
-        # Nothing to do, it is absolute already
-        true
+	# Nothing to do, it is absolute already
+	true
 
     elif [[ "$p" == */* ]]; then
 
-        #   Perhaps there is filename too? dir/dir/file.txt
-        #   Remove last portion
+	#   Perhaps there is filename too? dir/dir/file.txt
+	#   Remove last portion
 
-        local file=${p##*/}
-        local dir=${p%/*}
+	local file=${p##*/}
+	local dir=${p%/*}
 
-        if [ -d "$dir" ]; then
-            dir=$(cd $dir; pwd)
-            p=$dir/$file
-        fi
+	if [ -d "$dir" ]; then
+	    dir=$(cd $dir; pwd)
+	    p=$dir/$file
+	fi
 
     else
-        if [ -f "$p" ]; then
-            p=$(pwd)/$p
-        fi
+	if [ -f "$p" ]; then
+	    p=$(pwd)/$p
+	fi
     fi
 
     if [ "$p" ]; then
-        echo $p
+	echo $p
     else
-        return 1
-    fi
-}
-
-function CygbuildCommandPath()
-{
-    local id="$0.$FUNCNAME"
-    local cmd="$1"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    #  Find out where is the absolute location of CMD
-    #  a) type: cygbuild.sh is /cygdrive/...
-    #  b) type: ls is hashed (/bin/ls)
-
-    if [[ "$cmd" == */* ]]; then
-        CygbuildPathAbsolute $cmd > $retval &&
-        cmd=$(< $cmd)
-    else
-        local saved="$IFS"
-        local IFS=" "
-
-            #   type is bash built-in command. It's better than which(1)
-            #   because it finds also aliases and functions.
-            #
-            #   NOTE: not using option -p, because it's better to see
-            #   error message.
-
-            if type $cmd > $retval ; then
-                set -- $(< $retval)
-            fi
-
-        IFS="$saved"
-
-        local path=$3
-
-        if [ "$path" = "hashed" ]; then
-            path=$4
-        fi
-
-        path=${path%)}      # Remove possible parentheses
-        path=${path#(}
-        cmd=$path
-    fi
-
-    if [ "$cmd" ]; then
-        echo $cmd
-    else
-        return 1
+	return 1
     fi
 }
 
@@ -1684,38 +2680,39 @@ function CygbuildScriptPathAbsolute()
     local bin="$1"
 
     if [ ! "$bin" ]; then
-        CygbuildWarn "$id: [ERROR] parameter 'bin' is empty"
-        return 1
+	CygbuildWarn "$id: [ERROR] parameter 'bin' is empty"
+	return 1
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local -a cache=( ${CYGBUILD_STATIC_ABSOLUTE_SCRIPT_PATH[*]} )
     local ret
 
     if [[ "${cache[0]}" == $bin* ]]; then
-        ret=${cache[1]}
+	ret=${cache[1]}
     else
-        CygbuildPathAbsoluteSearch "$bin" > $retval &&
-        ret=$(< $retval)
+	CygbuildPathAbsoluteSearch "$bin" > $retval &&
+	ret=$(< $retval)
 
-        if [ ! "$ret" ]; then
-            CYGBUILD_STATIC_ABSOLUTE_SCRIPT_PATH=($bin $ret)
-        fi
+	if [ ! "$ret" ]; then
+	    CYGBUILD_STATIC_ABSOLUTE_SCRIPT_PATH=($bin $ret)    # global-def
+	fi
     fi
 
     if [ "$ret" ]; then
-        echo $ret
+	echo $ret
     else
-        return 1
+	return 1
     fi
 }
 
 function CygbuildBuildScriptPath()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    #   Note, that source packages includes script-VERSION-RELEASE.sh
-    #   not just script.sh, so $0 cannot always be used directly.
+    #   Source packages includes script-VERSION-RELEASE.sh
+    #   and not just script.sh, so $0 cannot always be used directly.
 
     local name="$0"
 
@@ -1723,107 +2720,47 @@ function CygbuildBuildScriptPath()
     #   by ./script-NN.NN-1.sh, skip that case
 
     if [[ "$name" != */*  &&  -f "./$name" ]]; then
-        echo $(pwd)/$name
+	echo $(pwd)/$name
 
     elif [[ "$name" = ./*  &&  -f "./$name" ]]; then
-        name=${name#./}
-        echo $(pwd)/$name
+	name=${name#./}
+	echo $(pwd)/$name
 
     elif [[ "$name" == */*  &&  -f "$name" ]]; then
-        echo $name
+	echo $name
 
     else
-        name=${name##*/}
+	name=${name##*/}
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
-        CygbuildScriptPathAbsolute $name > $retval
-        local path=$(< $retval)
+	CygbuildScriptPathAbsolute $name > $retval
+	[ -s $retval ] && echo $(< $retval)
 
-        echo $path
     fi
-}
-
-function CygbuildTemplatePath()
-{
-    local id="$0.$FUNCNAME"
-    local ret
-
-    #   Find out where template files are located
-
-    local dir="$CYGBUILD_TEMPLATE_DIR_MAIN"
-
-    if [ -d "$dir" ]; then
-        ret=$dir
-    else
-
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
-        CygbuildBuildScriptPath > $retval
-        dir=$(< $retval)
-
-        #   It is relative to the installation of the *.sh file, this may be an
-        #   CVS checkout directory
-        #
-        #   dir/bin/cygbuild.sh
-        #   dir/etc/template        # Here
-
-        dir=${dir%/*}       # Remove filename: /path/to/FILE.SH => /path/to
-
-        if [ -d "$dir/../etc/template" ]; then
-            ret=$dir
-        elif [ -d "$dir/etc/template" ]; then
-            ret=$dir/etc/template
-        fi
-    fi
-
-    if [ "$ret" ]; then
-        echo $ret
-    else
-        return 1
-    fi
-}
-
-function CygbuildTarOptionCompress()
-{
-    local id="$0.$FUNCNAME"
-
-    #   Return correct packaging command based on the filename
-    #   .tar.gz or .tgz     => "z" option
-    #   .bz2                => "j" option
-
-    case "$1" in
-        *tar.gz|*tgz)   echo "z" ;;
-        *bz2)           echo "j" ;;
-        *)              return 1 ;;
-    esac
 }
 
 function CygbuildTarDirectory()
 {
-    #   Return tar packages top level directory if any
+    #   Return tar package's top level directory if any
 
     local id="$0.$FUNCNAME"
     local file="$1"
 
     if [ ! "$file" ]; then
-        CygbuildWarn "$id: FILE parameter is empty"
-        return 1
+	CygbuildWarn "$id: FILE parameter is empty"
+	return 1
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local z
-    CygbuildTarOptionCompress $file > $retval
-    [ -s $retval ] && z=$(< $retval)
-
-    $TAR -${z}tvf $file > $retval || return $?
+    tar --list --verbose --file=$file > $retval || return $?
 
     if [ ! -s $retval ]; then
-        CygbuildWarn "$id: [ERROR] Can't read content of $file"
-        return 1
+	CygbuildWarn "$id: [ERROR] Can't read content of $file"
+	return 1
     fi
 
     #   $(NF) will give last field from line:
-    #   -rw-r--r-- root/root 23206 2004-02-10 02:31:56 foo-20000401-1/COPY
+    #   -rw-r--r-- root/root 23206 2004-02-10 02:31:56 foo-N.N/COPY
     #
     #   The gsub() calls will handle cases:
     #   a) ./package-nn.nn/
@@ -1832,37 +2769,37 @@ function CygbuildTarDirectory()
     #   Different paths are gathered in HASH (associtive array) and
     #   there will be only one, if top level directory exists.
     #   Skip symbolic links.
+    #
+    #   NOTE: There may be files with spaces, so we must rely on colum 6.
+    #
+    #   ... foo-N.N/testdir/with space in name
 
-    local dirfile=$CYGBUILD_RETVAL.$FUNCNAME.dir
+    local dirfile="$retval.dir"
 
-    $AWK  '                             \
-        /->/ { next }                   \
-        {                               \
-            path = $(NF);               \
-            gsub("[.]/", "", path );    \
-            gsub("/.*", "", path );     \
-            hash[ path ] = 1;           \
-        }                               \
-        END {                           \
-            for (i in hash)             \
-            {                           \
-                print i;                \
-            }                           \
-        }                               \
-        '                               \
-        $retval                         \
-        > $dirfile
+    awk  '                              \
+	/->/ {                          \
+	    next                        \
+	}                               \
+	{                               \
+	    path = $6;                  \
+	    gsub("[.]/", "", path );    \
+	    gsub("/.*", "", path );     \
+	    hash[ path ] = 1;           \
+	}                               \
+	END {                           \
+	    for (i in hash)             \
+	    {                           \
+		print i;                \
+	    }                           \
+	}                               \
+	'                               \
+	$retval > $dirfile || return $?
 
-    local status=$?
-
-    if [ "$status" != "0" ]; then
-        return $status
-    fi
-
-    local lines=$(wc -l $dirfile | cut -d" " -f1)
+    wc -l < $dirfile > $retval.count
+    local lines=$(< $retval.count)
 
     if [ "$lines" = "1" ]; then
-        echo $(< $dirfile)
+	echo $(< $dirfile)
     fi
 }
 
@@ -1874,27 +2811,29 @@ function CygbuildMakefileName()
 
     local file path
 
-    for file in GNUMakefile Makefile makefile "$@"
+    for file in GNUMakefile Makefile makefile ${1+"$@"} \
+	unix/makefile unix/Makefile \
+	gnu/makefile gnu/Makefile
     do
-        path="$dir/$file"
+	path="$dir/$file"
 
-        if [ -f "$path" ]; then
-            echo "$path"
-            break
-        elif [ -h "$path" ]; then
-            CygbuildWarn "-- [ERROR] inconsistent links." \
-                 "Perhaps sources moved. Run [reshadow]."
-            $LS -la "$path"
-            break
-        fi
+	if [ -f "$path" ]; then
+	    echo "$path"
+	    break
+	elif [ -h "$path" ]; then
+	    CygbuildWarn "-- [ERROR] broken links." \
+		 "Perhaps sources moved and you need to run again [shadow]."
+	    ls -l --all "$path"
+	    break
+	fi
     done
 }
 
 function PackageUsesLibtoolMain()
 {
     CygbuildGrepCheck \
-        '^[^#]*\<libtool\>|--mode=(install|compile|link)'  \
-        "$@"
+	'^[^#]*\blibtool\b|--mode=(install|compile|link)'  \
+	"$@"
 }
 
 function PackageUsesLibtoolCompile ()
@@ -1910,12 +2849,12 @@ function MakefileUsesRedirect()
     local file="$1"
 
     if [ ! "$file" ] || [ ! -f "$file" ]; then
-        return 1
+	return 1
     fi
 
     #   See if we can find:  $(MAKE) -C src
 
-    CygbuildGrepCheck '^[^#]+make[) \t]+-C' $file
+    CygbuildGrepCheck '^[^#]+make[)[:space:]]+-C' $file
 }
 
 function CygbuildIsMakefileTarget()
@@ -1924,32 +2863,81 @@ function CygbuildIsMakefileTarget()
     local target="$1"
 
     if [ ! "$target" ]; then
-        CygbuildDie
+	CygbuildDie
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval
-    local file=$(< $retval)
+
+    local file
+    [ -s $retval ] && file=$(< $retval)
 
     if [ ! "$file" ]; then
-        return 1
+	return 1
     fi
 
     CygbuildGrepCheck "^$target:" $file
-
 }
 
-function CygbuildIsMakefileCplusplus ()
+function CygbuildIsMakefileCplusplus()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildMakefileName > $retval
-    local file=$(< $retval)
+    #   FIXME: Any better file patterns?
+    #   Consider Makefile.SunOS, Makefile.linux and this is not
+    #   very reliable way to test it.
 
-    if [ ! "$file" ]; then
-        return 1
-    fi
+    CygbuildGrepCheck "^[^#]+=[[:space:]]*[gc][+][+]" \
+	*Makefile makefile *.mk \
+	src/*Makefile src/makefile src/*.mk
+}
 
-    CygbuildGrepCheck "^[^#]+=[ \t]*g[+][+]" $file
+function CygbuildIsMakefileCstandard()
+{
+    # FIXME: Any better file patterns?
+    CygbuildGrepCheck "^[^#]+=[[:space:]]*(gcc|cc)" \
+	*Makefile makefile *.mk \
+	src/*Makefile src/makefile src/*.mk
+}
+
+function CygbuildIsCplusplusPackage()
+{
+    #   FIXME: This won't be correct for packages which contain
+    #   several different programs that are both C/C++,
+    #   like:
+    #
+    #       root/application-a/C
+    #       root/application-b/C++
+    #       root/application-b/C
+    #
+    #   in this case the first found, would determine that *all*
+    #   would be "C", which is not correct.
+
+    #   Search under any directory
+
+    local file
+
+    for file in *.hh *.cc *.cpp *.cxx */*.hh */*.cc */*.cpp  */*.cxx
+    do
+	[ -f "$file" ] && return 0
+    done
+
+    local retval=$RETVAL.$FUNCNAME
+
+    find .                          \
+	-maxdepth 3                 \
+	-iname "*makefile"          \
+	> $retval
+
+    [ -s $retval ] || return 1
+
+    while read file
+    do
+	if $GREP --quiet "^[[:space:]]*CC[[:space:]]*=[^#]*g[+][+]" "$file"
+	then
+	    return 0
+	fi
+    done < $retval
+
+    return 1
 }
 
 function CygbuildMakefileRunTarget()
@@ -1962,26 +2950,29 @@ function CygbuildMakefileRunTarget()
     [ ! "$dir"    ] && dir=$builddir
     [ ! "$target" ] && target="all"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $dir > $retval
-    local makefile=$(< $retval)
+
+    local makefile
+    [ -s $retval ] && makefile=$(< $retval)
 
     if [ ! "$makefile" ]; then
-        if [ "$opt" != "nomsg" ]; then
-            echo "--   No Makefile found, nothing to [$target] in $dir"
-        fi
-        return
+	if [ "$opt" != "nomsg" ]; then
+	    CygbuildEcho "-- No Makefile found, nothing to [$target] in $dir"
+	fi
+	return
     fi
 
     CygbuildPushd
 
-        cd $dir  || exit 1
+	cd $dir  || exit 1
 
-        if CygbuildIsMakefileTarget $target ; then
-            $MAKE -f $makefile $target
-        elif [ "$verbose" ]; then
-            CygbuildWarn "--   [NOTE] No target [$target] in $makefile"
-        fi
+	if CygbuildIsMakefileTarget $target ; then
+	    make -f $makefile $target
+	elif [ "$verbose" ]; then
+	    CygbuildWarn "-- [NOTE] No target '$target' in" \
+			 ${makefile#$srcdir/}
+	fi
 
     CygbuildPopd
 }
@@ -1992,10 +2983,11 @@ function CygbuildFileTypeByExtension()
     local ret
 
     case "$file" in
-        *.sh) ret="shell"   ;;
-        *.py) ret="python"  ;;
-        *.pl) ret="perl"    ;;
-        *) return 1         ;;
+	*.sh) ret="shell"   ;;
+	*.py) ret="python"  ;;
+	*.pl) ret="perl"    ;;
+	*.rb) ret="ruby"    ;;
+	*) return 1         ;;
     esac
 
     echo $ret
@@ -2005,39 +2997,39 @@ function CygbuildFileTypeByFile()
 {
     local file="$1"
     local ret
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local notes
 
-    $FILE $file > $retval
+    file $file > $retval
     [ -s $retval ] && notes=$(< $retval)
 
     if [[ "$notes" == *perl*  ]]; then
-        ret="perl"
+	ret="perl"
     elif [[ "$notes" == *python*  ]]; then
-        ret="python"
+	ret="python"
     elif [[ "$notes" == *shell*  ]]; then
-        ret="shell"
+	ret="shell"
     elif [[ "$notes" == *executable*  ]]; then
-        ret="executable"
+	ret="executable"
     elif [[ "$notes" == *ASCII* ]]; then
-        #  Hm, file in disguise. Can we find bang-slash?
+	#  Hm, file in disguise. Can we find bang-slash?
 
-        $EGREP '^#!' $file > $retval
-        [ -s $retval ] && notes=$(< $retval)
+	$EGREP '^#!' $file > $retval
+	[ -s $retval ] && notes=$(< $retval)
 
-        if [[ "$notes" == *+(bash|/sh|/ksh|/csh|/tcsh) ]]; then
-            ret="shell"
-        elif [[ "$notes" == *perl* ]]; then
-            ret="perl"
-        elif [[ "$notes" == *python* ]]; then
-            ret="perl"
-        fi
+	if [[ "$notes" == *@(bash|/sh|/ksh|/csh|/tcsh) ]]; then
+	    ret="shell"
+	elif [[ "$notes" == *perl* ]]; then
+	    ret="perl"
+	elif [[ "$notes" == *python* ]]; then
+	    ret="perl"
+	fi
     fi
 
     if [ "$ret" ]; then
-        echo $ret
+	echo $ret
     else
-        return 1
+	return 1
     fi
 }
 
@@ -2049,7 +3041,7 @@ function CygbuildFileIgnore()
 function CygbuildFileTypeMain()
 {
     local file="$1"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  We must not check binary files etc.
 
@@ -2087,20 +3079,36 @@ function CygbuildIsBzrPackage()
     [ -f "$srcdir/.bzr/inventory" ] &&  [ -d "$srcdir/inventory-store" ]
 }
 
+function CygbuildIsDarcsPackage()
+{
+    [ -d "$srcdir/.darcs" ]
+}
+
+function CygbuildIsMonotonePackage()
+{
+    [ -d "$srcdir/.mtn" ]
+}
+
 function CygbuildVersionControlType()
 {
+    #   RCS/ and ARCH are not tested because they are very old
+
     if CygbuildIsCvsPackage ; then
-        echo "cvs"
+	echo "cvs"
     elif CygbuildIsSvnPackage ; then
-        echo "svn"
+	echo "svn"
     elif CygbuildIsGitPackage ; then
-        echo "git"
+	echo "git"
     elif CygbuildIsMercurialPackage ; then
-        echo "mercurial"
+	echo "mercurial"
     elif CygbuildIsBzrPackage ; then
-        echo "brz"
+	echo "bzr"
+    elif CygbuildIsDarcsPackage ; then
+	echo "darcs"
+    elif CygbuildIsMonotonePackage ; then
+	echo "mtn"
     else
-        return 1
+	return 1
     fi
 }
 
@@ -2112,6 +3120,11 @@ function CygbuildIsPerlPackage()
 function CygbuildIsPythonPackage()
 {
     [ -f "$srcdir/setup.py" ]
+}
+
+function CygbuildIsRubyPackage()
+{
+    [ -f "$srcdir/setup.rb" ]
 }
 
 function CygbuildIsAutomakePackage()
@@ -2134,13 +3147,16 @@ function CygbuildIsX11Package()
     local id="$0.$FUNCNAME"
     local status=1              # Failure by defualt
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $(pwd) Makefile.in > $retval
+
+    [ -s $retval ] || return 2
+
     local file=$(< $retval)
 
     if [ -f "$file" ]; then
-        CygbuildGrepCheck "/X11/" $file
-        status=$?
+	CygbuildGrepCheck "/X11/" $file
+	status=$?
     fi
 
     return $status
@@ -2150,13 +3166,16 @@ function CygbuildIsX11appDefaults()
 {
     local status=1              # Failure by defualt
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $(pwd) Makefile.in > $retval
+
+    [ -s $retval ] || return 2
+
     local file=$(< $retval)
 
     if [ -f "$file" ]; then
-        CygbuildGrepCheck "/app-defaults" $file configure.in configure
-        status=$?
+	CygbuildGrepCheck "/app-defaults" $file configure.in configure
+	status=$?
     fi
 
     return $status
@@ -2166,27 +3185,23 @@ function CygbuildIsDestdirSupported()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] variable '$srcdir'" \
-              "not defined [$srcdir]."
+    CygbuildExitIfNoDir "$srcdir" \
+	"$id: [FATAL] variable '$srcdir' not defined [$srcdir]."
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ ! "$module" ]; then
-        echo "$id: Perl module was not found"
-        return 1                # Error is already displayed
-    fi
+    [ "$module" ] || return 1
 
-    local out=$readme.tmp
-
-    #   egrep could find  .... '^[^#]+[$][{(]DESTDIR'
+    #   egrep could find  .... '^[^#]+[$][{(]DESTDIR', but to do
+    #   it reliably, we need Perl.
 
     local debug=${OPTION_DEBUG:-0}
 
-    $PERL -e "require qq($module);  SetDebug($debug); \
-              MakefileDestdirSupport(qq($srcdir), qq(-exit));"
+    perl -e "require qq($module);  SetDebug($debug); \
+	      MakefileDestdirSupport(qq($srcdir), qq(-exit));"
 }
+
 function CygbuildDependsList()
 {
     #   Read the depends line
@@ -2194,9 +3209,9 @@ function CygbuildDependsList()
     local file=$DIR_CYGPATCH/setup.hint
 
     if [ ! -f "$file" ]; then
-        return 1
+	return 1
     else
-        sed -ne 's/requires:[ \t]*//p' $file
+	sed -ne 's/requires:[ \t]*//p' $file
     fi
 }
 
@@ -2212,21 +3227,21 @@ function CygbuildIsTemplateFilesInstalled()
 function CygbuildSourceDownloadScript()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    if $LS *$SCRIPT_SOURCE_GET_BASE > $retval 2> /dev/null ; then
-        local -a arr=( $(< $retval))
+    if ls *$SCRIPT_SOURCE_GET_BASE > $retval 2> /dev/null ; then
+	local -a arr=( $(< $retval))
 
-        local len=${#arr[*]}
-        local file
+	local len=${#arr[*]}
+	local file
 
-        if [ "$len" = "1" ]; then
-            file=${arr[0]}
-        fi
+	if [ "$len" = "1" ]; then
+	    file=${arr[0]}
+	fi
 
-        echo $file
+	echo $file
     else
-        return 1
+	return 1
     fi
 }
 
@@ -2235,26 +3250,26 @@ function CygbuildGetOneDir()
     #   Return one Directory, if there is only one.
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local from=${1:-"."}
 
     #   AWK get all entries that include "/" and then deleted trailing "/"
 
-    $LS -F $from | $AWK  '/\/$/ && ! /tmp/ {        \
-        sub("/$", "");                              \
-        print;                                      \
-        exit;                                       \
-        }'                                          \
-        > $retval
+    ls -F $from | awk  '/\/$/ && ! /tmp/ {        \
+	sub("/$", "");                              \
+	print;                                      \
+	exit;                                       \
+	}'                                          \
+	> $retval
 
     local -a arr=$(< $retval)
 
     local count=${#arr[*]}
 
     if [ "$count" = "1" ]; then
-        echo ${arr[0]}
+	echo ${arr[0]}
     else
-        return 1
+	return 1
     fi
 }
 
@@ -2277,25 +3292,25 @@ function CygbuildMoveToTempDir()
     dir=$(cd $dir; pwd)
 
     if [ ! "$dir" ]; then
-        CygbuildWarn "$id: [ERROR] DIR input parameter is empty"
-        return 1
+	CygbuildWarn "$id: [ERROR] DIR input parameter is empty"
+	return 1
     fi
 
     local temp=$dir/$dest
 
     if [ -d "$temp" ]; then
-        $RM -rf "$temp"
+	rm -rf "$temp"
     fi
 
-    $MKDIR $temp || return 1
+    mkdir $temp || return 1
 
     #   Move everything else, but the directory itself and
     #   the build script, that does not belong to the original
     #   package
 
     CygbuildPushd
-        cd $dir &&
-        $MV $(LC_ALL=C $LS | $EGREP -v "$dest|cygbuild.*sh" ) $dest
+	cd $dir &&
+	mv $(ls | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
     CygbuildPopd
 
     echo $temp
@@ -2316,18 +3331,18 @@ function CygbuildFilesExecutable()
 
 #    set -o noglob
 
-        $FIND -L $dir           \
-        -type f                 \
-        '('                     \
-            -name "*.exe"       \
-            -o -name "*.sh"     \
-            -o -name "*.pl"     \
-            -o -name "*.py"     \
-            -o -perm +111       \
-        ')'                     \
-        -o  -path "*/bin/*"     \
-        -o  -path "*/sbin/*"    \
-        $opt
+	find -L $dir            \
+	-type f                 \
+	'('                     \
+	    -name "*.exe"       \
+	    -o -name "*.sh"     \
+	    -o -name "*.pl"     \
+	    -o -name "*.py"     \
+	    -o -perm +111       \
+	')'                     \
+	-o  -path "*/bin/*"     \
+	-o  -path "*/sbin/*"    \
+	$opt
 
 #    set +o noglob
 }
@@ -2335,30 +3350,46 @@ function CygbuildFilesExecutable()
 function CygbuildFileConvertToUnix()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ $# -eq 0 ]; then
-        echo "$id [ERROR] Argument list \$* is empty"
-        return 1
+	CygbuildWarn "$id: [ERROR] Argument list \$* is empty"
+	return 1
     fi
 
-    $LS $* > $retval
+    ls "$@" > $retval 2> /dev/null
+
+    [ -s $retval ] || return 2
 
     perl -e '
-        for my $file (@ARGV)
-        {
-            ! -f $file  and next;
-            open IN, $file  or  print("$file $!\n"), next;
-            binmode IN;
-            $_ = join qq(), <IN>;
-            close IN;
-            s/\cM//g;
-            open OUT, "> $file" or print("$file $!\n"), next;
-            binmode OUT;
-            print OUT $_;
-            close OUT;
-        }
-    ' $(< $retval) /dev/null
+	for my $file (@ARGV)
+	{
+	    ! -f $file  and next;
+
+	    /\.(gz|bz2|tgz|zip|rar|rz|ps|pdf|rtf|odt|jpg)  and next;
+
+	    open IN, $file  or  print("$file $!\n"), next;
+	    binmode IN;
+	    $_ = join qq(), <IN>;
+	    close IN;
+	    s/\cM//g;
+	    open OUT, "> $file" or print("$file $!\n"), next;
+	    binmode OUT;
+	    print OUT $_;
+	    close OUT;
+	}
+    ' "$@"
+}
+
+function CygbuildFileConvertEolWhitespace()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    if [ $# -eq 0 ]; then
+	CygbuildWarn "$id: [ERROR] Argument list \$* is empty"
+	return 1
+    fi
 }
 
 function CygbuildTreeSymlinkCopy()
@@ -2366,21 +3397,21 @@ function CygbuildTreeSymlinkCopy()
     #   Make symbolic links from FROM => TO
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local from="$1"
     local to="$2"
 
-    CygbuildExitNoDir "$from" "$id: [ERROR] parameter failure 'from' $from"
+    CygbuildExitIfNoDir "$from" "$id: [ERROR] parameter failure 'from' $from"
 
     if [ ! "$to" ]; then
-        CygbuildDie "$to" "$id: [ERROR] parameter 'to' is empty"
+	CygbuildDie "$to" "$id: [ERROR] parameter 'to' is empty"
     fi
 
     if [ ! -d "$to" ]; then
-        $MKDIR -p "$to" || exit 1
+	mkdir --parents "$to" || exit 1
     fi
 
-    #   cp -lr would do the same as 'lndir'. 'lndir' is widely
+    #   cp -lr might do the same as 'lndir'. 'lndir' is widely
     #   regarded as best cross platform solution.
 
     local LNDIR
@@ -2389,92 +3420,95 @@ function CygbuildTreeSymlinkCopy()
     [ -s $retval ] && LNDIR=$(< $retval)
 
     if [ "$LNDIR" ]; then
-        LNDIR="$LNDIR -silent"
+	LNDIR="$LNDIR -silent"
     else
-
-        local msg="$id: 'lndir' not found in PATH. Cannot shadow."
-        msg="$msg It is included in xorg* packages."
-
-        CygbuildDie "$msg"
+	CygbuildDie "$id: 'lndir' not found in PATH. Cannot shadow sources."
     fi
 
     #   lndir(1) cannot be used directly, because we are copying UNDER
-    #   the current directory (.build). It would cause recursive copying.
+    #   the current directory .build; it would cause recursive copying.
     #
     #   So, first copy top level manually, an then let lndir copy
     #   subdirectories.
 
     CygbuildPushd
 
-        cd $from || return 1
+	cd $from || return 1
 
-        #   lndir(1) cannot link files that have the same name as executables,
-        #   like:
-        #
-        #       lndir dir/ to/
-        #
-        #       dir/program
-        #       dir/program.exe     =>  to/program.exe
-        #
-        #   The "program" without ".exe" is not copied. This may be due to
-        #   Windows environment.
-        #
-        #   Remove all *.exe files before shadowing (they should be generated
-        #   anyway.
+	#   Remove all *.exe files before shadowing (they should be generated
+	#   anyway.
 
-        $FIND . -type f -name "*.exe" \
-                 | $EGREP -v '[.](build|s?inst)' \
-                 > $retval
+	CygbuildFindDo .            \
+	    -o -type f '('          \
+		-name "*.exe"       \
+		-o -name "*.dll"    \
+		-o -name "*.dll.a"  \
+		-o -name "*.s[ao]"  \
+		-o -name "*.la"     \
+		')'                 \
+	    > $retval
 
-        local file done
+	if [ -s $retval ]; then
+	    local file done
 
-        for file in $(< $retval)
-        do
-            if [ "$verbose" ] && [ ! "$done" ]; then
-                echo "--  Cleaning offending files before shadow"
-                done="yes"
-            fi
-            $RM -f $verbose "$file"
-        done
+	    while read file
+	    do
+		if [ "$verbose" ] && [ ! "$done" ]; then
+		    CygbuildEcho "-- Cleaning offending files before shadow"
+		    done="yes"
+		fi
 
-        local dest
-        local current=$(pwd)
+		rm --force $verbose "$file"
+	    done < $retval
+	fi
 
-        for item in * .*
-        do
+	local current=$(pwd)
+	local dest
 
-            #   Ignore these
+	for item in * .*
+	do
 
-            if echo $item |
-               $EGREP -q "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
-            then
-                CygbuildVerb "--   Ignored $item"
-                continue
-            fi
+	    if echo $item |
+	       $EGREP --quiet "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
+	    then
+		CygbuildVerb "-- Ignored $item"
+		continue
+	    fi
 
-            dest=$to/$item
+	    dest="$to/$item"
 
-            if [ -f "$item" ]; then
+	    #   lndir(1) cannot link files that have the same name as
+	    #   executables, like:
+	    #
+	    #       lndir dir/ to/
+	    #
+	    #       dir/program
+	    #       dir/program.exe     =>  to/program.exe
+	    #
+	    #   The "program" without ".exe" is not copied. This may
+	    #   be due to Windows environment.
 
-                if  [ ! -f "$dest" ]; then
-                    $LN -s "$current/$item"  "$dest" || exit 1
-                fi
+	    if [ -f "$item" ]; then
 
-            elif [ -d "$item" ]; then
+		if  [ ! -f "$dest" ]; then
+		    ln --symbolic "$current/$item"  "$dest" || exit 1
+		fi
 
-                if [ ! -d "$dest" ]; then
-                    $MKDIR -p "$dest"            || exit 1
-                    $LNDIR "$current/$item" "$dest"
-                fi
+	    elif [ -d "$item" ]; then
 
-            else
-                item=$(pwd)/$item
-                echo ""
-                ls -l $item
-                CygbuildDie "$id: Don't know what to do with $item"
-            fi
+		if [ ! -d "$dest" ]; then
+		    mkdir --parents "$dest"                 || exit 1
+		    $LNDIR "$current/$item" "$dest"
+		fi
 
-        done
+	    else
+		item="$(pwd)/$item"
+		echo ""
+		ls -l "$item"
+		CygbuildDie "$id: Don't know what to do with $item"
+	    fi
+
+	done
 
     CygbuildPopd
 }
@@ -2484,38 +3518,41 @@ function CygbuildFileReadOptionsFromFile()
     #   Ignore empty lines and comment lines. Read all others
     #   as one BIG line.
 
-    $AWK \
+    awk \
     '
-        {
-            gsub("[ \t]+#.*","");
-        }
-        ! /^[ \t]*#/ && ! /^[ \t]*$/ {
-            str = str " " $0;
-        }
-        END {
-            print str;
-        }
+	{
+	    gsub("[ \t]+#.*","");
+	}
+	! /^[ \t]*#/ && ! /^[ \t]*$/ {
+	    str = str " " $0;
+	}
+	END {
+	    print str;
+	}
     ' ${1:-/dev/null}
 }
 
 function CygbuildFileReadOptionsMaybe()
 {
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$1"
     local msg="$2"
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
     local str
 
     if [ -f "$file" ]; then
 
-        CygbuildFileReadOptionsFromFile "$file" > $retval
-        str=$(< $retval)
+	CygbuildFileReadOptionsFromFile "$file" > $retval
 
-        if [ ! "$msg" ]; then
-            CygbuildWarn "--   Reading more options from $file: $str"
-        else
-            CygbuildWarn "$msg"
-        fi
+	[ -s $retval ] || return 0
+
+	str=$(< $retval)
+
+	if [ ! "$msg" ]; then
+	    CygbuildWarn "-- Reading external and more options:" \
+			 "${file#$srcdir/}: $str"
+	else
+	    CygbuildWarn "$msg"
+	fi
     fi
 
     echo $str
@@ -2527,162 +3564,95 @@ function CygbuildFileReadOptionsMaybe()
 #
 #######################################################################
 
-
-function CygbuildDefineGlobalPackageDatabase()
-{
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local fromdir="$1"
-    local todir=$CYGBUILD_CACHE_PAKAGES
-
-    if [ ! "$fromdir" ] || [ ! -d "$fromdir" ] ; then
-        CygbuildDie "\
-In order to build search database for all files, all downloaded
-package-N.N-N.tar.bz2 files must be examined. This will take LOT of
-time in the first time. If you're unsure what this directory is, start
-setup.exe and see value 'Local Package Directory'
-
-[ERROR] Invalid DIRECTORY argument: [$fromdir]"
-    fi
-
-    [ -d "$todir" ] || $MKDIR -p $todir
-
-    echo "-- Building package database to $todir"
-    echo "--   Have a snack or something, this will take SOME time..."
-
-    #   Every installed Cygwin package must be examined and the
-    #   contents of tar files must be oped in order to
-    #   generate the search database. Uncompressing every file is
-    #   time consuming process
-    #
-    #   Every file is listed in separate entry, this makes it
-    #   easy to add incremental updates.
-    #
-    #       todir/foo-1.1-2.lst
-    #       todir/foo-1.1-3.lst     Perhaps user did upgrade
-
-    local path name dest
-
-    for path in $( $FIND $fromdir -type f -name "*.bz2" )
-    do
-        name=${path##*/}        # Delete directories.
-        name=${name%.tar.bz2}   # foo-1.1-2.tar.bz2 => foo-1.1-2
-        dest="$todir/$name.lst"
-
-        #   This file may have already been unpacked. Skip as needed.
-
-        if [ ! -s $dest ]; then
-            CygbuildVerb "--   Processing $path"
-
-            #   Add path name to the beginning of each line
-
-            $TAR -jtvf $path                    \
-               | $SED -e "s,^,$path:,"          \
-               > $todir/$name.lst || exit $?
-        fi
-
-    done
-}
-
 function CygbuildDefineGlobalCommands()
 {
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    #   Make an exeption here.
+    BASHX="/bin/bash -x"                            # global-def
+    GREP="grep --binary-files=without-match"        # global-def
+    EGREP="$GREP --extended-regexp"                 # global-def
 
-    CygbuildPathBinFast gpg /usr/local/bin > $retval
-    [ -s $retval ] && GPG=$(< $retval)                  # global-def
+    # ................................................. interpreters ...
+    #   Official locations under Cygwin. Used to check proper shebang line
+    #   Note: /usr/bin in Cygwin is just a mount link to /bin
 
-    local file=$CYGBUILD_CONFIG_PROGRAMS
+    local prefix=/bin
 
-    if [ "$file" ] && [ -r $file ]; then
-        CygbuildVerb "-- Reading configuration $file"
-        if ! source $file ; then
-            echo "$id: [ERROR] Syntax error in $file"
-            exit 1
-        fi
-        return
+    PERLBIN=$prefix/perl                            # global-def
+    PYTHONBIN=$prefix/python                        # global-def
+    RUBYBIN=$prefix/ruby                            # global-def
+
+    # ............................................ optional features ...
+
+    STAT=                                           # global-def
+    CygbuildPathBinFast stat > $retval
+    [ -s $retval ] && STAT=$(< $retval)
+
+    CYGCHECK=
+    CygbuildWhich cygcheck > $retval
+    [ -s $retval ] && CYGCHECK=$(< $retval)         # global-def
+
+    GPG=                                            # global-def
+    CygbuildPathBinFast gpg > $retval
+
+    if [ -s $retval ]; then
+	GPG=$(< $retval)
+
+	GPGOPT="\
+  --no-permission-warning\
+  --no-secmem-warning\
+  --no-mdc-warning"
+
     fi
 
-    #  Use absolute paths for faster execution
+    WGET=                                           # global-def
+    CygbuildPathBinFast wget > $retval
+    [ -s $retval ] && WGET=$(< $retval)
 
-    CygbuildPathBinFast cp > $retval &&
-    CP=$(< $retval)                               # global-def
+    # ......................................................... perl ...
 
-    CygbuildPathBinFast ls > $retval &&
-    LS=$(< $retval)                               # global-def
+    CygbuildPathBinFast perl > $retval
+    [ -s $retval ] && tmp=$(< $retval)
 
-    CygbuildPathBinFast ln > $retval &&
-    LN=$(< $retval)                               # global-def
+    if [ ! "$tmp" ]; then
+	CygbuildDie "-- [FATAL] 'perl' not found in PATH"
+    fi
 
-    CygbuildPathBinFast mv > $retval &&
-    MV=$(< $retval)                               # global-def
+    PERL_PATH="$tmp"
+    CygbuildDefineGlobalPerlVersion
 
-    CygbuildPathBinFast rm > $retval &&
-    RM=$(< $retval)                               # global-def
+    # ....................................................... python ...
 
-    CygbuildPathBinFast tr > $retval &&
-    TR=$(< $retval)                               # global-def
+    CygbuildPathBinFast python > $retval
+    [ -s $retval ] && tmp=$(< $retval)
 
+    if [ ! "$tmp" ]; then
+	CygbuildDie "-- [FATAL] 'python' not found in PATH"
+    fi
 
-    CygbuildPathBinFast awk > $retval &&
-    AWK=$(< $retval)                              # global-def
+    PYTHON_PATH="$tmp"                              # global-def
 
-    CygbuildPathBinFast cat > $retval &&
-    CAT=$(< $retval)                              # global-def
+    CygbuildDefineGlobalPythonVersion
 
-    CygbuildPathBinFast sed > $retval &&
-    SED=$(< $retval)                              # global-def
+    local minor=$PYTHON_VERSION                     # global-def
 
-    CygbuildPathBinFast tar > $retval &&
-    TAR=$(< $retval)                              # global-def
+    if [[ "$minor" == *.*.* ]]; then                # 2.5.1
+	minor=${minor%.*}
+    fi
 
+    local tmp=/usr/lib/python$minor
 
-    BASH=/bin/bash
-    BASHX="$BASH -x"
+    if [ -d $tmp ]; then
+	PYTHON_LIBDIR=$tmp/config                   # global-def
+    fi
 
+    CygbuildWhichCheck make || 	CygbuildDie "[FATAL] $id: make not in PATH"
+    CygbuildWhichCheck gcc  ||  CygbuildDie "[FATAL] $id: gcc not in PATH"
+    CygbuildWhichCheck perl ||  CygbuildDie "[FATAL] $id: perl not in PATH"
 
-    CygbuildPathBinFast diff > $retval &&
-    DIFF=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast find > $retval &&
-    FIND=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast file > $retval &&
-    FILE=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast gzip > $retval &&
-    GZIP=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast make > $retval &&
-    MAKE=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast perl > $retval &&
-    PERL=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast sort > $retval &&
-    SORT=$(< $retval)                             # global-def
-
-    CygbuildPathBinFast mkdir > $retval &&
-    MKDIR=$(< $retval)                            # global-def
-
-# Not needed
-#    CygbuildPathBinFast which > $retval &&
-#    WHICH=$(< $retval)                            # global-def
-
-    CygbuildPathBinFast patch > $retval &&
-    PATCH=$(< $retval)                             # global-def
-
-    #   Under cygwin egrep(1) is shell script, so call grep -E which is
-    #   faster
-
-    CygbuildPathBinFast grep > $retval &&
-    EGREP="$(< $retval) --binary-files=without-match --extended-regexp" x# global-def
-
-    CygbuildPathBinFast python > $retval &&
-    PYTHON=$(< $retval)                            # global-def
-
-    CygbuildPathBinFast wget > $retval &&
-    WGET=$(< $retval)                              # global-def
+    CygbuildWhichCheck file ||	CygbuildDie "[FATAL] $id: file(1) not in PATH." \
+	"Install package 'file'"
 }
 
 function CygbuildIsArchiveScript()
@@ -2693,9 +3663,24 @@ function CygbuildIsArchiveScript()
 function CygbuildDefineGlobalScript()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    #   If this file is named like foo-2.1-1.sh then this is part of
+    #   the source archive. These variables get set during Main()
+
+    SCRIPT_FULLPATH=         # /path/to/foo-2.1-1.sh
+    SCRIPT_FILENAME=         # foo-2.1-1.sh
+    SCRIPT_PKGVER=           # foo-2.1
+    SCRIPT_PACKAGE=          # foo
+    SCRIPT_VERSION=          # 2.1
+    SCRIPT_RELEASE=          # 1
+
     CygbuildBuildScriptPath  > $retval
+
+    if [ ! -s $retval ]; then
+	CygbuildWarb "-- [ERROR] Couldn't determine *self* path"
+    fi
+
     local script=$(< $retval)
     SCRIPT_FULLPATH=$script                             # global-def
 
@@ -2705,20 +3690,27 @@ function CygbuildDefineGlobalScript()
     SCRIPT_FILENAME=$scriptname                         # global-def
     scriptname=${scriptname%.sh}
 
-    local release=${scriptname##*-}
+    CygbuildVersionInfo "$scriptname" > $retval
+
+    [ -s $retval ] || return 0
+
+    local -a arr
+    arr=( $(< $retval) )
+    local dummy="${arr[*]}"  #  For debugging
+
+    local release=${arr[2]}
 
     if CygbuildIsNumber "$release" ; then
-        SCRIPT_RELEASE=$release                         # global-def
+	SCRIPT_RELEASE=$release                         # global-def
 
-        scriptname=${scriptname%-$release}
-        SCRIPT_PKGVER=$scriptname                       # global-def
-        SCRIPT_PACKAGE=${scriptname%-*}                 # global-def
-        SCRIPT_VERSION=${scriptname#$SCRIPT_PACKAGE-}   # global-def
+	SCRIPT_PACKAGE=${arr[0]}                        # global-def
+	SCRIPT_VERSION=${arr[1]}                        # global-def
+	SCRIPT_PKGVER=${arr[0]}-${arr[1]}               # global-def
 
-        #  Make command "./<package>-N.N.sh all" generated result
-        #  files to $TOPDIR
+	#  Make command "./<package>-N.N.sh all" generated result
+	#  files to $TOPDIR
 
-        OPTION_GBS_COMPAT="script-N-N"                  # global-def
+	OPTION_GBS_COMPAT="script-N-N"                  # global-def
     fi
 }
 
@@ -2728,13 +3720,14 @@ function CygbuildDefineEnvClear()
       "-- [INFO] Clearing env: compilation variables like CFLAGS etc."
 
     #  Do not use environment settings. Only those in Makefiles
-    #  or if explicitly set through CYGBUILD_* variables in the build
+    #  or if explicitly set through CYGBUILD_* variables or in the build
     #  scripts.
 
     CXXFLAGS=
     CFLAGS=
     LDFLAGS=
-    unset CXXFLAGS CFLAGS LDFLAGS
+    INCLUDE_PATH=
+    unset CXXFLAGS CFLAGS LDFLAGS INCLUDE_PATH
 }
 
 function CygbuildDefineGlobalCompile()
@@ -2742,41 +3735,43 @@ function CygbuildDefineGlobalCompile()
     #   Define global variables for compilation
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    CygbuildMakefileName "." Makefile.am Makefile.in > $retval
-    local makefile=$(< $retval)
+    local make
+    CygbuildMakefileName "." Makefile.am Makefile.in > $retval &&
+    make=$(< $retval)
 
     local libtool libtoolCompile
 
-    if PackageUsesLibtoolMain $makefile configure ; then
-        libtool="libtool"
+    if [ "$make" ] && PackageUsesLibtoolMain $make configure
+    then
+	libtool="libtool"
 
-        if PackageUsesLibtoolCompile $makefile ; then
-            libtoolCompile="libtool"
-        fi
+	if PackageUsesLibtoolCompile $make ; then
+	    libtoolCompile="libtool"
+	fi
     fi
 
     if [ "$libtool" ]; then
-        CygbuildVerb "-- [INFO] Package seems to use libtool"
+	CygbuildVerb "-- [INFO] Package seems to use libtool"
     fi
 
     if [ "$libtool" ] ; then
-        #  Read about no-undefined at
-        #  http://sourceware.org/autobook/autobook/autobook_88.html
+	#  Read about no-undefined at
+	#  http://sourceware.org/autobook/autobook/autobook_88.html
 
-        if [ "$CYGBUILD_LDFLAGS" ]; then
-            CYGBUILD_LDFLAGS="-no-undefined $CYGBUILD_LDFLAGS"  # global-def
-        else
-            CYGBUILD_LDFLAGS="-no-undefined"                    # global-def
-        fi
+	if [ "$CYGBUILD_LDFLAGS" ]; then
+	    CYGBUILD_LDFLAGS="-no-undefined $CYGBUILD_LDFLAGS"  # global-def
+	else
+	    CYGBUILD_LDFLAGS="-no-undefined"                    # global-def
+	fi
 
-        if [ "$CYGBUILD_AM_LDFLAGS" ]; then
-            # CYGBUILD_AM_LDFLAGS  global-def
-            CYGBUILD_AM_LDFLAGS="-no-undefined $CYGBUILD_AM_LDFLAGS"
-        else
-            CYGBUILD_AM_LDFLAGS="-no-undefined"                 # global-def
-        fi
+	if [ "$CYGBUILD_AM_LDFLAGS" ]; then
+	    # CYGBUILD_AM_LDFLAGS  global-def
+	    CYGBUILD_AM_LDFLAGS="-no-undefined $CYGBUILD_AM_LDFLAGS"
+	else
+	    CYGBUILD_AM_LDFLAGS="-no-undefined"                 # global-def
+	fi
 
     fi
 
@@ -2785,33 +3780,29 @@ function CygbuildDefineGlobalCompile()
 
     if [ -x /usr/bin/ccache ]; then
 
-        if [ "$libtool" ]; then
+	if [ "$libtool" ]; then
 
-            #   ccache can only be used, if Makefile is well contructed for
-            #   libtool. That is, is uses --mode=compile for everything.
-            #   But we cannot know for sure, so let user decide.
+	    #   ccache can only be used, if Makefile is well contructed for
+	    #   libtool. That is, is uses --mode=compile for everything.
+	    #   But we cannot know for sure, so let user decide.
 
-            if [ "$libtoolCompile" ] ; then
-                CygbuildVerb "--   Makefile uses libtool and --mode=compile"
+	    if [ "$libtoolCompile" ] ; then
+		CygbuildVerb "-- Makefile uses libtool and --mode=compile"
 
-                if [[ ! "$CYGBUILD_CC" == *ccache* ]]; then
-                    CygbuildVerb "--   you could try" \
-                         "CYGBUILD_CC='ccache gcc'"
-                fi
-            fi
-        else
-            local msg
-            msg="-- [INFO] Using ccache for CC environment variable"
+		if [[ ! "$CYGBUILD_CC" == *ccache* ]]; then
+		    CygbuildVerb "-- you could try" \
+			 "CYGBUILD_CC='ccache gcc'"
+		fi
+	    fi
+	else
+	    local msg
+	    msg="-- [INFO] Using ccache for CC environment variable"
 
-            CYGBUILD_CC="ccache gcc"                        # global-def
+	    CYGBUILD_CC="ccache gcc"                        # global-def
+	    CYGBUILD_CXX="ccache g++"                       # global-def
 
-            if CygbuildIsMakefileCplusplus ; then
-                CYGBUILD_CC="ccache g++"
-            fi
-            CYGBUILD_CXX="ccache g++"                       # global-def
-
-            CygbuildVerb $msg
-        fi
+	    CygbuildVerb $msg
+	fi
     fi
 }
 
@@ -2837,7 +3828,7 @@ function CygbuildDefineGlobalMain()
     # local sourcefile="$OPTION_FILE"
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local argTop="$1"
     local argSrc="$2"
@@ -2845,32 +3836,30 @@ function CygbuildDefineGlobalMain()
     local argPkg="$4"
     local argDirective="$5"
 
-    CygbuildDefineGlobalCompile
-
     #   - If filename or explicit release was given
     #   - or examine source directory name package-NN.NN/ name
 
     local templatepkg=${argPkg:-$argSrc}
 
     if  [[ "$templatepkg" != *[0-9]*[0-9.]* ]] &&
-        [[ "$templaterel" == *[0-9]*[0-9.]* ]]
+	[[ "$templaterel" == *[0-9]*[0-9.]* ]]
     then
-        templatepkg=$templaterel        #   Fix it. This is better
+	templatepkg=$templaterel        #   Fix it. This is better
     fi
 
     if  [[ "$templatepkg" != *[0-9]*[0-9.]* ]] &&
-        [[ "$argRelease"  == *[0-9]*[0-9.]* ]]
+	[[ "$argRelease"  == *[0-9]*[0-9.]* ]]
     then
-        templatepkg=$argRelease         #   Fix it. This is better
+	templatepkg=$argRelease         #   Fix it. This is better
     fi
 
     if [[ "$templatepkg" != *[0-9]*[0-9.]* ]]; then
 
-        # Does not look like a correct version, complain
-        CygbuildWarn "$id: [WARN] Can't derive VERSION from"        \
-             "[$templatepkg]. It is expected that directory name"   \
-             "uses format foo-VERSION, like foo-1.2.3. "            \
-             "Or perhaps option -f may help."
+	# Does not look like a correct version, complain
+	CygbuildWarn "$id: [WARN] Can't derive VERSION from"        \
+	     "[$templatepkg]. It is expected that directory name"   \
+	     "uses format foo-VERSION, like foo-1.2.3. "            \
+	     "Or perhaps option -f may help."
     fi
 
     #   Pick any of these, in this order. Variable where
@@ -2887,30 +3876,30 @@ function CygbuildDefineGlobalMain()
     local pkgver=$(< $retval)
 
     if ! CygbuildIsNumberLike "$pkgver" ; then
-        CygbuildWarn "$id: [ERROR] Cannot determine VERSION from $templatepkg"
-        CygbuildWarn "$id: [ERROR] Are you inside directory package-N.N/ ?"
-        return 1
+	CygbuildWarn "$id: [ERROR] Cannot determine VERSION from $templatepkg"
+	CygbuildWarn "$id: [ERROR] Are you inside directory package-N.N/ ?"
+	return 1
     fi
 
     local relver=$templaterel
 
     if [[ "$relver" == *[!0-9]* ]]; then
-        CygbuildStrRelease $relver > $retval || exit 1
-        relver=$(< $retval)
+	CygbuildStrRelease $relver > $retval || exit 1
+	relver=$(< $retval)
     fi
 
     if [[ "$argDirective" != *noCheckRelease* ]]; then
-        if [[ "$relver" != [0-9]* ]] || [ ! $relver -gt 0  ]; then
-            # Does not look like a correct version, complain
-            CygbuildDie "$id: [ERROR] Can't derive RELEASE from $argSrc." \
-                   "See option -r"
-        fi
+	if [[ "$relver" != [0-9]* ]] || [ ! $relver -gt 0  ]; then
+	    # Does not look like a correct version, complain
+	    CygbuildDie "$id: [ERROR] Can't derive RELEASE from $argSrc." \
+		   "See option -r"
+	fi
     elif [[ "$relver" != [0-9]* ]]; then
-        relver=
+	relver=
     fi
 
     if [[ "$relver" != [0-9]* ]]; then
-        CygbuildWarn "$id: [WARN] RELEASE '$relver' is not a number"
+	CygbuildWarn "$id: [WARN] RELEASE '$relver' is not a number"
     fi
 
     CygbuildBuildScriptPath > $retval || exit 1
@@ -2934,7 +3923,7 @@ function CygbuildDefineGlobalMain()
     LIBPKG=$PKG                                                 # global-def
 
     if [[ "$PKG" != lib* ]]; then
-        LIBPKG=lib$PKG
+	LIBPKG=lib$PKG
     fi
 
     NAME_LIB_PKG_MAIN=$LIBPKG.tar.bz2                           # global-def
@@ -2948,7 +3937,7 @@ function CygbuildDefineGlobalMain()
 
     if [[ ! "$argDirective" == *noCheckSrc* ]] && [ ! -d "$srcdir" ]
     then
-        CygbuildDie "$id: SRCDIR doesn't exists $srcdir"
+	CygbuildDie "$id: SRCDIR doesn't exists: '$srcdir'"
     fi
 
     #   objdir=${srcdir}/.build
@@ -2958,18 +3947,17 @@ function CygbuildDefineGlobalMain()
     #   elsewhere too to prevent accidental rm -rf
 
     if [ "$OPTION_PREFIX_CYGINST" ]; then
-        export instdir=$OPTION_PREFIX_CYGINST
+	export instdir=$OPTION_PREFIX_CYGINST
     else
-        export instdir_relative=.inst
-        export instdir=$srcdir/$instdir_relative
+	export instdir_relative=.inst
+	export instdir=$srcdir/$instdir_relative
     fi
 
     if [ "$OPTION_PREFIX_CYGSINST" ]; then
-        export srcinstdir=$OPTION_PREFIX_CYGSINST
-
+	export srcinstdir=$OPTION_PREFIX_CYGSINST
     else
-        export srcinstdir_relative=.sinst
-        export srcinstdir=$srcdir/$srcinstdir_relative
+	export srcinstdir_relative=.sinst
+	export srcinstdir=$srcdir/$srcinstdir_relative
     fi
 
     #   The .build/ directory is used for various purposes:
@@ -2979,18 +3967,18 @@ function CygbuildDefineGlobalMain()
     #   3) To make VCS snapshot builds      ./.build/vc
 
     if [ "$OPTION_PREFIX_CYGBUILD" ]; then
-        export builddir_root=$OPTION_PREFIX_CYGBUILD
+	export builddir_root=$OPTION_PREFIX_CYGBUILD
 
-        builddir_relative_root=${builddir_root##*/}
-        export builddir_relative=$builddir_relative_root/build
+	builddir_relative_root=${builddir_root##*/}
+	export builddir_relative=$builddir_relative_root/build
 
-        export builddir=$OPTION_PREFIX_CYGBUILD/build
+	export builddir=$OPTION_PREFIX_CYGBUILD/build
     else
-        export builddir_relative_root=.build
-        export builddir_relative=$builddir_relative_root/build
+	export builddir_relative_root=.build
+	export builddir_relative=$builddir_relative_root/build
 
-        export builddir_root=$srcdir/$builddir_relative_root
-        export builddir=$srcdir/$builddir_relative
+	export builddir_root=$srcdir/$builddir_relative_root
+	export builddir=$srcdir/$builddir_relative
     fi
 
     export builddir_relative_vc_root=vc
@@ -3005,15 +3993,16 @@ function CygbuildDefineGlobalMain()
     FILE_SRC_PKG=$tmpinst/$NAME_SRC_PKG                         # global-def
 
     if CygbuildIsGbsCompat ; then
-        echo "-- [NOTE] Using GBS compat mode for source and binary packages"
-        FILE_SRC_PKG=$TOPDIR/$NAME_SRC_PKG
+	CygbuildVerb "-- [NOTE] Using GBS compat mode for" \
+		     "source and binary packages"
+	FILE_SRC_PKG=$TOPDIR/$NAME_SRC_PKG
     fi
 
     FILE_SRC_PATCH=$tmpinst/$NAME_SRC_PATCH                     # global-def
     FILE_BIN_PKG=$tmpinst/$NAME_BIN_PKG                         # global-def
 
     if CygbuildIsGbsCompat ; then
-        FILE_BIN_PKG=$TOPDIR/$NAME_BIN_PKG
+	FILE_BIN_PKG=$TOPDIR/$NAME_BIN_PKG
     fi
 
     #   Will be defined at runtim
@@ -3021,21 +4010,20 @@ function CygbuildDefineGlobalMain()
     PATH_PKG_LIB_LIBRARY=$tmpinst/$NAME_LIB_PKG_MAIN            # global-def
     PATH_PKG_LIB_DEV=                                           # global-def
     PATH_PKG_LIB_DOC=                                           # global-def
-#    PATH_PKG_LIB_BIN=$tmpinst/$NAME_PKG_LIB_BIN                 # global-def
+#    PATH_PKG_LIB_BIN=$tmpinst/$NAME_PKG_LIB_BIN                # global-def
 
 
     #   Documentation and setup directories
 
     local tmpdocdir=$CYGBUILD_DOCDIR_RELATIVE   # _docdir is temp variable
 
-    DIR_CYGPATCH_RELATIVE=CYGWIN-PATCHES                        # global-def
-    DIR_CYGPATCH=$srcdir/$DIR_CYGPATCH_RELATIVE                 # global-def
+    DIR_CYGPATCH=$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE        # global-def
 
-    CYGPATCH_DONE_PATCHES_FILE=$DIR_CYGPATCH_RELATIVE/done-patch.tmp # global-def
+    CYGPATCH_DONE_PATCHES_FILE=$DIR_CYGPATCH/done-patch.tmp # global-def
 
     #   user executables
 
-    PATH=$DIR_CYGPATCH:$PATH                                    # global-def
+    PATH="$DIR_CYGPATCH:$PATH"                                  # global-def
     CygbuildChmodExec $DIR_CYGPATCH/*.sh
 
     #   Other files
@@ -3045,41 +4033,52 @@ function CygbuildDefineGlobalMain()
 
     #   More global-def
 
-    PREREMOVE_MANIFEST_NAME=manifest.lst
-    PREREMOVE_MANIFEST_FROM_NAME=manifest-from.lst
+    CYGBUILD_FILE_MANIFEST_DATA=manifest.lst
+    CYGBUILD_FILE_MANIFEST_TO=manifest-to.lst
+    CYGBUILD_FILE_MANIFEST_FROM=manifest-from.lst
 
-    PREREMOVE_MANIFEST_CYGFILE=\
-$DIR_CYGPATCH/preremove-$PREREMOVE_MANIFEST_NAME
+    FILE_PREREMOVE_MANIFEST_FROM=\
+$DIR_CYGPATCH/preremove-$CYGBUILD_FILE_MANIFEST_FROM
 
-    PREREMOVE_MANIFEST_FROM_CYGFILE=\
-$DIR_CYGPATCH/preremove-$PREREMOVE_MANIFEST_FROM_NAME
+    FILE_PREREMOVE_MANIFEST_TO=\
+$DIR_CYGPATCH/preremove-$CYGBUILD_FILE_MANIFEST_TO
+
+    FILE_POSTINSTALL_MANIFEST_DATA=\
+$DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_PREREMOVE_CYGFILE=$DIR_CYGPATCH/preremove.sh
     DIR_PREREMOVE_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/preremove
+    DIR_POSTINSTALL_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/postinstall
 
-    DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin
+    DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin            # global-def
     DIR_DOC_GENERAL=$instdir$prefix/share/doc/$PKG-$VER         # global-def
+    DIR_DEFAULTS_GENERAL=$instdir/etc/defaults                  # global-def
     DIR_INFO=$instdir$prefix/share/info                         # global-def
 
-    SCRIPT_PREPARE_CYGFILE=$DIR_CYGPATCH/prepare.sh            # global-def
+    SCRIPT_PREPARE_CYGFILE=$DIR_CYGPATCH/prepare.sh             # global-def
 
     EXTRA_CONF_OPTIONS=$DIR_CYGPATCH/configure.options          # global-def
     EXTRA_CONF_ENV_OPTIONS=$DIR_CYGPATCH/configure.env.options  # global-def
-    EXTRA_BUILD_ENV_OPTIONS=$DIR_CYGPATCH/build.env.options     # global-def
+
+    EXTRA_MANDIR_FILE=$DIR_CYGPATCH/mandir                      # global-def
+
     EXTRA_BUILD_OPTIONS=$DIR_CYGPATCH/build.options             # global-def
     EXTRA_DIFF_OPTIONS_PATCH=$DIR_CYGPATCH/diff.options         # global-def
     EXTRA_TAR_OPTIONS_INSTALL=$DIR_CYGPATCH/install.tar.options # global-def
     EXTRA_ENV_OPTIONS_INSTALL=$DIR_CYGPATCH/install.env.options # global-def
 
-    SCRIPT_DIFF_BEFORE_CYGFILE=$DIR_CYGPATCH/diff-before.sh    # global-def
-    SCRIPT_DIFF_CYGFILE=$DIR_CYGPATCH/diff.sh                  # global-def
+    SCRIPT_DIFF_BEFORE_CYGFILE=$DIR_CYGPATCH/diff-before.sh     # global-def
+    SCRIPT_DIFF_CYGFILE=$DIR_CYGPATCH/diff.sh                   # global-def
 
-    SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh        # global-def
-    SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                # global-def
+    SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
+    SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
 
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
+
+    SCRIPT_PATCH_BEFORE=$DIR_CYGPATCH/patch-before.sh           # global-def
+    SCRIPT_PATCH_AFTER=$DIR_CYGPATCH/patch-after.sh             # global-def
 
     SCRIPT_BIN_PACKAGE=$DIR_CYGPATCH/package-bin.sh             # global-def
     SCRIPT_SOURCE_PACKAGE=$DIR_CYGPATCH/package-source.sh       # global-def
@@ -3103,40 +4102,40 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
     local dummy="pwd $(pwd)"    # for debug
 
     if [[ "$PACKAGE_NAME_GUESS" == *tar.* ]]; then
-        #  The Main function set this variable
-        pkg=$PACKAGE_NAME_GUESS
-        name=${pkg##*/}     # Delete path
+	#  The Main function set this variable
+	pkg=$PACKAGE_NAME_GUESS
+	name=${pkg##*/}     # Delete path
     else
-        local ext
+	local ext
 
-        for ext in .tar.gz .tar.tgz .tar.bz2
-        do
+	for ext in .tar.gz .tgz .tar.bz2 .tbz2 .tar.lzma
+	do
 
-            #  Standard version uses hyphen  : package-NN.NN.tar.gz
-            #  Debian version uses underscore: package_NN.NN.tar.gz
+	    #  Standard version uses hyphen  : package-NN.NN.tar.gz
+	    #  Debian version uses underscore: package_NN.NN.tar.gz
 
-            local file try
+	    local file try
 
-            for file in $PKG-$VER$ext       \
-                        $PKG-$VER-src$ext   \
-                        ${PKG}_$VER$ext     \
-                        ${PKG}_$VER.orig$ext
-            do
+	    for file in $PKG-$VER$ext       \
+			$PKG-$VER-src$ext   \
+			${PKG}_$VER$ext     \
+			${PKG}_$VER.orig$ext
+	    do
 
-                try=$TOPDIR/$file
+		try=$TOPDIR/$file
 
-                if [ -f "$try" ]; then
-                    name=$file
-                    pkg=$try
-                    break 2
+		if [ -f "$try" ]; then
+		    name=$file
+		    pkg=$try
+		    break 2
 
-                elif [ -h $try ]; then
-                    CygbuildWarn "--    [WARN] Dangling symlink found: $TOPDIR"
-                    $LS -l $try
-                fi
+		elif [ -h $try ]; then
+		    CygbuildWarn "-- [WARN] Dangling symlink found: $TOPDIR"
+		    ls -l $try
+		fi
 
-            done
-        done
+	    done
+	done
     fi
 
     SRC_ORIG_PKG_NAME="$name"           # global-def
@@ -3150,33 +4149,30 @@ function CygbuildDefineGlobalSrcOrig()
 
     local id="$0.$FUNCNAME"
     local sourcefile="$OPTION_FILE"
-
-    local dummy="pwd $(pwd)"    # for debugging
+    local dummy="$(pwd)"    # for debugging
 
     if [ ! "$PKG" ] || [ ! "$VER" ]; then
-        CygbuildWarn "$id: [FATAL] variables PKG and VER not known." \
-             "Are you inside package-NN.NN/ ?"
-        return 1
+	CygbuildWarn "$id: [FATAL] variables PKG and VER" \
+	     "are not known. Is current dir package-N.N/ ?"
+	return 1
     fi
-
-    #   CygbuildBuildScriptPath
 
     if [ -f "$sourcefile" ]; then
-        #  If user told where the source file is, then examine that
-        local name=${sourcefile##*/}    # Remove path
-        SRC_ORIG_PKG_NAME=$name         # global-def
-        SRC_ORIG_PKG=$sourcefile        # global-def
+	#  If user told where the source file is, then examine that
+	local name=${sourcefile##*/}    # Remove path
+	SRC_ORIG_PKG_NAME=$name         # global-def
+	SRC_ORIG_PKG=$sourcefile        # global-def
     else
-        #  No chance. Try guessing where that source file is
-        if [ ! "$SRC_ORIG_PKG" ]; then
-            CygbuildCygbuildDefineGlobalSrcOrigGuess
-        fi
+	#  Try guessing where that source file is
+	if [ ! "$SRC_ORIG_PKG" ]; then
+	    CygbuildCygbuildDefineGlobalSrcOrigGuess
+	fi
     fi
 
-    CygbuildExitNoFile "$SRC_ORIG_PKG" \
-        "$id: [FATAL] SRC_ORIG_PKG ../$PKG-$VER.tar.gz not found." \
-        "Perhaps you have to make a symbolic link from original" \
-        "to that file? See manual for details."
+    CygbuildExitIfNoFile "$SRC_ORIG_PKG" \
+	"$id: [FATAL] SRC_ORIG_PKG ../$PKG-$VER.tar.gz not found." \
+	"Perhaps you have to make a symbolic link from original" \
+	"to that file? See manual for details."
 }
 
 function CygbuildSrcDirCheck()
@@ -3188,7 +4184,7 @@ function CygbuildSrcDirCheck()
     local dir="$1"
 
     if [ ! "$dir" ]; then
-        CygbuildDie "$id: [FATAL] dir is empty"
+	CygbuildDie "$id: [FATAL] dir is empty"
     fi
 
     dir=${dir##*/}
@@ -3196,8 +4192,8 @@ function CygbuildSrcDirCheck()
     local ver=${dir##*-}
 
     if  ! CygbuildIsNumberLike "$ver" ; then
-        CygbuildWarn "
-$id: [ERROR] Cannot determine plain numeric VERSION (format: N.N)
+	CygbuildWarn "\
+$id: [ERROR] Cannot determine plain numeric VERSION (N.N)
 
 The directory $dir
 does not look like package-VERSION. Variables cannot be contructed.
@@ -3211,12 +4207,11 @@ You have options:
   options: 'mkdirs' 'files' 'conf' 'make'
 
 - If the package does not extract to package-NN.NN/ make a symbolic link
-  and chdir into it. ln -s foo3.3alpha3 foo-3.3.1.3; cd  foo-3.3.1.3/
+  and chdir into it: ln --symbolic foo3.3alpha3 foo-3.3.1.3; cd  foo-3.3.1.3/
 
-A VERSION must be present either in package name or in directory name
+A VERSION must be present either in package name or in directory name"
 
-"
-        exit 1
+	exit 0
     fi
 }
 
@@ -3225,38 +4220,38 @@ function CygbuildSrcDirLocation()
     local id="$0.$FUNCNAME"
     local dir="$1"
 
-    #   Find src directory.
-    #   - If scriptdir ends in SPECS, then top is $scriptdir/..
-    #   - If scriptdir ends in $DIR_CYGPATCH_RELATIVE, then top is $scriptdir/../..
-    #   - Otherwise, we assume that top = scriptdir
-
-    local top=$dir
+    local name=${dir##*/}
     local src=$dir
+    local top
 
-    if [ -f "$dir/configure" ] || [ -f "$dir/buildconf" ] ; then
-        top=$(cd $dir/..; pwd)
+    if [ "$name" = *-$VER       ] ||
+	 [ -f "$dir/configure"  ] ||
+	 [ -f "$dir/buildconf"  ] ||
+	 [ -f "$dir/setup.py"   ] ||
+	 [ -d "$dir/$CYGBUILD_DIR_CYGPATCH_RELATIVE" ]
+    then
+	top=$(cd $dir/..; pwd)
 
     elif [[    "$top" == *-[0-9]*.*[0-9]
-            || "$top" == *-[0-9][0-9][0-9][0-9]*[0-9]
-         ]] ; then
-        #   Looks like we are inside package-NN.NN/
-        top=$(cd $dir/..; pwd)
+	    || "$top" == *-[0-9][0-9][0-9][0-9]*[0-9]
+	 ]] ; then
+	#   Looks like we are inside package-NN.NN/
+	top=$(cd $dir/..; pwd)
 
-    elif [[     $dir == */$DIR_CYGPATCH_RELATIVE
-             || $dir == */SPECS
-             || $dir == */debian
-         ]] ; then
-        src=$(cd $dir/..; pwd)
-        top=$(cd $src/..; pwd)
+    elif [[     $dir == */$CYGBUILD_DIR_CYGPATCH_RELATIVE
+	     || $dir == */debian
+	 ]] ; then
+	src=$(cd $dir/..; pwd)
+	top=$(cd $src/..; pwd)
 
     elif [[ $dir == *.orig ]]; then
-        #   Debian uses *.orig directories
-        src=$(cd $src; pwd)
-        top=$(cd $dir/..; pwd)
+	#   Debian uses *.orig directories
+	src=$(cd $src; pwd)
+	top=$(cd $dir/..; pwd)
 
     else
-        top=$(cd $dir; pwd)
-        src=$top
+	top=$(cd $dir; pwd)
+	src=$top
     fi
 
     echo $top $src
@@ -3277,87 +4272,102 @@ function CygbuildHelpShort()
     bin=${bin##*/}      # Delete path
 
     echo "
-Version $CYGBUILD_VERSION <$CYGBUILD_HOMEPAGE_URL>
-Call syntax: $bin [option] CMD ...
+NAME
+    cygbuild - Cygwin source and binary package build script
 
-  -d LEVEL              Debug mode with numeric LEVEL
-  -f ORIG-SRC.tar.gz    Original author's source package location
-  -h                    This short help
-  --help                Long help (requires full cygbuild suite)
-  -m                    Use (no more) space. mkpatch doesn't make a copy
-                        of source dir and preserves all *.o files.
-  -r RELEASE            Mandatory option for packaging related commands
-  -t                    Run in test mode
-  -v                    More verbose messages
-  -V                    Print version information
-  -x                    Do not strip executables
+SYNOPSIS
+    $bin [option] CMD ...
 
-  GPG support options
+OPTIONS
+    -c, --color            Activate colors
+    -d, --debug LEVEL      Debug mode with numeric LEVEL
+    -h, --help             Short help. Long help requires full install.
+    -r, --release RELEASE  Mandatory option for packaging related commands
+    -t, --test             Run in test mode
+    -v, --verbose          More verbose messages
+    -V, --version          Print version information
 
-  -s KEY                Sign files with KEY
-  -p \"pass phrase\"      Pass phrase. If not given, it is asked from command
-                        line.
+    GPG support options
+
+    -s KEY                Sign files with KEY
+    -p \"pass phrase\"      Pass phrase. If not given, it is asked from command
+			  line.
 
 DESCRIPTION
+    Cygbuild is a tool for making, building and maintaining source and
+    binary packages under Windows/Cygwin platform. Modeled somewhat after
+    the same principles as Debian packaging tool dh_make(1).
 
-Cygbuild is a tool for making, building and maintaining source and binary
-packages under Windows/Cygwin platform. Similar to Debian dh_make(1) or
-other build tools.
+    FOR CYGBUILD CONTROLLED INSTALLABLE SOURCE PACKAGE
 
-TO USE CYGBUILD FOR MAKING Cygwin Net Releases
-
-    The CMD can be one of the following. The full description can be
-    read from the manual page. Commands are listed in order of
-    execution:
-
-        To prepare port : mkdirs files shadow
-        To port         : conf build strip
-        To install      : install
-        To check install: check
-        To package      : package source-package
-        To sign         : package-sign
-        To publish      : publish (copy files to publish area)
-
-CYGBUILD CONTROLLED SOURCE PACKAGE
-
-  Testing the source builds
+    Testing the source build
+    ------------------------
 
     If you have downloaded a Cygwin source package, like
-    package-N.N-RELEASE-src.tar.gz, it should contain at least these
-    files:
+    package-N.N-RELEASE-src.tar.gz, it might contain at these files:
 
-        foo-N.N-RELEASE-src.tar.bz2
-        foo-N.N-RELEASE.patch
-        foo-N.N-RELEASE.sh
+	foo-N.N-RELEASE-src.tar.bz2
+	foo-N.N-RELEASE*.patch
+	foo-N.N-RELEASE.sh
 
-    Run included shell script:
+    Run the included shell script:
 
-        $ ./foo-N.N-RELEASE.sh -v all
+	./foo-N.N-RELEASE.sh --verbose --color all
 
-    In essence, command 'all' is used for testing the integrity of
-    source build - it does not produce any visible results. Command
-    'all' will try to build binary packages and if everything goes ok,
-    command 'finish' which removes the unpacked source directory.
+    The command 'all' is used for testing the integrity of source
+    build and will try to build binary packages. If everything
+    succeeds, it runs command 'finish' which removes the unpacked
+    source directory.
 
-  Testing the source builds - step by step
+    Testing the source build - step by step
+    ---------------------------------------
 
-    To see the results of source compilation, the commands must to be run
-    one by one are:
+    To see the results of source compilation, the commands can be run
+    one by one:
 
-        $ ./foo-N.N-RELEASE.sh -v prep conf make install
-        $ cd foo-N.N/
-        $ find .inst/
-        $ cd ..
-        $ rm -rf foo-N.N/
+        #  Compile from sources
+	./foo-N.N-RELEASE.sh --verbose --color prep conf make install
 
-NOTES
+	#  Verify the installation structure
+	cd foo-N.N/
+	find .inst/
 
-    The long --help option consults a separate manual. To read it, full
-    cugbuild installation is needed.
+	#  Remove the test build directory
+	cd ..
+	rm -rf foo-N.N/
 
-    For more information about porting packages to Cygwin, read
+    HOW TO USE CYGBUILD FOR MAKING Cygwin Net Releases
+
+    Full development installation of Cygbuild is needed to develop
+    source packages. The CMD can be one of the following. The detailed
+    description of each command can be found from the manual page.
+    Commands are listed here in order of execution:
+
+	<precondition: cd /to/package/foo-N.N/>
+
+	To prepare port : mkdirs files patch shadow
+	To port         : conf build strip
+	To install      : install
+	To check install: check
+	To package      : package source-package
+	To sign         : package-sign
+	To publish      : publish; copy files to publish area
+	All phases      : all
+	All, no finish  : almostall
+
+BUGS
+    The long --help option consults a separate manual. To read it, a
+    full cygbuild installation is needed.
+
+STANDARDS
+    For more information about porting guidelines for Cygwin, see
     <http://cygwin.com/setup.html>.
-"
+
+AUTHOR
+    Copyright (C) $CYGBUILD_AUTHOR
+    Released under $CYGBUILD_LICENSE
+    Version $CYGBUILD_VERSION
+    Homepage <$CYGBUILD_HOMEPAGE_URL>"
 
     [ "$exit" ] && exit $exit
 }
@@ -3365,41 +4375,38 @@ NOTES
 function CygbuildHelpLong()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local exit="$1"
-    local bin
 
-    CygbuildCommandPath cygbuild.pl > $retval &&
-    bin=$(< $retval)
+    [ ! "$CYGBUILD_STATIC_PERL_MODULE" ] &&
+    CygbuildBootVariablesGlobalShareMain
 
-    if [ "$bin" ]; then
-        $bin help
-        [ "$exit" ] && exit $exit
+    local lib="$CYGBUILD_STATIC_PERL_MODULE"
+
+    if [ "$lib" ] && [ -f "$lib" ]; then
+	perl $lib help
+	[ "$exit" ] && exit $exit
     else
-        CygbuildHelpShort $exit
-        CygbuildWarn "[ERROR] Cannot find long help page." \
-             "You need to install $CYGBUILD_HOMEPAGE_URL"
+	CygbuildHelpShort
+	CygbuildWarn "[WARN] No standard manual page available." \
+	     "Possibly not a full installation of $CYGBUILD_HOMEPAGE_URL"
+	exit $exit
     fi
 }
 
 function CygbuildHelpSourcePackage()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local lib="$CYGBUILD_STATIC_PERL_MODULE"
 
     [ "$lib" ] && [ -f "$lib" ] && return 0
 
-    local bin
-    CygbuildCommandPath cygbuild.pl > $retval &&
-    bin=$(< $retval)
+    CygbuildEcho "-- [NOTE] Not attempting to make a source package." \
+	 "Full project is needed" \
+	 "<$CYGBUILD_HOMEPAGE_URL>."
 
-    if [ ! "$bin" ]; then
-        echo "-- [WARN] Can't make a source package. " \
-             "Additional libraries and templates are needed" \
-             "See $CYGBUILD_HOMEPAGE_URL"
-        return 1
-    fi
+    return 1
 }
 
 #######################################################################
@@ -3407,6 +4414,31 @@ function CygbuildHelpSourcePackage()
 #       Misc functions
 #
 #######################################################################
+
+
+function CygbuildCompress()
+{
+    if [ "$OPTION_COMPRESS" = "bzip2" ]; then
+	bzip2 "$@"
+    elif [ "$OPTION_COMPRESS" = "lzma" ]; then
+	lzma "$@"
+    else
+	gzip "$@"
+    fi
+}
+
+function CygbuildCompressManualPage()
+{
+    # manual command does not support lzma yet
+
+    if [ "$OPTION_COMPRESS" = "bzip2" ]; then
+	bzip2 "$@"
+#    elif [ "$OPTION_COMPRESS" = "lzma" ]; then
+#        lzma "$@"
+    else
+	gzip "$@"
+    fi
+}
 
 function CygbuildNoticeCygwinPatches()
 {
@@ -3428,16 +4460,16 @@ function CygbuildNoticeMaybe()
     local id="$0.$FUNCNAME"
 
     if [ ! -d "$DIR_CYGPATCH" ]; then
-        CygbuildNoticeCygwinPatches
+	CygbuildNoticeCygwinPatches
     fi
 }
 
 function CygbuildNoticeBuilddirMaybe()
 {
     if ! CygbuildIsBuilddirOk ; then
-        CygbuildWarn "-- [ERROR] Builddir not ready." \
-            "Try running command '[re]shadow'."
-        return 1
+	CygbuildWarn "-- [ERROR] Builddir not ready." \
+	    "Try running command 'shadow'."
+	return 1
     fi
 }
 
@@ -3451,14 +4483,14 @@ function CygbuildFileCleanNow()
 
     for file in $files
     do
-        if [ ! $done ] &&  [ "$msg" ] ; then
-            CygbuildVerb "$msg"
-            done=1
-        fi
+	if [ ! $done ] &&  [ "$msg" ] ; then
+	    CygbuildVerb "$msg"
+	    done=1
+	fi
 
-        if [ -f "$file" ]; then
-            $RM $verbose -f "$file"
-        fi
+	if [ -f "$file" ]; then
+	    rm $verbose -f "$file"
+	fi
     done
 }
 
@@ -3467,9 +4499,9 @@ function CygbuildFileCleanTemp()
     local id="$0.$FUNCNAME"
 
     if [ "$CYGBUILD_RETVAL" ]; then
-        #  cygbuild.sh.tmp.3496.CygbuildTarDirectory.dir
-        #  => cygbuild.sh.tmp.[0-9]*.*
-        $RM -f ${CYGBUILD_RETVAL%.*}.[0-9]* 2> /dev/null
+	#  cygbuild.sh.tmp.3496.CygbuildTarDirectory.dir
+	#  => cygbuild.sh.tmp.[0-9]*.*
+	rm --force ${CYGBUILD_RETVAL%.*}.[0-9]* 2> /dev/null
     fi
 }
 
@@ -3484,11 +4516,11 @@ function CygbuildFileExists()
 
     for dir in $*
     do
-        from=$dir/$file
-        [ ! -f "$from" ] && continue
-        echo $from
-        status=0
-        break
+	from=$dir/$file
+	[ ! -f "$from" ] && continue
+	echo $from
+	status=0
+	break
     done
 
     return $status
@@ -3497,84 +4529,29 @@ function CygbuildFileExists()
 function CygbuildCygDirCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    # Make sure there is a README at /usr/share/doc/Cygwin/
+    #   Make sure there is a README in /usr/share/doc/Cygwin/
 
-    CygbuildExitNoDir "$DIR_DOC_CYGWIN"  "$id: [ERROR] no $DIR_DOC_CYGWIN" \
-              "Did forget to run [files] before [install]?"
+    CygbuildExitIfNoDir "$DIR_DOC_CYGWIN"  "$id: [ERROR] no $DIR_DOC_CYGWIN" \
+	      "Did forget to run [files] before [install]?"
 
     local readme
-    $LS $DIR_DOC_CYGWIN/*.README > $retval 2> /dev/null &&
+    ls $DIR_DOC_CYGWIN/*.README > $retval 2> /dev/null &&
     readme=$(< $retval)
 
     if [ ! "$readme" ]; then
-        CygbuildDie "$id: [ERROR] no $DIR_DOC_CYGWIN/package.README; " \
-               "Did forget to run [files]'?"
+	CygbuildDie "$id: [ERROR] no $DIR_DOC_CYGWIN/package.README; " \
+	       "Did forget to run [files]'?"
     fi
 
-    $EGREP -n -e '[<](PKG|VER|REL)[>]' $readme /dev/null
+    $EGREP --line-number --regexp='[<](PKG|VER|REL)[>]' $readme /dev/null
 
     if [ "$?" = "0" ]; then
-        CygbuildWarn \
-            "-- [WARN] $DIR_DOC_CYGWIN/package.README contains tags." \
-            "Edit or use [readmefix]; and run [install]"
+	CygbuildWarn \
+	    "-- [WARN] $DIR_DOC_CYGWIN/package.README contains tags." \
+	    "Edit, use [readmefix] and run [install]"
     fi
-}
-
-function CygbuildDetermineReadmeFile()
-{
-    local id="$0.$FUNCNAME"
-    local ret file
-
-    for file in  $DIR_CYGPATCH/$PKG.README  \
-                 $DIR_CYGPATCH/README       \
-                 $DIR_CYGPATCH/*.README
-    do
-        #   install first found file
-        if [ -f "$file" ]; then
-            ret=$file
-            break
-        fi
-    done
-
-    if [ "$ret" ]; then
-        echo $ret
-    else
-        return 1
-    fi
-}
-
-function CygbuildDetermineDocDir()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir="${1%/}"      # delete trailing slash
-
-    CygbuildExitNoDir \
-        "$dir" "$id: [FATAL] Call parameter DIR does not exist [$dir]"
-
-    local ret=""
-    local try=""
-
-    #   Examples: http:://wwww.fprot.org/ uses doc_ws
-    #   There must be trailing slash, because DIR may be a symlink and
-    #   the content is important.
-
-    if $LS -F $dir/ |\
-       $EGREP -i "^doc.*/|docs?/$" > $retval
-    then
-        for try in $(< $retval)
-        do
-            try=$dir/$try           # Absolute path
-            if [ -d "$try" ]; then
-                ret=${try%/}        # Delete trailing slash
-                break
-            fi
-        done
-    fi
-
-    echo $ret
 }
 
 #######################################################################
@@ -3585,34 +4562,46 @@ function CygbuildDetermineDocDir()
 
 function CygbuildGPGavailableCheck()
 {
-    if [ ! $GPG ] || [ ! -x $GPG ]; then
-        return 1
+    if [ "$GPG" ] && [ -x "$GPG" ]; then
+	return 0
     fi
+
+    return 1
 }
 
 function CygbuildNoticeGPG()
 {
     if [ ! "$OPTION_SIGN" ]; then
-         if CygbuildGPGavailableCheck ; then
-            echo "-- [INFO] gpg available. You should use package signing (-s)"
-        fi
+	 if CygbuildGPGavailableCheck ; then
+	    CygbuildEcho "-- [INFO] gpg available." \
+		"You should use package signing (-s)"
+	fi
+    fi
+}
+
+function CygbuildNoticeDevel()
+{
+    local cmd="$1"
+
+    if [[ "$PACKAGE" == lib* ]]; then
+	CygbuildWarn "-- [WARN] Libraries should use command: package-$cmd"
     fi
 }
 
 function CygbuildSignCleanAllMaybe()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
 
     #   If signing option is not on, clean old sign files.
 
     if [ ! "$OPTION_SIGN" ]; then
-        if $FIND $dir -name "*.$sigext" > $retval ; then
-            CygbuildFileCleanNow                \
-                "-- Removing old *.$sigext files"
-                "$(< $retval)"
-        fi
+	if find -L $dir -name "*.$sigext" > $retval ; then
+	    CygbuildFileCleanNow                \
+		"-- Removing old *.$sigext files"
+		"$(< $retval)"
+	fi
     fi
 }
 
@@ -3622,40 +4611,43 @@ function CygbuildGPGverify()
     #   but .sig extension removed.
 
     local id="$0.$FUNCNAME"
+    local tmp=$CYGBUILD_RETVAL.$FUNCNAME
+
     local quiet="$1"
     shift
 
-    local tmp=$CYGBUILD_RETVAL.$FUNCNAME
     local status=0
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local file
 
-    for file in $*
+    for file in "$@"
     do
-        [ ! -f "$file" ]  && continue
-        [ ! "$quiet"   ]  && echo "-- Verifying using $file"
+	[ ! -f "$file" ]  && continue
+	[ ! "$quiet"   ]  && CygbuildEcho "-- Verifying using $file"
 
-        file=${file%$sigext}
+	file=${file%$sigext}
 
-        [ ! -f "$file" ]  && echo "--   [WARN] No file found $file"
+	[ ! -f "$file" ]  && CygbuildWarn "-- [WARN] No file found $file"
 
-        #   gpg: WARNING: using insecure memory!
-        #   gpg: please see http://www.gnupg.org/faq.html for more information
+	#   gpg: WARNING: using insecure memory!
+	#   gpg: please see http://www.gnupg.org/faq.html for more information
 
-        $GPG --verify $file$sigext $file 2>&1 \
-            | $EGREP -Ev 'insecure memory|faq.html'
-            > $tmp
+	$GPG $GPGOPT                                            \
+	    --verify                                            \
+	    $file$sigext $file 2>&1                             |
+	    $EGREP --invert-match 'insecure memory|faq.html'    \
+	    > $tmp
 
-        status=$?
+	status=$?
 
-        if [ "$quiet" == real-quiet ]; then
-            CygbuildGrepCheck "Good.*signature" $tmp
-            status=$?
-        elif [ "$quiet" ]; then
-            $EGREP -i "(Good|bad).*signature" $tmp
-        else
-            $CAT $tmp
-        fi
+	if [ "$quiet" == real-quiet ]; then
+	    CygbuildGrepCheck "Good.*signature" $tmp
+	    status=$?
+	elif [ "$quiet" ]; then
+	    $EGREP --ignore-case "(Good|bad).*signature" $tmp
+	else
+	    cat $tmp
+	fi
 
     done
 
@@ -3665,18 +4657,18 @@ function CygbuildGPGverify()
 function CygbuildGPGsignFiles()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local signkey="$1"
     local passphrase="$2"
-    shift
-    shift
+    shift 2
 
     [ ! "$signkey" ] && return
     [ $# -eq 0     ] && return
 
     CygbuildGPGavailableCheck || return $?
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     date '+%Y-%m-%d %H:%M' > $retval
     local time=$(< $retval)
 
@@ -3684,46 +4676,58 @@ function CygbuildGPGsignFiles()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local file sigfile name status
 
-    for file in $*
+    for file in "$@"
     do
-        echo "-- Signing with key [$signkey] file $file"
+	CygbuildEcho "-- Signing with key [$signkey] file ${file#$srcdir/}"
 
-        sigfile=$file$sigext
+	sigfile=$file$sigext
 
-        [ -f "$sigfile" ] && $RM -f "$sigfile" 2> /dev/null
+	[ -f "$sigfile" ] && rm --force "$sigfile" 2> /dev/null
 
-        name=${file##*/}
+	name=${file##*/}
 
-        if [ "$passphrase" ]; then
+	if [ "$passphrase" ]; then
 
-            echo "$passphrase" |                            \
-            $GPG                                            \
-                --passphrase-fd 0                           \
-                --detach-sign                               \
-                --armor                                     \
-                --local-user    "$signkey"                  \
-                --output        $sigfile                    \
-                --comment "GPG signature of $name ($time)"  \
-                $file
+	    echo "$passphrase" |                            \
+	    $GPG $GPGOPT                                    \
+		--verbose                                   \
+		--no-tty                                    \
+		--batch                                     \
+		--passphrase-fd 0                           \
+		--detach-sign                               \
+		--armor                                     \
+		--local-user    "$signkey"                  \
+		--output        $sigfile                    \
+		--comment "GPG signature of $name ($time)"  \
+		$file > $retval 2>&1
 
-                status=$?
-        else
+		status=$?
 
-            $GPG                                            \
-                --detach-sign                               \
-                --armor                                     \
-                --local-user    "$signkey"                  \
-                --output        $sigfile                    \
-                --comment "GPG signature of $name ($time)"  \
-                $file
+	else
 
-                status=$?
-        fi
+	    $GPG $GPGOPT                                    \
+		--no-batch                                  \
+		--detach-sign                               \
+		--armor                                     \
+		--local-user    "$signkey"                  \
+		--output        $sigfile                    \
+		--comment "GPG signature of $name ($time)"  \
+		$file > $retval 2>&1
 
-        if [ "$status" != "0" ]; then
-            STATUS=$status
-            CygbuildWarn "--   [ERROR] signing failed: ${file##*/}"
-        fi
+		status=$?
+	fi
+
+	local display=
+
+	[ "$verbose" ] && display="display"
+
+	if [ "$status" != "0" ]; then
+	    STATUS=$status
+	    CygbuildWarn "-- [ERROR] signing failed: ${file##*/}"
+	    display="display"
+	fi
+
+	[ "$display" ] && cat $retval
 
     done
 
@@ -3738,15 +4742,15 @@ function CygbuildGPGsignFileOne()
     local file="$3"
 
     if [ ! "$signkey" ]; then
-        CygbuildDie "$id: [FATAL] No argument: signkey"
+	CygbuildDie "$id: [FATAL] No argument: signkey"
     fi
 
     if [ ! "$file" ]; then
-        echo "$id: [FATAL] No argument: file"
+	echo "$id: [FATAL] No argument: file"
     fi
 
     if [ ! -f "$file" ]; then
-        echo "-- Nothing to sign, not found: $file"
+	CygbuildEcho "-- Nothing to sign, not found: $file"
     fi
 
     CygbuildGPGsignFiles "$signkey" "$passphrase" $file
@@ -3761,7 +4765,7 @@ function CygbuildGPGsignFileNow()
     local passphrase="$OPTION_PASSPHRASE"
 
     if [ ! "$signkey" ]; then
-        return
+	return
     fi
 
     CygbuildGPGsignFileOne "$signkey" "$passphrase" $file
@@ -3777,20 +4781,20 @@ function CygbuildGPGsignMain()
     local passphrase="$2"
 
     if [ ! "$signkey" ]; then
-        CygbuildDie "$id: [FATAL] No sign argument: signkey"
+	CygbuildDie "$id: [FATAL] No sign argument: signkey"
     fi
 
     set -o noglob
 
-        local files
-        $FIND $srcinstdir                   \
-            -type f                         \
-            '(' -name "$PKG-$VER-$REL*"     \
-                -a \! -name "*$sigext"      \
-            ')'                             \
-            > $retval
+	local files
+	find -L $srcinstdir                 \
+	    -type f                         \
+	    '(' -name "$PKG-$VER-$REL*"     \
+		-a \! -name "*$sigext"      \
+	    ')'                             \
+	    > $retval
 
-            [ -s $retval ] && files=$(< $retval)
+	    [ -s $retval ] && files=$(< $retval)
 
     set +o noglob
 
@@ -3805,12 +4809,12 @@ function CygbuildGPGsignatureCheck()
     local list="$*"
 
     if [ ! "$list" ]; then
-        return
+	return
     fi
 
     if ! CygbuildGPGavailableCheck ; then
-        CygbuildVerb "-- No gpg in PATH. Signature checks skipped."
-        return
+	CygbuildVerb "-- No gpg in PATH. Signature checks skipped."
+	return
     fi
 
     local STATUS=0
@@ -3822,12 +4826,12 @@ function CygbuildGPGsignatureCheck()
 
     for file in $list
     do
-        CygbuildGPGverify "$quiet" $file
-        status=$?
+	CygbuildGPGverify "$quiet" "$file"
+	status=$?
 
-        if [ "$status" != "0" ]; then
-            STATUS=$status
-        fi
+	if [ "$status" != "0" ]; then
+	    STATUS=$status
+	fi
     done
 
     return $STATUS
@@ -3840,39 +4844,39 @@ function CygbuildCmdGPGSignMain()
     local passphrase="$2"
 
     if ! CygbuildGPGavailableCheck ; then
-        echo "-- Signing..."
-        return
+	CygbuildEcho "-- Signing..."
+	return
     fi
 
     if [ ! "$signkey" ]; then
-        echo "--   [ERROR] signkey not available. Signing cancelled."
-        return
+	CygbuildEcho "-- [ERROR] signkey not available. Signing cancelled."
+	return
     fi
 
     if ! CygbuildGPGavailableCheck ; then
-        echo "--   [INFO] gpg binary not found. Signing skipped."
-        return
+	CygbuildEcho "-- [INFO] gpg binary not found. Signing skipped."
+	return
     fi
 
     local status=0
     local file
 
     for file in \
-        $FILE_SRC_PKG \
-        $FILE_BIN_PKG \
-        $PATH_PKG_LIB_DEV \
-        $PATH_PKG_LIB_DOC \
-        $PATH_PKG_LIB_BIN
+	$FILE_SRC_PKG \
+	$FILE_BIN_PKG \
+	$PATH_PKG_LIB_DEV \
+	$PATH_PKG_LIB_DOC \
+	$PATH_PKG_LIB_BIN
     do
-        if [ -f "$file" ]; then
-            CygbuildGPGsignFiles "$signkey" "$passphrase" "$file"
+	if [ -f "$file" ]; then
+	    CygbuildGPGsignFiles "$signkey" "$passphrase" "$file"
 
-            if [ "$?" != "0" ]; then
-                status=$?
-            fi
-        else
-            CygbuildVerb "--   Skipped, not exist $file"
-        fi
+	    if [ "$?" != "0" ]; then
+		status=$?
+	    fi
+	else
+	    CygbuildVerb "-- Skipped, not exist $file"
+	fi
     done
 
     return $status;
@@ -3881,9 +4885,10 @@ function CygbuildCmdGPGSignMain()
 function CygbuildCmdGPGVerifyMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local interactive="$1"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
+    local force="$OPTION_FORCE"
 
     #   Are we a "build script"  or "cygbuild.sh" ?
     #   That is, is this unpacked source package case or development
@@ -3893,34 +4898,36 @@ function CygbuildCmdGPGVerifyMain()
     local dir=$(pwd)
 
     if [[ "$0" == *[0-9]* ]]; then
-        ls $PKG*$sigext > $retval 2> /dev/null
-        list="$(< $retval)"
+	ls $PKG*$sigext > $retval 2> /dev/null
+	list="$(< $retval)"
     else
-        dir=$srcinstdir
-        $FIND $dir -name "$PKG*$sigext" > $retval
-        list="$(< $retval)"
+	dir=$srcinstdir
+	find $dir -name "$PKG*$sigext" > $retval
+	list="$(< $retval)"
     fi
 
     if [ ! "$list" ]; then
-        return
+	return
     fi
 
-    echo "** Verifying signatures in $dir"
+    CygbuildEcho "== Verifying signatures in $dir"
 
     local status=0
 
-    if ! CygbuildGPGsignatureCheck $list ; then
-        status=1
-        echo -n "-- [WARN] signature check(s) failed. "
+    if ! CygbuildGPGsignatureCheck $list && [ ! "$force" ] ; then
+	status=1
+	echo -n "-- [WARN] signature check(s) failed. "
 
-        if [ ! "$interactive" ]; then
-            echo -e "\n"
-        else
-            if CygbuildAskYes "Still continue?" ; then
-                status=0
-            fi
-        fi
+	if [ ! "$interactive" ]; then
+	    echo -e "\n"
+	else
+	    if CygbuildAskYes "Still continue?" ; then
+		status=0
+	    fi
+	fi
     fi
+
+    [ "$force" ] && return 0
 
     return $status
 }
@@ -3931,49 +4938,17 @@ function CygbuildCmdGPGVerifyMain()
 #
 #######################################################################
 
-function CygbuildPerlModuleLocation()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    #   Find out if we can use cygbuild.pl module
-    #   Return 1) Perl interpreter and 2) module path
-
-    if [ ! "$PERL" ]; then
-        CygbuildWarn "$id: [ERROR] perl is not in PATH."
-        return 1
-    fi
-
-    local name="cygbuild.pl"
-    local module="$CYGBUILD_STATIC_PERL_MODULE"
-
-    if [ ! "$module" ]; then
-
-        if CygbuildCommandPath $name > $retval; then
-            module=$(< $retval)
-            CYGBUILD_STATIC_PERL_MODULE="$module"
-        fi
-    fi
-
-    if [ "$module" ]; then
-        echo $module
-    else
-        CygbuildWarn "$id: [ERROR] file not found: [$name] [$module]" \
-             "Have you installed $CYGBUILD_HOMEPAGE_URL ?"
-        return 1
-    fi
-}
-
 function CygbuildCmdAutotool()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     # Run this to re-autotool AFTER editing configure.{ac,in}/Makefile.am
 
     CygbuildPushd
-        cd $srcdir &&
-        /usr/bin/autoreconf --install --force --verbose
+	cd $srcdir &&
+	/usr/bin/autoreconf --install --force --verbose
+# FIXME: unused code
 #        cd $TOPDIR &&
 #        if [ -f "$PV/INSTALL" ] ; then \
 #                unpack ${src_orig_pkg} ${PV}/INSTALL ; \
@@ -3984,105 +4959,151 @@ function CygbuildCmdAutotool()
 function CygbuildReadmeReleaseMatchCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local file
 
     if CygbuildDetermineReadmeFile > $retval ; then
-        file=$(< $retval)
+	file=$(< $retval)
     else
-        CygbuildWarn "$id: [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
-        return 1
+#        CygbuildWarn "-- [NOTE] Not found $DIR_CYGPATCH/$PKG.README"
+	return 1
     fi
 
     # extract line: ----- version 3.5-2 -----
-    # where 3.5-2 => "3.5 2"
+    # extract line: ----- version package-name-3.5-2 -----
+    # where 3.5-2 => "3.5 2" => "2"
+    # where 0.4.0-test5-1 => "0.4.0-test5" "1"
 
     local -a arr=( $(
-        $AWK ' /^-.*version / {
-                                gsub("^-.*version[ \t]+","");
-                                ver=$1;
-                                i = split(ver, arr, /-/);
-                                print arr[1] " " arr[2];
-                                exit;
-         }' $file
+	awk ' /^--.*version / {
+	    gsub("^.*version[ \t]+[-_.a-zA-Z]*","");
+	    ver = $1;
+	    i = split(ver, arr, /-/);
+	    if ( i == 2 )
+	      print arr[1] " " arr[2];
+	    else if ( i == 3)
+	      print arr[1] "-" arr[2] " " arr[3];
+	    exit;
+	 }' $file
     ))
 
     local ver=${arr[0]}
     local rel=${arr[1]}
 
     if [ "$rel" != "$REL" ]; then
-        CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel in $file"
+	CygbuildWarn "-- [WARN] release $REL mismatch: $ver-$rel" \
+		     "in ${file#$srcdir/}"
     fi
 }
 
-function CygbuildCmdReadmeFix()
+CygbuildCmdPerlModuleCall()
 {
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    local readme
-    CygbuildDetermineReadmeFile > $retval
-    [ -s $retval ] && readme=$(< $retval)
-
-    echo "-- Fixing $readme"
-
-    if [ ! "$readme" ]; then
-        CygbuildWarn "$id: [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
-        return 1
-    fi
-
-    if [ ! -r $readme ]; then
-        CygbuildWarn "$id: [ERROR] not readable $readme"
-        return 1
-    fi
-
-    CygbuildExitNoFile "$FILE_BIN_PKG" "$id: [ERROR] Cannot read files from" \
-               " $FILE_BIN_PKG. Run 'package' first."
-
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] variable '$srcdir' not" \
-              "defined [$srcdir]."
-
-    CygbuildPerlModuleLocation  > $retval || exit 1
-    local module=$(< $retval)
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
+    local function="$1"
+    local command="$2"
 
     if [ ! "$module" ]; then
-        echo "$id: [FATAL] Perl module was not found"
-        return 1                # Error is already displayed
+	CygbuildWarn "$id: [ERROR] Perl module not found"
+	return 1                # Error is already displayed
     fi
-
-    # CygbuildDefineGlobalSrcOrig || return 1
 
     #   1. Load library MODULE
     #   2. Call function Readmefix() with parameters. It will handle the
     #      text manipulation details.
 
-    echo "--   Calling $module::ReadmeFix()"
-
-    local out=$readme.tmp
-
-    $CP "$readme" "$readme.bak"  || return $?
+    CygbuildVerb "-- Calling $module::$function"
 
     local debug=${OPTION_DEBUG:-0}
 
-    $PERL -e "require qq($module);  SetDebug($debug);              \
-      ReadmeFix(qq($readme), qq($FULLPKG), qq($FILE_BIN_PKG));"    \
-      > $out
+    perl -e "require qq($module);  SetDebug($debug); $command"
+}
 
-    local status=$?
+function CygbuildCmdFixFilesOther()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
 
-    if [ "$status" != "0" ]; then
-        CygbuildWarn "--   [ERROR] Perl call ReadmeFix() failed."
-        return $status          # Something went wrong
+    #   Because CygbuildFindDo excludes $dir, we must use trick to
+    #   cd there first and then restore filenames with sed.
+    #
+    #   FIXME: Note: directory debian/ is included too, but it only contains
+    #   patches.
+
+    CygbuildPushd
+	cd $dir &&
+	CygbuildFindDo ". -maxdepth 1"  \
+	    -o -type f                  \
+	    '('                         \
+		! -name "*.diff"        \
+		-a ! -name "*.patch"    \
+		-a ! -name "*.tmp"      \
+	    ')'                         |
+	sed "s,^\.,$dir,"               |
+	sort > $retval.list
+    CygbuildPopd
+
+    [ -s $retval.list ] || return 0
+
+    [ "$verbose" ] && cat $retval.list
+
+    local list=$(< $retval.list)
+
+    CygbuildCmdPerlModuleCall "FileFix" \
+	"FileFix(qq(split), qq($list));"
+}
+
+function CygbuildCmdFixFilesAnnounce()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$CYGBUILD_DIR_CYGPATCH_RELATIVE"
+    local file tmp
+
+    for tmp in $dir/*.mail
+    do
+	if [ -f "$tmp" ] ; then
+	    file="$tmp"
+	fi
+    done
+
+    if [ ! "$file" ]; then
+	CygbuildVerbWarn "-- [WARN] Cannot update announcement (none found)"
+	return 0;
     fi
 
-    if [[ ! -s $out ]]; then # Zero length?
-        CygbuildWarn "--   [ERROR] ReadmeFix() output file is empty $out"
-        return 1
+    CygbuildCmdPerlModuleCall "UpdateAnnouncement" \
+	"UpdateAnnouncement(qq($file), qq($PKG), qq($VER), qq($REL));"
+
+}
+
+function CygbuildCmdFixFilesReadme()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    CygbuildDetermineReadmeFile > $retval
+
+    if [ ! -s $retval ]; then
+	CygbuildWarn "-- [ERROR] Not found $DIR_CYGPATCH/$PKG.README"
+	return 0
     fi
 
-    $MV "$out" "$readme"   &&
-    $RM -f "$readme.bak"
+    local readme=$(< $retval)
+    CygbuildVerb "-- Check ${readme#$srcdir/}"
+
+    CygbuildCmdPerlModuleCall "ReadmeFix" \
+	"ReadmeFix(qq($readme), qq($PKG), qq($VER), qq($REL));"
+}
+
+function CygbuildCmdReadmeFixMain()
+{
+    CygbuildEcho "== Readmefix command"
+    CygbuildCmdFixFilesReadme
+    CygbuildCmdFixFilesAnnounce
+    CygbuildCmdFixFilesOther
 }
 
 function CygbuildCmdPublishSetupFix()
@@ -4092,7 +5113,7 @@ function CygbuildCmdPublishSetupFix()
     dest=$dest/$PKG
 
     if [ ! "$dest" ] || [ ! -d "$dest" ]; then
-        return
+	return
     fi
 
     #  Rename setup files
@@ -4101,23 +5122,23 @@ function CygbuildCmdPublishSetupFix()
 
     for dir in $dest/devel $dest/doc $dest/bin
     do
-        if [ -d "$dir" ]; then
+	if [ -d "$dir" ]; then
 
-            suffix=${dir##*/}
-            base=setup-$suffix.hint
-            file=$dir/$base
-            to=$dir/setup.hint
+	    suffix=${dir##*/}
+	    base=setup-$suffix.hint
+	    file=$dir/$base
+	    to=$dir/setup.hint
 
-            if [ -f "$file" ]; then
-                $MV "$file" "$to"
-            fi
+	    if [ -f "$file" ]; then
+		mv "$file" "$to"
+	    fi
 
-            if [ ! -f "$to" ]; then
-                CygbuildWarn "--    [WARN] Cannot rename $file => $to"
-                CygbuildWarn "--    [WARN] Did you write" \
-                    "$DIR_CYGPATCH_RELATIVE/$base ?"
-            fi
-        fi
+	    if [ ! -f "$to" ]; then
+		CygbuildWarn "-- [WARN] Cannot rename $file => $to"
+		CygbuildWarn "-- [WARN] Did you write" \
+		    "$CYGBUILD_DIR_CYGPATCH_RELATIVE/$base ?"
+	    fi
+	fi
     done
 }
 
@@ -4128,8 +5149,10 @@ function CygbuildCmdPublishSignature()
     local dest="$2"
 
     if [ ! -d "$dest" ]; then
-        return
+	return
     fi
+
+    dest=${dest%/}                              # Delete trailing slash
 
     local sigext="$CYGBUILD_GPG_SIGN_EXT"
     local sigfile="${file##$pwd/}$sigext"
@@ -4139,26 +5162,26 @@ function CygbuildCmdPublishSignature()
     #   Remove destination signature file, it is always becomes invalid
     #   in publish phase. The new one will be copied there.
 
-    [ -f "$sigfiledest" ] && $RM -f "$sigfiledest"
+    [ -f "$sigfiledest" ] && rm --force "$sigfiledest"
 
     if [ -f "$sigfile" ] && CygbuildGPGavailableCheck ; then
 
-        local opt="-n"
-        [ "$verbose" ] && opt=
+	local opt="-n"
+	[ "$verbose" ] && opt=
 
-        echo $opt "--   Checking sigfile $sigfile... "
+	echo $opt "-- Checking sigfile $sigfile... "
 
-        local mode=real-quiet
-        [ "$verbose" ] && mode=quiet
+	local mode=real-quiet
+	[ "$verbose" ] && mode=quiet
 
-        CygbuildGPGverify "$mode" $sigfile
+	CygbuildGPGverify "$mode" $sigfile
 
-        if [ "$?" = "0" ]; then
-            echo "ok."
-            $CP $verbose "$sigfile" "$dest"
-        else
-            echo "failed! Signature not published."
-        fi
+	if [ "$?" = "0" ]; then
+	    echo "ok."
+	    cp $verbose "$sigfile" "$dest"
+	else
+	    echo "FAILED! Signature not published."
+	fi
 
     fi
 }
@@ -4170,15 +5193,15 @@ function CygbuildCmdPublishToDir()
 
     dest=${dest%/}  # Delete possible trailing slash
 
-    CygbuildExitNoDir \
-        $dest "$id: [ERROR] No dir $dest. Define CYGBUILD_PUBLISH_DIR"
+    CygbuildExitIfNoDir \
+	$dest "$id: [ERROR] No dir $dest. Define CYGBUILD_PUBLISH_DIR"
 
-    dest=$dest/$PKG
+    dest="$dest/$PKG"
 
-    echo "-- Publishing to $dest"
+    CygbuildEcho "-- Publishing to $dest"
 
     if [ ! -d "$dest" ]; then
-        $MKDIR $verbose  -p "$dest" || return 1
+	mkdir $verbose -p "$dest" || return 1
     fi
 
     #  For library packages, the hierarchy is
@@ -4187,37 +5210,38 @@ function CygbuildCmdPublishToDir()
     #  base/doc/
 
     local pwd=$(pwd)
+    local ext=$OPTION_COMPRESS
     local file
 
-    for file in $srcinstdir/$PKG-$VER-*tar.bz2          \
-                $srcinstdir/$PKG-devel-$VER-*tar.bz2    \
-                $srcinstdir/$PKG-doc-$VER-*tar.bz2      \
-                $srcinstdir/$PKG-bin-$VER-*tar.bz2      \
-                $DIR_CYGPATCH/setup.hint                \
-                $DIR_CYGPATCH/setup-devel.hint          \
-                $DIR_CYGPATCH/setup-doc.hint            \
-                $DIR_CYGPATCH/setup-bin.hint
+    for file in $srcinstdir/$PKG-$VER-*tar.$ext         \
+		$srcinstdir/$PKG-devel-$VER-*tar.$ext   \
+		$srcinstdir/$PKG-doc-$VER-*tar.$ext     \
+		$srcinstdir/$PKG-bin-$VER-*tar.$ext     \
+		$DIR_CYGPATCH/setup.hint                \
+		$DIR_CYGPATCH/setup-devel.hint          \
+		$DIR_CYGPATCH/setup-doc.hint            \
+		$DIR_CYGPATCH/setup-bin.hint
 
     do
 
-        [ ! -f "$file" ] && continue
+	[ ! -f "$file" ] && continue
 
-        local to=$dest
+	local to=$dest
 
-        case $file in
-            *-devel*)  to=$dest/devel ;;
-            *-doc*)    to=$dest/doc   ;;
-            *-bin*)    to=$dest/bin   ;;
-        esac
+	case $file in
+	    *-devel*)  to=$dest/devel ;;
+	    *-doc*)    to=$dest/doc   ;;
+	    *-bin*)    to=$dest/bin   ;;
+	esac
 
-        if [ ! -d "$to" ]; then
-             $MKDIR $verbose -p "$to" || return 1
-        fi
+	if [ ! -d "$to" ]; then
+	     mkdir $verbose -p "$to" || return 1
+	fi
 
-        echo "--   ${file##*/}"
+	CygbuildEcho "-- ${file##*/}"
 
-        $CP $verbose "$file" "$to" || return 1
-        CygbuildCmdPublishSignature "$file" "$to"
+	cp $verbose "$file" "$to" || return 1
+	CygbuildCmdPublishSignature "$file" "$to"
 
     done
 
@@ -4231,10 +5255,11 @@ function CygbuildCmdPublishExternal()
     local signer="$2"
     local pass="$3"
 
-    echo "--   Publishing with external: $prg $TOPDIR $signer ${pass+<pass>}"
+    CygbuildEcho "-- Publishing with external:" \
+	"$prg $TOPDIR $signer ${pass+<pass>}"
 
     CygbuildChmodExec "$prg"
-    $prg "$TOPDIR" "$signer" "$pass"
+    $prg "$TOPDIR" "$PKG" "$VER" "$REL" "$signer" "$pass"
 }
 
 function CygbuildCmdPublishMain()
@@ -4245,9 +5270,9 @@ function CygbuildCmdPublishMain()
     local pass="$OPTION_PASSPHRASE"
 
     if [ "$bin" ]; then
-        CygbuildCmdPublishExternal "$bin" "$signer" "$pass"
+	CygbuildCmdPublishExternal "$bin" "$signer" "$pass"
     else
-        CygbuildCmdPublishToDir "$CYGBUILD_PUBLISH_DIR"
+	CygbuildCmdPublishToDir "$CYGBUILD_PUBLISH_DIR"
     fi
 }
 
@@ -4265,8 +5290,8 @@ function CygbuildConfigureOptionsExtra()
     local opt=""
 
     if CygbuildIsX11appDefaults ; then
-        #  Override /usr/lib for X11 applications
-        opt="--libdir=/etc/X11 --with-app-defaults=/etc/X11/app-defaults"
+	#  Override /usr/lib for X11 applications
+	opt="--libdir=/etc/X11 --with-app-defaults=/etc/X11/app-defaults"
     fi
 
     echo $opt
@@ -4279,170 +5304,285 @@ function CygbuildCmdPkgExternal()
     local status=0
 
     CygbuildPushd
-        cd $instdir
+	cd $instdir
 
-        echo "** Making package [binary] with external:"
-             "$prg $PKG $VER $REL"
+	CygbuildEcho "== Making package [binary] with external:" \
+	     ${prg#$srcdir/} $PKG $VER $REL
 
-        CygbuildChmodExec $prg
-        $prg $PKG $VER $REL $TOPDIR
+	CygbuildChmodExec $prg
+	$prg $PKG $VER $REL $TOPDIR
 
-        status=$?
+	status=$?
 
-        if [ "$status" = "0"  ]; then
-            CygbuildWarn "$id: [ERROR] Failed create binary package."
-        fi
+	if [ "$status" = "0"  ]; then
+	    CygbuildWarn "$id: [ERROR] Failed create binary package."
+	fi
     CygbuildPopd
 
     return $status
 }
 
-function CygbuildCmdPkgDevelStandard()
+function CygbuildCmdPkgDevelStandardDoc()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$1"
+    local ext=$OPTION_COMPRESS
+    RETVAL=
+
+    CygbuildPushd
+	cd $instdir || exit 1
+
+	#  Exclude README, FAQ, ChangeLog, License etc.
+
+	find usr/share/doc -type f ! -path "*Cygwin*" |
+	    $EGREP -v '[A-Z][A-Z]'  |
+	    $EGREP -vi 'change|license' \
+	    > $retval.doc
+
+	if [ ! -s $retval.doc ]; then
+	    CygbuildWarn "-- devel-doc [WARN] No doc files for $pkgdoc"
+	else
+
+	    local pkg="$LIBPKG-doc.tar.$ext"
+	    NAME_PKG_LIB_DOC=$pkg                               # global-def
+	    PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
+	    local tar=$PATH_PKG_LIB_DOC
+
+	    CygbuildEcho "-- devel-doc" ${tar#$srcdir/}
+
+	    tar $taropt $tar $(< $retval.doc) ||
+	    {
+		status=$?
+		CygbuildPopd
+		return $status
+	    }
+
+	    RETVAL="$tar"
+	fi
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardBin()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+	cd $instdir || exit 1
+
+	if [ -s $retval.bin ]; then
+
+	    local tar="$FILE_BIN_PKG"
+
+	    CygbuildTarOptionCompress $tar > $retval
+	    local z=$(< $retval)
+
+	    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
+
+	    CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
+
+	    tar $taropt --create --file=$tar \
+	    $(< $retval.bin) $(< $retval.man.bin) ||
+	    {
+		status=$?
+		CygbuildPopd
+		return $status ;
+	    }
+
+	    RETVAL="$tar"
+	fi
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardLib()
+{
+    local id="$0.$FUNCNAME"
+    local ext=$OPTION_COMPRESS
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+	cd $instdir || exit 1
+
+	find usr               \
+	    -name "*.dll"       \
+	    > $retval.lib
+
+	if [ ! -s $retval.lib ]; then
+	    CygbuildWarn "-- [devel-lib] [WARN] No *.dll files"
+	else
+
+	    # Find out version number
+	    # usr/bin/cygfontconfig-1.dll => 1
+
+	    local pkg=$(echo $PKG |sed 's/lib//')
+
+	    $EGREP "$pkg.*dll" $retval.lib |
+		$EGREP --only-matching --regexp="-[0-9]+" |
+		cut -d"-" -f2 \
+		> $retval.ver
+
+	    local ver
+	    [ -s $retval.ver ] && ver=$(< $retval.ver)
+
+	    local pkg="$LIBPKG$ver.tar.$ext"
+	    NAME_LIB_PKG_MAIN=$pkg                              # global-def
+	    PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
+	    local tar=$PATH_PKG_LIB_DEV
+
+	    CygbuildEcho "-- devel-lib" ${tar#$srcdir/}
+
+	    tar $taropt $tar \
+	    $(< $retval.lib) ||
+	    {
+		status=$?
+		CygbuildPopd
+		return $status ;
+	    }
+	fi
+
+	RETVAL="$tar"
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardDev()
+{
+    local id="$0.$FUNCNAME"
+    local ext=$OPTION_COMPRESS
+    local retval="$1"
+    RETVAL=
+
+    CygbuildPushd
+	cd $instdir || exit 1
+
+	cat $retval.bin $retval.man.bin $retval.lib $retval.doc \
+	    > $retval.already.packaged
+
+	find . -type f > $retval.find
+
+	$EGREP --invert-match --file=$retval.already.packaged \
+	       $retval.find > $retval.dev
+
+	if [ ! -s $retval.dev ]; then
+	    CygbuildWarn "-- [devel-dev] [WARN] No *.h or*.a files" \
+		"for $pkglib"
+	else
+
+	    local pkg="$LIBPKG-devel.tar.$ext"
+	    NAME_LIB_PKG_MAIN=$pkg                              # global-def
+	    PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
+	    local tar=$PATH_PKG_LIB_LIBRARY
+
+	    CygbuildEcho "-- devel-dev" ${tar#$srcdir/}
+
+	    tar $taropt $tar \
+	    $(< $retval.dev) ||
+	    {
+		status=$?
+		CygbuildPopd
+		return $status
+	    }
+	fi
+
+	RETVAL="$tar"
+    CygbuildPopd
+}
+
+function CygbuildCmdPkgDevelStandardMain()
 {
     local id="$0.$FUNCNAME"
     local status=0
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     CygbuildPushd
 
-        DIR_DOC_GENERAL=$CYGBUILD_DOCDIR_FULL
+	CygbuildEcho "== Making packages [devel] from" \
+		     "${instdir#$srcdir/}"
 
-        echo "** Making packages [devel] from $instdir"
+	cd $instdir || exit 1
 
-        cd $instdir || exit 1
+	#   Prepare all return files
+	touch $retval.man.bin $retval.man.others \
+	      $retval.doc $retval.bin $retval.lib
 
-        local files
+	#  Find all executables. Exclude library config like xxx-config
+	find usr \
+	     '(' \
+		-path "*/bin/*" \
+		-o -path "*/var/*" \
+		-o -path "*/etc/*" \
+		-o -path "*/sbin/*" \
+	    ')' \
+	    -a ! -name "*.dll*" \
+	    -a ! -name "*.la" \
+	    -a ! -name "*.a" \
+	    -a ! -name "*-config" \
+	    > $retval.bin
 
-        $FIND usr -name "*.dll" -o -name "*.la" \
-            > $retval.lib
+	# .................................................. manuals ...
 
+	find usr/share/man -type f > $retval.man.all 2> /dev/null
 
-        #  Exclude library config like xxx-config
+	if [ -s $retval.bin ]; then
 
-        $FIND usr \
-             '(' \
-                -path "*/bin/*" \
-                -path "*/var/*" \
-                -o x-path "*/etc/*" \
-                -o -path "*/sbin/*" \
-            ')' \
-            -a ! -name "*.dll" -a ! -name "*-config" \
-            > $retval.bin
+	    # Include manual pages for executables
 
-        local manregexp
-        touch $retval.man.bin $retval.man.others
+	    local manregexp=$(
+		awk '
+		{
+		    gsub(".*/", "");
+		    sub("[.](pl|py|exe|sh)$", "");
+		    re = re "|" $0;
+		}
+		END {
+		    print substr(re, 2);
+		}
+		' $retval.bin
+	    )
 
-        $FIND usr/share/man > $retval.man.all 2> /dev/null
+	    if [ "$manregexp" ]; then
+		find usr/share/man                      \
+		    -regextype posix-egrep              \
+		    -regex ".*($manregexp)[.][0-9].*"   \
+		    -type f                             \
+		    >> $retval.man.bin
+	    fi
 
-        if [ -s $retval.bin ]; then
+	    if [ -s $retval.man.bin ]; then
+		$EGREP --invert-match --file=$retval.man.bin \
+		    $retval.man.all > $retval.man.others
+	    else
+		CygbuildWarn "-- [WARN] No manual pages executables"
+		cat $retval.bin
+		cp $retval.man.all $retval.man.others
+	    fi
+	fi
 
-            # Include manual pages too
+	CygbuildCmdPkgDevelStandardDoc "$retval"
+	pkgdoc=$RETVAL
 
-            manregexp=$( $AWK '
-            {
-                gsub(".*/", "");
-                sub("[.](pl|py|exe|sh)$", "");
-                re = re "|" $0;
-            }
-            END {
-                print substr(re, 2);
-            }
-            ' $retval.bin)
+	find etc/ usr/share/{doc,locale,emacs,info} \
+	    -type f \
+	    >> $retval.bin \
+	    2> /dev/null
 
-            [ "$manregexp" ] &&
-            $FIND usr/share/man             \
-                -regextype posix-egrep      \
-                -regex ".*($manregexp).*"   \
-                >> $retval.man.bin
+	if [ -s $retval.doc ]; then
+	    #   If there is doc package, then exclude those files
+	    mv $retval.bin $retval.bin.tmp
 
-            if [ -s $retval.man.bin ]; then
-                $EGREP --invert-match --file=$retval.man.bin \
-                    $retval.man.all > $retval.man.others
-            else
-                $CP $retval.man.all $retval.man.others
-            fi
-        fi
+	    $EGREP --invert-match --file=$retval.doc \
+		$retval.bin.tmp > $retval.bin
+	fi
 
-        if [ ! -s $retval.lib ]; then
-            CygbuildWarn "--    [devel-lib] [WARN] No *.dll files"
-        else
-            echo -n "--    [devel-lib] "
+	CygbuildCmdPkgDevelStandardLib "$retval"
+	pkglib=$RETVAL
 
-            # Find out version number
-            # usr/bin/cygfontconfig-1.dll => 1
+	CygbuildCmdPkgDevelStandardBin "$retval"
+	pkgbin=$RETVAL
 
-            $EGREP "$PKG.*dll" $retval.lib |
-                $EGREP --only-matching -e "-[0-9]" |
-                cut -d"-" -f2 \
-                > $retval.ver
-
-            local ver
-            [ -s $retval.ver ] && ver=$(< $retval.ver)
-
-            local pkg="$LIBPKG$ver.tar.bz2"
-            NAME_LIB_PKG_MAIN=$pkg                              # global-def
-            PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
-            local tar=$PATH_PKG_LIB_DEV
-
-            echo "$tar"
-
-            $TAR $taropt $tar \
-            $(< $retval.lib) $(< $retval.bin) $(< $retval.man.bin) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status ;
-            }
-        fi
-
-        $FIND usr/include usr/lib \( -name "*.h" -o -name "*.a" \) \
-            > $retval.dev
-
-        if [ ! -s $retval.dev ]; then
-            CygbuildWarn "--    [devel-dev] [WARN] No *.h or*.a files" \
-                "for $pkglib"
-        else
-            echo -n "--    [devel-dev] "
-
-            local pkg="$LIBPKG-devel.tar.bz2"
-            NAME_LIB_PKG_MAIN=$pkg                              # global-def
-            PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
-            local tar=$PATH_PKG_LIB_LIBRARY
-
-            echo "$tar"
-
-            $TAR $taropt $tar $(< $retval.dev) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
-
-
-        $FIND usr/share/doc  > $retval.doc
-
-        if [ ! -s $retval.doc ]; then
-            CygbuildWarn "--    [devel-doc] [WARN] No doc files for $pkgdoc"
-        else
-
-            echo -n "--    [devel-doc] "
-
-            local pkg="$LIBPKG-doc.tar.bz2"
-            NAME_PKG_LIB_DOC=$pkg                               # global-def
-            PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
-            local tar=$PATH_PKG_LIB_DOC
-
-            echo "$tar"
-
-            $TAR $taropt $tar $(< $retval.doc) ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
+	CygbuildCmdPkgDevelStandardDev "$retval"
+	pkgdev=$RETVAL
 
     CygbuildPopd
 
@@ -4450,9 +5590,9 @@ function CygbuildCmdPkgDevelStandard()
 
     for file in $pkgdev $pkglib $pkgbin $pkgdoc
     do
-        if [ -f "$file" ]; then
-            CygbuildGPGsignFileNow $file
-        fi
+	if [ -f "$file" ]; then
+	    CygbuildGPGsignFileNow $file
+	fi
     done
 }
 
@@ -4463,9 +5603,9 @@ function CygbuildCmdPkgDevelMain()
     CygbuildCygDirCheck  || return $?
 
     if [ -f "$SCRIPT_BIN_PACKAGE" ]; then
-        CygbuildCmdPkgExternal
+	CygbuildCmdPkgExternal
     else
-        CygbuildCmdPkgDevelStandard
+	CygbuildCmdPkgDevelStandardMain
     fi
 }
 
@@ -4477,21 +5617,21 @@ function CygbuildCmdPkgBinaryStandard()
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local pkg=$FILE_BIN_PKG
 
-    echo "** Making package [binary] $pkg"
+    CygbuildEcho "== Making package [binary]" ${pkg#$srcdir/}
 
-    CygbuildExitNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
-              "Did you forget to run [mkdirs]?"
+    CygbuildExitIfNoDir "$srcinstdir" "$id: [ERROR] no $srcinstdir" \
+	      "Did you forget to run [mkdirs]?"
 
     CygbuildFileCleanNow "" $pkg $pkg$sigext
 
     CygbuildPushd
-        cd $instdir || exit 1
-        $TAR $taropt $pkg *    # must be "*", not "." => would cause ./path/..
-        status=$?
+	cd $instdir || exit 1
+	tar $taropt $pkg *    # must be "*", not "." => would cause ./path/..
+	status=$?
     CygbuildPopd
 
     if [ "$status" = "0" ]; then
-        CygbuildGPGsignFileNow $pkg
+	CygbuildGPGsignFileNow $pkg
     fi
 
     return $status
@@ -4504,9 +5644,9 @@ function CygbuildCmdPkgBinaryMain()
     CygbuildCygDirCheck  || return $?
 
     if [ -f "$SCRIPT_BIN_PACKAGE" ]; then
-        CygbuildCmdPkgExternal
+	CygbuildCmdPkgExternal
     else
-        CygbuildCmdPkgBinaryStandard
+	CygbuildCmdPkgBinaryStandard
     fi
 }
 
@@ -4519,31 +5659,380 @@ CygbuildPackageSourceDirClean()
     # Make sure it looks like .sinst
 
     if [[ $srcinstdir == *.sinst* ]]; then
-        CygbuildPushd
-            cd "$srcinstdir" && $RM -f $PKG*-src*
-            status=$?
-        CygbuildPopd
+	CygbuildPushd
+	    cd "$srcinstdir" && rm --force $PKG*-src*
+	    status=$?
+	CygbuildPopd
     fi
+}
+
+function CygbuildPatchLs ()
+{
+    awk ' /^\+\+\+ / {print $2}' ${1:-/dev/null}
+}
+
+function CygbuildPatchApplyRun()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local patchopt="$CYGBUILD_PATCH_OPT"
+    local patch="$1"
+    shift
+
+    local dummy="Additional options: $@"    # For debug
+    local dummy=$(pwd)                      # For debug
+
+    if [ ! "$verbose" ]; then
+	patchopt="$patchopt --quiet"
+    fi
+
+    #  Cygwin's patch(1) needs --binary option to be able to handle CRLF
+    #  diffs correctly.
+
+    local opt
+
+    if CygbuildIsCygwin; then
+	if CygbuildFileIsCRLF "$patch" ; then
+	    opt="--binary"
+	fi
+    fi
+
+    #  The files to be patched must be writable. Sometimes upstream
+    #   contains read-only files.
+
+     local dest opt
+     CygbuildPatchLs "$patch" > $retval
+
+     for dest in $(< $retval)
+     do
+	[ ! -f "$dest" ] && dest=${dest#*/}     # Strip 1
+	[ ! -f "$dest" ] && dest=${dest#*/}     # Strip 2
+	[ ! -f "$dest" ] && dest=${dest#*/}     # Strip 3
+
+	if [ -f "$dest" ] && [ ! -w "$dest" ]; then
+	    chmod $verbose +w $dest
+	fi
+    done
+
+    if [ -f "$patch" ]; then
+	if [ "$verbose" ]; then
+	    CygbuildEcho "-- cd $dummy && patch $patchopt" "$@" "< $patch"
+	else
+	    local msg="Patching"
+	    [[ "$*" == *\ +(--reverse|-R\ )* ]] && msg="Unpatching"
+
+	    CygbuildEcho "-- $msg with ${patch#$srcdir/}"
+	fi
+
+	${test:+echo} patch $patchopt $opt "$@" < $patch
+    else
+	CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
+	     "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
+	return 1
+    fi
+}
+
+function CygbuildPatchFileList()
+{
+    local id="$0.$FUNCNAME"
+    local dir=${1:-${DIR_CYGPATCH:?Variable not defined}}
+
+    [ "$dir" ] || return 0
+
+    CygbuildFindLowlevel "$dir"     \
+	-a -type d                  \
+	    '('                     \
+		! -name "tmp"       \
+	    ')'                     \
+	    -prune                  \
+	-o -type f                  \
+	    -name "*patch"          |
+	sed "s,^\.,$dir,"           |
+	sort
+}
+
+function CygbuildPatchPrefixStripCountFromContent()
+{
+    local id="$0.$FUNCNAME"
+    local file="$1"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    #   Read the first line in patch that is in format:
+    #       +++ path/to/foo-0.11.7.3.1/subdir/code.c
+    #
+    #   => up till 'foo'
+
+    if ! awk ' /^\+\+\+ / {
+		    ok = 1
+		    print $2
+		    exit
+		}
+		END {
+		    if (!ok)
+			exit(1)
+		}
+	      ' $file > $retval
+    then
+	CygbuildWarn "-- [WARN] Unrecognized patch format $file"
+	return 1
+    fi
+
+    local tmp=0
+    local saved="$IFS"
+    local path=$(< $retval)
+
+    local part=${path#*/}           # dir/this.patch => this.patch
+
+    if [ -f "$path" ]; then
+	echo 0
+	return 0
+    elif [ -f "$part" ]; then
+	echo 1
+	return 0
+    fi
+
+    local prefix1
+
+    if [[ "$path" == b/* ]]; then
+	#  Mercurical and Git outputs 'patch -p1' format:
+	#   --- a/Makefile.in       Sun Aug 05 20:45:37 2007 +0300
+	#   +++ b/Makefile.in       Sun Aug 05 23:55:17 2007 +0300
+	prefix1="$path"
+    fi
+
+    local count
+
+    #   If PART name match the package name, then that is
+    #   the strip count. Typical in: diff -ru ../orig/foo-1.1 foo-1.1
+
+    local IFS="/"
+	set -- $path
+
+	if [ $# -gt 1 ]; then
+	    for part in $*
+	    do
+		tmp=$((tmp + 1))
+
+		if [[ $part == $PKG-*[0-9]* ]] ; then
+		    count=$tmp
+		    break;
+		fi
+	    done
+	fi
+
+    IFS="$saved"
+
+    #  If no PKG was found, then perhaps this is patch generated from VCS
+
+    if [ ! "$count" ] && [ "$prefix1" ] && [ ! -f "$prefix1" ]; then
+	count=1
+    fi
+
+    if [ "$count" ]; then
+	echo $count
+    else
+	return 1
+    fi
+}
+
+function CygbuildPatchPrefixStripCountFromFilename()
+{
+    local id="$0.$FUNCNAME"
+    local str=$1
+
+    #   Read the filename contains hint how much to strip, use it.
+    #       CYGWIN/-PATCHES/foo-1.2.3.strip+3.patch
+
+    [[ $str != *strip+*  ]] && return 1
+
+    str=${str##*strip+}
+    str=${str%%[!0-9]*}
+
+    if [ "$str" ]; then
+	echo $str
+    else
+	return 1
+    fi
+}
+
+function CygbuildPatchPrefixStripCountMain ()
+{
+    local id="$0.$FUNCNAME"
+    local file=$1
+
+    CygbuildPatchPrefixStripCountFromFilename "$file"   ||
+    CygbuildPatchPrefixStripCountFromContent  "$file"
+}
+
+function CygbuildPatchApplyMaybe()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$DIR_CYGPATCH"
+    local statfile="$CYGPATCH_DONE_PATCHES_FILE"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local cmd="$1"  # {patch,unpatch}[-nostat][-quiet][-force]
+    local msg="$2"
+
+    [ ! "$cmd" ] && cmd="patch"
+
+    local verb="$verbose"
+    local statCheck="statCheck"
+    local force
+
+    if CygbuildIsGbsCompat ; then
+	#   During source package 'all' command turn this on, so that
+	#   the patches applied can be seen at glance
+	verb="gbs verbose"
+    fi
+
+    if [[ "$cmd" == *-force ]]; then
+	force="force"
+	cmd=${cmd%-force}
+    fi
+
+    if [[ "$cmd" == *-quiet ]]; then
+	verb=
+	cmd=${cmd%-quiet}
+    fi
+
+    if [[ "$cmd" == *-nostat ]]; then
+	statCheck=
+	cmd=${cmd%-nostat}
+    fi
+
+    CygbuildPatchFileList > $retval
+
+    [ -s $retval ] || return 0
+
+    local list=$(< $retval)
+
+    [ "$msg" ] && CygbuildEcho "$msg"
+
+    if [ "$cmd" = "unpatch" ]; then
+
+	if [ ! -f "$statfile" ]; then
+	    CygbuildEcho "-- [INFO] Nothing to unpatch. No" \
+			 ${statfile#$srcdir/}
+	    return 0
+	fi
+
+	local file tmp
+
+	#  reverse order
+	for file in $list
+	do
+	  tmp="$file $tmp"
+	done
+
+	list="$tmp"
+    fi
+
+    # FIXME: patch-before.sh
+
+    local file done continue record
+
+    for file in $list
+    do
+	[ -f "$file" ] || continue
+
+	local name=${file#$srcdir\/}
+	local grep="$GREP --quiet --ignore-case --fixed-strings"
+	done=
+	continue=
+	record=
+
+	if [ "$statCheck" ]; then
+	    if [ -f "$statfile" ]; then
+
+		local basename=${name##*/}
+
+		if $grep "$name" "$statfile" ; then
+		    record="$name"
+		    done=done
+		elif [[ "$name" == */* ]] &&
+		     $grep "$basename" "$statfile"
+		then
+		    #   The recorded filename did not contain path
+		    done=done
+		    record="$basename"
+		fi
+
+		if [ "$cmd" = patch ] ; then
+		    if [ "$done" ]; then
+
+			[ "$verb" ] &&
+			CygbuildEcho "-- [INFO] Patch already applied: $name"
+
+			continue="continue"
+		    fi
+		elif [ ! "$done" ]; then
+		    continue                            # Nothing to unpatch
+		fi
+	    fi
+
+	    if [ "$force" ]; then
+		:       # Keep going
+	    elif [ "$continue" ]; then
+		continue;
+	    fi
+	fi
+
+	local opt
+
+	CygbuildPatchPrefixStripCountMain "$file" > $retval
+
+	if [ -s $retval ]; then
+	    local count=$(< $retval)
+	    opt="$opt --strip=$count"
+	fi
+
+	[ "$cmd" = "unpatch" ] && opt="$opt --reverse"
+
+	if [ ! "$verbose" ]; then
+	    local msg="Unpatching"
+	    [ "$cmd" = "patch" ] && msg="Patching"
+
+	    CygbuildVerb "-- $msg with" $name
+	fi
+
+	CygbuildPatchApplyRun "$file" $opt ||
+	CygbuildDie "-- [FATAL] Exiting."
+
+	if [ "$cmd" = "unpatch" ] && [ "$statCheck" ] ; then
+
+	    if [ -f "$statfile" ]; then
+		#   Remove name from patch list
+		$grep --invert-match "$record" "$statfile" > $retval
+		mv "$retval" "$statfile"
+	    fi
+
+	    if  [ -f $statfile ] && [ ! -s $statfile ]; then
+		rm --force "$statfile"  # Remove empty file
+	    fi
+
+	else
+	    echo $name >> $statfile
+	fi
+    done
+
 }
 
 function CygbuildCmdMkpatchMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local signkey="$1"
     local passphrase="$2"
 
-    if ! CygbuildDefineGlobalSrcOrig; then
-        return 1
-    fi
+    CygbuildDefineGlobalSrcOrig || return 1
 
     CygbuildIsSrcdirOk \
-        "[FATAL] Not recognized; expect package-N[.N]+: $srcdir"
+	"[FATAL] Not recognized; expect package-N[.N]+: $srcdir"
 
     local status=0
     local sigext=$CYGBUILD_GPG_SIGN_EXT
-    local origdir=$builddir_root
-    local origpkgdir=$origdir/$PKG-$VER-orig
+    local origdir="$builddir_root"
+    local origpkgdir="$origdir/$PKG-$VER-orig"
     local out=$FILE_SRC_PATCH
 
     local diffopt="$CYGBUILD_DIFF_OPTIONS"
@@ -4553,7 +6042,7 @@ function CygbuildCmdMkpatchMain()
     local debug
     [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
-    echo "** Making [patch] $out"
+    CygbuildEcho "== Making patch" ${out#$srcdir/}
 
     CygbuildNoticeBuilddirMaybe || return 1
 
@@ -4579,265 +6068,271 @@ function CygbuildCmdMkpatchMain()
     #   Otherwise applying the patch will fail.
 
     local copydir=$builddir_root/${srcdir##*/}
+    local file="$SRC_ORIG_PKG"
 
-    local file=$SRC_ORIG_PKG
-
-    CygbuildExitNoFile "$file" "$id: [ERROR] Original archive not found $file"
+    CygbuildExitIfNoFile \
+	"$file" "$id: [ERROR] Original archive not found $file"
 
     CygbuildFileReadOptionsMaybe "$EXTRA_DIFF_OPTIONS_PATCH" > $retval
     local extraDiffOpt=$(< $retval)
 
     if [[ "$extraDiffOpt" == *cygbuild-ignore-all-defaults* ]]; then
-        diffopt=""
+	diffopt=""
     fi
 
     if [ ! "$origpkgdir" ]; then
-        #  This may never happen, but check anyway that variable
-        #  is not empty.
-        CygbuildWarn "$id: [ERROR] variable 'origpkgdir' is empty."
-        return 1
+	#  This may never happen, but check anyway that variable
+	#  is not empty.
+	CygbuildWarn "$id: [ERROR] variable 'origpkgdir' is empty."
+	return 1
     fi
 
     local cleandir
 
     (
 
-        # ................................. Extract original package ...
+	# ................................. Extract original package ...
 
-        cd $origdir || exit 1
+	cd "$origdir" || exit 1
 
-        CygbuildVerb "--   Extracting original $file"
+	CygbuildVerb "-- Extracting original $file"
 
-        #   What is the central directory in tar file?
+	#   What is the central directory in tar file?
 
-        CygbuildTarDirectory $file > $retval || return $?
-        dir=$(< $retval)
+	CygbuildTarDirectory $file > $retval || return $?
+	dir=$(< $retval)
 
-        #   Where will we unpack the original archive?
+	#   Where will we unpack the original archive?
 
-        cd="."
+	cd="."
 
-        if [[ ! "$dir"  ]] || [[ "$dir" = "." ]]; then
-            #  Hm, sometimes archive does not include subdirectories
+	if [[ ! "$dir"  ]] || [[ "$dir" = "." ]]; then
+	    #  Hm, sometimes archive does not include subdirectories
 
-            CygbuildVerbWarn \
-                "--    [WARN] Original archive does not unpack to a" \
-                "separate directory package-N.N. Fixing this. "
+	    CygbuildVerbWarn \
+		"-- [WARN] Original archive does not unpack to a" \
+		"separate directory package-N.N. Fixing this. "
 
-            dir="abcxyz"
-            cd=$dir
+	    dir="abcxyz"
+	    cd=$dir
 
-            [ -d "$dir" ] && $RM -rf "$dir"
-            $MKDIR "$dir" || return $?
+	    [ -d "$dir" ] && rm -rf "$dir"
+	    mkdir "$dir" || return $?
 
-        else
-            if [ -d "$dir" ]; then
-                $RM -rf "$dir" || exit 1
-            fi
-        fi
+	else
+	    if [ -d "$dir" ]; then
+		rm -rf "$dir" || exit 1
+	    fi
+	fi
 
-        if [ -d "$origpkgdir" ]; then
-            $RM -rf "$origpkgdir" || exit 1
-        fi
+	if [ -d "$origpkgdir" ]; then
+	    rm -rf "$origpkgdir" || exit 1
+	fi
 
-        CygbuildTarOptionCompress $file > $retval
-        [ -s $retval ] && z=$(< $retval)
+	dummy="PWD is $(pwd)"                  # Used for debugging
+	opt="--extract --file"
 
-        opt="-${z}xf"
-        dummy="PWD is $(pwd)"                  # Used for debugging
+	tar --directory "$cd" $opt "$file" ||
+	{
+	    status=$?
+	    echo "$id: [ERROR] tar --directory $cd $opt $file"
+	    return $status
+	}
 
-        $TAR -C "$cd" $opt "$file"     ||
-        {
-            status=$?
-            echo "$id: [ERROR] $TAR $opt $file"
-            return $status
-        }
+	#   Rename by moving to: foo-1.12-orig
+	mv "$dir" "$origpkgdir" || return $?
 
-        #   Rename by moving:  foo-1.12-orig
-        $MV "$dir" "$origpkgdir" || return $?
+	cd "$srcdir" || exit 1
 
-        cd $srcdir || exit 1
+	cursrcdir=$srcdir
 
-        cursrcdir=$srcdir
+	# .......................................... Make duplicate? ...
 
-        # .......................................... Make duplicate? ...
+	if [ "$OPTION_SPACE" ]; then
 
-        if [ "$OPTION_SPACE" ]; then
+	    #   Do not destroy current compilation results, because
+	    #   recompilation might be very slow with big packages.
+	    #
+	    #   Copy the current sources elsewhere and then "clean".
+	    #   This preserves current sources + compilation.
 
-            #   User has instructed to use more space, so do not destroy
-            #   current compilation results, because recompilation might
-            #   be very slow with big packages.
-            #
-            #   Copy the current sources elsewhere and then "clean".
-            #   This preserves current sources + compilation.
+	    cursrcdir=$copydir
+	    cleandir=$copydir
 
-            cursrcdir=$copydir
-            cleandir=$copydir
+	    CygbuildEcho "-- Wait, taking a snapshot (may take a while)..."
 
-            echo -n "--   Wait, taking a snapshot (may take a while).. "
+	    if [ -d "$cursrcdir" ]; then
+		rm -rf "$cursrcdir" || exit 1
+	    fi
 
-            if [ -d "$cursrcdir" ]; then
-                $RM -rf "$cursrcdir" || exit 1
-            fi
+	    mkdir --parents "$cursrcdir" || exit 1
 
-            $MKDIR -p "$cursrcdir" || exit 1
+	    dummy="PWD is $(pwd)"           # Used for debugging
 
-            dummy="PWD is $(pwd)"           # Used for debugging
 
-            $TAR $CYGBUILD_TAR_EXCLUDE \
-                --create --file=- . \
-                | ( cd "$cursrcdir" && $TAR --extract --file=- ) \
-                || exit 1
+	    tar $CYGBUILD_TAR_EXCLUDE \
+		--create --file=- . \
+		| ( cd "$cursrcdir" && tar --extract --file=- ) \
+		|| exit 1
 
-            echo " Done."
-            echo "--   Wait, undoing local patches (if any; in snapshot dir)"
+	    CygbuildEcho "-- Wait, undoing local patches" \
+			 "(if any; in snapshot dir)"
 
-            ( cd $cursrcdir && CygbuildPatchApplyMaybe unpatch )
-        fi
+	    (
+		#   We must not touch the patch status file, because
+		#   this is just temporary unpatching so that we can
+		#   take the diff.
 
-        cd $cursrcdir || exit 1
+		cd $cursrcdir &&
+		CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
+	    ) || exit 1
+	fi
 
-        CygbuildCmdCleanMain     $cursrcdir nomsg
-        CygbuildCmdDistcleanMain $cursrcdir nomsg
+	cd $cursrcdir || exit 1
 
-        difforig=${origpkgdir##$(pwd)/}      # Make relative paths
-        diffsrc=${cursrcdir##$(pwd)/}
+	CygbuildCmdCleanMain     $cursrcdir nomsg
+	CygbuildCmdDistcleanMain $cursrcdir nomsg
 
-        if [ -f "$prescript" ]; then
-            #   If there is custom script, run it.
-            echo "--   [NOTE] Running external prediff:" \
-                 "$prescript $difforig $diffsrc"
-            CygbuildChmodExec $prescript
-            ${debug:+$BASHX} $prescript "$difforig" "$diffsrc"
-        fi
+	difforig=${origpkgdir##$(pwd)/}      # Make relative paths
+	diffsrc=${cursrcdir##$(pwd)/}
 
-        if [[ "$extraDiffOpt" != *cygbuild-ignore-autocheck* ]]; then
-            CygbuildPatchFindGeneratedFiles "$origpkgdir" "$cursrcdir" \
-                "$extraDiffOpt" > $retval || return $?
+	if [ -f "$prescript" ]; then
+	    #   If there is custom script, run it.
+	    CygbuildEcho "--- Running external prediff:" \
+		 "$prescript $difforig $diffsrc"
 
-            exclude="$(< $retval)"
-        fi
+	    CygbuildChmodExec $prescript
+	    ${debug:+$BASHX} $prescript "$difforig" "$diffsrc"
+	fi
 
-        topdir=${cursrcdir%/*}               # one directory up
+	if [[ "$extraDiffOpt" != *cygbuild-ignore-autocheck* ]]; then
+	    CygbuildPatchFindGeneratedFiles "$origpkgdir" "$cursrcdir" \
+		"$extraDiffOpt" > $retval || return $?
 
-        cd $topdir || exit 1
+	    exclude="$(< $retval)"
+	fi
 
-        difforig=${origpkgdir##$(pwd)/}      # Make relative paths
-        diffsrc=${cursrcdir##$(pwd)/}
+	topdir=${cursrcdir%/*}               # one directory up
 
-        if  [ ! "$difforig" ] || [ ! -d "$difforig" ]; then
-            CygbuildWarn "$id: No orig dir? Snapshot failed: $$difforig"
-            return 1
-        fi
+	cd $topdir || exit 1
 
-        # ............................ Preparation done, take a diff ...
+	difforig=${origpkgdir##$(pwd)/}      # Make relative paths
+	diffsrc=${cursrcdir##$(pwd)/}
 
-        if [ -f "$diffscript" ]; then
-            #   If there is custom script, run it.
-            echo "--   [NOTE] Running external diff: $diffscript" \
-                 "$difforig $diffsrc $out"
-            CygbuildChmodExec $difforig
-            ${debug:+$BASHX} $diffscript "$difforig" "$diffsrc" "$out"
-        else
+	if  [ ! "$difforig" ] || [ ! -d "$difforig" ]; then
+	    CygbuildWarn "$id: No orig dir? Snapshot failed: $$difforig"
+	    return 1
+	fi
 
-            local dummy="pwd: $(pwd)"    # For debugging
-            local dummy="out: $out"      # For debugging
+	# ............................ Preparation done, take a diff ...
 
-            TZ=UTC0 \
-                $DIFF $diffopt $exclude $extraDiffOpt \
-                "$difforig" "$diffsrc" \
-                > $out
+	if [ -f "$diffscript" ]; then
+	    #   If there is custom script, run it.
+	    CygbuildEcho "--- Running external diff: $diffscript" \
+		 "$difforig $diffsrc $out"
 
-            status=$?
+	    CygbuildChmodExec $difforig
+	    ${debug:+$BASHX} $diffscript "$difforig" "$diffsrc" "$out"
+	else
 
-            #   GNU diff(1) return codes are strange.
-            #   Number 1 is OK and value > 1 indicates an error
+	    local dummy="pwd: $(pwd)"    # For debugging
+	    local dummy="out: $out"      # For debugging
 
-            if [ "$status" != "1" ]; then
+	    TZ=UTC0 \
+		diff $diffopt $exclude $extraDiffOpt \
+		"$difforig" "$diffsrc" \
+		> $out
 
-                CygbuildWarn "$id: [ERROR] Making patch failed," \
-                     "check $origpkgdir and $out"        \
-                     "Do you need to run [reshadow]?"
+	    status=$?
 
-                $EGREP -in 'files.*differ' $out
+	    #   GNU diff(1) return codes are strange.
+	    #   Number 1 is OK and value > 1 indicates an error
 
-                return $status
+	    if [ "$status" != "1" ]; then
 
-            else
+		CygbuildWarn "$id: [ERROR] Making patch failed," \
+		     "check $origpkgdir and $out"        \
+		     "Do you need to run again [shadow]?"
 
-                #  Fix Debian original source directories in Patch
-                #
-                #  --- foo-0.93.3-orig/CYGWIN-PATCHES/catdoc.README
-                #  +++ foo-0.93.3.orig/CYGWIN-PATCHES/catdoc.README
-                #
-                #  =>
-                #  --- foo-0.93.3-orig/CYGWIN-PATCHES/catdoc.README
-                #  +++ foo-0.93.3/CYGWIN-PATCHES/catdoc.README
+		$EGREP --line-number --invert-match 'files.*differ' $out
 
-                if CygbuildGrepCheck '^\+\+\+ .*\.orig/' $out ; then
-                    CygbuildVerb "--   Fixing patch (Debian .orig)"
+		return $status
 
-                    sed 's,^\(+++ .*\).orig\(.*\),\1\2,' $out > $out.tmp &&
-                    $MV "$out.tmp" "$out"
-                fi
+	    else
 
-                CygbuildVerb "--   Removing $origpkgdir"
+		#  Fix Debian original source directories in Patch
+		#
+		#  --- foo-0.93.3-orig/CYGWIN-PATCHES/catdoc.README
+		#  +++ foo-0.93.3.orig/CYGWIN-PATCHES/catdoc.README
+		#
+		#  =>
+		#  --- foo-0.93.3-orig/CYGWIN-PATCHES/catdoc.README
+		#  +++ foo-0.93.3/CYGWIN-PATCHES/catdoc.README
 
-                if [ ! "$debug" ]; then
-                    $RM -rf "$origpkgdir" "$cleandir"
-                fi
+		if CygbuildGrepCheck '^\+\+\+ .*\.orig/' $out ; then
+		    CygbuildVerb "-- Fixing patch (Debian .orig)"
 
-                #   Signature is no longer valid, remove it.
-                sigfile=$out$sigext
-                [ -f "$sigfile" ] && $RM -f "$sigfile"
+		    sed 's,^\(+++ .*\).orig\(.*\),\1\2,' $out > $out.tmp &&
+		    mv "$out.tmp" "$out"
+		fi
 
-                CygbuildGPGsignFiles "$signkey" "$passphrase" "$out"
+		CygbuildVerb "-- Removing" ${origpkgdir#$srcdir/}
 
-            fi
-        fi
+		if [ ! "$debug" ]; then
+		    rm -rf "$origpkgdir" "$cleandir"
+		fi
+
+		#   Signature is no longer valid, remove it.
+		sigfile=$out$sigext
+		[ -f "$sigfile" ] && rm --force "$sigfile"
+
+		CygbuildGPGsignFiles "$signkey" "$passphrase" "$out"
+
+	    fi
+	fi
     )
 }
 
 function CygbuildCmdPkgSourceStandard()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy="srcinstdir $srcinstdir"
-    local sigext=$CYGBUILD_GPG_SIGN_EXT
+    local sigext="$CYGBUILD_GPG_SIGN_EXT"
     local signkey="$OPTION_SIGN"
     local passphrase="$OPTION_PASSPHRASE"
 
-    CygbuildExitNoDir "$srcinstdir" \
-        "$id: [FATAL] No directory $srcinstdir. Try running [mkdirs]"
+    CygbuildExitIfNoDir "$srcinstdir" \
+	"$id: [FATAL] No directory $srcinstdir. Try running [mkdirs]"
 
     if ! CygbuildDefineGlobalSrcOrig ; then
-        CygbuildDie "$id: [FATAL] Source archive location unknown. See -f"
+	CygbuildDie "$id: [FATAL] Source archive location unknown. See -f"
     fi
 
     dummy="$id BUILD_SCRIPT=$BUILD_SCRIPT"      #  For debug only
 
-    CygbuildExitNoFile "$BUILD_SCRIPT" \
-        "$id: [ERROR] Can't locate build script [$BUILD_SCRIPT]"
+    CygbuildExitIfNoFile "$BUILD_SCRIPT" \
+	"$id: [ERROR] Can't locate build script [$BUILD_SCRIPT]"
 
     local orig="$SRC_ORIG_PKG"
     local makepatch="yes"
 
     if [ ! -f "$orig" ]; then
-        CygbuildWarn "$id: [WARN] Cannot diff. Don't know where original "   \
-             "source package is. Do you need -f or make a symbolic " \
-             "link to PKG-VER.tar.gz?"
-        makepatch=
+	CygbuildWarn "$id: [WARN] Cannot diff. Don't know where original "   \
+	     "source package is. Do you need -f or make a symbolic " \
+	     "link to PKG-VER.tar.gz?"
+	makepatch=
     fi
 
     CygbuildPackageSourceDirClean
 
     if [ "$makepatch" ]; then
 
-        CygbuildCmdMkpatchMain      \
-            "$OPTION_SIGN"          \
-            "$OPTION_PASSPHRASE"    || return $?
+	CygbuildCmdMkpatchMain      \
+	    "$OPTION_SIGN"          \
+	    "$OPTION_PASSPHRASE"    || return $?
 
-        CygbuildPatchCheck          || return $?
+	CygbuildPatchCheck          || return $?
     fi
 
     # .......................................... make source package ...
@@ -4845,12 +6340,12 @@ function CygbuildCmdPkgSourceStandard()
     local name="$SCRIPT_SRC_PKG_BUILD"    # script-VERSION-RELEASE.sh
     local taropt="$verbose -jcf"
 
-    echo "** Making package [source] $FILE_SRC_PKG"
+    CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG#$srcdir/}
 
-    local script=$srcinstdir/$name
+    local script="$srcinstdir/$name"
 
-    $CP -f "$orig" "$srcinstdir/$SRC_ORIG_PKG_NAME"  || return $?
-    $CP "$BUILD_SCRIPT" "$script"                    || return $?
+    cp --force "$orig" "$srcinstdir/$SRC_ORIG_PKG_NAME" || return $?
+    cp "$BUILD_SCRIPT" "$script"                        || return $?
 
     [ "$$signkey" ] && CygbuildGPGsignFiles "$signkey" "$passphrase" "$script"
 
@@ -4860,34 +6355,41 @@ function CygbuildCmdPkgSourceStandard()
 
     CygbuildPushd
 
-        cd "$srcinstdir" || exit $?
+	cd "$srcinstdir" || exit $?
 
-        #   Sometimes the directory contains previous releases, like
-        #   *-1.tar.bz2, *-2.tar.bz2  when the current release source
-        #   is -3.
+	#   Sometimes the directory contains previous releases, like
+	#   *-1.tar.bz2, *-2.tar.bz2  when the current release source
+	#   is -3.
 
-        local pkg=$PKG-$VER-$REL
+	local pkg="$PKG-$VER-$REL"
+	local re
 
-        ls *$PKG-$VER*-* 2> /dev/null | $EGREP -v "$pkg" > $retval
+	CygbuildStrToRegexpSafe "$pkg" > $retval
+	[ -s $retval ] && re=$(< $retval)
 
-        if [ -s $retval ]; then
-            CygbuildWarn "--   [NOTE] Deleting old releases from $srcinstdir"
-            $RM $verbose $(< $retval) || exit $?
-        fi
+	ls *$PKG-$VER*-* 2> /dev/null |
+	    $EGREP --invert-match "$re" > $retval
 
-        #   Do not include binary package. Neither *src packages.
+	if [ -s $retval ]; then
+	    CygbuildWarn "-- [NOTE] Deleting old releases from" \
+			 ${srcinstdir#$srcdir/}
 
-        local pkg=$FILE_SRC_PKG
+	    rm $verbose $(< $retval) || exit $?
+	fi
 
-        $TAR $taropt $FILE_SRC_PKG \
-             $(ls $PKG*  | $EGREP -v "$pkg(-src)?\.tar")
+	#   Do not include binary package. Neither *src packages.
 
-        status=$?
+	local pkg="$FILE_SRC_PKG"
+
+	tar $taropt $FILE_SRC_PKG \
+	     $(ls $PKG*  | $EGREP -v "$pkg|-src\.tar|$VER-[0-9]+\.tar")
+
+	status=$?
 
     CygbuildPopd
 
     if [ "$status" = "0" ]; then
-        CygbuildGPGsignFileNow $FILE_SRC_PKG
+	CygbuildGPGsignFileNow $FILE_SRC_PKG
     fi
 
     return $status
@@ -4896,22 +6398,22 @@ function CygbuildCmdPkgSourceStandard()
 function CygbuildCmdPkgSourceExternal ()
 {
     local id="$0.$FUNCNAME"
-    local prg=$scriptPackagesSource
+    local prg="$scriptPackagesSource"
     local status=0
 
     CygbuildPushd
-        cd $instdir || exit 1
+	cd $instdir || exit 1
 
-        echo "** [NOTE] Making package [source] with external:" \
-             "$prg $PKG $VER $REL"
+	eCygbuildEcho "== [NOTE] Making package [source] with external:" \
+	     ${prg#$srcdir/} $PKG $VER $REL
 
-        CygbuildChmodExec $prg
+	CygbuildChmodExec $prg
 
-        $prg $PKG $VER $REL $TOPDIR ||
-        {
-            status=$?
-            CygbuildWarn "$id: [ERROR] Failed create source package."
-        }
+	$prg $PKG $VER $REL $TOPDIR ||
+	{
+	    status=$?
+	    CygbuildWarn "$id: [ERROR] Failed create source package."
+	}
 
     CygbuildPopd
 
@@ -4924,208 +6426,10 @@ function CygbuildCmdPkgSourceExternal ()
 #
 #######################################################################
 
-function CygbuildCmdPkgSourceCvsdiff()
-{
-    local id="$0.$FUNCNAME"
-    local out="$FILE_SRC_PATCH"
-    local orig=$builddir_vc_root
-    local prg=$SCRIPT_SOURCE_GET
-
-    if [ ! -f "$prg" ]; then
-        CygbuildWarn "$id: [ERROR] Can't find $prg"
-        return 1
-    fi
-
-    echo "** Making [cvs patch] getting sources"
-
-    #   If already there is a checkout, use it
-    #   Otherwise download a fresh copy from pserver where we
-    #   compare
-
-    local try=$(cd $orig/*/ && pwd)
-
-    if [ "$try" ] && [ -d "$try/CVS" ]; then
-    (
-        #   There is only one directory, so go there
-        cd "$try" || return $?
-
-        #  Overcome "end of file from server" problem
-        cvs update ||
-        { sleep 5; cvs update; } ||
-        { sleep 5; cvs update; } ||
-        { echo "-- [ERROR] Permanent problem. Try later." >&2; return 1; }
-    )
-    else
-        try=\
-        $(
-            $MKDIR -p "$orig"       || return $?
-            cd "$orig"              || return $?
-
-            # clean previous sources
-            $RM -rf *
-
-            $prg --quiet            &&
-            cd ./*/                 &&
-            pwd
-        )
-    fi
-
-    [ "$?" != "0" ] &&
-        CygbuildDie "$try" "$id: [FATAL] Couldn't download sources to make diff"
-
-    #   Files that were generated after checkout must be filtered out
-    #   Examine how the current directory is different from the
-    #   original chekout (Perl function does this)
-
-    echo "-- Making [cvs patch] Examining files to exclude."
-
-    local debug=${OPTION_DEBUG:-0}
-    local status exclude
-
-    $PERL -e "require qq($module); SetDebug($debug);
-        DiffToExclude(qq($try));" > $retval
-    status=$?
-
-    [ -s $retval ] && exclude=$(< $retval)
-
-    if [ "$status" != "0" ]; then
-        CygbuildWarn "$id: [ERROR] Hm, either full 'cygbuild' suite is not" \
-             "installed or cygbuild.pl perl module is not in PATH." \
-             "See $CYGBUILD_HOMEPAGE_URL"
-        return $status
-    fi
-
-    #   Good. Now we have all the details to make the patch
-    #   It is not guaranteed that this is perfectly okay.
-    #   => Every user added directory except CYGWIN-PATHCES are
-    #   => filtered out.
-
-    echo "-- Making [cvs patch] $out"
-
-    #   Make the patch relative to the current directory.
-    #
-    #       diff -r there/cvs-dir/ package-N.N/
-
-    local compare=$(basename $(pwd))
-
-    local status=0
-
-    CygbuildPushd
-        cd ..
-        xTZ=UTC0 $DIFF $CYGBUILD_CVSDIFF_OPTIONS \
-            $exclude $try $compare \
-            > $out
-
-        status=$?
-
-        #   GNU diff(1) changed return codes.
-        #   Return code 1 is OK and value > 1 is an error
-        #
-        #   0 = no differences
-        #   1 = differences
-        #   2 = some sort of recoverable error occurred
-        #       => that means that there were biary files. Look for
-        #       message "Files X and Y differ"
-
-        if [ "$status" = "1" ]; then
-            status=0
-        else
-            CygbuildWarn "$id: [ERROR] Making a patch failed, check $out"
-            $EGREP -n -i 'files.*differ' $out
-            status=$(( $status + 10 ))
-        fi
-
-    CygbuildPopd
-
-    return $status
-}
-
-function CygbuildCmdPkgSourceCvsMain()
-{
-    local id="$0.$FUNCNAME"
-    local dummy
-
-    #  We need the help of Perl library
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval || exit 1
-    local module=$(< $retval)
-
-    [ ! "$module" ] && return 1
-
-    if [ ! -f "$BUILD_SCRIPT" ]; then
-        CygbuildWarn "$id: [FATAL] Cannot find BUILD_SCRIPT, please debug."
-        return 1
-    fi
-
-    CygbuildPackageSourceDirClean
-
-    if [ -f "$SCRIPT_SOURCE_GET" ]; then
-        $RM $SCRIPT_SOURCE_GET
-    fi
-
-    local dir=dummy=$(pwd)                # For debugging
-    local debug=${OPTION_DEBUG:-0}
-    local template=$DIR_CYGPATCH/vc-cvs-$SCRIPT_SOURCE_GET_TEMPLATE
-
-    [ ! -f "$template" ] &&
-        CygbuildDie "-- [FATAL] Can't fund template $template"
-
-    $PERL -e "require qq($module);  SetDebug($debug); \
-      PackageCVSmain( -dir => qq($srcdir), -script => qq($template) );" \
-    > $SCRIPT_SOURCE_GET
-
-    local status
-    status=$?
-
-    if [ "$status" != "0" ]; then
-        return $status
-    fi
-
-    if  [ ! -f "$SCRIPT_SOURCE_GET" ] || [ ! -s "$SCRIPT_SOURCE_GET" ]
-    then
-        echo "$id: [ERROR] during file generation $SCRIPT_SOURCE_GET"
-        return 1
-    fi
-
-    echo "--    Wrote $SCRIPT_SOURCE_GET"
-
-    CygbuildCmdPkgSourceCvsdiff  || return $?
-
-    # .......................................... make source package ...
-
-    local tarOpt="$verbose -jcf"
-
-    #   There is no source.tar.gz to go with this, but we include
-    #   a shell script that gets the source from CVS. Rename the
-    #   Checkout script with 'mv'.
-    #
-    #       source-install.sh => <PKG>-N.N-REL-source-install.sh
-
-    local install=$PKG-$VER-$REL.sh               # foo-VERSION-RELEASE.sh
-    local script=${SCRIPT_SOURCE_GET##*/}
-    script=$PKG-$VER-$REL-$script
-
-    $MV "$SCRIPT_SOURCE_GET" "$srcinstdir/$script"  || return $?
-    $CP "$BUILD_SCRIPT" "$srcinstdir/$install"      || return $?
-
-    echo "** Making package [source] $FILE_SRC_PKG"
-
-    local status=0
-
-    CygbuildPushd
-        cd $srcinstdir || exit 1
-        $TAR $CYGBUILD_TAR_EXCLUDE $tarOpt $FILE_SRC_PKG *
-        status=$?
-    CygbuildPopd
-
-    return $status
-}
-
 function CygbuildCmdPkgSourceMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dummy="pwd $(pwd)"                # For debugger
 
     local type
@@ -5133,53 +6437,50 @@ function CygbuildCmdPkgSourceMain()
     [ -s $retval ] && type=$(< $retval)
 
     [ "$type" ] &&
-        CygbuildVerb "-- [INFO] Source is version controled with $type"
+	CygbuildVerb "-- [INFO] Source is version controled with $type"
 
     if [ -f "$SCRIPT_SOURCE_PACKAGE" ]; then
-        CygbuildCmdPkgSourceExternal
-
-    elif [ "$OPTION_VC_PACKAGE" ] && [ "$type" = "cvs" ] ; then
-        echo "-- Erm, packaging sources from Version Control dir is" \
-             "still highly experimental."
-        CygbuildCmdPkgSourceCvsMain
-    else
-        CygbuildCmdPkgSourceStandard
+	CygbuildCmdPkgSourceExternal
     fi
+
+    CygbuildCmdPkgSourceStandard
 }
 
 function CygbuildCmdDownloadUpstream ()
 {
     local id="$0.$FUNCNAME"
-    local name="mywebget.pl"
-    local bin=$(which $name)
+    local PRG="pwget"
+    local bin=$(CygbuildWhich $PRG)
+
+    CygbuildEcho "-- Upstream download: checking for new versions..."
 
     if [ ! "$bin" ]; then
-        CygbuildWarn "-- [ERROR] $name is not installed. See manual."
-        return 1
+	CygbuildWarn "-- [ERROR] '$PRG' not found in PATH."
+	CygbuildWarn "-- Download from" \
+	    "http://freshmeat.net/projects/perl-webget"
+	return 1
     fi
 
-    name="upstream.perl-webget"
-    local conf="$DIR_CYGPATCH/$name"
+    local confdir=${DIR_CYGPATCH:-CYGWIN-PATCHES}
+    local name="upstream.perl-webget"
+    local conf=$(cd $confdir && ls $(pwd)/$name)
 
     if [ ! -f "$conf" ]; then
-        CygbuildWarn "-- [ERROR] $conf not found."
-        return 1
+	CygbuildDie "-- [ERROR] $conf/ subdirectory not found." \
+	    "Cannot read download instructions."
     fi
 
-    echo "-- [upstream] Checking for new versions..."
+    local pkg=$(awk '/tag[0-9]:/  {print $2; exit}' $conf)
 
-    local confpath=$(cd $DIR_CYGPATCH; pwd)
-    local conffile=$confpath/$name
-    local status=0
+    if [ ! "$pkg" ]; then
+	CygbuildDie "-- [ERROR] Can't parse 'tag' from $conf"
+    fi
 
-    CygbuildPushd
-        cd $TOPDIR || exit 1
-        $PERL $bin ${OPTION_DEBUG+--debug=3} --verbose \
-                   --config $conffile --Tag $PKG --new
-        status=$?
-    CygbuildPopd
-
-    return $status
+    (
+	cd .. &&
+	perl $bin ${OPTION_DEBUG+--debug=3} --verbose \
+	     --new --config $conf --Tag $pkg
+    )
 }
 
 #######################################################################
@@ -5188,29 +6489,65 @@ function CygbuildCmdDownloadUpstream ()
 #
 #######################################################################
 
-function CygbuildPostinstallWrite()
+function CygbuildPostinstallWriteStanza()
+{
+    local type="$1"
+    local str="$2"
+    local file="$SCRIPT_POSTINSTALL_CYGFILE"
+    local stanza="#:$type"
+
+    if CygbuildGrepCheck "^[# ]*$stanza" "$file" ; then
+	 CygbuildVerb "-- Skip, existing stanza found: $type"
+	return 0
+    fi
+
+    echo -e "$stanza\n$str" >> "$file" || return 1
+}
+
+function CygbuildPostinstallWriteMain()
 {
     local id="$0.$FUNCNAME"
-    local str="$1"
-    local file=$SCRIPT_POSTINSTALL_CYGFILE
+    local type="$1"
+    local str="$2"
+    local file="$SCRIPT_POSTINSTALL_CYGFILE"
 
     if ! CygbuildIsTemplateFilesInstalled ; then
-        CygbuildWarn "$id: [ERROR] No $DIR_CYGPATCH_RELATIVE/ " \
-             "Please run command [files] first"
-        return 1
+	CygbuildWarn "$id: [ERROR] No $CYGBUILD_DIR_CYGPATCH_RELATIVE/ " \
+	     "Please run command [files] first"
+	return 1
+    fi
+
+    if [ ! "$type" ]; then
+	CygbuildWarn "$id: [FATAL] input arg TYPE is empty"
+	return 1
     fi
 
     if [ ! "$str" ]; then
-        echo "$id: [FATAL] input ARG string is empty"
-        return 1
-
-    elif [ -f "$file" ]; then
-        CygbuildWarn "$id: [WARN] Already exists, won't write to $file"
-
-    else
-        echo "$str" > $file || return 1
-        CygbuildChmodExec $file
+	CygbuildWarn "$id: [FATAL] input arg STR is empty"
+	return 1
     fi
+
+    CygbuildVerb "-- Postinstall setup: $type"
+
+    if [ ! -f "$file" ]; then
+	echo "\
+#!/bin/sh
+# This is automatically generated file
+# Please do not remove section comments '#:<name>'
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+LC_ALL=C
+dest=\$1
+
+set -e
+"       >  $file || return 1
+    fi
+
+    CygbuildPostinstallWriteStanza "$type" "$str"
+    local stat=$?
+
+    CygbuildChmodExec "$file"
+    return $stat
 }
 
 function CygbuildPreRemoveWrite()
@@ -5220,21 +6557,21 @@ function CygbuildPreRemoveWrite()
     local file="$SCRIPT_PREREMOVE_CYGFILE"
 
     if ! CygbuildIsTemplateFilesInstalled ; then
-        CygbuildWarn "$id: ERROR No $DIR_CYGPATCH_RELATIVE/ " \
-             "Please run command [files] first"
-        return 1
+	CygbuildWarn "$id: ERROR No $CYGBUILD_DIR_CYGPATCH_RELATIVE/ " \
+	     "Please run command [files] first"
+	return 1
     fi
 
     if [ ! "$str" ]; then
-        echo "$id: [FATAL] command string is empty"
-        return 1
+	echo "$id: [FATAL] command string is empty"
+	return 1
 
     elif [ -f "$file" ]; then
-        CygbuildWarn "$id: [WARN] cannot write " \
-             "to $file => $str"
+	CygbuildWarn "$id: [WARN] cannot write " \
+	     "to $file => $str"
 
     else
-        echo "$str" > "$file" || return 1
+	echo "$str" > "$file" || return 1
     fi
 }
 
@@ -5242,89 +6579,27 @@ function CygbuildMakefileCheck()
 {
     local id="$0.$FUNCNAME"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName > $retval || exit 1
     local file=$(< $retval)
 
     if [ "$file" ]; then
 
-        $EGREP -ne '^[^#]+-lc\>' $file /dev/null > $retval
+	$EGREP --line-number --regexp='^[^#]+-lc\b' $file /dev/null > $retval
 
-        if [ -s $retval ]; then
-            CygbuildWarn "--  [WARN] Linux -lc found. Make it read -lcygwin"
-            $CAT $retval
+	if [ -s $retval ]; then
+	    CygbuildWarn "-- [WARN] Linux -lc found. Make it read -lcygwin"
+	    cat $retval
 
-            #   With autoconf files, editing Makefile does no good.
-            #   because next round of [conf] will wipe it. The changes
-            #   must be done elsewhere
+	    #   With autoconf files, editing Makefile does no good.
+	    #   because next round of [conf] will wipe it. The changes
+	    #   must be done elsewhere
 
-            if [ -f "$file.in" ]; then
-                echo "--  [NOTE] Change *.in files to link against -lcygwin"
-            fi
-        fi
+	    if [ -f "$file.in" ]; then
+		CygbuildEcho "-- [NOTE] Change *.in files to link against -lcygwin"
+	    fi
+	fi
     fi
-}
-
-function CygbuildDebianRules2Makefile()
-{
-    local id="$0.$FUNCNAME"
-    local file="$1"
-
-    if [ ! "$file" ]; then
-        CygbuildWarn "$id: [ERROR] argument FILE is missing"
-        return 1
-    fi
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
-
-    if [ ! "$module" ]; then
-        return 1
-    fi
-
-    CygbuildExitNoDir "$srcdir" "$id: [FATAL] 'srcdir' [$srcdir] does not exist."
-
-    local out=$srcdir/Makefile
-
-    echo -e "--   Debian: writing $out\n" \
-            "--   Debian: Makefile was based on debian/rules. Please check!"
-
-    local debug=${OPTION_DEBUG:-0}
-
-    $PERL -e "require qq($module);  SetDebug($debug); \
-      DebianRulesMain(qq($file), -makefile);"         \
-      > $out
-
-    if [ ! -s "$out" ]; then
-        #  Some error happened if there was no output from perl
-        CygbuildWarn "$id: [ERROR] failed to write $out"
-        $RM -f "$out"
-        return 1
-    fi
-}
-
-function CygbuildDebianRules2MakefileMaybe()
-{
-    local id="$0.$FUNCNAME"
-    local file="$srcdir/debian/rules"
-    local status=0
-
-    if [ -f "$file" ]; then
-        echo "--   Debian: examining 'debian/rules'"
-        CygbuildDebianRules2Makefile $file || return $?
-
-        CygbuildPushd
-            cd $srcdir || exit 1
-            $MAKE prefix=$instdir install
-            status=$?
-        CygbuildPopd
-
-    else
-        status=1
-    fi
-
-    return $status
 }
 
 function CygbuildPerlPodModule()
@@ -5338,26 +6613,23 @@ function CygbuildPerlPodModule()
     local file="$1"
 
     if [ "$file" ]; then
-        $AWK -F"<" '
-        {
-            module=$3;
-            gsub("[|].*", "", module);
-            print module;
-            exit
-        }' $file /dev/null
+	awk -F"<" '
+	{
+	    module=$3;
+	    gsub("[|].*", "", module);
+	    print module;
+	    exit
+	}' $file /dev/null
     fi
 }
 
-function CygbuildMakeRunInstallFixPerl()
+function CygbuildMakeRunInstallFixPerlPostinstall()
 {
     local id="$0.$FUNCNAME"
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local module="$1"
 
     if [ ! "$module" ]; then
-        return 1
+	return 1
     fi
 
     #  There is one problem. make install wants to append to file:
@@ -5368,147 +6640,257 @@ function CygbuildMakeRunInstallFixPerl()
     #
     #  and upon unpack it would replace the existing file. Tackle that.
 
-    if ! $FIND $instdir -name perllocal.pod > $retval ; then
-        return
+    find "$instdir" -name perllocal.pod > $retval
+
+    if [ ! -s $retval ]; then
+	CygbuildVerb "-- [NOTE] perllocal.pod not foundxs"
+	return 0
     fi
 
+    local poddir="/usr/share/perl/cygwin-pods"
+    local storedir="$instdir$poddir"
     local file
-    local ext=".postinstall_append"
 
-    for file in $(< $retval)
+    #  install in /usr/share/perl/cygwin-pods/<packagename>.pod and
+    #  cat the contents to /usr/lib/perl5/5.8/cygwin/perllocal.pod
+    #  in postinstall
+
+    while read file
     do
-        CygbuildPerlPodModule $file > $retval
-        local modulename=$(< $retval)
+	CygbuildPerlPodModule $file > $retval
+	local modulename=$(< $retval)
 
-        if [ ! "$modulename" ]; then
-            CygbuildWarn "--    [WARN] Couldn't find Perl module name $file"
-            return 1
-        fi
+	if [ ! "$modulename" ]; then
+	    CygbuildWarn "-- [WARN] Couldn't find Perl module name $file"
+	    return 1
+	fi
 
-        $MV $verbose "$file" "$file$ext" || return $?
+	local dir=${file%/*}
+	local name=${file##*/}
+	local realdir=${dir#*.inst}    # relative .inst/usr => absolute /usr
 
-        local dir=${file%/*}
-        local name=${file##*/}
-        local realdir=${dir#*.inst}    # relative .inst/usr => absolute /usr
+	local from="$poddir/$PKG.pod"
+	local to="$realdir/$name"
 
-        local from="$realdir/$name$ext"
-        local to="$realdir/$name"
+	install -D -m 644 "$file" "$storedir/$PKG.pod" || return $?
 
-        echo "--    Perl install fix: $realdir/$name$ext"
+	rm "$file" || return $?
 
-        local commands="
-$commands
-#  Append new utility to Perl installation
-from=$from
-to=$to
-if [ -f \$from ] &&  [ -f \$to ]; then
-    if ! $EGREP -q $modulename \$to ; then
-        $CAT \$from >> \$to && $RM -f \$from
-    else
-        $RM -f \$from
-    fi
-fi
+	CygbuildEcho "-- Perl install fix: $from"
+
+	#   /usr/share/perl/cygwin-pods/linklint.pod
+	#   ...
+	#   C<EXE_FILES: linklint-2.3.5>
+
+	local commands="\
+from='$from'
+to='$to'
+grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 "
 
-        CygbuildPostinstallWrite "$commands" || return $?
+	CygbuildPostinstallWriteMain "Perl" "$commands" || return $?
 
+    done < $retval
+
+# FIXME: remove
+    #   Remove perl directory if there are no files in it
+
+#     local libdir="$instdir/usr/lib"
+
+#     file=
+
+#     while read file
+#     do
+#       break
+#     done <  <(find "$libdir/perl5" -type f)
+
+#     if [  "$file" ]; then
+#       rm -rf "$libdir/perl5"
+#       CygbuildIsDirEmpty "$libdir" && rmdir "$libdir"
+#    fi
+
+}
+
+function CygbuildPod2man()
+{
+    local file=$1
+    local mansect=$2
+    local Destdir=$3
+
+    local dir="."                                       # Not used now
+
+    if [[ "$file" == */* ]]; then
+	dir=${file%/*}
+    fi
+
+    local package=${file##*/}
+    local package=${package%.*}
+
+    if [ "$mansect" = "" ]; then
+	mansect="1"
+
+	#  program.1
+
+	if [[ $package == *.[0-9] ]]; then
+	    mansect=${package##*.}
+	    package=${package%.$mansect}
+	fi
+    fi
+
+    local date=$(date "+%Y-%m-%d")
+    local podcenter=$date
+
+    local mandir="$instdir/usr/share/man"
+    local destdir="${Destdir:-$mandir/man$mansect}"
+    local manpage="$destdir/$package.$mansect"
+
+    mkdir --parents $destdir
+
+    # --official --release 0.4
+
+    pod2man --center="$podcenter" \
+	    --name="$package" \
+	    --section="$mansect" \
+	    --release="$date" \
+	    $file \
+    | sed "s,[Pp]erl v[0-9.]\+,$package," > $manpage &&
+    rm --force pod*.tmp
+}
+
+function CygbuildMakeRunInstallFixPerlManpage()
+{
+    local id="$0.$FUNCNAME"
+    local bindir="$instdir/usr/bin"
+
+    [ -d "$bindir" ] || return 0
+
+    #  See if we can use POD section to generate manuals
+
+    local mandir="$instdir/usr/share/man"
+    local destdir="$mandir/man1"
+    local file name manpage _file
+
+    for file in $bindir/*
+    do
+	_file=${file#$srcdir/}
+	name=${file##*/}
+	name=${name%.pl}
+	manpage="$destdir/$name.1"
+
+	if [ ! -f "$manpage" ]; then
+	    if $EGREP --quiet "^=cut" $file ; then
+		CygbuildEcho "-- [NOTE] Making POD manpage from $_file"
+		CygbuildPod2man "$file"
+	    else
+		:
+		# FIXME: Is this check correct?
+		# CygbuildVerb "-- [NOTE] possibly no manpage for $_file"
+	    fi
+	fi
     done
+}
+
+function CygbuildMakeRunInstallFixPerlMain()
+{
+    local id="$0.$FUNCNAME"
+
+    local retval=$CYGBUILD_RETVAL.$FUNCNAM
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
+
+    [ "$module" ] || return 0
+
+    CygbuildMakeRunInstallFixPerlPostinstall "$module"
 }
 
 function CygbuildMakefilePrefixCheck()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local makefile="$1"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildMakefileName > $retval
-    local makefile=$(< $retval)
-
-    if [ ! "$makefile" ] ; then
-        return 0
+    if [ ! "$makefile" ] || [ ! -f "$makefile" ] ; then
+	return 0
     fi
 
     CygbuildIsDestdirSupported
     local destdir=$?
 
-    if [ "$destdir" != "0" ]; then
+    if [ ! "$destdir" = "0" ]; then
 
-        #   In some very weird cases, File::Find.pm dies with
-        #   symbolic links, so we might end here saying "no destdir".
-        #   Double check the situation with grep. Do we see line like:
-        #
-        #    $(INSTALL) -d $(DESTDIR)$(exec_prefix)/bin
+	#   In some very weird cases, File::Find.pm dies with
+	#   symbolic links, so we might end here saying "no destdir".
+	#   Double check the situation with grep. Do we see line like:
+	#
+	#    $(INSTALL) -d $(DESTDIR)$(exec_prefix)/bin
 
-        local list
+	local list
 
-        [ -f src/Makefile    ] && list="$list src/Makefile"
-        [ -f source/Makefile ] && list="$list source/Makefile"
+	[ -f src/Makefile    ] && list="$list src/Makefile"
+	[ -f source/Makefile ] && list="$list source/Makefile"
 
-        local opt
+	local opt
 
-        [ ! "$verbose" ] && opt="-q"
+	[ ! "$verbose" ] && opt="-q"
 
-        if $EGREP $opt \
-           "^[ \t]*DESTDIR|^[^ \t]+=.*DESTDIR|^[^#].*[$][({]DESTDIR" \
-           $makefile $list
-        then
-            destdir=0
-        fi
+	if $EGREP $opt \
+	   "^[[:space:]]*DESTDIR|^[^[:space:]]+=.*DESTDIR|^[^#].*[$][({]DESTDIR" \
+	   $makefile $list 2> /dev/null
+	then
+	    destdir=0
+	fi
     fi
 
     #   There is no DESTDIR support, so try to see if Makefile uses
     #   'prefix' then
 
-    if [ "$destdir" != "0" ]; then
+    if [ ! "$destdir" = "0" ]; then
 
-        local re='^[ \t]*(prefix)[ \t]*='
+	#   "prefix ?= /usr/local"
 
-        $EGREP "$re" $makefile # >  /dev/null  2>&1
-        status=$?
+	local pre='^[[:space:]]*prefix[[:space:]]*[+?]?='
+	local Pre='^[[:space:]]*PREFIX[[:space:]]*[+?]?='
 
-        if [ ! "$OPTION_PREFIX"  ] && [ "$status" = "0" ]; then
-            #  There was statement "prefix="
-            echo "--   Makefile may not use DESTDIR, adjusting \$prefix."
-            OPTION_PREFIX="automatic"       # global-def
-        else
+	#   Some packages have directories: Makefile.inc/
+	#   Because this is builddir, all files are symlinks, so "ls -F"
+	#   reports "Makefile@". Ignore patch reject files.
 
-            if MakefileUsesRedirect $makefile ; then
-                echo "--     Hm, Makefile seems to use redirect option -C"
-                return 0
-            fi
+	ls -F | awk '
+	    ! /\.(orig|rej)/ && /(\.mk|[Mm]akefile).*@/ {
+		sub("@","");
+		print
+	    }' > $retval
 
-            local file="$DIR_CYGPATCH/install.sh"
-            local msg
+	CygbuildEcho "-- Makefile may not use DESTDIR"
 
-            if [ ! -f $file ]; then
-                msg=". You may need to write custom install.sh"
-            fi
+	if [ -s $retval ]; then
 
-            CygbuildWarn \
-                "--   [WARN] Makefile may not use variables 'DESTDIR'" \
-                "or 'prefix'$msg"
+	    if $EGREP "$pre" $(< $retval) 2> /dev/null ; then
+		OPTION_PREFIX_MODE="automatic-prefix"
+		return 0
+	    fi
 
-        fi
+	    if $EGREP "$Pre" $(< $retval) 2> /dev/null ; then
+		OPTION_PREFIX_MODE="automatic-PREFIX"
+		return 0
+	    fi
+	fi
+
+	if MakefileUsesRedirect $makefile ; then
+	    CygbuildEcho "-- Hm, Makefile seems to use redirect option -C"
+	    return 0
+	fi
+
+	local file="$DIR_CYGPATCH/install.sh"
+	local msg
+
+	if [ ! -f $file ]; then
+	    msg=". You may need to patch makefile or write install.sh"
+	fi
+
+	CygbuildWarn \
+	    "-- [WARN] Makefile may not use variables 'DESTDIR'" \
+	    "or prefix/PREFIX$msg"
     fi
-}
-
-function CygbuildMakefileRunClean()
-{
-    #   Before making a patch, a "make distclean" should be run
-
-    local id="$0.$FUNCNAME"
-    local dir=$builddir
-
-    echo "-- Running 'make clean' in $dir"
-
-    local status=0
-
-    CygbuildPushd
-        cd $dir || exit 1
-        $MAKE clean
-        status=$?
-    CygbuildPopd
-
-    return $status
 }
 
 function CygbuildPythonCompileFiles()
@@ -5525,19 +6907,19 @@ function CygbuildPythonCompileFiles()
     #   sys.platform  will return: win32, cygwin, darwin, linux
     #   and os.name will indicate 'posix' as needed.
 
-    $PYTHON -c '
+    python -c '
 import os, sys, py_compile
 verbose = sys.argv[1]
 
-for arg in  sys.argv[2:]:
-        file  = os.path.basename(arg)
-        dir   = os.path.dirname(arg)
-        if os.path.exists(dir):
-            os.chdir(dir)
-            if verbose:
-                print "--   [Python] compiling %s" % (file)
-            py_compile.compile(file)
-    ' "${verbose+1}" "$@"
+for arg in sys.argv[2:]:
+	file = os.path.basename(arg)
+	dir  = os.path.dirname(arg)
+	if os.path.exists(dir):
+	    os.chdir(dir)
+	    if verbose:
+		print "-- Python compile %s" % (file)
+	    py_compile.compile(file)
+    ' "${verbose:+1}" "$@"
 }
 
 function CygbuildPythonCompileDir()
@@ -5548,7 +6930,7 @@ function CygbuildPythonCompileDir()
     #   See "Compiling Python Code" by Fredrik Lundh
     #   http://effbot.org/zone/python-compile.htm
 
-    $PYTHON -c '
+    python -c '
 import os, sys, compileall
 dir = sys.argv[1]
 compileall.compile_dir(dir, force=1)
@@ -5558,31 +6940,45 @@ compileall.compile_dir(dir, force=1)
 function CygbuildMakefileRunInstallPythonFix()
 {
     local id="$0.CygbuildMakefileRunInstallPythonFix"
-
-    #   Fix /usr/share/bin to /usr/bin
-    #   Fix /usr/share/lib to /usr/lib
-
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local root="$instdir$CYGBUILD_PREFIX"
     local dir dest
 
     if [ -d $root/bin/lib/python* ]; then
-        #  .inst/usr/bin/lib/python2.4/site-packages/foo/...
+	#  .inst/usr/bin/lib/python2.4/site-packages/foo/...
 
-        mv $verbose "$root/bin/lib" "$root/" ||
-           CygbuildDie "Error in $id"
+	mv $verbose "$root/bin/lib" "$root/" ||
+	    CygbuildDie "$id: mv error"
 
-        $RMDIR "$root/bin"
+	# [ -d "$root/bin" ] && rmdir "$root/bin"
     fi
 
-    for dir in $root/share/bin \
-               $root/share/lib
-    do
-        dest=$dir/../..
+    #   Move /usr/share/bin to /usr/bin
+    #   Move /usr/share/lib to /usr/lib
 
-        if [ -d "$dir" ]; then
-            $MV $verbose "$dir/" "$dest/" ||
-               CygbuildDie "Error in $id"
-        fi
+    for dir in $root/share/bin \
+	       $root/share/lib
+    do
+	dest=$dir/../..
+
+	if [ -d "$dir" ]; then
+	    mv $verbose "$dir/" "$dest/" ||
+	       CygbuildDie "$id: mv error"
+	fi
+    done
+
+    #   For some reason the manual pages may be at .inst/man1
+
+    local mandir="$CYGBUILD_PREFIX/$prefix_man"
+
+    for dir in $instdir/{man1,man3,man5,man8}
+    do
+	[ -d $dir ] || continue
+
+	$INSTALL_SCRIPT $INSTALL_BIN_MODES -d $instdir
+
+	mv $verbose "$dir" "$dest" ||
+	    CygbuildDie "$id: mv error"
     done
 
     #   For some reason compiled python objects from
@@ -5595,19 +6991,73 @@ function CygbuildMakefileRunInstallPythonFix()
 
     local list rmlist
 
-    rmlist=$(find $instdir -type f -name "*.pyc")
+    find $instdir -type f -name "*.pyc" > $retval
+    rmlist=$(< $retval)
 
     if [ "$rmlist" ]; then
-        list=$(echo "$rmlist" | $SED 's/\.pyc/.py/g' )
-        rm $rmlist
-        echo "--   Recompiling python files [may take a while...]"
-        CygbuildPythonCompileFiles $list
+	list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
+	rm $rmlist
+	CygbuildEcho "-- Recompiling python files (may take a while...)"
+	CygbuildPythonCompileFiles $list
     fi
+}
+
+function CygbuildRunShell()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    local env
+    CygbuildShellEnvironenment > $retval
+    [ -s $retval ] && env=$(< $retval)
+
+    CygbuildVerb "-- Running $(eval $env) $@"
+
+    eval ${test:+echo} $env "$@"
+}
+
+function CygbuildRunRubySetupCmd()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    CygbuildVerb "-- Running Ruby command: $*"
+
+    CygbuildRunShell ruby setup.rb "$@" > $retval 2>&1
+    local status=$?
+
+    if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
+	cat $retval
+    fi
+
+    return $status
+}
+
+function CygbuildMakefileRunInstallRubyMain()
+{
+    local root="$instdir"
+
+    local pfx=${1:-$root}
+    [ "$1" ] && shift
+
+    CygbuildRunRubySetupCmd \
+	install             \
+	--prefix=$pfx
 }
 
 function CygbuildRunPythonSetupCmd()
 {
-    CygbuildRunShell $PYTHON setup.py "$@"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    CygbuildVerb "-- Running Python command: $*"
+
+    CygbuildRunShell python setup.py "$@" > $retval 2>&1
+    local status=$?
+
+    if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
+	cat $retval
+    fi
+
+    return $status
 }
 
 function CygbuildMakefileRunInstallPythonMain()
@@ -5615,11 +7065,13 @@ function CygbuildMakefileRunInstallPythonMain()
     local root="$instdir$CYGBUILD_PREFIX"
 
     local pfx=${1:-$root}
-    local docpfx=${2:-$root/share/doc}
-    local rest=$3
+    [ "$1" ] && shift
+
+    local docpfx=${1:-$root/share/doc}
+    [ "$1" ] && shift
 
     #   See "2 Standard Build and Install" and section 3, 4
-    #   http://python.active-venture.com/inst/standard-install.html
+    #   http://docs.python.org/inst/standard-install.html
 
     #   IT is not possible to define "home" AND prefix variables.
     #   This does not work: --home=$instdir
@@ -5628,10 +7080,10 @@ function CygbuildMakefileRunInstallPythonMain()
     #   no matter where --exec-prefix is set to.
 
     CygbuildRunPythonSetupCmd       \
-         install                    \
-         --prefix=$pfx/share        \
-         --exec-prefix=$pfx/bin     \
-         $rest
+	 install                    \
+	 --prefix=$pfx              \
+	 --exec-prefix=$pfx/bin     \
+	 ${1:-"$@"}
 }
 
 function CygbuildMakefileRunPythonInDir ()
@@ -5642,8 +7094,8 @@ function CygbuildMakefileRunPythonInDir ()
     [ ! "$dir" ] && CygbuildDie "$id: Missing ARG"
 
     CygbuildPushd
-        cd $dir || exit 1
-        CygbuildRunPythonSetupCmd "$@"
+	cd $dir || exit 1
+	CygbuildRunPythonSetupCmd "$@"
     CygbuildPopd
 }
 
@@ -5652,83 +7104,119 @@ CygbuildMakefileRunPythonClean ()
     CygbuildMakefileRunPythonInDir "$builddir" clean
 }
 
+function CygbuildMakefilePrefixIsStandard ()
+{
+    local id="$0.$FUNCNAME"
+    local opt up lower
+    local files=$(ls "$@" *.mk 2> /dev/null)
+
+    [ "$verbose" ] || opt="-q"
+    [ "$files"   ] || return 0
+
+    if $EGREP $opt "^[[:space:]]*PREFIX[[:space:]]*[+?]?=" $files
+    then
+	up="PREFIX"
+    fi
+
+    if $EGREP $opt "^[[:space:]]*prefix[[:space:]]*[+?]?=" $files
+    then
+	lower="prefix"
+    fi
+
+    if [ ! "$lower" ]; then
+	if [ "$up" ]; then
+	    CygbuildVerb "-- [NOTE] No prefix= but PREFIX= found."
+	    return 1
+	else
+	    CygbuildWarn "-- [WARN] Makefile prefix= not found."
+	fi
+    fi
+}
+
 function CygbuildMakefileRunInstallCygwinOptions()
 {
     local id="$0.$FUNCNAME"
-    local pfx=${1:-$CYGBUILD_PREFIX}
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local pfx=${1:-"prefix=$CYGBUILD_PREFIX"}
     local docpfx=${2:-$CYGBUILD_DOCDIR_FULL}
     local rest=$3
 
-    local makeEnv=$EXTRA_ENV_OPTIONS_INSTALL
+    local makeEnv="$EXTRA_ENV_OPTIONS_INSTALL"
     local test=${test:+"-n"}
 
     if [ $test ]; then
-        echo "--   [INFO] make(1) called with -n (test mode, no real install)"
+	CygbuildEcho "-- [INFO] make(1) called with -n" \
+		     "(test mode, no real install)"
     fi
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local makefile
     CygbuildMakefileName > $retval
-    local makefile=$(< $retval)
+    [ -s $retval ] && makefile=$(< $retval)
+
+    CygbuildExitIfEmpty "$makefile" \
+	"$id: [FATAL] Disk read error?. \$makefile variable is empty"
 
     if [ "$CYGBUILD_MAKEFLAGS" ]; then
-        echo "--     Extra make flags: $CYGBUILD_MAKEFLAGS"
+	CygbuildEcho "-- Extra make flags: $CYGBUILD_MAKEFLAGS"
     fi
 
-    #   inside subshell the [source] command does not pollute
-    #   current namespace.
+    #   Use subshell. The 'source' command does not pollute
+    #   current environment.
 
     (
-        if [ -f "$makeEnv" ]; then
-            echo "--     Reading external env: $makeEnv" \
-                 " $makeEnv $instdir $CYGBUILD_PREFIX $exec_prefix"
-            source $makeEnv || exit $?
-        fi
+	if [ -f "$makeEnv" ]; then
+	    CygbuildEcho "--- Reading external env: $makeEnv" \
+		 " $makeEnv $instdir $CYGBUILD_PREFIX $exec_prefix"
+	    source $makeEnv || exit $?
+	fi
 
-        local docdir=$instdir/$CYGBUILD_DOCDIR_FULL
+	local docdir="$DIR_DOC_GENERAL"
 
-        #   Run install with Cygwin options
+	#   Run install with Cygwin options
 
-        $MAKE -f $makefile $test        \
-             DESTDIR=$instdir           \
-             DOCDIR=$docdir             \
-             prefix=$pfx                \
-             exec_prefix=$pfx           \
-             man_prefix=$docpfx         \
-             info_prefix=$docpfx        \
-             bin_prefix=                \
-             $rest                      \
-             $CYGBUILD_MAKEFLAGS        \
-             install
+	[ "$verbose" ] && set -x
+
+	make -f $makefile $test         \
+	     DESTDIR=$instdir           \
+	     DOCDIR=$docdir             \
+	     $pfx                       \
+	     exec_prefix=${pfx#*=}      \
+	     man_prefix=$docpfx         \
+	     info_prefix=$docpfx        \
+	     bin_prefix=                \
+	     $rest                      \
+	     $CYGBUILD_MAKEFLAGS        \
+	     install
     )
 }
 
 function CygbuildMakefileRunInstallFixInfo()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    #   If there are info files, the 'dir' must be remoed, otherwise
+    #   If there are info files, the 'dir' must be removed, otherwise
     #   it would overwrite the central DIR when unpackad.
     #
     #       .inst/usr/share/info/package.info
     #       .inst/usr/share/info/dir
 
-    if ! $FIND $instdir -name dir > $retval; then
-        return
+    if ! find $instdir -name dir > $retval; then
+	return
     fi
 
     local file
 
-    for file in $(< $retval)
+    while read file
     do
-        local name=$DIR_CYGPATCH/postinstall.sh
+	local name=$DIR_CYGPATCH/postinstall.sh
 
-        if [ ! -f "$name" ]; then
-            echo "--   [WARN] removing $file, so you need $name"
-        fi
+	if [ ! -f "$name" ]; then
+	    CygbuildWarn "-- [WARN] removing $file, so you need $name"
+	fi
 
-        $RM $file
-    done
+	rm $file
+    done < $retval
 }
 
 function CygbuildMakefileRunInstallFixMain()
@@ -5737,10 +7225,10 @@ function CygbuildMakefileRunInstallFixMain()
     CygbuildMakefileRunInstallFixInfo
 }
 
-function CygbuildMakefileRunInstall()
+function CygbuildMakefileRunInstallMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local makeScript=$SCRIPT_INSTALL_MAKE_CYGFILE
     local status=0
 
@@ -5749,104 +7237,133 @@ function CygbuildMakefileRunInstall()
 
     #   install under .inst/
 
-    echo "--   Running 'make install' (or equiv.) in $builddir"
+    CygbuildEcho "-- Running 'make install' (or equiv.) in" \
+		 ${builddir#$srcdir/}
 
     if [ -f "$makeScript" ]; then
 
-        echo "--     Running external make: $makeScript" \
-             "$instdir $CYGBUILD_PREFIX $exec_prefix"
+	CygbuildEcho "--- Running external make:" ${makeScript#$srcdir/} \
+	     ${instdir#$srcdir/}        \
+	     $CYGBUILD_PREFIX           \
+	     ${exec_prefix#$srcdir/}
 
-        echo "$id: NOT YET IMPLEMENTED"
+	echo "$id: NOT YET IMPLEMENTED"
 
-        #todo: unfinished idea.
-        exit 1
+	#todo: FIXME unfinished idea.
+	exit 1
 
-        CygbuildPushd
-            cd $builddir || exit 1
-            $makeScript "$instdir" "$CYGBUILD_PREFIX" "$exec_prefix"
-            status=$?
-        CygbuildPopd
+	CygbuildPushd
+	    cd $builddir || exit 1
+	    $makeScript "$instdir" "$CYGBUILD_PREFIX" "$exec_prefix"
+	    status=$?
+	CygbuildPopd
 
-        return $status
+	return $status
 
     elif CygbuildIsPythonPackage ; then
 
-        echo "--   ... Looks like Python package [install]"
+	CygbuildVerb "-- ... Looks like Python package [install]"
 
-        CygbuildPushd
-            cd $builddir || exit 1
-            CygbuildMakefileRunInstallPythonMain &&
-            CygbuildMakefileRunInstallPythonFix
-            status=$?
-        CygbuildPopd
+	CygbuildPushd
+	    cd $builddir || exit 1
+	    CygbuildMakefileRunInstallPythonMain &&
+	    CygbuildMakefileRunInstallPythonFix
+	    status=$?
+	CygbuildPopd
 
-        return $status
+	return $status
+
+    elif CygbuildIsRubyPackage ; then
+
+	CygbuildVerb "-- ... Looks like Ruby package [install]"
+
+	CygbuildPushd
+	    cd $builddir || exit 1
+	    CygbuildMakefileRunInstallRubyMain
+	    status=$?
+
+	CygbuildPopd
+
+	return $status
 
     elif CygbuildIsPerlPackage ; then
 
-        #  - Perl already created a Makefile from Makefile.PL, so ...
-        #  - Perl makefiles use DESTDIR, but the configure phase already
-        #    set the PREFIX, so DESTDIR would cause bad karma at this point
+	#  - Perl creates Makefile from Makefile.PL
+	#  - Set the PREFIX, so DESTDIR.
 
-        echo "--   ... Looks like Perl package"
+	local pfx="$instdir$CYGBUILD_PREFIX"
+	local PFX="PREFIX=$pfx"
 
-        CygbuildPushd
-            cd $builddir || exit 1
-            CygbuildMakefileRunInstallCygwinOptions &&
-            CygbuildMakeRunInstallFixPerl           &&
-            CygbuildInstallCygwinPartPostinstall
-            status=$?
-        CygbuildPopd
+	CygbuildVerb "-- ... Looks like Perl package"
 
-        return $status
+	CygbuildPushd
+	    cd $builddir || exit 1
+	    CygbuildMakefileRunInstallCygwinOptions "$PFX" &&
+	    CygbuildMakeRunInstallFixPerlMain       &&
+	    CygbuildInstallCygwinPartPostinstall
+	    status=$?
+	CygbuildPopd
 
-    elif [ -f "$makefile" ]; then
+	return $status
 
-        #   DESTDIR is standard GNU ./configure macro,
-        #   which points to root of install.
-        #   prefix and exec_prefix are relative to it.
-        #
-        #   Debian package uses @bin_prefix@ to install
-        #   programs under another name. Do not set it
+    elif [ "$makefile" ] && [ -f "$makefile" ]; then
 
-        local pfx=$CYGBUILD_PREFIX
+	#   DESTDIR is standard GNU ./configure macro,
+	#   which points to root of install.
+	#   prefix and exec_prefix are relative to it.
+	#
+	#   Debian package uses @bin_prefix@ to install
+	#   programs under another name. Do not set it
 
-        if CygbuildIsAutotoolPackage ; then
-            CygbuildVerb "--   ...Looks like standard autotool package"
-        else
-            CygbuildMakefilePrefixCheck
-        fi
+	local pfx="$CYGBUILD_PREFIX"
 
-        if [ "$OPTION_PREFIX" ]; then
+	if CygbuildIsAutotoolPackage ; then
+	    CygbuildVerb "-- ...Looks like standard autotool package"
+	fi
 
-            #  Debian packages do not use DESTDIR, so the only
-            #  possibility to guide the installation process is to set
-            #  prefix for Makefile
+	CygbuildMakefilePrefixCheck "$makefile"
 
-            pfx=$instdir/$CYGBUILD_PREFIX
-        fi
+	local pvar="prefix"
 
-        CygbuildConfigureOptionsExtra > $retval
-        local extra=$(< $retval)
+	if [[ "$OPTION_PREFIX_MODE" == *automatic-* ]]; then
+	    pvar=${OPTION_PREFIX_MODE#*-}  # automatic-PREFIX => PREFIX
 
-        #  GNU autoconf uses 'prefix'
+	    #  Packages that do not use DESTDIR
+	    pfx="$instdir$CYGBUILD_PREFIX"
 
-        local docprefix=/$CYGBUILD_DOCDIR_PREFIX_RELATIVE
+	elif [ "$OPTION_PREFIX_MODE" ]; then        # User option
+	    pfx="$instdir$OPTION_PREFIX_MODE"
+	fi
 
-        CygbuildPushd
-            cd $builddir || exit 1
-            CygbuildMakefileRunInstallCygwinOptions "$pfx" "$docprefix"
-            status=$?
-        CygbuildPopd
+	CygbuildConfigureOptionsExtra > $retval
+	local extra=$(< $retval)
 
-        return $status
+	#  GNU autoconf uses 'prefix'
+
+	local docprefix="/$CYGBUILD_DOCDIR_PREFIX_RELATIVE"
+	pfx=${pfx%/}                                # remove trailing slash
+
+	local PFX="$pvar=$pfx"
+
+	if ! CygbuildMakefilePrefixIsStandard "$makefile"; then
+	    CygbuildVerb "-- Using PREFIX variable"
+	    PFX="PREFIX=$pfx"
+	fi
+
+	CygbuildPushd
+	    cd $builddir || exit 1
+	    CygbuildMakefileRunInstallCygwinOptions "$PFX" "$docprefix"
+	    status=$?
+	CygbuildPopd
+
+	return $status
 
     else
 
-        CygbuildWarn "--     [WARN] There is no Makefile." \
-             "Did you forget to run [configure]?"
+	CygbuildNoticeBuilddirMaybe
 
-        CygbuildDebianRules2MakefileMaybe
+	CygbuildWarn "-- [WARN] There is no Makefile." \
+	     "Did you forget to run [configure] or repeat [shadow]?"
 
     fi
 }
@@ -5862,26 +7379,26 @@ function CygbuildCmdMkdirs()
     local id="$0.$FUNCNAME"
     local verbose="$1"
 
-    echo "-- Making Cygwin directories under $srcdir"
+    CygbuildVerb "-- Making Cygwin directories under $srcdir"
     local status=0
     local dir
 
     CygbuildPushd
 
-        cd $srcdir || exit 1
+	cd $srcdir || exit 1
 
-        for dir in $builddir $instdir $srcinstdir $DIR_CYGPATCH
-        do
-            if [ -d "$dir" ]; then
-                CygbuildVerb "--   Skipped; already exists $dir"
-                continue
-            fi
+	for dir in $builddir $instdir $srcinstdir $DIR_CYGPATCH
+	do
+	    if [ -d "$dir" ]; then
+		CygbuildVerb "-- Skipped; already exists $dir"
+		continue
+	    fi
 
-            if ! CygbuildRun $MKDIR $verbose -p "$dir" ; then
-                status=$?
-                break
-            fi
-        done
+	    if ! CygbuildRun mkdir $verbose -p "$dir" ; then
+		status=$?
+		break
+	    fi
+	done
 
     CygbuildPopd
 
@@ -5892,22 +7409,22 @@ function CygbuildExtractTar()
 {
     local id="$0.$FUNCNAME"
     local file=$SRC_ORIG_PKG
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   Check that CygbuildDefineGlobalSrcOrig
     #   defined variables correctly
 
     if ! CygbuildDefineGlobalSrcOrig ; then
-        echo "$id: [ERROR] Original source kit location not known, see -f."
-        return 1
+	echo "$id: [ERROR] Original source kit location not known, see -f."
+	return 1
     fi
 
     local file=$SRC_ORIG_PKG
 
     if [ ! -f "$file" ]; then
-        CygbuildWarn "$id: [FATAL] $file not found. Check" \
-             "function CygbuildDefineGlobalMain()"
-        return 1
+	CygbuildWarn "$id: [FATAL] $file not found. Check" \
+	     "function CygbuildDefineGlobalMain()"
+	return 1
     fi
 
     CygbuildStrPackage $file > $retval
@@ -5917,75 +7434,75 @@ function CygbuildExtractTar()
     local ver=$(< $retval)
 
     if [ ! "$package" ] || [ ! "$ver" ]; then
-        CygbuildWarn "$id: [FATAL] $file does not look like package-N.N.tar.* "
-        return 1
+	CygbuildWarn "$id: [FATAL] $file does not look like package-N.N.tar.* "
+	return 1
     fi
 
-    local expectdir=$package-$ver
-    local z
+    local expectdir="$package-$ver"
+
     CygbuildTarOptionCompress $file > $retval
-    [ -s $retval ] && z=$(< $retval)
+    local z=$(< $retval)
 
     #   Look inside archive to see what directry it contains.
     #   WE need this in case original source does not have
     #   structure at all or has weird directory.
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildTarDirectory $file > $retval || return $?
     local dir=$(< $retval)
 
-    local opt="$verbose --no-same-owner -${z}xf "
-    echo "-- Extracting $file"
+    local opt="$verbose --no-same-owner $z --extract --file"
+    CygbuildEcho "-- Extracting $file"
 
     if [ "$dir" != "$expectdir" ]; then
-        echo "--    [WARN] archive does not contain $expectdir/"
+	CygbuildEcho "-- [WARN] archive does not contain $expectdir/"
     fi
 
     if [[ "$dir" != *[a-zA-Z]* ]]; then
 
-        echo "--    Hm,  archive does not have good subdirectory, so" \
-             "creating dir $expectdir and unpacking there"
-        $MKDIR "$expectdir" || return $?
+	CygbuildEcho "-- Hm,  archive does not have good subdirectory, so" \
+	     "creating dir $expectdir and unpacking there"
+	mkdir "$expectdir" || return $?
 
-        local status=0
+	local status=0
 
-        $TAR -C "$expectdir" $opt "$file"  ||
-        {
-            status=$?
-            CygbuildPopd
-            return $status
-        }
+	tar --directory "$expectdir" $opt "$file"  ||
+	{
+	    status=$?
+	    CygbuildPopd
+	    return $status
+	}
 
     else
 
-        if [ -d "$dir" ] ; then
-            CygbuildDie \
-                "--   [ERROR] Cannot unpack, existing directory found: $dir"
-        fi
+	if [ -d "$dir" ] ; then
+	    CygbuildDie \
+		"-- [ERROR] Cannot unpack, existing directory found: $dir"
+	fi
 
-        $TAR $opt $file || return $?
+	tar $opt "$file" || return $?
 
-        if [ "$dir" != "$expectdir" ]; then
+	if [ "$dir" != "$expectdir" ]; then
 
-            #   Sometimes package name only varies in case, which is not good
-            #       LibVNCServer-0.6  <=> libvncserver-0.6
-            #   Windows cannot rename such directory because it would be the
-            #   same.
+	    #   Sometimes package name only varies in case, which is not good
+	    #       LibVNCServer-0.6  <=> libvncserver-0.6
+	    #   Windows cannot rename such directory because it would be the
+	    #   same.
 
-            echo $dir | $TR 'A-Z' 'a-z' > $retval
-            local name1=$(< $retval)
+	    echo $dir | tr 'A-Z' 'a-z' > $retval
+	    local name1=$(< $retval)
 
-            echo $$expectdir | $TR 'A-Z' 'a-z' > $retval
-            local name2=$(< $retval)
+	    echo $$expectdir | tr 'A-Z' 'a-z' > $retval
+	    local name2=$(< $retval)
 
-            if [ "$name2" = "$name1" ]; then
-                echo "--     Interesting, unpack dir $dir => $name2 - Skipped"
-            else
-                echo "--     Renaming unpack dir: mv $dir $expectdir"
-                $MV "$dir" "$expectdir" || return $?
-            fi
+	    if [ "$name2" = "$name1" ]; then
+		CygbuildEcho "-- Unpack dir $dir is same $name2 - Skipped"
+	    else
+		CygbuildEcho "-- Renaming unpack dir: mv $dir $expectdir"
+		mv "$dir" "$expectdir" || return $?
+	    fi
 
-        fi
+	fi
     fi
 }
 
@@ -5993,14 +7510,14 @@ function CygbuildExtractWithScript()
 {
     local id="$0.$FUNCNAME"
     local prg="$1"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if [ ! "$srcdir" ]; then
-        echo "$id: [FATAL] 'srcdir' not defined"
-        return 1
+	echo "$id: [FATAL] 'srcdir' not defined"
+	return 1
     fi
 
-    echo "--    [NOTE] Getting external sources with $file"
+    CygbuildEcho "--- Getting external sources with: $file"
 
     #   Now run the script and if it succeeds, we are ready to proceed to
     #   patching
@@ -6009,37 +7526,41 @@ function CygbuildExtractWithScript()
 
     ./$prg  && \
     {
-        if [ ! -d "$srcdir" ]; then
-            #  The sript did not unpack to package-N.N, fix it
+	if [ ! -d "$srcdir" ]; then
+	    #  The sript did not unpack to package-N.N, fix it
 
-            CygbuildGetOneDir > $retval
-            dir=$(< $retval)
+	    CygbuildGetOneDir > $retval
+	    dir=$(< $retval)
 
-            #   Good, there no more than ONE directory, which
-            #   was just made by that script.
+	    #   Good, there no more than ONE directory, which
+	    #   was just made by that script.
 
-            to=$(basename $srcdir)
+	    to=$(basename $srcdir)
 
-            if [ "$dir" ]; then
-                echo "--    [!!] Download done. Symlinking $dir => $to" \
-                     "in $(pwd)"
-                $LN -s "$dir" "$to" || CygbuildDie "-- [FATAL] symlink failed"
-                $MKDIR -p "$srcdir" || CygbuildDie "-- [FATAL] mkdir failed"
-            fi
-        fi
+	    if [ "$dir" ]; then
+		CygbuildEcho "-- [!!] Download done. Symlinking $dir => $to" \
+		     "in $(pwd)"
+
+		ln --symbolic "$dir" "$to" ||
+		    CygbuildDie "-- [FATAL] symlink failed"
+
+		mkdir --parents "$srcdir" ||
+		    CygbuildDie "-- [FATAL] mkdir failed"
+	    fi
+	fi
     }
 }
 
 function CygbuildExtractMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     if CygbuildSourceDownloadScript > $retval ; then
-        local file=$(< $retval)
-        CygbuildExtractWithScript $file
+	local file=$(< $retval)
+	CygbuildExtractWithScript $file
     else
-        CygbuildExtractTar
+	CygbuildExtractTar
     fi
 }
 
@@ -6049,253 +7570,129 @@ function CygbuildExtractMain()
 #
 #######################################################################
 
+function CygbuildPatchListDisplay()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$CYGPATCH_DONE_PATCHES_FILE"
+
+    if [ -s "$file" ]; then
+	CygbuildEcho "-- [INFO] Applied local patches"
+	sort --unique $file
+    fi
+}
+
+function CygbuildPatchDiffstat()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$1"
+
+    if [ ! "$file" ]; then
+	CygbuildWarn "$id: Missing argument FILE"
+	return 1
+    fi
+
+    CygbuildWhichCheck diffstat || return 0
+
+    local check="$file"
+
+    #  We're not interested in CYGWIN-PATCHES/
+
+    if CygbuildWhichCheck filterdiff ; then
+	$EGREP -v "^diff " $file |
+	filterdiff -x "*$CYGBUILD_DIR_CYGPATCH_RELATIVE*" > $retval.diff
+
+	check="$retval.diff"
+    fi
+
+    [ -s "$check" ] && diffstat "$check"
+}
+
 function CygbuildPatchCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local file
-
-    file="$CYGPATCH_DONE_PATCHES_FILE"
-
-    if [ -f "$file" ]; then
-        echo "--   [INFO] Applied local patches"
-        cat $file | sed "s,^,$DIR_CYGPATCH_RELATIVE/,"
-    fi
-
-    file="$FILE_SRC_PATCH"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$FILE_SRC_PATCH"
 
     if [ -f "$file" ]; then
 
-        if [ "$verbose" ]; then
-            echo "--   [INFO] Patch contains files"
-            $AWK '/^\+\+\+ / { print "     " $2}' $file
-        fi
+	local _file=${file#$srcdir/}   # Relative path name
 
-        #  Seldom anyone makes changes in C-code or headers
-        #  files. Let user audit these changes.
-        #
-        # --- src/lex.yy.c   2000-04-01 18:33:34.000000000 +0000
-        # +++ new/lex.yy.c   2004-01-29 18:04:18.000000000 +0000
+	if [ "$verbose" ]; then
+	    CygbuildEcho "-- content of $_file"
+	    awk '/^\+\+\+ / { print "   " $2}' $file > $retval
 
-        local notes
-        $EGREP -ie '^(\+\+\+).*\.([ch]|cc|cpp)\>' $file > $retval
-        [ -s $retval ] && notes=$(< $retval)
+	    #  Arrange listing a little. Subdirectories last.
+	    #    foo-2.5/CYGWIN-PATCHES/foo.README
+	    #    foo-2.5/CYGWIN-PATCHES/patches/...
 
-        if [ "$notes" ]; then
-            CygbuildWarn "--   [WARN] Patch check. Please verify $file"
-            echo "--   [NOTE] I'm just cautious. Perhaps files below"
-            echo "--   [NOTE] are auto-generated or modified by you."
-            CygbuildWarn "$notes"
-            return 0
-        fi
+	    $EGREP "/.+/.+/"    $retval > $retval.dir
 
-        notes=""
+	    if [ -s "$retval.dir" ]; then
+		$GREP --invert-match --fixed-strings \
+		    --file=$retval.dir  $retval | sort
+		sort $retval.dir
+	    else
+		cat $retval
+	    fi
 
-        $EGREP -n "No newline at end of file" $file > $retval
-        [ -s $retval ] && notes=$(< $retval)
+	fi
 
-        if [ "$notes" ]; then
-            CygbuildWarn "--   [WARN] Patch check. Please verify $file"
-            CygbuildWarn "$notes"
-            return 0
-        fi
+	CygbuildPatchDiffstat "$file"
 
-        if [[ ! -s $file ]]; then
-            CygbuildWarn "--   [ERROR] Patch file is empty $file"
-            return 1
-        fi
+	#  Seldom anyone makes changes in C-code or headers
+	#  files. Let user audit these changes.
+	#
+	# --- src/lex.yy.c   2000-04-01 18:33:34.000000000 +0000
+	# +++ new/lex.yy.c   2004-01-29 18:04:18.000000000 +0000
+
+	local notes
+	$EGREP -ie '^(\+\+\+).*\.([ch]|cc|cpp) ' $file > $retval
+
+	[ -s $retval ] && notes=$(< $retval)
+
+	if [ "$notes" ]; then
+	    CygbuildWarn "-- [WARN] Patch check. Please verify $_file"
+	    CygbuildEcho "-- [NOTE] I'm just cautious. Perhaps files below"
+	    CygbuildEcho "-- [NOTE] are auto-generated or modified by you."
+	    CygbuildWarn "$notes"
+	    return 0
+	fi
+
+	notes=""
+
+	$EGREP --line-number "No newline at end of file" $file > $retval
+	[ -s $retval ] && notes=$(< $retval)
+
+	if [ "$notes" ]; then
+	    CygbuildWarn "-- [WARN] Patch check. Please verify $_file"
+	    CygbuildWarn "$notes"
+	    return 0
+	fi
+
+	if [[ ! -s $file ]]; then
+	    CygbuildWarn "-- [ERROR] Patch file is empty $_file"
+	    return 1
+	fi
     else
-        CygbuildWarn "--   [ERROR] Patch file is missing $file"
-        return 1
+	CygbuildWarn "-- [ERROR] Patch file is missing $_file"
+	return 1
     fi
-}
-
-function CygbuildPatchPrefixStripCountFromContent()
-{
-    local id="$0.$FUNCNAME"
-    local file=$1
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    #   Read the first line in patch that is in format:
-    #       +++ path/to/foo-0.11.7.3.1/subdir/code.c
-    #
-    #   => up till 'foo'
-
-    if ! $AWK ' /^\+\+\+ / {ok = 1; print $2; exit}
-                END { if (!ok) exit(1) }
-              ' $file > $retval; then
-        CygbuildWarn "-- [WARN] Unrecognized patch format $file"
-        return 1
-    fi
-
-    local part count
-    local tmp=0
-    local saved="$IFS"
-    local path=$(< $retval)
-    local mercurial
-
-    if [ -f "$path" ]; then
-        echo 0      # No strip needed
-        return
-    fi
-
-    if [[ "$path" == b/* ]]; then
-        #  Mercurical uses format:
-        #   --- a/Makefile.in       Sun Aug 05 20:45:37 2007 +0300
-        #   +++ b/Makefile.in       Sun Aug 05 23:55:17 2007 +0300
-        mercurial="$path"
-    fi
-
-    #   If PART name match the package name, then that is
-    #   the strip count. Typical in: diff -ru ../orig/foo-1.1 foo-1.1
-
-    local IFS="/"
-        set -- $path
-
-        if [ $# -gt 1 ]; then
-            for part in $*
-            do
-                tmp=$((tmp + 1))
-
-                if [[ $part == $PKG-*[0-9]* ]]; then
-                    count=$tmp
-                    break;
-                fi
-            done
-        fi
-
-    IFS="$saved"
-
-    #  If no PKG was found, then perhaps this is patch generated from VCS
-
-    if [ ! "$count" ] && [ "$mercurial" ] && [ ! -f "$mercurial" ]; then
-        count=1
-    fi
-
-    if [ "$count" ]; then
-        echo $count
-    fi
-}
-
-function CygbuildPatchPrefixStripCountFromFilename()
-{
-    local id="$0.$FUNCNAME"
-    local str=$1
-
-    #   Read the filename contains hint how much to strip, use it.
-    #       CYGWIN/-PATCHES/foo-1.2.3.strip+3.patch
-
-    [[ $str != *strip+*  ]] && return 1
-
-    str=${str##*strip+}
-    str=${str%%[!0-9]*}
-
-    echo $str
-}
-
-function CygbuildPatchPrefixStripCountMain ()
-{
-    local id="$0.$FUNCNAME"
-    local file=$1
-
-    CygbuildPatchPrefixStripCountFromFilename "$file"   ||
-    CygbuildPatchPrefixStripCountFromContent  "$file"
-}
-
-function CygbuildPatchApplyRun()
-{
-    local id="$0.$FUNCNAME"
-    local patch=$1
-    shift
-    local addopt="$*"
-
-    local dummy=$(pwd)                      # For debug
-    local patchopt="$CYGBUILD_PATCH_OPT $addopt"
-
-    if [ ! "$verbose" ]; then
-        patchopt="$patchopt --quiet"
-    fi
-
-    if [ -f "$patch" ]; then
-        echo "-- cd $dummy && patch $patchopt < $patch"
-        CygbuildVerb "--   [NOTE] If patch fails, you may need rm -rf $srcdir"
-        ${test:+echo} $PATCH $patchopt < $patch
-    else
-        CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
-             "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
-        return 1
-    fi
-}
-
-function CygbuildPatchApplyMaybe()
-{
-    local id="$0.$FUNCNAME"
-    local dir=$DIR_CYGPATCH
-    local statfile=$CYGPATCH_DONE_PATCHES_FILE
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    local cmd=${1:-"patch"}  # unpatch?
-
-    local file done name opt
-
-    for file in $dir/*.patch
-    do
-        [ ! -f "$file" ] && continue
-
-        name=${file##*/}
-        done=
-
-        if [ -f "$statfile" ]; then
-            $EGREP -qe "$name" $statfile && done=1
-
-            if [ "$cmd" = "patch" ] && [ "$done" ]; then
-                echo "-- [INFO] Skip, patch already applied: $file"
-                continue
-            fi
-        fi
-
-        CygbuildPatchPrefixStripCountMain "$file" > $retval
-
-        if [ -s $retval ]; then
-            local count=$(< $retval)
-            opt="--strip=$count"
-        fi
-
-        [ "$cmd" = "unpatch" ] && opt="$opt --reverse"
-
-        CygbuildPatchApplyRun "$file" "$opt" ||
-        CygbuildDie "-- [FATAL] Exiting."
-
-        if [ "$cmd" = "unpatch" ]; then
-
-            #   Remove name from patch list
-            if [ -f "$statfile" ]; then
-                $EGREP -ve "$name" "$statfile" > $retval
-                $MV "$retval" "$statfile"
-            fi
-
-            if [ ! -s $statfile ]; then
-                $RM -f "$statfile"  # Remove empty file
-            fi
-
-        else
-            echo $name >> $statfile
-        fi
-    done
 }
 
 function CygbuildPatchFindGeneratedFiles()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local retval2=$retval.2
 
     local origdir="$1"
     local dir="$2"
     local optextra="$3"
 
-    CygbuildExitNoDir "$origdir" "$id: [ERROR] parameter failure 'origdir' $origdir"
-    CygbuildExitNoDir "$dir" "$id: [ERROR] parameter failure 'dir' $dir"
+    CygbuildExitIfNoDir "$origdir" "$id: [ERROR] parameter failure 'origdir' $origdir"
+    CygbuildExitIfNoDir "$dir" "$id: [ERROR] parameter failure 'dir' $dir"
 
     #   Many packages do not 'clean' the files correctly and there may
     #   be left files that were generated by ./configure. Compare
@@ -6318,23 +7715,23 @@ function CygbuildPatchFindGeneratedFiles()
     #  At this point, assume that any .h or .c file is generated
     #  if it is not in the original package.
 
-    $DIFF $exclude --brief -r $origdir $dir > $retval
+    diff $exclude --brief --recursive $origdir $dir > $retval
     local status=$?    # For debug, the diff(1) status code
 
     if [ "$status" = "2" ]; then
-        return 1
+	return 1
     fi
 
     local ret file
 
-    $AWK '/Only in.*\.[ch]/ {print $4}' $retval > $retval2
+    awk '/Only in.*\.[ch]/ {print $4}' $retval > $retval2
 
-    for file in $(< $retval2)
+    while read file
     do
-        CygbuildWarn "--   [NOTE] Excluding from patch a Makefile generated" \
-             "file $file"
-        ret="$ret --exclude=$file"
-    done
+	CygbuildWarn "-- [NOTE] Excluding from patch" \
+	     "a Makefile/patch generated file $file"
+	ret="$ret --exclude=$file"
+    done < $retval2
 
     #   All file.ext files are generated if they have corresponding
     #   file.ext.in counterpart
@@ -6344,34 +7741,34 @@ function CygbuildPatchFindGeneratedFiles()
     local dummy="Forget *.in automake generated files"
     local name try
 
-     $AWK \
-        '
-            /Only in.*/ {
-                path=$3;
-                file=$4;
-                gsub(":", "", path);
-                print path "/" file;
-            }
-        ' $retval > $retval2
+     awk \
+	'
+	    /Only in.*/ {
+		path=$3;
+		file=$4;
+		gsub(":", "", path);
+		print path "/" file;
+	    }
+	' $retval > $retval2
 
-    for file in  $(< $retval2)
+    while read file
     do
 
-        [ -d "$file" ]          && continue     # Skip made directories
-        [[ $file = $origdir* ]] && continue
+	[ -d "$file" ]          && continue     # Skip made directories
+	[[ $file = $origdir* ]] && continue
 
-        name=${file##*$dir/}
-        try=$origdir/$name.in
+	name=${file##*$dir/}
+	try=$origdir/$name.in
 
-        if [ -f "$try" ]; then
-            CygbuildWarn \
-                "--   [NOTE] Excluding from patch a Makefile generated" \
-                 "file $name"
+	if [ -f "$try" ]; then
+	    CygbuildWarn \
+		"-- [NOTE] Excluding from patch a Makefile generated" \
+		 "file $name"
 
-            ret="$ret --exclude=${name##*/} --exclude=${name##*/}.in"
-        fi
+	    ret="$ret --exclude=${name##*/} --exclude=${name##*/}.in"
+	fi
 
-    done
+    done < $retval2
 
     #   All executables are excluded too. Some Linux packages
     #   include pure binary "file", so exclude also "file.exe"
@@ -6379,12 +7776,12 @@ function CygbuildPatchFindGeneratedFiles()
 
     local dummy="Forget executables"
 
-    if $LS *.exe > $retval 2> /dev/null ; then
-        for file in $(< $retval)
-        do
-            name=${file%.exe}
-            ret="$ret --exclude=$file --exclude=$name"
-        done
+    if ls *.exe > $retval 2> /dev/null ; then
+	while read file
+	do
+	    name=${file%.exe}
+	    ret="$ret --exclude=$file --exclude=$name"
+	done < $retval
     fi
 
     #   Anyway, exclude the package binary name; just in case it
@@ -6401,56 +7798,58 @@ function CygbuildPatchFindGeneratedFiles()
 #
 #######################################################################
 
-CygbuildCmdGetSource ()
+CygbuildCmdDownloadCygwinPackage ()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local url="$CYGBUILD_SRCPKG_URL"
+    local wget="$WGET"
     local pkg="$1"
+    local mode=${2:-"source-binary"}            # Download both
 
     if [ ! "$pkg" ]; then
-        CygbuildDie "[FATAL] command needs PACKAGE name"
+	CygbuildDie "$id: [FATAL] command needs PACKAGE name"
     elif [[ "$pkg" == -* ]]; then
-        CygbuildDie "[FATAL] suspicious package name: $pkg"
+	CygbuildDie "$id: [FATAL] suspicious package name: $pkg"
     fi
 
-    local url=${CYGBUILD_SRCPKG_URL:-\
-"http://mirror.switch.ch/ftp/mirror/cygwin"}
+    if [ ! "$wget" ]; then
+	CygbuildDie "$id: [FATAL] wget not in PATH"
+    fi
+
+    CygbuildEcho "-- Download Cygwin package: $pkg"
+    CygbuildVerb "-- Using download location $url"
 
     url=${url%/}        # Remove trailing slash
 
     local file="setup.ini"
-    local cachedir=$CYGBUILD_CACHE_DIR
+    local cachedir="$CYGBUILD_CACHE_DIR"
     local cache="$cachedir/$file"
 
-    [ ! -d "$cachedir" ] && $MKDIR -p $verbose "$cachedir"
+    [ -d "$cachedir" ] ||
+	mkdir --parents $verbose "$cachedir"
 
     if [ "$pkg" ]; then
-        echo "-- Using cache $cache (remove to get updated one)"
+	CygbuildEcho "-- Using cache $cache (remove to get updated one)"
     else
-        echo "[ERROR] Missing source PACKAGE name" >&2
-        return 1
+	CygbuildEcho "-- [ERROR] Missing source PACKAGE name" >&2
+	return 1
     fi
 
-    if [ ! "$WGET" ] || [ ! -f "$WGET" ]; then
-        CygbuildDie "-- [FATAL] wget not in PATH"
-    fi
-
-    local days
     CygbuildFileDaysOld "$cache" > $retval &&
-    days=$(< $retval)
+    local days=$(< $retval)
 
     if [ -f "$cache" ] && [ ! -s "$cache" ]; then
-        #  If file exists, but is empty, remove it
-        rm -f "$cache"
+	#  If file exists, but is empty, remove it
+	rm --force "$cache"
     elif [[ "$days" > "30" ]]; then
-        CygbuildVerb "-- [NOTE] Refreshing $days days old cache file."
-        rm -f "$cache"
+	CygbuildVerb "-- [NOTE] Refreshing $days days old cache file."
+	rm --force "$cache"
     fi
 
     if [ ! -f "$cache" ]; then
-        echo -n "-- Wait, downloading Cygwin package information..."
-        $WGET -q -O $cache "$url/$file" || return $?
-        echo "done."
+	CygbuildEcho "-- Wait, downloading Cygwin package information."
+	$wget --quiet --output-document=$cache "$url/$file" || return $?
     fi
 
     # @ xfig
@@ -6470,23 +7869,28 @@ CygbuildCmdGetSource ()
     # install: release/X11/xfig/xfig-3.2.4-5.tar.bz2 3583633 2bbd3da200a524fb9289bfc18cee507b
     # source: release/X11/xfig/xfig-3.2.4-5-src.tar.bz2 5191809 b59f9f7f69899d101c87813479a077c0
 
-    echo "-- Wait, searching package $pkg"
+    CygbuildEcho "-- Wait, searching package $pkg"
 
-    local path=$(awk \
+    awk \
     '
-        $0 ~ re {
-            found = 1;
-        }
-        found > 0 && /^source:/ {
-            print $2;
-            exit
-        }
+	$0 ~ re {
+	    found = 1;
+	}
+	found > 0 && /^source:/ {
+	    print $2;
+	    exit
+	}
 
-    ' re="^[@] +$pkg *\$" $cache)
+    ' re="^[@] +$pkg *\$" $cache > $retval
 
-    if [ ! "$path" ]; then
-        CygbuildDie "-- [ERROR] No package found: $pkg"
+    if [ ! -s "$retval" ]; then
+	CygbuildWarn "-- [ERROR] Need to refresh cache?" \
+	    "No such package: $pkg"
+	return 2
     fi
+
+    local path=$(< $retval)
+    local binpath=${path/-src/}
 
     local dir=${path%/*}
     local archive=${path##*/}
@@ -6494,54 +7898,68 @@ CygbuildCmdGetSource ()
     local name=${name%-src*}
     local name=${name%.orig*}
 
+    local list
+
+    [[ "$mode" == *binary* ]] && list="$list $url/$binpath"
+    [[ "$mode" == *source* ]] && list="$list $url/$path $url/$dir/setup.hint"
+
     if [ ! -f "$archive" ]; then
-        $WGET --no-directories --no-host-directories --timestamping \
-            "$url/$dir/setup.hint" "$url/$path"
+	$wget --no-directories --no-host-directories --timestamping \
+	    $list ||
+	CygbuildDie "-- [ERROR] Download failed."
     fi
 
-    echo "-- Wait, extracting source and preparing *.patch file"
+    [[ "$mode" == *source* ]] || return 0
 
-    if [ -f "$archive" ] && [ ! -f $name*.sh ] ; then
+    CygbuildEcho "-- Wait, extracting source and preparing *.patch file"
 
-        local z
-        CygbuildTarOptionCompress "$archive" > $retval
-        [ -s $retval ] && z=$(< $retval)
-
-        $TAR -${z}xf $verbose "$archive"
+    if [ -f "$archive" ] && { [ -f $name*.sh ] || [ -f $name*.cygport ]; }
+    then
+	CygbuildEcho "-- Good, archive already extracted: $archive"
     else
-        echo "-- Good, archive already extracted: $archive"
+	tar $verbose --extract --file="$archive"
     fi
 
-    #  explode the patch to manageable pieces
-
-    local patch=$(ls *.patch 2> /dev/null | grep -Ev '-rest' )
-
-    local fdiff
-    CygbuildWhich filterdiff > $retval &&
-    fdiff=$(< $retval)
-
-    if [ ! "$fdiff" ]; then
-        CygbuildWarn "-- [WARN] Skipped patch explode. filterdiff not in PATH"
-
-    elif [ "$patch" ]; then
-        local cygdir="${DIR_CYGPATCH_RELATIVE:-CYGWIN-PATCHES}"
-
-        [ ! -d "$cygdir" ] &&
-        $fdiff -i "*CYGWIN*" $patch | patch -p1 --forward
-
-        local file=${patch%.patch}-rest.patch
-
-        [ ! -f "$file" ] &&
-        $fdiff -x "*CYGWIN*" $patch > $file
-
-        echo "-- Content of $file"
-        $EGREP '^--- ' $file | $SED 's/^--- /   /'
-
-        echo "-- Done. Examine *.sh and $cygdir/ and $file"
-
-    else
-        CygbuildWarn "-- [WARN] Didn't see a *.patch file"
+    if ! CygbuildWhichCheck filterdiff ; then
+	CygbuildWarn "-- [WARN] Skipped patch explode. filterdiff not in PATH"
+	return 0
     fi
+
+    local cygdir=${CYGBUILD_DIR_CYGPATCH_RELATIVE:-"CYGWIN-PATCHES"}
+
+    ls *.patch 2> /dev/null |
+	grep --invert-match --regexp='-rest.patch' \
+	> $retval
+
+    while read patch
+    do
+	if [ ! -d "$cygdir" ]; then
+	    if lsdiff $patch | grep "$cygdir" > /dev/null ; then
+		filterdiff -i "*CYGWIN*" $patch | patch -p1 --forward
+	    fi
+	fi
+
+	if lsdiff $patch |
+	   grep --invert-match "$cygdir" > /dev/null
+	then
+
+	    local file=${patch%.patch}-rest.patch
+
+	    [ ! -f "$file" ] &&
+	    filterdiff -x "*CYGWIN*" $patch > "$file"
+
+	    if cmp "$patch" "$file" ; then
+		rm "$file"                             # No changes
+	    elif [ -f "$file" ] && [ -s "$file" ]; then
+		CygbuildEcho "-- Content of $file"
+		lsdiff "$file"
+	    else
+		rm --force "$file"
+	    fi
+	fi
+    done < $retval
+
+    CygbuildEcho "-- Done. Examine *.sh and $cygdir/ and *.patch"
 }
 
 function CygbuildCmdPrepIsUnpacked()
@@ -6550,9 +7968,9 @@ function CygbuildCmdPrepIsUnpacked()
     local msg="$1"
 
     if [ -d "$srcdir" ]; then
-        [ "$msg" ] && echo "$msg"
+	[ "$msg" ] && echo "$msg"
     else
-        return 1
+	return 1
     fi
 }
 
@@ -6561,14 +7979,13 @@ function CygbuildCmdPrepPatch()
     local id="$0.$FUNCNAME"
     local status=0
 
-    if [ ! -f $DIR_CYGPATCH/$PKG.README ]; then
-        CygbuildPushd
-            cd $TOPDIR              &&
-            $RM -f *.o 2> /dev/null && # Otherwise does not start compiling
-            CygbuildPatchApplyRun ${FILE_SRC_PATCH##*/}
-            status=$?
-        CygbuildPopd
-    fi
+    CygbuildIsSourceUnpacked && return 0
+
+    CygbuildPushd
+	cd $TOPDIR            &&
+	CygbuildPatchApplyRun ${FILE_SRC_PATCH##*/}
+	status=$?
+    CygbuildPopd
 
     return $status
 }
@@ -6576,17 +7993,19 @@ function CygbuildCmdPrepPatch()
 function CygbuildCmdShadowDelete()
 {
     local id="$0.$FUNCNAME"
-    echo "-- Emptying shadow directory $builddir"
+    local pfile="$CYGPATCH_DONE_PATCHES_FILE"
+
+    CygbuildVerb "-- Emptying shadow directory" ${builddir#$srcdir/}
 
     if [[ ! -d "$srcdir" ]]; then
-        CygbuildVerb "--   Nothing to do. No directory found: $srcdir"
+	CygbuildVerb "-- Nothing to do. No directory found: $srcdir"
     else
-        if [[ $builddir == *$builddir_relative ]]; then
-            $RM -rf $builddir/*
-        else
-            CygbuildDie "-- [FATAL] Something is wrong, this doesn't look" \
-                   "like builddir [$builddir]. Aborted."
-        fi
+	if [[ $builddir == *$builddir_relative ]]; then
+	    rm -rf $builddir/*
+	else
+	    CygbuildDie "-- [FATAL] Something is wrong, this doesn't look" \
+		   "like builddir [$builddir]. Aborted."
+	fi
     fi
 }
 
@@ -6594,29 +8013,33 @@ function CygbuildCmdShadowMain()
 {
     local id="$0.$FUNCNAME"
 
-    echo "** Shadow command"
+    CygbuildEcho "== Shadow command"
 
     if CygbuildIsBuilddirOk ; then
-        echo "--   Already shadowed. Perhaps you had in mind 'rmshadow'" \
-             "or 'reshadow'"
+	:
     else
-        #    When shadowing, use clean base
+	#    When shadowing, use clean base
 
-        CygbuildPushd
-            cd "$srcdir" || exit $?
-            echo "--   Running: make clean distclean (ignore errors; if any)"
+	CygbuildPushd
 
-            if CygbuildIsPythonPackage ; then
-                CygbuildRunPythonSetupCmd clean
-            else
-                make clean distclean
-            fi
+	    cd "$srcdir" || exit $?
 
-        CygbuildPopd
+	    CygbuildEcho "-- Running: make clean distclean" \
+			 "(ignore errors; if any)"
 
-        echo "--   Wait, shadowing source files to $builddir"
-        CygbuildTreeSymlinkCopy "$srcdir" "$builddir"
-        echo "-- Shadow finished."
+	    if CygbuildIsPythonPackage ; then
+		CygbuildRunPythonSetupCmd clean
+	    elif CygbuildIsRubyPackage ; then
+		CygbuildRunRubySetupCmd clean
+	    else
+		make clean distclean
+	    fi
+
+	CygbuildPopd
+
+	CygbuildVerb "-- Wait, shadowing source files to ${builddir#$srcdir/}"
+	CygbuildTreeSymlinkCopy "$srcdir" "$builddir"
+	CygbuildVerb "-- Shadow finished."
     fi
 }
 
@@ -6625,17 +8048,17 @@ function CygbuildCmdPrepClean()
     local id="$0.$FUNCNAME"
 
     if [ ! "$TOPDIR" ]; then
-        CygbuildDie "$id: TOPDIR not set"
+	CygbuildDie "$id: TOPDIR not set"
     fi
 
     #   some archives contain precompiled files like *.o. this
     #   is a mistake which is fixed by removing files.
 
     CygbuildPushd
-        cd $TOPDIR                  || exit 1
-        CygbuildCmdCleanMain        "$srcdir"
-        CygbuildCmdDistcleanMain    "$srcdir"
-        CygbuildCleanConfig         "$srcdir"
+	cd $TOPDIR                  || exit 1
+	CygbuildCmdCleanMain        "$srcdir"
+	CygbuildCmdDistcleanMain    "$srcdir"
+	CygbuildCleanConfig         "$srcdir"
     CygbuildPopd
 }
 
@@ -6645,38 +8068,43 @@ function CygbuildCmdPrepMain()
     local script=$SCRIPT_PREPARE_CYGFILE
 
     if [ ! "$FILE_SRC_PKG" ]; then
-        if ! CygbuildDefineGlobalSrcOrig ; then
-            return 1
-        fi
+	if ! CygbuildDefineGlobalSrcOrig ; then
+	    return 1
+	fi
     fi
 
     if [ ! "$REL" ]; then               # Patching fails without this
-        CygbuildWarn "$id: [ERROR] RELEASE number is not known."
-        return 1
+	CygbuildWarn "$id: [ERROR] RELEASE number is not known."
+	return 1
     fi
 
-    local msg="--   [prep] Skipping Cygwin patch; source already unpacked"
+    local msg="-- [prep] Skipping Cygwin patch; source already unpacked"
 
     if ! CygbuildCmdPrepIsUnpacked "$msg" ; then
-        CygbuildExtractMain         || return $?
+	CygbuildExtractMain         || return $?
+	CygbuildCmdPrepPatch        || return $?
     fi
 
-    CygbuildCmdPrepPatch        || return $?
+    local status
 
     CygbuildPushd
-      echo "--   [NOTE] applying included patches to sources (if any)"
-      cd "$srcdir"            || return $?
-      CygbuildPatchApplyMaybe || return $?
+	cd "$srcdir" || return $?
+	CygbuildPatchApplyMaybe \
+	    "patch" \
+	    "-- [NOTE] applying included patches to sources (if any)"
+	status=$?
     CygbuildPopd
+
+    [ ! "$status" = "0" ] && return $status
 
     CygbuildCmdMkdirs || return $?
 
     if [ -f "$script" ]; then
-        echo "--   [NOTE] External prepare script: $script $TOPDIR"
-        CygbuildChmodExec $script
-        ${debug:+$BASHX} $script "$TOPDIR" || return $?
+	CygbuildEcho "--- External prepare script: $script $TOPDIR"
+	CygbuildChmodExec $script
+	${debug:+$BASHX} $script "$TOPDIR" || return $?
     else
-        CygbuildCmdPrepClean || return $?
+	CygbuildCmdPrepClean || return $?
     fi
 }
 
@@ -6696,52 +8124,32 @@ function CygbuildShellEnvironenment()
     [ "$CYGBUILD_CFLAGS" ] &&
     list="$list CFLAGS='${CYGBUILD_CFLAGS}'"
 
+    list="$list DESTDIR=$instdir prefix=/usr"
+
     if CygbuildIsEmpty "$list" ; then
-        return 1
+	return 1
     fi
 
     echo $list
 }
 
-function CygbuildRunShell()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    local env
-    CygbuildShellEnvironenment > $retval
-    [ -s $retval ] && env=$(< $retval)
-
-    CygbuildVerb "--   Running $(eval $env) $@"
-
-    local status
-
-    CygbuildPushd
-        cd "$builddir"      || exit $?
-        eval ${test:+echo} $env "$@"
-        status=$?
-    CygbuildPopd
-
-    return $status
-}
-
 function CygbuildCmdDependMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local retval2=$CYGBUILD_RETVAL.$FUNCNAME.tmp
-    local cygcheck=/usr/bin/cygcheck
-    local cygpath=/usr/bin/cygpath
 
-    echo "-- Reading cygcheck dependencies"
+    [ "$CYGCHECK" ] || return 0
+
+    CygbuildEcho "-- Reading cygcheck dependencies"
 
     local list
-    $FIND $instdir -name "*.exe" -o -name "*.dll" > $retval
+    find $instdir -name "*.exe" -o -name "*.dll" > $retval
     [ -s $retval ] && list=$(< $retval)
 
     if [ ! "$list" ]; then
-        echo "--   [NOTE] No *.exe *.dll files found in $instdir"
-        return
+	CygbuildEcho "-- [NOTE] No *.exe *.dll files found in $instdir"
+	return
     fi
 
     > $retval       # Clear file
@@ -6750,33 +8158,33 @@ function CygbuildCmdDependMain()
 
     for file in $list
     do
-        $cygcheck "$file" >> $retval
+	$CYGCHECK "$file" >> $retval
     done
 
-    $CAT $retval
+    cat $retval
 
     local found
 
-    for file in $(< $retval)
+    while read file
     do
-        #  Do not check Windows files
-        if [[ $file == *WIN*      ]] || \
-           [[ $file == *system32* ]] || \
-           [[ $file == *exe*      ]] || \
-           [[ $file == *cygwin1*  ]]
-        then
-            continue
-        fi
+	#  Do not check Windows files
+	if [[ $file == *WIN*      ]] || \
+	   [[ $file == *system32* ]] || \
+	   [[ $file == *exe*      ]] || \
+	   [[ $file == *cygwin1*  ]]
+	then
+	    continue
+	fi
 
-        echo "--   Depend check $file"
+	CygbuildEcho "-- Depend check $file"
 
-        found=1
-        $cygcheck -f $file
+	found=1
+	$CYGCHECK -f $file
 
-    done
+    done < $retval
 
     if [ ! "$found" ]; then
-        echo "--   No other dependencies than 'cygwin'"
+	CygbuildEcho "-- No other dependencies than 'cygwin'"
     fi
 }
 
@@ -6786,58 +8194,73 @@ function CygbuildConfDepend()
 
     #  if there is target 'depend' in Makefile, run it.
 
-    echo "--   Running 'make depend'. Ignore possible error message."
+    CygbuildEcho "-- Running 'make depend'. Ignore possible error message."
 
-    $MAKE depend
+    make depend
 
     return  # return ok status
 }
 
 function CygbuildConfOptionAdjustment()
 {
+
+    #    All messages must be printed to STDERR because erturn value
+    #    is echoed
+
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local conf="$srcdir/configure"
-    local cygconf="$DIR_CYGPATCH_RELATIVE/configure.sh"
+    local cygconf="$CYGBUILD_DIR_CYGPATCH_RELATIVE/configure.sh"
     local options="$CYGBUILD_CONFIGURE_OPTIONS"
 
     if [ ! -f "$conf" ]; then
-        return 0
+	return 0
+    fi
+
+    if [ "$verbose" ]; then
+	awk '/^[ \t]+--with(out)?-/ && ! /PACKAGE|linux/ {
+	    print
+	}' $conf > $retval
+
+	if [ -s $retval ] ; then
+	    CygbuildWarn "-- [NOTE] Configure supports additional options:"
+	    sed 's/^/ /' $retval >&2
+	fi
     fi
 
     local str opt ret
 
     for str in $options
     do
-        opt=${str%%=*}      # --prefix=/usr  => --prefix
+	opt=${str%%=*}      # --prefix=/usr  => --prefix
 
-        if CygbuildGrepCheck "^[^#]*$opt" $conf ; then
-            [ "$verbose" ] &&
-            CygbuildWarn "--   [INFO] configure supports $opt"
+	if CygbuildGrepCheck "^[^#]*$opt" $conf ; then
+	    [ "$verbose" ] &&
+	    CygbuildWarn "-- [INFO] configure supports $opt"
 
-            ret="$ret $str"
-        else
-            [ "$verbose" ] &&
-            CygbuildWarn "--   [NOTE] configure did not support $opt"
-        fi
+	    ret="$ret $str"
+	else
+	    [ "$verbose" ] &&
+	    CygbuildWarn "-- [NOTE] configure did not support $opt"
+	fi
     done
 
     if [ "$ret" ]; then
-        echo $ret
+	echo $ret
     else
-        CygbuildWarn "--   [WARN] ./configure did not support standard" \
-            "options. You may need to write custom $cygconf"
-        return 1
+	CygbuildWarn "-- [WARN] ./configure did not support standard" \
+	    "options. You may need to write custom $cygconf"
+	return 1
     fi
 }
 
 function CygbuildConfCC()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local conf=$srcdir/configure
+    local conf=$builddir/configure
     local envfile=$EXTRA_CONF_ENV_OPTIONS
     local userOptFile=$EXTRA_CONF_OPTIONS
 
@@ -6845,80 +8268,94 @@ function CygbuildConfCC()
 
     if [ ! -f "$conf" ]; then
 
-        CygbuildVerbWarn "--   [WARN] Hm, there is no $conf"
+	CygbuildVerbWarn "-- [WARN] Hm, there is no $conf"
 
-        CygbuildMakefileName "." > $retval
-        local make=$(< $retval)
+	CygbuildMakefileName "." > $retval
+	local make=$(< $retval)
 
-        if [ "$make" ]; then
-            CygbuildVerbWarn \
-                "--   [WARN] Found only $make Nothing to configure."
-        fi
+	if [ "$make" ]; then
+	    CygbuildVerbWarn \
+		"-- [WARN] Found only $make Nothing to configure."
+	fi
 
     else
 
-        local opt
-        CygbuildConfOptionAdjustment > $retval
-        [ -s $retval ] && opt=$(< $retval)
+	local opt
 
-        echo "--   Running ./configure with Cygwin specific options" \
-             "${test:+(TEST mode)}"
+	CygbuildConfOptionAdjustment > $retval
+	[ -s $retval ] && opt=$(< $retval)
 
-        if [ -f "$envfile" ]; then
-            echo "--     Reading external env: $envfile" \
-                 "$envfile $instdir $CYGBUILD_PREFIX $exec_prefix"
-            source $envfile || return $?
-        fi
+	CygbuildEcho "-- Running ./configure with Cygwin specific options" \
+	     "${test:+(TEST mode)}"
 
-        CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
-        local userOptExtra=$(< $retval)
+	if [ -f "$envfile" ]; then
+	    CygbuildEcho "--- Reading external env: $envfile" \
+		 "$envfile $instdir $CYGBUILD_PREFIX $exec_prefix"
+	    source $envfile || return $?
+	fi
 
-        CygbuildConfigureOptionsExtra > $retval
-        local extra=$(< $retval)
+	CygbuildConfigureOptionsExtra > $retval
+	local extra=$(< $retval)
 
-        opt="$opt $extra $userOptExtra"
+	opt="$opt $extra"
 
-        #   Libtool gets confused if option --libdir=/usr/lib
-        #   is passed during configure. We must check if this package
-        #   use libtool and remove that option.
+	#   Libtool gets confused if option --libdir=/usr/lib
+	#   is passed during configure. We must check if this package
+	#   use libtool and remove that option.
 
-        local makelibtool=$make
+	local makelibtool=$make
 
-        if [ ! "$make" ]; then
-            CygbuildMakefileName "." Makefile.am Makefile.in > $retval
-            makelibtool=$(< $retval)
-        fi
+	if [ ! "$make" ]; then
+	    CygbuildMakefileName "." Makefile.am Makefile.in > $retval
+	    makelibtool=$(< $retval)
+	fi
 
-        if [ "$makelibtool" ] &&
-           PackageUsesLibtoolMain $makelibtool configure
-        then
-            echo "--   Hm, package uses libtool; options --libdir" \
-                 "and --datadir are not included"
+	if [ "$makelibtool" ] &&
+	   PackageUsesLibtoolMain $makelibtool configure
+	then
+	    CygbuildEcho "-- Hm, package uses libtool; default options" \
+		 " --libdir and --datadir are not included"
 
-            local opt cleaned
+	    local opt cleaned
 
-            for opt in $opt
-            do
-                if [[ $opt != +(--libdir*|--datadir*) ]]; then
-                    cleaned="$cleaned $opt"
-                fi
-            done
+	    for opt in $opt
+	    do
+		if [[ $opt != @(--libdir*|--datadir*) ]]; then
+		    cleaned="$cleaned $opt"
+		fi
+	    done
 
-            opt=$cleaned
-        fi
+	    opt="$cleaned"
+	fi
 
-        if [ "$verbose" ]; then
+	CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
+	local userOptExtra=$(< $retval)
 
-            #   print the listing more nicely. Get a hand from perl here
-            #   to format the option listing
+	opt="$opt $userOptExtra"
 
-            echo "$opt" | $PERL -ane \
-            "s/\s+/,/g; print '  ', join( qq(\n  ), sort split ',',$_), qq(\n)"
-            echo
-        fi
+	if [ "$verbose" ]; then
 
-        CygbuildRunShell $conf $opt
-        status=$?
+	    #   print the listing more nicely. Get a hand from perl here
+	    #   to format the option listing
+
+	    echo "$opt" |
+		perl -ane \
+		  "s/\s+/,/g;
+		   print '   ', join( qq(\n   ), sort split ',',$_), qq(\n)"
+	fi
+
+	CygbuildRunShell $conf $opt 2>&1 | tee $retval.log
+	status=$?
+
+	#   The configure log:
+	#     checking how to link with libfoo... /usr/lib/libfoo.a
+
+	if $EGREP "checking how to link.*\<lib[a-z0-9]+\.a\>" \
+	   $retval.log > $retval.log
+	then
+	    CygbuildWarn "-- [WARN] configure uses static libraries"
+	    cat $retval.log
+	fi
 
     fi
 
@@ -6929,18 +8366,18 @@ function CygbuildConfPerlCheck()
 {
     local id="$0.$FUNCNAME"
 
-    $PERL -e "use ExtUtils::MakeMaker 6.10"  # at least 6.10 works ok
+    perl -e "use ExtUtils::MakeMaker 6.10"  # at least 6.10 works ok
 
     local status
     status=$?
 
     if [ "$status" != "0" ]; then
 
-        cat<<EOF
+	cat<<EOF
 $id [ERROR] It is not possible to make Perl source package.
 
 Standard Perl (5.8.0) MM:MakeMaker 6.05 does not handle PREFIX variable
-correctly to install files into separate directory. YInstall latest
+correctly to install files into separate directory. Install latest
 MakeMaker from <http://search.cpan.org/author/MSCHWERN/ =>
 ExtUtils-MakeMaker
 
@@ -6950,29 +8387,60 @@ ExtUtils-MakeMaker
 
 EOF
 
-        return 1
+	return 1
     fi
+}
+
+function CygbuildConfRubyMain()
+{
+    local root="$instdir"
+
+    local pfx=${1:-$root}
+    [ "$1" ] && shift
+
+    CygbuildRunRubySetupCmd \
+	config              \
+	--prefix=$pfx       \
+	--bindir=/usr/bin
 }
 
 function CygbuildConfPerlMain()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
     local conf="$srcdir/Makefile.PL"
+    local envfile=$EXTRA_CONF_ENV_OPTIONS
+    local userOptFile=$EXTRA_CONF_OPTIONS
     local status=0
 
-    #   Not good, Perl make Maker is broken. User cannot control PREFIX.
-    #   See message http://www.makemaker.org/drafts/prefixification.txt
-
     if [ -f "$conf" ]; then
-        echo "--   Running: perl Makefile.PL PREFIX=$instdir/usr"
+	CygbuildFileReadOptionsMaybe "$userOptFile" > $retval
+	local userOptExtra
+	[ -s $retval ] && userOptExtra=$(< $retval)
 
-        local _prefix=$instdir/usr
+	local _prefix="/usr"
 
-        CygbuildPushd
-            cd $builddir || exit 1
-            $PERL Makefile.PL # PREFIX=$_prefix SITEPREFIX=$_prefix
-            status=$?
-        CygbuildPopd
+	(
+	    cd $builddir || exit 1
+
+	    #   See http://www.makemaker.org/drafts/prefixification.txt
+	    #   Do not set: SITEPREFIX  (SITEPREFIX=PREFIX/local)
+	    #   or PREFIX="$_prefix" because they are set during install
+
+	    if [ -f "$envfile" ]; then
+		CygbuildEcho "--- Reading external env: $envfile"
+		source $envfile || return $?
+	    fi
+
+	    [ "$verbose" ] && set -x
+
+	    perl Makefile.PL           \
+		  INSTALLDIRS=vendor    \
+		  $userOptExtra
+	)
+
+	status=$?
 
     fi
 
@@ -6981,93 +8449,121 @@ function CygbuildConfPerlMain()
 
 function CygbuildCmdConfAutomake()
 {
-     if [[ ! -f configure  &&  -f makefile.am ]]; then
-        if [ -f "bootstrap" ]; then
-            echo "--   Hm, automake package. Let's see..."
-            ./bootstrap
+    [ ! -f configure ]  ||  return 0
+    [ -f makefile.am ]  ||  return 0
 
-            if [ -f configure ]; then
-                CygbuildDie "--   ./configure appeared." \
-                      "--   Now run again commands [reshadow] and [configure]"
-            else
-                echo "--   Don't know what to do."
-                return 1
-            fi
-        fi
+    if [ ! -f "bootstrap" ]; then
+	CygbuildEcho "-- [WARN] makefile.am but no 'bootstrap' file"
+    else
+	CygbuildEcho "-- No ./configure but looks like automake." \
+		     "Running ./bootstrap"
+
+	./bootstrap
+
+	if [ -f configure ]; then
+	    CygbuildVerb "-- ./configure appeared."
+	else
+	    CygbuildEcho "-- [ERROR] No ./configure appeared."
+	    return 1
+	fi
     fi
 }
 
 function CygbuildCmdConfMain()
 {
     local id="$0.$FUNCNAME"
-    local perlconf="$srcdir/Makefile.PL"
+    local script="$SCRIPT_CONFIGURE_CYGFILE"
     local dummy=$(pwd)      # For debugger
     local status=0
-    local script=$SCRIPT_CONFIGURE_CYGFILE
-
-    echo "** Configure command"
 
     if ! CygbuildIsBuilddirOk ; then
-        echo "--   Hm, no shadow yet. Running it now."
-        CygbuildCmdShadowDelete
-        CygbuildCmdShadowMain || return $?
+	CygbuildVerb "-- Hm, no shadow yet. Running it now."
+	CygbuildCmdShadowDelete
+	CygbuildCmdShadowMain || return $?
     fi
 
-    CygbuildCmdConfAutomake || return 1
+    CygbuildEcho "== Configure command"
 
     CygbuildPushd
 
-        cd $builddir || exit 1
+	cd "$builddir" || exit 1
 
-        CygbuildVerb "--   Configuring in $(pwd)"
+	CygbuildCmdConfAutomake || return 1
 
-        CygbuildMakefileCheck
+	CygbuildVerb "-- Configuring in" ${builddir#$srcdir/}
 
-        if [ -f "$script" ]; then
+	CygbuildMakefileCheck
 
-            echo "--   [NOTE] External configure script $script"
+	if [ -f "$script" ]; then
 
-            CygbuildChmodExec $script
-            $script $instdir
-            status=$?
+	    CygbuildEcho "--- Running external configure: $script"
 
-        elif [ -f "$perlconf" ]; then
+	    CygbuildChmodExec $script
+	    $script $instdir | CygbuildMsgFilter
+	    status=$?
 
-            CygbuildConfPerlCheck &&
-            CygbuildConfPerlMain
-            status=$?
+	elif CygbuildIsPerlPackage ; then
 
-        elif [ -x configure ]; then
+	    CygbuildConfPerlCheck &&
+	    CygbuildConfPerlMain
+	    status=$?
 
-            CygbuildConfCC
-            status=$?
+	elif CygbuildIsPythonPackage ; then
 
-        elif CygbuildIsMakefileTarget configure ; then
+	    CygbuildVerb "-- Python package, nothing to configure"
 
-            #   ./configure generated "Makefile", so this elif must be
-            #   after the previous one.
+	elif [ -f configure ]; then
 
-            echo "--   Running: make configure (auto detected; no ./configure)"
-            $MAKE configure
-            status=$?
+	    CygbuildConfCC
+	    status=$?
 
-        elif [ -f Imakefile ]; then
+	elif CygbuildIsRubyPackage ; then
 
-            echo "--   Looks like imake(1). Running xmkmf(1)"
-            xmkmf
+	    CygbuildConfRubyMain
 
-            if [ ! -f Makefile ]; then
-                echo "--   Hm, Looks like Xconsoritum package," \
-                     "running: xmkmf -a"
-                xmkmf -a
-            fi
+	elif CygbuildIsMakefileTarget configure ; then
 
-        else
+	    #   ./configure generated "Makefile", so this elif must be
+	    #   after the previous one.
 
-            echo "--   No standard configre script found" \
-                 "If it's there, run 'reshadow' to update."
+	    CygbuildEcho "-- Running: make configure" \
+			 "(auto detected; no ./configure)"
 
-        fi
+	    make configure
+	    status=$?
+
+	    #  If that generated the script, we must run it
+
+	    if [ "$status" = "0" ] && [ -f configure ]; then
+		CygbuildConfCC
+		status=$?
+	    fi
+
+	elif [ -f Imakefile ]; then
+
+	    CygbuildEcho "-- Looks like imake(1). Running xmkmf(1)"
+	    xmkmf
+
+	    if [ ! -f Makefile ]; then
+		CygbuildEcho "-- Hm, Looks like Xconsoritum package," \
+		     "running: xmkmf -a"
+		xmkmf -a
+	    fi
+
+	elif [ -f configure.in ] || [ -f configure.ac ]; then
+
+	   CygbuildEcho "-- Running: autoconf -i"
+			"due to detected ./configure.{in,ac}"
+
+	    autoconf --initialization  &&
+	    CygbuildConfCC
+	    status=$?
+
+	else
+
+	    CygbuildEcho "-- [NOTE] No ./configre program found."
+
+	fi
 
     CygbuildPopd
 
@@ -7080,18 +8576,44 @@ function CygbuildSetLDPATHpython()
 
     #  Make sure all paths are there
 
-    local try=$(cd /usr/lib/python2.*/config && pwd)
+    local try="$PYTHON_LIBDIR"
 
-    if  [ "$try" ] && [ -d "$try" ]; then
+    if  [ ! "$try" ]; then
+	CygbuildWarn "-- [WARN] python library dir /usr/lib not defined"
+    elif [ -d "$try" ]; then
 
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$try   # global-def
-        export LD_RUN_PATH=$LD_RUN_PATH:$try           # global-def
+	if [ "$LD_LIBRARY_PATH" ]; then
+	    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$try"   # global-def
+	else
+	    export LD_LIBRARY_PATH="$try"
+	fi
 
-        CygbuildVerb "--    Added Python to paths " \
-                 "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" \
-                 "LD_RUN_PATH=$LD_RUN_PATH"
+	if [ "$LD_RUN_PATH" ]; then
+	    export LD_RUN_PATH="$LD_RUN_PATH:$try"     # global-def
+	else
+	    export LD_RUN_PATH="$try"
+	fi
+
+	CygbuildVerb "-- [INFO] Added Python to paths " \
+		 "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" \
+		 "LD_RUN_PATH=$LD_RUN_PATH"
 
     fi
+}
+
+function CygbuildCmdBuildRuby()
+{
+    local id="$0.$FUNCNAME"
+    local status=0
+
+    CygbuildPushd
+	cd $builddir                                      &&
+	CygbuildEcho "-- Building: ruby setup.rb setup"   &&
+	CygbuildRunRubySetupCmd setup
+	status=$?
+    CygbuildPopd
+
+    return $status
 }
 
 function CygbuildCmdBuildPython()
@@ -7103,77 +8625,82 @@ function CygbuildCmdBuildPython()
     CYGBUILD_LDFLAGS="-no-undefined"
 
     CygbuildPushd
-        CygbuildSetLDPATHpython
-        cd $builddir                                &&
-        echo "-- Building: python setup.py build"   &&
-        CygbuildRunShell $PYTHON setup.py build
-        status=$?
+	CygbuildSetLDPATHpython
+	cd $builddir                                        &&
+	CygbuildEcho "-- Building: python setup.py build"   &&
+	CygbuildRunPythonSetupCmd build
+	status=$?
     CygbuildPopd
 
     return $status
 }
 
-function CygbuildCmdBuildMainMakefile()
+function CygbuildCmdBuildStdMakefile()
 {
     local id="$0.$FUNCNAME"
+    local optfile="$EXTRA_BUILD_OPTIONS"
     local status=0
-    local envfile=$EXTRA_BUILD_ENV_OPTIONS
-    local optfile=$EXTRA_BUILD_OPTIONS
 
-    CygbuildExitNoDir "$builddir" "$id: builddir not found [$builddi]"
-
-    # #todo: There are two competing files, use only one of them.
-    # if [ -f "$envfile" ]; then
-    #     echo "--     Reading external env: $envfile"
-    #     source $envfile || return $?
-    # fi
+    CygbuildExitIfNoDir "$builddir" "$id: builddir not found: $builddir"
 
     CygbuildPushd
 
-        cd $builddir || exit 1
+	cd $builddir || exit 1
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
-        CygbuildMakefileName "." > $retval
-        local makefile=$(< $retval)
+	local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+	CygbuildMakefileName "." > $retval
+	local makefile=$(< $retval)
 
-        echo "--   Building with standard make(1) $makefile"
+	CygbuildVerb "-- Building with standard make(1) $makefile"
 
-        if [ ! "$makefile" ]; then
-            CygbuildWarn "--   [WARN] No Makefile." \
-                 "If you already tried [configure]" \
-                 "You may need to write custom script build.sh (or reshadow)"
-            status=17  # Just random number
-        else
+	if [ ! "$makefile" ]; then
 
-            #   Run in separate shell so that reading configuration
-            #   file settings do not interfere currently running process
+	    CygbuildWarn "-- [WARN] No Makefile." \
+		 "If you already tried [configure]" \
+		 "You may need to write custom script" \
+		 "CYGWIN-PATCHES/build.sh" \
+		 "(remember to run [shadow] after changes)"
 
-            local debug
-            [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
+	    status="17"  # Just random number, different from rest
 
-            (
-                if [ -r $optfile ]; then
-                    echo "--     Reading extra env from $optfile"
-                    [ "$verbose" ] &&  cat $optfile
-                    source $optfile || exit $?
-                fi
+	else
 
-                [ "$debug" ] && set -x
+	    #   Run in separate shell so that reading configuration
+	    #   file settings do not interfere currently running process
 
-                local dummy=$(pwd)   # For debugging
+	    local debug
+	    [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
 
-                local env
-                CygbuildShellEnvironenment > $retval
-                [ -s $retval ] && env=$(< $retval)
+	    (
+		if [ -f "$optfile" ]; then
+		    CygbuildEcho "-- Reading extra env from" \
+				 ${optfile#$srcdir/}
 
-                eval $MAKE -f $makefile                 \
-                    AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
-                    $env                                \
-                    $CYGBUILD_MAKEFLAGS
-            )
+		    [ "$verbose" ] && cat $optfile
+		    source $optfile || exit $?
+		fi
 
-            status=$?
-        fi
+		[ "$debug" ] && set -x
+
+		local dummy=$(pwd)   # For debugging
+
+		local env
+		CygbuildShellEnvironenment > $retval
+		[ -s $retval ] && env=$(< $retval)
+
+		#   Display version information before compiling
+		gcc --version | head --lines=1
+
+		[ "$verbose" ] && set -x
+
+		eval make -f $makefile                 \
+		    AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
+		    $env                                \
+		    $CYGBUILD_MAKEFLAGS
+	    )
+
+	    status=$?
+	fi
 
     CygbuildPopd
 
@@ -7186,30 +8713,37 @@ function CygbuildCmdBuildMain()
     local status=0
     local script="$SCRIPT_BUILD_CYGFILE"
 
-    echo "** Build command"
+    CygbuildEcho "== Build command"
 
     CygbuildNoticeBuilddirMaybe || return $?
+    CygbuildDefineGlobalCompile
 
     if [ -f "$script" ]; then
 
-        echo "--   [NOTE] Building with external: $script $PKG $VER $REL"
+	CygbuildEcho "--- Building with external:" \
+		 ${script#$srcdir/} $PKG $VER $REL
 
-        CygbuildPushd
-            cd $builddir || exit 1
-            CygbuildChmodExec $script
-            $script $PKG $VER $REL
-            status=$?
-        CygbuildPopd
+	CygbuildPushd
+	    cd $builddir || exit 1
+	    CygbuildChmodExec $script
+	    $script $PKG $VER $REL | CygbuildMsgFilter
+	    status=$?
+	CygbuildPopd
 
     elif CygbuildIsPythonPackage ; then
 
-        CygbuildCmdBuildPython
-        status=$?
+	CygbuildCmdBuildPython
+	status=$?
+
+    elif CygbuildIsRubyPackage ; then
+
+	CygbuildCmdBuildRuby
+	status=$?
 
     else
 
-        CygbuildCmdBuildMainMakefile
-        status=$?
+	CygbuildCmdBuildStdMakefile
+	status=$?
 
     fi
 
@@ -7220,32 +8754,29 @@ function CygbuildCmdDependCheckMain()
 {
     local id="$0.$FUNCNAME"
 
-    echo "-- Checking dependencies in README and setup.hint"
+    CygbuildEcho "-- Checking dependencies in README and setup.hint"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildPerlModuleLocation  > $retval
-    local module=$(< $retval)
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local module="$CYGBUILD_STATIC_PERL_MODULE"
 
-    if [ ! "$module" ]; then
-        return 1
-    fi
+    [ ! "$module" ] || return 1
 
     local destdir=$DIR_CYGPATCH
     local file=$destdir/setup.hint
 
     if [ ! -f "$file" ]; then
-        CygbuildDie "--  $id: [ERROR] Can't find $file. Forgot to run [files]?"
+	CygbuildDie "-- $id: [ERROR] Can't find $file. Forgot to run [files]?"
     fi
 
-    echo "--   Calling $module::CygcheckDepsCheckMain()"
+    CygbuildEcho "-- Calling $module::CygcheckDepsCheckMain()"
 
     local debug=${OPTION_DEBUG:-0}
 
     #   1. Load library MODULE
     #   2. Call function with parameters.
 
-    $PERL -e "require qq($module); SetDebug($debug); \
-        CygcheckDepsCheckMain( qq($instdir), qq($destdir) );"
+    perl -e "require qq($module); SetDebug($debug); \
+	CygcheckDepsCheckMain( qq($instdir), qq($destdir) );"
 }
 
 function CygbuildCmdTestMain()
@@ -7253,8 +8784,8 @@ function CygbuildCmdTestMain()
     local id="$0.$FUNCNAME"
 
     CygbuildPushd
-        cd $builddir || CygbuildDie "$id: [builddir] error"
-        $MAKE test 2>&1 | tee $PKGLOG
+	cd $builddir || CygbuildDie "$id: [builddir] error"
+	make test 2>&1 | tee $PKGLOG
     CygbuildPopd
 }
 
@@ -7262,7 +8793,7 @@ function CygbuildCleanConfig ()
 {
     # Clean configuration files
 
-    $RM -f config.status config.log
+    rm --force config.status config.log
 }
 
 function CygbuildCmdCleanMain()
@@ -7271,11 +8802,11 @@ function CygbuildCmdCleanMain()
     local dir=${1:-$builddir}
     local opt="$2"
 
-    echo "-- Running 'make clean' (or equiv.) in $dir"
+    CygbuildEcho "-- Running 'make clean' (or equiv.) in" ${dir#$srcdir/}
 
-    CygbuildExitNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
+    CygbuildExitIfNoDir $dir "$id: [ERROR] 'dir' does not exist [$dir]"
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     CygbuildMakefileName $dir > $retval
     local makefile=$(< $retval)
 
@@ -7283,41 +8814,45 @@ function CygbuildCmdCleanMain()
 
     if CygbuildIsPythonPackage ; then
 
-        CygbuildMakefileRunPythonInDir "$srcdir" clean
+	CygbuildMakefileRunPythonInDir "$srcdir" clean
+
+    elif CygbuildIsRubyPackage ; then
+
+	CygbuildRunRubySetupCmd clean
 
     elif [ ! "$makefile" ]; then
-        if [ "$opt" != "nomsg" ]; then
-            echo "--   No Makefile found, nothing to clean in $dir"
-        fi
+	if [ "$opt" != "nomsg" ]; then
+	    CygbuildEcho "-- No Makefile found, nothing to clean in $dir"
+	fi
     else
-        CygbuildPushd
+	CygbuildPushd
 
-            cd $dir  || exit 1
+	    cd $dir  || exit 1
 
-            local file
+	    make -f $makefile clean ||
+	    {
+		CygbuildVerb "-- [NOTE] Hm, running recursive" \
+			     "rm *.o *.exe *.dll instead"
+		CygbuildVerb "-- [NOTE] Better, patch the Makefile to include"
+		CygbuildVerb "-- [NOTE] target 'clean:'"
 
-            $MAKE -f $makefile clean ||
-            {
-                echo "--   [NOTE] Hm, running rm *.o *.exe *.dll instead"
-                echo "--   [NOTE] Better, patch the Makefile to include"
-                echo "--   [NOTE] target 'clean:'"
+		set -o noglob    # Do not expand $CYGBUILD_FIND_OBJS; "*.exe"
 
-                set -o noglob    # Don not expand variables, like  "*.exe"
+		    find . \
+			-type f '(' $CYGBUILD_FIND_OBJS ')' \
+			> $retval
 
-                    if $FIND . \
-                        -type f '(' $CYGBUILD_FIND_OBJS ')' \
-                        > $retval
-                    then
-                        for file in $(< $retval)
-                        do
-                            $RM $verbose "$file"
-                        done
-                    fi
+		set +o noglob
 
-                set +o noglob
+		local file
 
-            }
-        CygbuildPopd
+		while read file
+		do
+		    rm $verbose "$file"
+		done < $retval ;
+
+	    }
+	CygbuildPopd
     fi
 
     return $status
@@ -7329,15 +8864,17 @@ function CygbuildCmdDistcleanMain
     local dir=${1:-$builddir}
     local opt="$2"
 
-    echo "-- Running 'make distclean' (or equiv.) in $dir"
+    CygbuildEcho "-- Running 'make distclean' (or equiv.) in" ${dir#$srcdir/}
 
     local status=0
 
     if CygbuildIsPythonPackage ; then
-        #   Nothing to do
-        :
+	#   Nothing to do
+	:
+    elif CygbuildIsRubyPackage ; then
+	:
     else
-        CygbuildMakefileRunTarget "distclean" "$dir" "$opt"
+	CygbuildMakefileRunTarget "distclean" "$dir" "$opt"
     fi
 
     return $status
@@ -7353,53 +8890,88 @@ function CygbuildCmdCleanByType()
     [ ! "$target" ]   && target="clean"
 
     if [ "$target" = "clean" ]; then
-        CygbuildCmdCleanMain
+	CygbuildCmdCleanMain
     elif [ "$target" = "distclean" ]; then
-        CygbuildCmdDistcleanMain
+	CygbuildCmdDistcleanMain
     else
-        CygbuildMakefileRunTarget $target
+	CygbuildMakefileRunTarget $target
     fi
 }
 
 function CygbuildInstallPackageInfo()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    local dest=$DIR_INFO
-    local file
-    local done
+    CygbuildFindDo "$srcdir"        \
+	-o -type f                  \
+	'('                         \
+	    -name "*.info"          \
+	    -o -name "*.info-*"     \
+	')'                         |
+	sort > $retval
 
-    $FIND $srcdir                                               \
-        -type d '(' -name ".inst" -o -name ".build" ')' -prune  \
-        -a ! -name ".inst"                                      \
-        -a ! -name ".build"                                     \
-        -o -type f '(' -name "*.info" -o -name "*.info-*" ')'   \
-        | $SORT > $retval
+    local dest="$DIR_INFO"
+    local file done
 
-    for file in $(< $retval)
+    while read file
     do
-        if [ ! "$done" ]; then                # Do only once
-            $MKDIR -p "$DIR_INFO" || return 1
-            done=1
-            echo "--   Installing [info] files to $dest"
-        fi
+	if [ ! "$done" ]; then                # Do only once
+	    $INSTALL_SCRIPT $INSTALL_BIN_MODES -d "$DIR_INFO" || return 1
+	    done=1
+	    CygbuildEcho "-- Installing info files to" \
+			 "${dest#$srcdir/}"
+	fi
 
-        if [ -f "$file" ]; then
-            CygbuildVerb "--     Info file $file"
-            $INSTALL_SCRIPT $INSTALL_FILE_MODES $file $dest
-        fi
-    done
-
+	if [ -f "$file" ]; then
+	    CygbuildVerb "-- Info file $file"
+	    $INSTALL_SCRIPT $INSTALL_FILE_MODES $file $dest
+	fi
+    done < $retval
 
     # Package must not supply central 'dir' file
 
-    file=$DIR_INFO/dir
+    file="$DIR_INFO/dir"
 
     if [ -f "$file" ] ; then
-        $RM "$file"   || return 1
+	rm "$file"   || return 1
+    fi
+}
+
+function CygbuildInstallTaropt2type ()
+{
+    #   Convert each --include or --exclude=  option into tar format.
+
+    local type="$1"   # exclude or include
+    shift
+
+    local find="--exclude="
+
+    if [ "$type" = "include" ]; then
+	find="--include="
     fi
 
+    local ret item
+
+    for item in $*
+    do
+	if [[ "$item" == $find* ]]; then
+
+	    item=${item/--include=}     # Delete this portion
+
+	    if [[ "$ret"  &&  "$item" ]]; then
+		ret="$ret $item"
+	    else
+		ret="$item"
+	    fi
+	fi
+    done
+
+    if [ "$ret" ]; then
+	echo "$ret"                 # must use quotes, otherwise * expands
+    else
+	return 1
+    fi
 }
 
 function CygbuildInstallTaropt2match ()
@@ -7412,190 +8984,222 @@ function CygbuildInstallTaropt2match ()
     local find="--exclude="
 
     if [ "$type" = "include" ]; then
-        find="--include="
+	find="--include="
     fi
 
     local ret item
 
-    for item in $*
+    for item in "$@"
     do
-        if [[ "$item" == $find* ]]; then
-            item=${item/$find}     # Delete this portion
-            if [[ "$ret"  &&  "$item" ]]; then
-                ret="$ret|$item"
-            else
-                ret="$item"
-            fi
-        fi
+	if [[ "$item" == $find* ]]; then
+
+	    item=${item/$find}     # Delete this portion
+
+	    if [[ "$ret"  &&  "$item" ]]; then
+		ret="$ret|$item"
+	    else
+		ret="$item"
+	    fi
+	fi
     done
 
     if [ "$ret" ]; then
-        ret="@($ret)"                   # BASH extended match syntax
-        echo "$ret"
+	ret="@($ret)"                   # BASH extended match syntax
+	echo "$ret"
     else
-        return 1
+	return 1
     fi
 }
 
 function CygbuildInstallPackageDocs()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
     local optExclude="$CYGBUILD_TAR_INSTALL_EXCLUDE"
 
-    local dest=$DIR_DOC_GENERAL
+    local dest="$DIR_DOC_GENERAL"
 
     CygbuildFileReadOptionsMaybe "$EXTRA_TAR_OPTIONS_INSTALL" > $retval
     local optExtra=$(< $retval)
 
-    local matchExclude matchInclude
+    local docdirInstall="docinstall"
+    local docdirGuess="docdirGuess"
+    local matchExclude matchInclude tarOptInclude tarOptExclude
 
-    if [ "$$optExtra" ]; then
-        CygbuildInstallTaropt2match exclude "$optExtra" > $retval
-        [ -s $retval ] && matchExclude=$(< $retval)
+    if [ "$optExtra" ]; then
 
-        CygbuildInstallTaropt2match include "$optExtra" > $retval
-        [ -s $retval ] && matchInclude=$(< $retval)
+	CygbuildInstallTaropt2match exclude $optExtra > $retval
+	[ -s $retval ] && matchExclude=$(< $retval)
+
+	CygbuildInstallTaropt2match include $optExtra > $retval
+	[ -s $retval ] && matchInclude=$(< $retval)
+
+	if [[ "$optExtra" == *cygbuild-no-docdir-install* ]]; then
+	    docdirInstall=
+	fi
+
+	if [[ "$optExtra" == *cygbuild-no-docdir-guess* ]]; then
+	    docdirGuess=
+	fi
+
+	CygbuildInstallTaropt2type include $optExtra > $retval
+	[ -s $retval ] && tarOptInclude=$(< $retval)
+
+	CygbuildInstallTaropt2type exclude $optExtra > $retval
+	[ -s $retval ] && tarOptExclude=$(< $retval)
     fi
 
     local done name file match
 
-    for file in $srcdir/[A-Z][A-Z][A-Z]* \
-                $srcdir/changelog        \
-                $srcdir/ChangeLog        \
-                $srcdir/*.html           \
-                $srcdir/*.pdf            \
-                $srcdir/*.txt
+    for file in $builddir/[A-Z][A-Z][A-Z]* \
+		$builddir/changelog        \
+		$builddir/ChangeLog        \
+		$builddir/[Cc]opyright     \
+		$builddir/[Cc]opying       \
+		$builddir/[Ll]icense       \
+		$builddir/*.html           \
+		$builddir/*.pdf            \
+		$builddir/*.txt
 
     do
 
-        [ ! -f "$file" ]          &&  continue
-        [ ! -s "$file" ]          &&  continue  # Zero length
+	[ ! -f "$file" ]          &&  continue
+	[ ! -s "$file" ]          &&  continue  # Zero length
 
-        #   Ignore backups
+	name="${file##*/}"
+	match=""
 
-        [[ $file == @(*[~#]|*.bak|*.rej|*.orig) ]]    && continue
+	CygbuildMatchPatternList \
+	    "$file" "$CYGBUILD_INSTALL_IGNORE" && continue
 
-        name=${file##*/}
-        match=""
+	if [[ "$matchExclude"  &&  "$name" == $matchExclude ]]; then
+	    continue
+	fi
 
-        #   In for loop, the patterns in $CYGBUILD_INSTALL_IGNORE
-        #   would expand to file names without 'noglob'.
+	if [ ! "$done" ]; then      #  Do this only once
+	    CygbuildRun $scriptInstallDir "$dest" || return $?
+	    done=1
+	    CygbuildVerb "-- Installing docs to" ${dest#$srcdir/} \
+			 ${test:+(TEST MODE)}
+	fi
 
-        CygbuildMatchBashPatternList \
-            "$file" $CYGBUILD_INSTALL_IGNORE && continue
-
-        if [[ "$matchExclude"  &&  "$name" == $matchExclude ]]; then
-            continue
-        fi
-
-        if [ ! "$done" ]; then      #  Do this only once
-            CygbuildRun $scriptInstallDir $dest || return $?
-            done=1
-            echo "--   Installing docs to $dest ${test:+(TEST MODE)}"
-        fi
-
-        CygbuildRun $scriptInstallFile $file $dest
+	CygbuildRun $scriptInstallFile $file $dest
 
     done
 
+    #  tar does not yet support --include options, so do it here
+
     if [ "$matchInclude" ]; then
-        CygbuildPushd
+	CygbuildPushd
 
-            cd "$srcdir"
+	    cd "$builddir"
 
-            # @(<pattern>) => <pattern>
+	    # @(<pattern>) => <pattern>
 
-            matchInclude=${matchInclude/\@(}
-            matchInclude=${matchInclude/)}
-            matchInclude=${matchInclude//\|/ }
+	    matchInclude=${matchInclude/\@(}
+	    matchInclude=${matchInclude/)}
+	    matchInclude=${matchInclude//\|/ }
 
-            for file in $matchInclude
-            do
-              [ -f "$file" ] || continue
-              CygbuildRun $scriptInstallFile $file $dest
-            done
+	    for file in $matchInclude
+	    do
+	      [ -f "$file" ] || continue
+	      CygbuildRun $scriptInstallFile -D $file $dest/$file
+	    done
 
-        CygbuildPopd
+	CygbuildPopd
     fi
 
-    #   Next, install whole doc/, Docs/ ... directory
+    #   Next, install whole doc/ Docs/ contrib/ ... directories
 
-    CygbuildDetermineDocDir $srcdir > $retval
-    local dir=$(< $retval)
+    [ "$docdirInstall" ] || return 0
 
-    if [ "$dir" ]; then
+    local dir
 
-        #   Are there any files in it?
+    if [ "$docdirGuess" ]; then
+	CygbuildDetermineDocDir $builddir > $retval
+	[ -s $retval ] || return 0
 
-        local status
-        $LS $dir/* > /dev/null 2>&1
-        status=$?
+	dir=$(< $retval)
 
-        if [ "$status" = "0" ]; then
-
-            echo "--   Installing docs from $dir"
-
-            CygbuildRun $scriptInstallDir $dest || return $?
-
-            CygbuildPushd
-
-                cd $dir || exit 1
-
-                #   Remove manual pages, there are already installed in
-                #   man/manN/
-
-                local taropt="--extract"
-
-                if [ "$test" ]; then
-                    taropt="--list"
-                    echo "--   [NOTE] Test mode: install in $dir"
-                fi
-
-                status=""
-
-                $TAR $optExclude $optExtra $verbose --create --file=- * \
-                   | ( $TAR -C "$dest" $taropt --file=- )
-
-                status=$?
-
-            CygbuildPopd
-
-            if [ "$status" != "0" ]; then
-                CygbuildWarn "$id: [ERROR] tar failed to move files. " \
-                     "Need to run [files]?"
-                return $status
-            fi
-
-            CygbuildVerb "--  Fixing permissions in $dest"
-
-            $FIND $dest -print > $retval
-
-            local mode644 mode755
-
-            for item in $(< $retval)
-            do
-                if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
-                then
-                    mode755="$mode755 $item"
-                else
-                    mode644="$mode644 $item"
-                fi
-            done
-
-            if [ "$mode644" ]; then
-                chmod 644 $mode644 || return $?
-            fi
-
-            if [ "$mode755" ]; then
-                chmod 755 $mode755 || return $?
-            fi
-
-            return $status
-        fi
+	if CygbuildIsDirEmpty "$dir" && [ ! "$tarOptInclude" ]; then
+	    return 0                    #  Nothing to install
+	fi
     fi
+
+    CygbuildEcho "-- Installing docs from" ${dir#$srcdir/}
+
+    CygbuildRun $scriptInstallDir $dest || return $?
+
+    #   The relative path "../" is needed, in case of 'cd' command
+    #   below.
+
+    local extradir
+    [ -d examples ] && extradir="$extradir ${dir:+../}examples"
+    [ -d example  ] && extradir="$extradir ${dir:+../}example"
+    [ -d sample   ] && extradir="$extradir ${dir:+../}sample"
+
+    CygbuildPushd
+
+	if [ "$dir" ]; then
+	    cd "$dir" || exit 1
+	fi
+
+	#   Remove manual pages, there are already installed in
+	#   man/manN/
+
+	local taropt="--extract"
+
+	if [ "$test" ]; then
+	    taropt="--list"
+	fi
+
+	local status=0
+
+	if [ ! "$test" ] ; then
+
+	    if [ "$tarOptInclude" ] || [ "$dir" ] || [ "$extradir" ]
+	    then
+		tar $optExclude $tarOptExclude $verbose \
+		    --create --dereference --file=- \
+		    ${dir:+"."} \
+		    $extradir \
+		    $tarOptInclude \
+		| ( tar --directory "$dest" $taropt --file=- )
+
+		status=$?
+	    fi
+	fi
+
+    CygbuildPopd
+
+    if [ "$status" != "0" ] && [ "$test" ] ; then
+	CygbuildEcho "-- Ignore harmless tar error (TEST MODE)"
+
+    elif [ "$status" != "0" ]; then
+	CygbuildWarn "$id: [ERROR] tar failed to move files. " \
+	     "Need to run [files] or repeat [shadow]?"
+
+	return $status
+    fi
+
+    local _dest=${dest#$srcdir/}
+    CygbuildVerb "-- Adjusting permissions in $_dest" ${test:+(TEST MODE)}
+
+    find "$dest" -print > $retval
+
+    while read item
+    do
+	if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
+	then
+	    chmod 755 "$item" || return $?
+	else
+	    chmod 644 "$item" || return $?
+	fi
+    done < $retval
+
+    return $status
 }
 
 function CygbuildInstallExtraManual()
@@ -7606,120 +9210,767 @@ function CygbuildInstallExtraManual()
 
     local mandest=$instdir/$CYGBUILD_MANDIR_FULL
     local addsect=$CYGBUILD_MAN_SECTION_ADDITIONAL
-    local file page name nbr mansect manpage program
+
+    local mandir="$DIR_CYGPATCH"
+    local try="$DIR_CYGPATCH/man"
+
+    if CygbuildIsDirMatch "$try" *.[0-9]* *.pod ; then
+	mandir=$try
+    fi
+
+    if [ -f $EXTRA_MANDIR_FILE ]; then
+	local dir=DIR_CYGPATCH/$(< $EXTRA_MANDIR_FILE)
+
+	if [ -d "$dir" ]; then
+	    CygbuildEcho "-- Reading extra dir info from" ${dir#$srcdir/}
+	    mandir=$dir
+	else
+	    CygbuildWarn "-- [ERROR] Not a directory '$dir', based on " \
+		${dir#$srcdir/}
+	fi
+
+    elif [ -d "$mandir/manpages" ]; then
+	mandir="$mandir/manpages"
+    fi
 
     #   Convert Perl pod pages to manuals.
 
-    local done=''
+    local done podcopy
+    local file page name nbr mansect manpage program
 
-    for file in $DIR_CYGPATCH/*.pod           \
-                $DIR_CYGPATCH/*.[1-9]         \
-                $DIR_CYGPATCH/*.[1-9]$addsect
+    for file in $mandir/*.pod           \
+		$mandir/*.[1-9]         \
+		$mandir/*.[1-9]$addsect
     do
 
-        [[ $file == *\[*  ]]    && continue # Name was not expanded
-        [ ! -f "$file" ]        && continue
+	[[ $file == *\[*  ]]    && continue # Name was not expanded
+	[ ! -f "$file" ]        && continue
 
-        name=${file##*/}        # /path/to/program.1x.pod => program.1x.pod
-        name=${name%.pod}       # program.1x.pod => program.1x
-        manpage=$DIR_CYGPATCH/$name
-        program=${name%$addsect}        # program.1x => program.1
-        program=${program%.[0-9]}       # program.1 => program
-        nbr=${name##*.}                 # program.1x => 1x
+	podcopy=
 
-        if [[ $nbr != [0-9]* ]]; then
-            CygbuildDie "$file does not include SECTION number (like *.1*)"
-        fi
+	#  /path/to/program.1x.pod => program.1x.pod
+	name=${file##$DIR_CYGPATCH/}
 
-        if [[ $file == *.pod ]]; then
+	#  program.1x.pod => program.1x
+	name=${name%.pod}
 
-            if [ ! $done ]; then
-                echo "--   Converting *.pod files to manual pages"
-                done=1
-            fi
+	manpage=$DIR_CYGPATCH/$name
+	program=${name%$addsect}        # program.1x => program.1
+	program=${program%.[0-9]}       # program.1 => program
+	nbr=${name##*.}                 # program.1x => 1x
 
-            #  Unfortunately pod2man always includes some headers, so it
-            #  must be fixed with sed. The manual page name is defined
-            #  directly form $file and would loook like PROGRAM.6(SECTION)
-            #  when it should read PROGRAM(SECTION)
+	if [[ $nbr != [0-9]* ]]; then
+	    CygbuildDie "$file does not include SECTION number (like *.1*)"
+	fi
 
-            pod2man                                                 \
-                --section="$nbr"                                    \
-                --release="dummy123"                                \
-                --center="User Contributed Documentation" $file |   \
-                $SED -e 's/dummy123//g'                             \
-                     -e "s/$name/$program/ig"                       \
-                > $manpage  ||                                      \
-                return $?
-        fi
+	if [[ $file == *.pod ]]; then
 
-        #  Copy manual pages to installation directory
+	    if [ ! $done ]; then
+		CygbuildEcho "-- Converting *.pod files to manual pages"
+		done=1
+	    fi
 
-        nbr=${nbr%$addsect}
-        mansect=$mandest/man$nbr
+	    #  Unfortunately pod2man always includes some headers, so it
+	    #  must be fixed with sed. The manual page name is defined
+	    #  directly form $file and would loook like PROGRAM.6(SECTION)
+	    #  when it should read PROGRAM(SECTION)
 
-        echo "--   Copying external manual page $manpage to $mandest"
+	    pod2man                                                 \
+		--section="$nbr"                                    \
+		--release="dummy123"                                \
+		--center="User Contributed Documentation" $file |   \
+		sed -e 's/dummy123//g'                              \
+		     -e "s/$name/$program/ig"                       \
+		> $manpage  ||                                      \
+		return $?
 
-        $scriptInstallDir  $mansect
-        $scriptInstallFile $manpage $mansect
+	    podcopy=$manpage
+	fi
 
+	#  Copy manual pages to installation directory
+
+	nbr=${nbr%$addsect}
+	mansect="$mandest/man$nbr"
+
+	CygbuildEcho "-- Copying external manual page" \
+	     ${manpage#$srcdir/} "to" ${mandest#$srcdir/}
+
+	$scriptInstallDir  "$mansect"
+	$scriptInstallFile "$manpage" "$mansect"
+
+	if [ "$podcopy" ]; then
+	    #  This was generated and installed, so remove it
+	    rm -f "$podcopy"
+	fi
     done
 }
 
 function CygbuildInstallExtraManualCompress()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  Compress all manual pages
 
-    local DIR_DOC_GENERAL=$instdir/$CYGBUILD_MANDIR_FULL
+    local instdocdir="$instdir/$CYGBUILD_MANDIR_FULL"
 
-    echo "--   Compressing manual pages"
+    CygbuildVerb "-- Compressing manual pages" ${test:+(TEST MODE)}
 
-    if [ ! -d "$DIR_DOC_GENERAL" ]; then
-        echo "--   [WARN] Directory not found: $DIR_DOC_GENERAL"
+    if [ ! -d "$instdocdir" ]; then
+	CygbuildWarn "-- [WARN] Directory not found:" ${instdocdir#$srcdir/}
     else
 
-        if $FIND $DIR_DOC_GENERAL -type f  > $retval
-        then
-            $GZIP --force --best $(< $retval) || return $?
-        fi
+	find $instdocdir            \
+	    -type f                 \
+	    '('                     \
+		! -name "*gz"       \
+		-a ! -name "*.bz2"  \
+	    ')'                     \
+	    > $retval
 
-        if $FIND $DIR_DOC_GENERAL -type l -name "*.[1-9]" > $retval
-        then
-            for file in $(< $retval)
-            do
-                #   If same program is "alias", then we have to rearrange
-                #   things a bit
-                #
-                #       xsetbg.1 -> xloadimage.1
-                #
-                #   If we compress xloadimage.1.gz, then the link would be
-                #   invalid
+	if [ -s $retval ]
+	then
+	    local file
 
-                CygbuildPushd
-                    cd ${file%/*} || exit $?
-                    local name=${file##*/}
+	    while read file
+	    do
+		CygbuildCompressManualPage --force --best "$file" || return $?
+	    done < $retval
+	fi
 
-                    CygbuildPathAbsoluteSearch $name > $retval
-                    path=$(< $retval)
+	find $instdocdir -type l -name "*.[1-9]" > $retval
 
-                    if [ "$path" ] && [ -f "$path.gz" ]; then
-                        $LN -sf $verbose "$path.gz" "$name.gz" || exit 1
-                        $RM "$name"
-                    fi
-                CygbuildPopd
-            done
-        fi
+	if [ -s $retval ]
+	then
+	    while read file
+	    do
+		#   If same program is "alias", then we have to rearrange
+		#   things a bit
+		#
+		#       xsetbg.1 -> xloadimage.1
+		#
+		#   If we compress xloadimage.1.gz, then the link would be
+		#   invalid
+
+		CygbuildPushd
+		    cd ${file%/*} || exit $?
+		    local name=${file##*/}
+
+		    CygbuildPathAbsoluteSearch $name > $retval
+		    path=$(< $retval)
+
+		    if [ "$path" ] && [ -f "$path.gz" ]; then
+			ln --symbolic --force $verbose \
+			    "$path.gz" "$name.gz" || exit 1
+
+			rm "$name"
+
+		    elif [ "$path" ] && [ -f "$path.bz2" ]; then
+			ln --symbolic --force $verbose \
+			    "$path.bz2" "$name.bz2" || exit 1
+
+			rm "$name"
+		    fi
+		CygbuildPopd
+
+	    done < $retval
+	fi
     fi
+}
+
+function CygbuildInstallExtraBinFiles
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    local extrabindir="$srcdir/$CYGBUILD_DIR_CYGPATCH_RELATIVE/bin"
+
+    [ -d "$extrabindir" ] || return 0
+
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
+    local item dest todir tmp _file
+
+    CygbuildEcho "-- Installing external programs from: $extrabindir"
+
+    for item in $extrabindir/*
+    do
+	_file=${item##*/}
+	dest="/usr/bin"         # default location
+	tmp=$( awk '/cyginstdir:/ { print $(NF)}' "$item" )
+
+	[ "$tmp" ] && dest=${tmp%/} # Change destination
+
+	todir="$instdir$dest"
+
+	CygbuildVerb "-- install ${todir#$srcdir/}/$_file"
+
+	CygbuildRun $scriptInstallFile $item $todir/$_file || return $?
+    done
 }
 
 function CygbuildInstallExtraMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildInstallExtraManual
+    CygbuildInstallExtraManual           &&
+    CygbuildMakeRunInstallFixPerlManpage &&
+    CygbuildInstallExtraBinFiles
+}
+
+function CygbuildInstallFixMandir()
+{
+    local id="$0.$FUNCNAME"
+    local mandir="$dir/usr/man"
+
+    [ -d "$mandir" ] || return 0
+
+    CygbuildVerb "-- Fixing manual page locations"
+
+    local todir="$CYGBUILD_PREFIX/$CYGBUILD_MANDIR_RELATIVE"
+    local manroot="$instdir$todir"
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
+    local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
+
+    $scriptInstallDir "$manroot" || return 1
+
+    local item
+
+    for item in $mandir/*
+    do
+      mv "$item" "$manroot"
+    done
+
+    rmdir "$dir/usr/man"
+}
+
+function CygbuildInstallFixPermissions()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    find "$instdir" -type f > $retval
+    [ -s $retval ] || return 0
+
+    local file exeList readList
+
+    while read file
+    do
+      if [[ "$file" == $CYGBUILD_MATCH_FILE_EXE ]] ||
+	 [[ "$file" == */bin/*  ]] ||
+	 [[ "$file" == */sbin/* ]]
+      then
+
+	  exeList="$exeList $file"
+
+      elif [[ "$file" == */man/* ]]; then
+
+	  readList="$readList $file"
+
+      fi
+    done < $retval
+
+    [ "$exeList"  ] && chmod 755 $exeList
+    [ "$readList" ] && chmod 644 $readList
+}
+
+function CygbuildInstallFixFileExtensions()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    find "$instdir/usr/bin" "$instdir/usr/games" \
+	-type f             \
+	-name "*.rb"        \
+	-o -name "*.py"     \
+	-o -name "*.pl"     \
+	> $retval           \
+	2> /dev/null
+
+    [ -s $retval ] || return 0
+
+    local file name new re regexp
+
+    while read file
+    do
+	CygbuildEcho "-- [NOTE] Removing extension from" ${file#$instdir/}
+
+	name=${file##*/}
+	new=${file%.*}
+	mv "$file" "$new"
+
+	CygbuildStrToRegexpSafe "$name" > $retval.re
+	re=$(< $retval.re)
+
+	if [ "$regexp" ]; then
+	    regexp="$regexp|\<$re\>"
+	else
+	    regexp="\<$re\>"
+	fi
+
+    done < $retval
+
+    #   See if the above change needs chnages in documentation
+
+    local dir=${instdir#$srcdir}
+
+    $EGREP --recursive --files-with-matches \
+	"$regexp"                           \
+	"$dir/usr/share/doc"                \
+	> $retval                           \
+	2> /dev/null
+
+    #   FIXME: bz2?
+    zgrep "$regexp" "$dir/usr/share/man*/*" \
+	>> $retval                          \
+	2> /dev/null
+
+    [ -s $retval ] || return 0
+
+    CygbuildWarn "-- [WARN] Docs that refer to files with the extention"
+    sed "s,$srcdir,," $retval
+}
+
+function CygbuildInstallFixInterpreterPerl ()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local bin="$PERLBIN"
+    local file="$1"
+    local _file=${file#$srcdir/}
+
+    if [ ! "$file" ] || [ ! -f "$file" ] ; then
+	CygbuildWarn "$id: No such file: $file"
+	return 1
+    fi
+
+    #  Clean lines:
+    #
+    #    #!/usr/bin/perl5.8.8
+    #    #!/usr/bin/perl -*-
+    #
+    #    eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    #      if 0; # not running under some shell
+    #
+    #  Or even like this:
+    #
+    #    #!/usr/bin/perl -w
+    #
+    #    # the path to perl at the top was generated by autoconf
+    #
+    #    #!/usr/bin/perl -w
+
+    local max=10
+
+    head --lines=$max "$file" > $retval
+    $EGREP '^#![[:space:]]*/.*perl' $retval > $retval.grep
+
+    wc -l < $retval.grep > $retval.count
+    local count=$(< $retval.count)
+
+    if [ $count -gt 1 ] ; then
+	CygbuildEcho "-- [NOTE] Fixing multiple shebang lines in $_file"
+
+	[ "$verbose" ] && cat $retval.grep
+
+	awk '
+	    NR < max  &&  /#!.*perl/ {
+		if ( ! done )
+		    print
+		done = 1
+		next
+	    }
+	    {
+		print
+	    }
+	' max=$max "$file" > $retval.awk &&
+	mv --force $retval.awk "$file"
+    fi
+
+    sed -e "1s, -[*]*-.*,,"                             \
+	 -e "1s,\(#!.*$bin\)\([0-9].*\),\1,"            \
+	 -e "1s,#!.* \(.*\),#!$bin \1,"                 \
+	 -e "/.*eval.*exec.*bin\/perl.*/d"              \
+	 -e "/.*not running under some shell/d"         \
+	 "$file" > $retval
+
+    if [ -s $retval ] &&
+       CygbuildFileCmpDiffer "$file" $retval
+    then
+	CygbuildEcho "-- [NOTE] Fixing Perl call line in $_file"
+	[ "$verbose" ] && diff "$file" $retval
+	mv --force $retval "$file"
+    fi
+}
+
+function CygbuildInstallFixInterpreterGeneric()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local bin="$1"
+    local file="$2"
+
+    local name=${bin##*/}
+
+    if [ ! "$file" ] || [ ! -f "$file" ] ; then
+	CygbuildWarn "$id: No such file $file"
+	return 1
+    fi
+
+    #  /usr/bin/env python
+    #  sed => /bin/python python
+    #  sed => /bin/python
+
+    sed -e "1s,#!.* \(.*\),#!$bin \1," \
+	-e "1s,\($name\)[ \t]\+\1,\1," \
+	"$file" \
+	> "$retval" &&
+
+    if [ -s "$retval" ] &&
+	CygbuildFileCmpDiffer "$file" "$retval"
+    then
+	[ "$verbose" ] && diff "$file" "$retval"
+	mv --force "$retval" "$file"
+	CygbuildEcho "-- [NOTE] Fixed shebang call line"
+    fi
+}
+
+function CygbuildInstallFixDocdirInstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$instdir"
+    local dest="$DIR_DOC_GENERAL"
+    local dest1=${dest##*/}                 # Delete path. Basename
+    local pwd="$(pwd)"
+
+    if [ "$test" ]; then
+	CygbuildEcho "-- Handling of doc/foo-N-N/ directory (TEST MODE)"
+	return 0
+    fi
+
+    [ -d "$dest" ] || return 0
+
+    #   Clean any empty directories
+
+    find "$dest" -type d > $retval
+
+    if [ -s $retval ]; then
+	local tmp
+
+	while read tmp
+	do
+	    if CygbuildIsDirEmpty "$tmp" ; then
+		CygbuildVerb "-- Removing empty directory" \
+			     ${tmp#$pwd/}
+		rmdir "$tmp"
+	    fi
+	done < $retval
+    fi
+
+    #   The Makefile may install in:
+    #
+    #       .inst/usr/share/doc/foo/
+    #
+    #   But for Cygwin, this must be:
+    #
+    #       .inst/usr/share/doc/foo-0.10.3/
+
+    CygbuildStrToRegexpSafe "$dest1" > $retval   # 1.20+r100 etc.
+    local re=$(< $retval)
+
+    local pdir=$(
+	cd $dir/usr/share/doc &&
+	{ ls | $EGREP --invert-match "$re|Cygwin" ; }
+    )
+
+    [ "$pdir" ] || return 0
+
+    local pkgdocdir="$dir/usr/share/doc/$pdir"
+
+    if [[ "$pdir" == *\ * ]]; then
+	#  Multiple directories or space in directory name.
+	CygbuildEcho "-- [NOTE] Handle manually. Can't relocate: $pkgdocdir"
+	return 0
+    fi
+
+    if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- . |
+	 {
+	    mkdir -p "$dest"                            &&
+	    tar --directory "$dest" --extract --file=-  &&
+	    rm -rf "$pkgdocdir" ;
+	 }
+    then
+
+	[ ! "$test" ] &&
+	CygbuildWarn "$id: [ERROR] Internal error while relocating" \
+		     ${pkgdocdir#$srcdir/}
+	return 99
+    fi
+
+    CygbuildEcho "-- [NOTE] Moving ${pkgdocdir#$pwd/} to" \
+		 ${dest#$dir/}
+}
+
+function CygbuildInstallPostinstallPartInfo()
+{
+    local id="$0.$FUNCNAME"
+    local dest="$DIR_DEFAULTS_GENERAL"
+    local i list
+
+    for i in "$@"
+    do
+	i=${i##*/}          # Delete path
+	list="$list $i"
+    done
+
+    local commands="\
+(
+    cd /usr/share/info &&
+    for i in $list
+    do
+	install-info --dir-file=./dir --info-file=\$i
+    done
+)"
+
+    CygbuildPostinstallWriteMain "info" "$commands"
+}
+
+function CygbuildInstallPostinstallPartEtc()
+{
+    local id="$0.$FUNCNAME"
+    local dest="$DIR_DEFAULTS_GENERAL"
+
+    CygbuildEcho "-- Writing /etc postinstall script"
+
+    #   Do we have a single file or directory?
+    #   The SED call filters out ./leading/path/to/file
+
+    local i list
+
+    while read i
+    do
+	list="$list $i"
+    done < <(
+	cd $dest &&
+	find . ! -name preremove -a ! -name postinstall |
+	    sed \
+	    -e 's,^\./,,' \
+	    -e 's,^\.$,,' \
+	)
+
+    [ "$list" ] || return 0
+
+    local commands="\
+fromdir=/etc/defaults
+for i in $list
+do
+    src=\$fromdir/\$i
+    destdir=\$dest/\$i
+
+    [ -e \$destdir ] && continue
+
+    if [ -d \$src ] ; then
+	install -d -m 755 \$destdir
+	continue
+    fi
+
+    install -m 644 \$src \$destdir
+done
+"
+
+    CygbuildPostinstallWriteMain "etc" "$commands"
+}
+
+function CygbuildInstallFixInfoInstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$instdir/usr/share/info"
+
+    [ -d "$dir" ] || return 0
+
+    find $instdir/usr/share/ -name "*.info" \
+	> $retval 2> /dev/null
+
+    [ -s $retval ] || return 0          # No info files
+
+    CygbuildInstallPostinstallPartInfo $(< $retval)
+}
+
+function CygbuildInstallFixEtcdirInstall()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$instdir"
+
+    #   The Makefile may install in:
+    #
+    #       .inst/etc/<package>/
+    #
+    #   But for Cygwin, this must be reloaced + have postinstall
+    #
+    #       .inst/etc/default/<package/
+    #
+    #   Check if there is anything to install
+
+    local pkgetcdir=$(
+	cd "$dir/etc" 2> /dev/null &&
+	ls | $EGREP --invert-match --quiet 'defaults|(post|pre)install' &&
+	pwd
+    )
+
+    [ "$pkgetcdir" ] || return 0
+
+    #   Preserve these:
+    #       .inst/etc/preremove
+    #       .inst/etc/postinstall
+    #
+    #   and move everything else into
+    #
+    #       .inst/etc/defaults/etc
+
+    local dir list
+
+    for dir in preremove postinstall
+    do
+	if [ -d "$pkgetcdir/$dir" ] ; then
+	    list="$list $dir"
+	fi
+    done
+
+    local ptar="$retval.pre-post.tar"
+
+    if [ "$list" ]; then
+	${test:+echo} tar           \
+	--directory "$pkgetcdir"    \
+	--create                    \
+	--file=$ptar                \
+	$list
+    fi
+
+    local tar="$retval.tar"
+
+    #   All the rest files
+    ${test:+echo} tar               \
+	--directory "$pkgetcdir"    \
+	--create                    \
+	--file=$tar                 \
+	--exclude=*preremove*       \
+	--exclude=*postinstall*     \
+	.
+
+    #   Now recreate the directory structure for Cygwin
+    ${test:+echo} rm -rf "$pkgetcdir"/*
+
+    if [ -f $ptar ]; then
+	${test:+echo} tar --directory "$pkgetcdir" --extract --file=$ptar
+    fi
+
+    if [ -s $tar ]; then
+
+	local dest="$DIR_DEFAULTS_GENERAL/etc"
+
+	${test:+echo} mkdir --parents "$dest"   &&
+	${test:+echo} tar --directory "$dest" --extract --file=$tar
+
+	if [ ! "$?" = "0" ]; then
+	    [ ! "$test" ] &&
+	    CygbuildWarn "$id: [ERROR] error while relocating $pkgetcdir"
+	    return 99
+	fi
+    fi
+
+    CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
+		 ${DIR_DEFAULTS_GENERAL#$dir/}
+
+    CygbuildInstallPostinstallPartEtc
+}
+
+function CygbuildInstallFixInterpreterMain()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local plbin="$PERLBIN"
+    local pybin="$PYTHONBIN"
+    local rbbin="$RUBYBIN"
+
+    find $instdir/usr/{bin,share,lib}   \
+	-type f                         \
+	> $retval.list                  \
+	2> /dev/null
+
+    [ -s $retval.list ] || return 0
+
+    local file
+
+    while read file
+    do
+	[ -f "$file" ] || continue
+
+	local _file=${file#$srcdir/}       # relative path
+
+	head --lines=1 "$file" > $retval 2> /dev/null
+
+	if $EGREP --quiet "perl" $retval &&
+	 ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
+	then
+	    CygbuildVerb "-- [NOTE] Suspicious Perl call" \
+		"in $_file: $(cat $retval)"
+
+	    CygbuildInstallFixInterpreterPerl "$file"
+
+	elif $EGREP --quiet "python" $retval &&
+	   ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
+	then
+	    CygbuildEcho "-- [NOTE] Suspicious Python call" \
+		 "in $_file: $(cat $retval)"
+
+	    CygbuildInstallFixInterpreterGeneric "$pybin" "$file"
+
+	elif $EGREP --quiet "ruby" $retval &&
+	   ! $EGREP --quiet "$rbbin[[:space:]]*$" $retval
+	then
+
+	    CygbuildInstallFixInterpreterGeneric "$rbbin" "$file"
+	fi
+
+    done < $retval.list
+}
+
+function CygbuildInstallFixPerlPacklist()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    local file
+
+    # .inst/usr/lib/perl5/site_perl/5.8/cygwin/auto/<pkg>/.packlist
+
+    for file in $instdir/usr/lib/perl5/*/*/*/*/*/.packlist
+    do
+	[ -f "$file" ] || continue
+
+	local _file=${file#$srcdir/}       # relative path
+
+	CygbuildVerb "-- Adjusting $_file"
+
+	#  Remove the "path/to/.inst" portion
+
+	sed 's/.*.inst//' "$file" > "$retval" &&
+	mv --force "$retval" "$file"
+    done
+}
+
+function CygbuildInstallFixMain()
+{
+    CygbuildInstallFixDocdirInstall
+    CygbuildInstallFixEtcdirInstall
+    CygbuildInstallFixInfoInstall
+    CygbuildInstallFixInterpreterMain
+    CygbuildInstallFixPerlPacklist
+    CygbuildInstallFixMandir
+    CygbuildInstallFixFileExtensions
+    CygbuildInstallFixPermissions
 }
 
 function CygbuildInstallCygwinPartPostinstall()
@@ -7730,22 +9981,23 @@ function CygbuildInstallCygwinPartPostinstall()
     local dest=$SCRIPT_POSTINSTALL_FILE
 
     if [ -f "$file" ]; then
-        local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
-        local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
+	local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
+	local scriptInstallBin="$INSTALL_SCRIPT $INSTALL_BIN_MODES"
 
-        local tofile=$dest/$PKG.sh
+	local tofile="$dest/$PKG.sh"
 
-        echo "--   Installing [Cygwin] postinstall script to dir $tofile"
+	CygbuildEcho "-- Installing postinstall script to" \
+		     "directory ${tofile#$srcdir/}"
 
-        $scriptInstallDir $dest
-        $scriptInstallFile $file $tofile
+	$scriptInstallDir $dest
+	$scriptInstallBin $file $tofile
     fi
 }
 
 function CygbuildInstallCygwinPartMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
 
@@ -7754,1038 +10006,226 @@ function CygbuildInstallCygwinPartMain()
     file=$(< $retval)
 
     if [ ! "$file" ]; then
-        CygbuildDie "-- [FATAL] Can't find Cygwin specific README file"
+	CygbuildDie "-- [FATAL] Can't find Cygwin specific $PKG.README file" \
+	    "Please run command [files]"
     fi
 
     #   NOTE: the *.README file does not include RELEASE, just VERSION.
 
-    for elt in \
+    local item
+
+    for item in \
       "required $file  $DIR_DOC_CYGWIN $PKG-$VER.README" \
       "optional $SCRIPT_PREREMOVE_CYGFILE   $DIR_PREREMOVE_CYGWIN $PKG.sh" \
-      "optional $PREREMOVE_MANIFEST_CYGFILE $DIR_PREREMOVE_CYGWIN $PKG-$PREREMOVE_MANIFEST_NAME" \
-      "optional $PREREMOVE_MANIFEST_FROM_CYGFILE $DIR_PREREMOVE_CYGWIN $PKG-$PREREMOVE_MANIFEST_FROM_NAME"
+      "optional $FILE_PREREMOVE_MANIFEST_TO $DIR_PREREMOVE_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_TO" \
+      "optional $FILE_PREREMOVE_MANIFEST_FROM $DIR_PREREMOVE_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_FROM" \
+      "optional $FILE_POSTINSTALL_MANIFEST_DATA $DIR_POSTINSTALL_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_DATA"
     do
-        set -- $elt
+	set -- $item
 
-        local mode=$1
-        local fromfile=$2
-        local todir=$3
-        local tofile="$todir/$4"
+	local mode=$1
+	local fromfile=$2
+	local todir=$3
+	local tofile="$todir/$4"
 
-        if [ "$mode" = "required" ] && [ ! -f "$fromfile" ]; then
-            CygbuildWarn "$id: [ERROR] Missing file/dir: $fromfile"
-            return 1
-        fi
+	if [ "$mode" = "required" ] && [ ! -f "$fromfile" ]; then
+	    CygbuildWarn "$id: [ERROR] Missing file/dir: $fromfile"
+	    return 1
+	fi
 
-        [ ! -f "$fromfile" ] && continue
+	[ -f "$fromfile" ] || continue
 
-        $scriptInstallDir   $todir              || return $?
-        $scriptInstallFile  $fromfile $tofile   || return $?
+	CygbuildRun $scriptInstallDir   $todir              || return $?
+	CygbuildRun $scriptInstallFile  $fromfile $tofile   || return $?
     done
-}
-
-function CygbuildCmdInstallCheckInfoFiles()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dummy=$(pwd)                    # For debug
-    local dir=$instdir
-
-    #   If there is central info "dir", then there must be postinstall
-    #   script to handle it.
-
-    local notes
-    $FIND -L $dir -name dir -o -name \*.info > $retval
-    [ -s $retval ] && notes=$(< $retval)
-
-    if [ "$notes" ]; then
-        local file="$SCRIPT_POSTINSTALL_CYGFILE"
-
-        if [ ! -f "$file" ]; then
-            echo "--    [ERROR] Info files found" \
-                 "but there is no $file"
-            return 1
-        fi
-    fi
-}
-
-function CygbuildCmdInstallCheckPythonFile ()
-{
-    local id="$0.$FUNCNAME"
-    local file="$1"
-
-    if [ ! "$PYTHON" ]; then
-        return 1
-    fi
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local name=${file##*/}
-    local newfile=$retval.fix.$name
-
-    $EGREP '^#!/' $file | head -1 > $retval
-    local binpath=$(< $retval)
-
-    if [ ! "$binpath" ]; then
-        CygbuildWarn \
-            "--   [WARN] $name incorrect/missing bang-slash #!, fixing it."
-        echo "#!$PYTHON" > "$newfile" &&
-        $CAT "$file" >> "$newfile"    &&
-        CygbuildRun $MV "$newfile" "$file"
-    fi
-
-    if [[ $binpath != *@($PYTHON|/usr/bin/env python) ]]; then
-        CygbuildWarn "--   [WARN] $name uses wrong python path, fixing it."
-        $SED -e "s,^#!.*,#!$PYTHON," "$file" > "$newfile" &&
-        CygbuildRun $CP "$newfile" "$file"
-    fi
-}
-
-function CygbuildCmdInstallCheckPerlFile ()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local file="$1"
-
-    if [ ! "$PYTHON" ]; then
-        return 1
-    fi
-
-    local name=${file##*/}
-    newfile=$retval.fix.$name
-    local warn err
-
-    CygbuildVerb "--   Checking perl -cw $name"
-
-    #  Check that program is well formed
-
-    $PERL -cw $file > $retval 2>&1
-    local notes=$(< $retval)
-
-    if [[ "$notes" == *@INC* ]]; then
-
-        #  Cannot locate Time/ParseDate.pm in @INC ...
-        CygbuildWarn \
-            "--   [WARN] $name: requires external Perl libraries (CPAN)"
-        warn="yes"
-
-    elif [[ "$notes" == *\ line\ * ]]; then
-
-        #  Example: Unquoted string "imsort" may clash with future
-        #           reserved word at foo.pl line 143.
-        CygbuildWarn \
-            "--   [WARN] $name: report compile warnings to upstream author"
-        warn="yes"
-
-    fi
-
-    [ "$warn" ] && CygbuildWarn "$notes"
-
-    if [[ "$notes" == *syntax*OK*  ]]; then
-        # All is fine
-        :
-    elif [[ "$notes" == *syntax* ]]; then
-        CygbuildWarn "--   [ERROR] $name: cannot be run"
-        return 1
-    fi
-
-    local binpath
-    $EGREP '^#!/' $file  | head -1 > $retval
-    [ -s $retval ] && binpath=$(< $retval)
-
-    if [ ! "$binpath" ]; then
-
-        CygbuildWarn \
-            "--   [WARN] $name incorrect/missing bang-slash #!, fixing it."
-        echo "#!$PERL" > "$newfile" &&
-        $CAT "$file" >> "$newfile"    &&
-        CygbuildRun $MV "$newfile" "$file"
-
-    elif [[ $binpath == +($PERL) ]]; then
-
-        CygbuildWarn "--   [WARN] $name uses wrong perl path, fixing it."
-        $SED -e "s,^#!.*,#!$PERL," "$file" > "$newfile" &&
-        CygbuildRun $CP "$newfile" "$file"
-
-    fi
-
-    if CygbuildGrepCheck '^=pod' $file ; then
-        echo "--   [INFO] found embeded POD from $file"
-    else
-
-        if CygbuildGrepCheck '^=cut' $file ; then
-            #  Sometimes developers do not write well formed POD.
-            echo "--   [NOTE] =pod tag is missing, but POD found: $file"
-        else
-            echo "--   [INFO] No embedded POD found from $file"
-        fi
-    fi
-}
-
-function CygbuildCmdInstallCheckShellFiles ()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir="$instdir$CYGBUILD_PREFIX"
-
-    if [ ! -d "$dir/bin" ] || [ -d "$dir/sbin" ] ; then
-        return 0
-    fi
-
-    local file rest
-
-    #   Not all Perl files are installed with extension .pl
-    #   Many will drop the *.{pl,py,sh} extension during install.
-
-    file $dir/bin/* $dir/sbin/* 2> /dev/null |
-    while read file rest
-    do
-        file=${file%:}
-
-        if [ -h $file ]; then
-            echo "--   [NOTE] symbolic link: $file"
-
-            if CygbuildPathResolveSymlink "$file" > $retval ; then
-                file=$(< $retval)
-            else
-                echo "--   [WARN] Couldn't resolve symlink"
-            fi
-        fi
-
-        #   Make relative path if possible. Messages are better that way
-
-        file=${file/$(pwd)\//}
-
-        if [[ "$rest" == *perl* ]]; then
-            CygbuildCmdInstallCheckPerlFile "$file"
-        elif [[ "$rest" = *python* ]]; then
-            CygbuildCmdInstallCheckPythonFile "$file"
-        fi
-
-    done
-}
-
-function CygbuildCmdInstallCheckTempFiles()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir=$instdir
-    local ignore="$CYGBUILD_IGNORE_ZERO_LENGTH"
-    local done file ret
-
-    for file in $( $FIND -L $dir -type f                   \
-                   '(' -size 0 -name "*[#~]*" ')'    \
-                 )
-    do
-        [[ "$file" == $ignore ]] && continue
-
-        [ ! "$done" ] && CygbuildWarn \
-                         "--   [ERROR] Check zero length files or backup files"
-
-        done="done"
-        ret=1
-        CygbuildWarn "$(ls -l $file)"
-    done
-
-    return $ret
-}
-
-function CygbuildCmdInstallCheckReadme()
-{
-    local id="$0.$FUNCNAME"
-    local retva=$CYGBUILD_RETVAL.$FUNCNAME
-    local dummy=$(pwd)                    # For debug
-    local dir=$instdir
-    local readme="$PKG*.README"
-    local status=0
-
-    $FIND -L $dir -name "$readme"  > $retval
-
-    if [ ! -s $retval ]; then
-        CygbuildWarn "--    [WARN] File is missing: $readme"
-        let "status=status + 10"
-        return $status
-    fi
-
-    local path=$(< $retval)
-    local pkg=${path##*/}
-    pkg=${pkg%.README}
-    pkg=${pkg%-[0-9.]*}
-
-    if [ "$pkg" != "$PKG" ]; then
-        echo "--   [ERROR] package and dir name mismatch: $pkg != $PKG" \
-             " $pkg != $PKG (searched for $readme)"
-        let "status=status + 10"
-    fi
-
-    local purename=${path##*/}
-    local origreadme=$DIR_CYGPATCH/$purename
-
-    #   It is easy to mistakenly forgot to fill in:
-    #   Cygwin port maintained by: <Your Name Here>  <your email here>
-
-    local tags="(Your +name|Your +email)"
-    local notes=""
-
-    $EGREP -nie "$tags" $path /dev/null > $retval
-
-    [ -s $retval ] && notes=$(< $retval)
-
-    if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
-        CygbuildWarn "--   [WARN] Tags found: $tags"
-        CygbuildWarn "--   [WARN] edit $origreadme"
-        CygbuildWarn "$notes"
-        let "status=status + 10"
-    fi
-
-    #   It is easy to mistakenly write:
-    #   ----- version 4.2.7 -----
-    #   When it should read:
-    #   ----- version 4.2.7-1 -----
-
-    local tags="[<](PKG|VER|older VER|REL|date)[>]"
-    notes=""
-
-    $EGREP -ne "$tags" $path /dev/null > $retval
-
-    [ -s $retval ] && notes=$(< $retval)
-
-    if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
-        CygbuildWarn "--    [WARN] Tags found: $tags"
-        CygbuildWarn "--    [WARN] edit $origreadme"
-        CygbuildWarn "$notes"
-        let "status=status + 10"
-    fi
-
-    #   Check that ----- version 4.2.7-1 ----- corresponds
-    #   current $VER-$REL
-    #
-    #   g-b-s uses
-    #   ----------  <PKG>-<older VER>-1 -- <date> -----------
-    #
-    #  Convert special character like
-    #  0.3+git20070827-1 =>  0.3[+]git20070827-1
-
-    local rever=$(echo $VER | sed 's/\./[.]/g; s/+/[+]/g; ')    # regexp version
-    local sversion=$rever-${REL:-1}                             # search version
-    local version=$VER-${REL:-1}
-
-    notes=""
-
-    $EGREP --line-number --ignore-case -e \
-        "-- +($PKG-|version +)?$sversion +--" $path /dev/null > $retval
-    [ -s $retval ] && notes=$(< $retval)
-
-    if [[ ! "$notes" ]]; then
-        CygbuildWarn \
-            "--   [WARN] Missing reference $version" \
-            "(Perhaps you didn't run [install] after edit?)" \
-            "from $path"
-
-        [ "$verbose" ] && $EGREP --with-filename "$sversion" $path
-
-        CygbuildWarn \
-            "--   [INFO] Give different -r RELEASE or edit $origreadme"
-
-        let "status=status + 10"
-    fi
-
-    return $status
-}
-
-function CygbuildCmdInstallCheckSetupHint()
-{
-    local id="$0.$FUNCNAME"
-    local retva=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir=$DIR_CYGPATCH
-    local file="setup.hint"
-    local status=0
-    local dummy=$(pwd)                    # For debug
-
-    if [ ! -d "$dir" ]; then
-        echo "--   [WARN] Cannot check setup.hint, no $dir"
-        return
-    fi
-
-    #   -L = Follow symbolic links
-
-    if ! $FIND -L $dir -name "$file"  > $retval ; then
-        echo "--   [WARN] Hm, Can't find $file"
-        return
-    fi
-
-    if [ ! -s $retval ]; then
-        CygbuildWarn "--    [ERROR] Result file is empty or missing: $file"
-        return 1
-    fi
-
-    local path=$(< $retval)
-
-    if $EGREP "^sdesc:.+\.[ \t]*\"" $path /dev/null ; then
-        CygbuildWarn "--   [ERROR] 'sdesc:' contains period(.)"
-    fi
-
-    #   Make case insensitive search for package name in ldesc / first line.
-    #   Make sure libraries start with cyg* and not the old lib*
-
-    $AWK '/^ldesc:/ {
-            line = tolower($0);
-            name = tolower(name);
-
-            if ( match(line, name) == 0 )
-            {
-                next;
-            }
-
-            print;
-            print "--   [ERROR] ldesc: mentions package name at first line" ;
-        }
-
-    ' name="$PKG" $path  >&2
-
-    #  Installed files are here. We assume that developer always has
-    #  every package and library installed
-
-    local database="/etc/setup/installed.db"
-    local lib
-
-    for lib in $( $AWK  '/^requires:/ { sub("requires:", ""); print}' $path)
-    do
-        if $EGREP -q --files-with-matches "$lib" $database ; then
-            echo "--   [OK] setup.hint $lib"
-        else
-            CygbuildWarn "--   [ERROR] setup.hint $lib package not installed"
-        fi
-    done
-}
-
-function CygbuildCmdInstallCheckDirStructure()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local pfx="$instdir$CYGBUILD_PREFIX"
-
-    local ok try
-
-    for try in $pfx/bin $pfx/sbin $pfx/lib $pfx/X11R6/bin
-    do
-        if [ -d "$try" ]; then
-            ok=1
-            break
-        fi
-    done
-
-    local dir="$pfx/lib/X11/app-defaults"
-
-    if [ -d "$dir" ]; then
-        CygbuildWarn "--   [ERROR] No etc/X11/app-defaults, found $dir"
-    fi
-
-    if [ -d $instdir/doc ]; then
-        CygbuildWarn "--   [ERROR] /doc should be /usr/doc"
-    fi
-
-    if [ -d $instdir/bin ]; then
-        CygbuildWarn "--   [ERROR] /bin should be /usr/bin"
-    fi
-
-    if [ ! "$ok" ]; then
-        CygbuildWarn "--   [ERROR] incorrect directory structure," \
-             "$instdir contain no usr/bin, usr/sbin or usr/lib"
-        return 1
-    fi
-}
-
-function CygbuildCmdInstallCheckEtc()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local dir="$instdir"
-    local file
-    local status=0
-
-    for file in $dir/etc/*
-    do
-        [[ $file == $CYGBUILD_IGNORE_ETC_FILES ]] && continue
-        [ ! -f "$file" ]                          && continue
-
-        CygbuildWarn "--   [WARN] May conflict with user's settings: $file"
-        status=1
-    done
-
-    return $status;
-}
-
-function CygbuildCmdInstallCheckManualPages()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local addsect=$CYGBUILD_MAN_SECTION_ADDITIONAL
-    local dir="$instdir"
-
-    #   Every binary files should have corresponding manual page
-
-    CygbuildFilesExecutable "$dir" > $retval
-
-    local files=$(< $retval)
-
-    if [ ! "$files" ]; then
-        #   No executables, this may be a library package
-        echo "--   [INFO] Manual page check: no executables found in $dir"
-        return 0
-    fi
-
-    local file path manlist manPathList
-    local status=0
-
-    if $FIND -L $dir                \
-        -type f                     \
-        '('                         \
-            -path    "*/man/*"      \
-            -o -path "*/man[0-9]/*" \
-        ')'                         \
-        > $retval
-    then
-        for file in $(< $retval)
-        do
-            $EGREP -n 'Debian' $file > $retval
-
-            if [ -s $retval ]; then
-                echo "--   [INFO] If page was from Debian, it may need editing"
-                $CAT $retval
-            fi
-
-            path=${file%/*}
-            manPathList="$manPathList $path"
-
-            name=${file##*/}        # Delete path
-            name=${name%.gz}        # package.1.gz => package.1
-            name=${name%.bz2}       # package.1.gz => package.1
-            name=${name%$addsect}   # package.1x    => package.1
-            name=${name%.[0-9]}     # package.1    => package
-            manlist="$manlist $name "
-        done
-    fi
-
-    #  Check incorrect locations
-    #       .inst/usr/share/man1/
-    #       .inst/usr/man1
-
-    local try=$CYGBUILD_MANDIR_RELATIVE
-
-    for path in $manPathList
-    do
-        if [[ $path != *$try* ]]; then
-            CygbuildWarn "--   [ERROR] incorrect manual path [$try]: $path"
-            status=1
-        fi
-    done
-
-    local nameplain name
-
-    for file in $files
-    do
-
-        # Ignore certain files
-        # - w3m(1) installs sbin/w3m/cgi-bin/w3mman2html.cgi
-
-        [[ $file == *.htm*          ]]    && continue
-        [[ $file == */*test*/*      ]]    && continue
-        [[ $file == *.cgi           ]]    && continue
-        [[ $file == *cgi-bin*       ]]    && continue
-        [[ $file == */doc/*         ]]    && continue
-        [[ $file == */usr/share/*   ]]    && continue
-        [[ $file == */usr/lib/*     ]]    && continue
-        [[ $file == $CYGBUILD_IGNORE_ETC_FILES ]] && continue
-
-        CygbuildFileIgnore "$file" && continue
-
-        name=${file##*/}            # Delete path
-        nameplain1=${name%.exe}     # package.exe => package
-        nameplain2=${name%.*}       # package.sh, package.pl ...
-
-        #   File start starts with leading dot?
-
-        if [[ $file == */bin/* ]] && [[ $nameplain == .* ]]; then
-            CygbuildWarn "--   [WARN] Suspicious file $file"
-        fi
-
-        #   The LIST is a string containing binary names and they are
-        #   all surrounded by spaces: " prg1 prg2 ", see if
-
-        if [[ "$manlist" == *\ $nameplain1\ * ]]; then
-
-            :    # program.1
-
-        elif [[ "$manlist" == *\ $nameplain2\ * ]]; then
-
-            :
-
-        elif [[ "$manlist" == *\ $name\* ]]; then
-
-            :    # program.sh.1
-
-        else
-            echo "--   [WARN] No manual page for $file"
-        fi
-
-    done
-
-    return $status
-}
-
-function CygbuildCmdInstallCheckDocPages()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local pfx=$CYGBUILD_PREFIX
-    local dir=$instdir
-
-    if ! $FIND -L $dir                   \
-        -type f                          \
-        '(' -path   "*/$pfx/doc/*"   ')' \
-        > $retval
-    then
-        return
-    fi
-
-    local file path manlist manPathList
-    local status=0
-
-    for file in $(< $retval)
-    do
-        status=1
-
-        CygbuildWarn "--   [ERROR] Wrong location $file"
-    done
-
-    return $status
-}
-
-function CygbuildCmdInstallCheckBinFiles()
-{
-    local id="$0.$FUNCNAME"
-    local dir="$instdir"
-    local status=0
-    local maxsize=1000000       # 1 Meg *.exe is big
-
-    #   If we find binary files, but they are not in $instdir, then
-    #   Makefile has serious errors
-    #   #TODO: why is here a subshell wrapper?
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    ( CygbuildFilesExecutable "$dir" ) > $retval
-    local files=$(< $retval)
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    CygbuildDependsList > $retval
-    local depends=$(< $retval)
-
-    if [ ! "$files" ]; then
-        #   No executables, this may be a library package
-        echo "--   [INFO] Binaries check: no executables found in $dir"
-    fi
-
-    #  All exe files must have +x permission
-
-    $FIND -L $dir           \
-    '(' -name \*.sh         \
-        -o -name \*.exe     \
-        -o -name "*.dll"    \
-        -o -name "*.sh"     \
-        -o -name "*.pl"     \
-        -o -name "*.py"     \
-    ')'                     \
-    -a '(' -path "*python*site-pacages*" ')' -prune \
-    -a \! -perm +111 -ls    \
-    > $retval
-
-    if [ -s $retval ]; then
-        echo "--   [WARN] Hm, Some executables may have missing permission +x"
-        $CAT $retval
-        # status=1
-    fi
-
-    local installed
-
-    if ls $CYGBUILD_DOCDIRCYG_FULL/$PKG*.README  > /dev/null 2>&1; then
-        #   This package has already been installed into the system,
-        #   otherwise this is a new package port
-        installed="yes"
-    fi
-
-    local file
-    local docdir="$CYGBUILD_DOCDIRCYG_FULL"
-
-    #   FIXME: Currently every file in /bin is supposed to be executable
-    #   This may not be always true?
-
-    $FIND -L $dir -type f       \
-        \(                      \
-           -path "*/bin/*"      \
-           -o -path "*/sbin/*"  \
-        \)                      \
-        > $retval
-
-    local list=$(< $retval)
-
-    for file in $list
-    do
-        if [ -h $file ]; then
-            CygbuildPathResolveSymlink "$file" > $retval &&
-            file=$(< $retval)
-        fi
-
-        local str=""
-        local name=${file##*/}            # remove path
-
-        #   Make sure none of the files clash with existing binaries
-
-        if [ ! "$installed" ]; then
-
-            CygbuildWhich $name > $retval
-            [ -s $retval ] && str=$(< $retval)
-
-            if [ "$str" ]; then
-                echo "--   [NOTE] Binary name clash? Already exists $str"
-                # status=1
-            fi
-        fi
-
-        #   If files are compiled as static, the binary size is too big
-        #   But X files may be huge
-
-        if [[ "$file" != *X11* ]]; then
-
-            $LS -l $file > $retval
-            [ -s $retval ] && str=$(< $retval)
-
-            if [ "$str" ]; then
-
-                #  PATH -rwxr-xr-x  1 root None 1239 ...
-
-                set -- $str
-                local size=$5
-
-                if [[ $size -gt $maxsize ]]; then
-                    echo "--   [NOTE] Big file, need " \
-                         "dynamic linking? $size $file"
-                fi
-            fi
-        fi
-
-        #   Sometimes package includes compiled binaries for Linux.
-        #   Warn about those. The file(1) will report:
-        #
-        #   ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
-        #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
-        #   stripped
-
-        $FILE $file > $retval
-        [ -s $retval ] && str=$(< $retval)
-
-        local name=${file##*.inst}
-
-        if [[ "$str" == *Linux* ]]; then
-            echo "--   [ERROR] file(1) reports Linux executable: $name"
-            status=1
-
-        elif [[ "$str" == *perl*   ]] && [[ ! $depends == *perl* ]] ; then
-            echo "--   [ERROR] setup.hint may need Perl dependency" \
-                 "for $name"
-            status=1
-
-        elif [[ "$str" == *python* ]] && [[ ! $depends == *python* ]]  ; then
-            echo "--   [ERROR] setup.hint may need Python dependency" \
-                 "for $name"
-            status=1
-        fi
-
-        if [ "$verbose"  ]; then
-            str=${str##*:}          # Remove path
-            echo "--   $name: $str"
-
-            #   Show library dependencies
-            [[ $file == *.exe ]] && CygbuildCygcheck $file
-        fi
-
-    done
-
-    return $status
-}
-
-function CygbuildCmdInstallCheckLibFiles()
-{
-    local id="$0.$FUNCNAME"
-    local dir="$instdir"
-    local status=0
-
-    #   If we find binary files, but they are not in $instdir, then
-    #   Makefile has serious errors
-
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    $FIND -L $dir -type f           \
-        '(' -name "*.a"             \
-            -o -name "*.la"         \
-            -o -name "*.dll" ')'    \
-        > $retval
-
-    local files=$(< $retval)
-
-    if [ ! "$files" ]; then
-        #   This is not a library package
-        return
-    fi
-
-    local file
-
-    for file in $files
-    do
-        file=${file##$srcdir/}
-        echo "--   [INFO] Found lib $file"
-
-        [ "$verbose" ] && CygbuildCygcheck $file
-
-        if [[ $file == *dll  &&  $file == *usr/lib/*/* ]]; then
-
-            #  This is ok case: /usr/lib/foo/input/file.dll
-
-            echo "--   [NOTE] Hm, dynamically loaded lib?"
-
-        elif [[ $file == *.a  &&  ! $file == *usr/lib/* ]]; then
-
-            echo "--   [ERROR] Misplaced, should be in /usr/lib"
-            status=2
-
-        elif [[ $file == *dll  &&  ! $file == *usr/bin/* ]]; then
-
-            echo "--   [ERROR] Misplaced, should be in /usr/bin"
-            status=2
-        fi
-
-    done
-
-    $FIND -L $dir -type f '(' -name "*.info" -o -name "*.info-[0-9]" ')' \
-        > $retval
-    local info=$(< $retval)
-
-    $FIND  -L $dir -type f -path "*/man/*"  > $retval
-    local man=$(< $retval)
-
-    if [[ ! "$info"  &&  ! "$man" ]]; then
-        CygbuildWarn \
-            "--   [NOTE] Libraries found, but no *.info or /man/ files"
-        # status=1
-    fi
-
-    if [[ "$files" != *.dll* ]]; then
-        CygbuildWarn "--   [WARN] Libraries found, but no *.dll files"
-    fi
-
-    return $status
-}
-
-function CygbuildCmdInstallCheckLineEndings()
-{
-    #   Check Ctrl-M character: 0x0D, \015, \cM
-    #   There is no easy "one command", because
-    #
-    #   a) It is not good to insert control characters directly into
-    #      this program. It would be possible to type shell C-vC-m to get
-    #      pure "^M" and use it in egrep expression.
-    #
-    #   b) sed does not know \r
-    #   c) AWK strips \r at the end of lines before the line is "available"
-    #   d) perl would do it, but its startup is slow
-    #   e) od(1) would do, but's it's slower than cat(1)
-    #
-    #   => cat -v seems to be best compromize
-
-    if [ ! -d "$DIR_CYGPATCH" ]; then
-        echo "-- Skipped check. No $DIR_CYGPATCH"
-    else
-        # --files-with-matches = ... The scanning will stop on the first match.
-
-        if  head $DIR_CYGPATCH/* | $CAT -v \
-            | $EGREP --files-with-matches "\^M" \
-              > /dev/null 2>&1
-        then
-            echo "-- [INFO] Converting to Unix line endings: $DIR_CYGPATCH/*"
-            CygbuildFileConvertToUnix $DIR_CYGPATCH/*
-        fi
-    fi
-}
-
-function CygbuildCmdInstallSymlinkExe()
-{
-    local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-
-    # 2007-04-18
-    # From: Eric Blake <ebb9-PGZyUNKar/Q@public.gmane.org>
-    # Subject: All maintainers: repackage symlinks to executables
-    # See http://permalink.gmane.org/gmane.os.cygwin.applications/14466
-
-    $FIND $instdir -type l -name '*.exe' > $retval
-
-    if [ -s $retval ]; then
-        echo "-- [ERROR] Symlinks must not end to .exe."
-            "Recompile with coreutils 6.9 installed."
-        return 1
-    fi
 }
 
 function CygbuildCmdInstallCheckMain()
 {
+    local name="libcheck.sh"
+    local lib="$CYGBUILD_PROG_LIBPATH/lib/$name"
+
+    CygbuildEcho "== Checking content of installation in" ${instdir#$srcdir/}
+
+    if [ ! -f $lib ]; then
+	CygbuildEcho "-- [WARN] Not available: $lib"
+	return 0
+    fi
+
+    . $lib || return $?
+    CygbuildCmdInstallCheckEverything
+}
+
+function CygbuildCmdInstallDirClean ()
+{
     local id="$0.$FUNCNAME"
+    local dir=$instdir
 
-    #   See if there are any obvious errors
-    #   - Zero length files
+    if [ ! "$dir" ]; then
+	CygbuildDie "$id: [ERROR] Internal error. \$instdir is empty"
+    fi
 
-    local dummy=$(pwd)                    # For debug
-    local stat=0
+    if [ -d "$dir" ]; then
 
-    CygbuildCmdInstallCheckLineEndings
+	#  rm -rf is too dangerous to run without a check
 
-    echo "** Checking content of installation in $instdir"
+	if [[ "$dir" == *.inst* ]]; then
 
-    CygbuildCmdInstallCheckTempFiles    || stat=$?
-    CygbuildCmdInstallCheckInfoFiles    || stat=$?
-    CygbuildCmdInstallCheckShellFiles   || stat=$?
-    CygbuildCmdInstallCheckReadme       || stat=$?
-    CygbuildCmdInstallCheckSetupHint    || stat=$?
-    CygbuildCmdInstallCheckManualPages  || stat=$?
-    CygbuildCmdInstallCheckDocPages     || stat=$?
-    CygbuildCmdInstallCheckBinFiles     || stat=$?
-    CygbuildCmdInstallCheckLibFiles     || stat=$?
-    CygbuildCmdInstallCheckDirStructure || stat=$?
-    CygbuildCmdInstallCheckEtc          || stat=$?
-    CygbuildCmdInstallSymlinkExe        || stat=$?
+	    #   If other terminal is in this directory, this may fail.
 
-    echo "-- Check done. Please verify messages above."
+	    CygbuildVerb "-- Emptying" ${dir#$srcdir/}
 
-    return $stat
+	    rm -rf $dir/*
+
+	    if [ "$?" != "0" ]; then
+		CygbuildDie "-- [ERROR] Is some other terminal/window" \
+		       "accessing the directory?"
+	    fi
+
+	else
+	    CygbuildDie "$id: [ERROR] Suspicious \$instdir '$dir'"
+	fi
+    fi
+}
+
+function CygbuildCmdInstallFinishMessage()
+{
+    local relative=${instdir#$srcdir/}
+
+    if [ "$verbose" ]; then
+	CygbuildEcho "-- Content of: $relative"
+	find -L ${instdir#$(pwd)/} -print
+    else
+	[ ! "$test" ] &&
+	CygbuildEcho "-- See also: find $relative -type f | sort"
+    fi
+}
+
+function CygbuildCmdInstallPatchVerify()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local file="$CYGPATCH_DONE_PATCHES_FILE"
+
+    CygbuildPatchFileList > $retval
+
+    if [ -s $retval ] && [ ! -f "$file" ]; then
+	CygbuildWarn "-- [WARN] Patches are not applied"
+	return 1
+    fi
 }
 
 function CygbuildCmdInstallMain()
 {
     local id="$0.$FUNCNAME"
-    local scriptInstall=$SCRIPT_INSTALL_MAIN_CYGFILE
-    local scriptAfter=$SCRIPT_INSTALL_AFTER_CYGFILE
+    local scriptInstall="$SCRIPT_INSTALL_MAIN_CYGFILE"
+    local scriptAfter="$SCRIPT_INSTALL_AFTER_CYGFILE"
+    local thispath="$CYGBUILD_PROG_FULLPATH"
 
-    echo "** Install command"
+    CygbuildEcho "== Install command"
 
-    CygbuildExitNoDir $builddir \
-              "$id: [ERROR] No builddir $builddir. Did you run 'shadow' ?"
+    CygbuildExitIfNoDir $builddir \
+	      "$id: [ERROR] No builddir $builddir." \
+	      "Did you run [mkdirs] and [shadow]?"
 
-    local dir=$instdir
+    local dir="$instdir"
+
+    if [ ! "$dir" ]; then
+	CygbuildDie "$id: [ERROR] \$instdir is empty"
+    fi
+
+    CygbuildCmdInstallPatchVerify
+    CygbuildCmdInstallDirClean
 
     CygbuildPushd
 
-        cd $builddir || exit 1
+	cd $builddir || exit 1
 
-        if [ ! "$dir" ]; then
-            CygbuildDie "$id: [ERROR] \$instdir is empty"
-        fi
+	CygbuildInstallPackageDocs      &&
+	CygbuildInstallPackageInfo      &&
+	CygbuildInstallCygwinPartMain
+	status=$?
 
-        local status
+	if [ "$status" != "0" ]; then
+	    local dummy="$id: FAILURE RETURN"       # For debug
+	    CygbuildPopd
+	    return $status
+	fi
 
-        if [ -d "$dir" ]; then
+	if [ -f "$scriptInstall" ]; then
 
-            #  -rf is too dangerous to run without check
+	    mkdir --parents $verbose "$dir"
 
-            if [[ "$dir" == *.inst* ]]; then
+	    CygbuildEcho "--- Installing with external:" \
+			 "${scriptInstall#$srcdir/}" \
+			 "$dir" \
+			 "$thispath"
 
-                #   Other terminal is in this directory, so this might fail.
+	    CygbuildChmodExec $scriptInstall
+	    $scriptInstall "$dir" "$thispath" | CygbuildMsgFilter
+	    status=$?
 
-                echo "--   Emptying $dir"
+	    if [ "$status" != "0"  ]; then
+		CygbuildExit $status \
+		    "$id: [ERROR] Failed to run $scriptInstall $dir"
+	    fi
 
-                $RM -rf $dir/*
+	else
 
-                if [ "$?" != "0" ]; then
-                    CygbuildDie "-- [ERROR] Is some other terminal/window" \
-                           "using the directory?"
-                fi
+	    CygbuildVerb "-- Running install to" \
+		${dir#$srcdir/} \
+		${test:+(TEST MODE)}
 
-            else
-                CygbuildDie "$id: [ERROR] Suspicious \$instdir [$dir]"
-            fi
-        fi
+	    CygbuildMakefileRunInstallMain ||
+	    {
+		status=$?
+		CygbuildPopd
+		return $status
+	    }
+	fi
 
-        CygbuildInstallPackageDocs      &&
-        CygbuildInstallPackageInfo      &&
-        CygbuildInstallCygwinPartMain   &&
-        CygbuildInstallCygwinPartPostinstall
+	CygbuildMakefileRunInstallFixMain
 
-        status=$?
+	if [ -f "$scriptAfter" ]; then
 
-        if [ "$status" != "0" ]; then
-            local dummy="$id: FAILURE RETURN"       # For debug
-            CygbuildPopd
-            return $status
-        fi
+	    CygbuildEcho "--- Running external:" \
+		 ${scriptAfter#$srcdir/} \
+		 "$dir"         \
+		 "$PKG"         \
+		 "$VER"         \
+		 "$thispath"
 
-        if [ -f "$scriptInstall" ]; then
+	    local path="$CYGBUILD_PROG_FULLPATH"
 
-            $MKDIR -p $verbose "$instdir"
-            echo "--   [NOTE] installing with external: $scriptInstall $dir"
+	    CygbuildChmodExec $scriptAfter
 
-            CygbuildChmodExec $scriptInstall
-            $scriptInstall "$dir"
+	    CygbuildRun ${OPTION_DEBUG:+$BASHX} \
+		$scriptAfter        \
+		    "$dir"          \
+		    "$PKG"          \
+		    "$VER"          \
+		    "$thispath"     |
+		CygbuildMsgFilter   ||
+	    {
+		status=$?
+		CygbuildPopd
+		return $status
+	    }
+	fi
 
-            status=$?
+	dummy="$srcdir"             # For debug only
 
-            if [ "$status" != "0"  ]; then
-                CygbuildExit $status \
-                    "$id: [ERROR] Failed to run $scriptInstall $dir"
-            fi
+	CygbuildExitIfNoDir "$srcdir" "$id: [ERROR] srcdir not found"
 
-        else
-            echo "--   Running install to $instdir"
-
-            CygbuildMakefileRunInstall ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
-
-        CygbuildMakefileRunInstallFixMain
-
-        if [ -f "$scriptAfter" ]; then
-
-            echo "--   [NOTE] Running external: $scriptAfter $dir"
-
-            CygbuildChmodExec $scriptAfter
-
-            CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-            $scriptAfter "$dir" ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
-
-        dummy="$srcdir"             # For debug only
-
-        CygbuildExitNoDir "$srcdir" "$id: [ERROR] srcdir not found"
-
-        dummy="END OF $id"
+	dummy="END OF $id"
 
     CygbuildPopd
 
     CygbuildInstallExtraMain
-    CygbuildInstallExtraManualCompress
+    CygbuildInstallFixMain
 
-    if [ "$verbose" ]; then
-        echo "--   Content of: $instdir"
-        $FIND -L ${instdir##$(pwd)/} -print
-    else
-        echo "-- See also: find .inst/ -print" \
-             "${test:+(Note: test mode was on)} "
-    fi
+    CygbuildInstallCygwinPartPostinstall
+    CygbuildInstallExtraManualCompress
+    CygbuildCmdInstallFinishMessage
 }
 
 function CygbuildCmdScriptRunMain()
@@ -8793,26 +10233,26 @@ function CygbuildCmdScriptRunMain()
     local id="$0.$FUNCNAME"
     local script="$1"
 
-    echo "-- Running $script $instdir"
+    CygbuildEcho "-- Running" ${script#$srcdir/} ${instdir#$srcdir/}
 
     if [ -f "$script" ]; then
 
-        local cmd=${OPTION_DEBUG:+"sh -x"}
-        CygbuildRun $cmd $script $instdir
+	local cmd=${OPTION_DEBUG:+"sh -x"}
+	CygbuildRun $cmd $script $instdir
 
-        if [ "$OPTION_DEBUG" ]; then
+	if [ "$OPTION_DEBUG" ]; then
 
-            #   postinstall usually runs the installed for info(1)
-            #   files. Show the results if this dir exists.
+	    #   postinstall usually runs the installed for info(1)
+	    #   files. Show the results if this dir exists.
 
-            local dir=$instdir$CYGBUILD_INFO_FULL
+	    local dir=$instdir$CYGBUILD_INFO_FULL
 
-            if [ -d "$dir" ]; then
-                echo "-- [DEBUG] Content of info 'dir'"
-                $FIND "$dir" -print
-                $CAT "$dir/dir"
-            fi
-        fi
+	    if [ -d "$dir" ]; then
+		CygbuildEcho "-- [DEBUG] Content of info 'dir'"
+		find "$dir" -print
+		cat "$dir/dir"
+	    fi
+	fi
     fi
 }
 
@@ -8829,77 +10269,75 @@ function CygbuildCmdPostInstallMain()
 function CygbuildCmdStripMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
-    CygbuildExitNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
+    CygbuildExitIfNoDir "$dir" "$id: [ERROR] instdir [$instdir] not found"
 
-    CygbuildFilesExecutable "$dir" "-o -type f ( -name "*.dll" )" \
-    > $retval
+    CygbuildEcho "== Strip command"
 
-    local files="$(< $retval)"
-    local file done type list
+    find -L "$dir"              \
+	-type f                 \
+	'('                     \
+	    -name "*.exe"       \
+	    -o -name "*.dll"    \
+	    -o -name "*.a"      \
+	    -o -name "*.so"     \
+	')'                     \
+	> $retval
 
-    for file in $files
+    local file type
+
+    [ -s $retval ] || return 0
+
+    while read file
     do
-        if [ ! "$done" ]; then
-            echo "-- Stripping executables and *.dll"
-            done=1
-        fi
+	file $file > $retval.type
+	[ -s $retval.type ] || continue
 
-        type=""
+	type=$(< $retval.type)
 
-        $FILE $file > $retval
-        [ -s $retval ] && type=$(< $retval)
+	if [[ "$type" == *Intel* ]]; then
+	    CygbuildVerb "-- strip $file"
+	    strip "$file"
 
-        #  Otherwise strip would say "File format not recognized"
+	else
+	    CygbuildVerb "-- [INFO] Not a binary executable;" \
+		 " strip skipped for $file"
+	fi
 
-        if [[ "$type" == *Intel* ]]; then
-            CygbuildVerb "--   strip $file"
-            list="$list $file"
-
-        else
-            CygbuildVerb "--   [INFO] Not a binary executable;" \
-                 " strip skipped for $file"
-        fi
-
-    done
-
-    if [ "$list" ]; then
-        strip $list
-    elif [ ! "$done" ]; then
-        CygbuildWarn "--   [NOTE] Hm, no installed files to strip."
-    fi
+    done < $retval
 }
 
 function CygbuildStripCheck()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local dir="$instdir"
+
+    find -L "$dir" \
+	-type f '(' -name "*.exe" -o -name "*dll" ')' \
+	| head --lines=1 \
+	> $retval
+
     local file
-
-    $FIND $instdir \
-        -type f '(' -name "*.exe" -o -name "*dll" ')' \
-        | head -1 \
-        > $retval
-
     [ -s $retval ] && file=$(< $retval)
 
     if [ ! "$file" ]; then
 
-        $FIND $instdir -type f -name "*.a" -o -name "*.la" > $retval
-        [ -s $retval ] && file=$(< $retval)
+	find $instdir -type f -name "*.a" -o -name "*.la" > $retval
+	[ -s $retval ] && file=$(< $retval)
 
-        if [ ! "$file" ]; then
-            file=
-            CygbuildWarn \
-                "-- [NOTE] No *.exe, *.a or *.dll files, skipped strip."
-            return 0
-        fi
+	if [ ! "$file" ]; then
+	    file=
+	    CygbuildVerb \
+		"-- [NOTE] No *.exe, *.a or *.dll files, skipped strip."
+	    return 0
+	fi
 
-        echo "-- Hm, looks like a library .a or .la package," \
-                 "skipping strip."
-        return 0
+	CygbuildVerb "-- Hm, looks like a library .a or .la package," \
+		 "skipping strip."
+	return 0
     fi
 
     #   If strip has been run, then 'nm file.exe':
@@ -8910,117 +10348,203 @@ function CygbuildStripCheck()
 
     local saved="$IFS"
     local IFS=" "
-        nm $file 2>&1 | head -1 > $retval
-        set -- $(< $retval)
+	nm $file 2>&1 | head --lines=1 > $retval
+	set -- $(< $retval)
     IFS="$saved"
 
     if [[ "$*" == *no*symbols* ]]; then
-        return 0
+	return 0
+
     elif [[ "$*"  == *Not*x86* ]]; then
-        echo "--   [ERROR] $file is not valid executable"
-        $FILE $file
-        return 0
+	CygbuildEcho "-- [ERROR] $file is not valid executable"
+	file $file
+	return 0
+
     else
-        CygbuildVerbWarn "--   [WARN] Symbols found. I'm going to call" \
-                         "[strip] first"
-        CygbuildCmdStripMain
+	CygbuildVerbWarn "-- [WARN] Symbols found." \
+			 "I'm going to call [strip]"
+	CygbuildCmdStripMain
     fi
 }
 
 function CygbuildCmdFilesWrite()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
-    local to="$1"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local todir="$1"                                            # destdir
     shift
     local trydirs="$*"
 
     if [[ ! (-d $1 || -d $2) ]]; then
-        CygbuildWarn "$id: [ERROR] Template directory does not exist: [$from1]"
-        CygbuildWarn "$id: it should be at /etc/cygbuild/template if you" \
-             "installed cygbuild package. See Web page for download."
-        return 1
+	CygbuildWarn "$id: [ERROR] Template directory does not exist: [$from1]"
+	CygbuildWarn "$id: it should be at /etc/cygbuild/template if you" \
+	     "installed cygbuild package. See Web page for download."
+	return 1
     fi
 
-    if [ ! -d "$to" ]; then
-        CygbuildWarn "$id: [ERROR] Write directory does not exist: $to"
-        return 1
+    if [ ! -d "$todir" ]; then
+	CygbuildWarn "$id: [ERROR] Write directory does not exist: $todir"
+	return 1
     fi
 
-    echo "-- Writing default files to $to"
+    CygbuildEcho "-- Writing default files to" ${todir#$srcdir/}
 
     local file
 
     for file in package.README setup.hint
     do
-        CygbuildFileExists $file $trydirs > $retval || return $?
-        local from=$(< $retval)
-        local dest=$to/$file
+	CygbuildFileExists "$file" $trydirs > $retval || return $?
+	local from=$(< $retval)
+	local dest="$todir/$file"
 
-        [[ $file == *README ]] && dest=$to/$PKG.README
+	[[ $file == *README ]] && dest="$todir/$PKG.README"
 
-        if [ -f "$dest" ]; then
-            CygbuildVerb "--     Skip, already exists $dest"
-        else
-            $CP $verbose "$from" "$dest" || return $?
-        fi
+	if [ -f "$dest" ]; then
+	    CygbuildVerb "-- Skip, already exists $dest"
+	else
+	    cp $verbose "$from" "$dest" || return $?
+	fi
     done
 
+    local unpack="*@(cygwin-announce.mail.tmp)"                 # remove *.tmp
     local dir
 
     for dir in $trydirs
     do
-        [ ! -d "$dir" ] && continue
+	[ ! -d "$dir" ] && continue
 
-        for file in $dir/*.tmp
-        do
-            [ ! -f "$file" ] && continue
+	for file in $dir/*.tmp
+	do
+	    [ ! -f "$file" ] && continue
 
-            local sh=${file##*/}        # /path/to/file.sh.tmp => file.sh.tmp
-            local script=${sh%.tmp}     # file.sh.tmp => file.sh
-            local dest=$to/$script
+	    local name=${file##*/}      # /path/to/file.sh.tmp => file.sh.tmp
+	    local plain=${name%.tmp}    # file.sh.tmp => file.sh
+	    local dest="$todir/$plain"
 
-            if [ -f "$dest" ]; then
-                #   User has taken template file into use
-                CygbuildVerb "--    Skip, already exists $dest"
+	    if [ -f "$dest" ]; then
+		#   User has taken template file into use
+		CygbuildVerb "-- Skip, already exists $dest"
 
-            elif [ -f "$to/$sh" ]; then
-                #  Template file is already there.
-                :
-            else
-                $CP $verbose "$file" "$to" || return $?
-            fi
-        done
+	    elif [ -f "$todir/$name" ]; then
+		#  Template file is already there.
+		:
+	    else
+		cp $verbose "$file" "$todir" || return $?
+
+		if [[ "$name" == $unpack ]] && [ ! -f "$dest" ]; then
+		    mv "$todir/$name" "$dest" || return $?
+		fi
+	    fi
+	done
     done
 }
 
 function CygbuildCmdFilesMain()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local templatedir="$CYGBUILD_TEMPLATE_DIR_MAIN"
 
-    local templatedir
-    CygbuildTemplatePath > $retval
-    [ -s $retval ] && templatedir=$(< $retval)
-
-    if [ ! "$templatedir" ]; then
-        CygbuildWarn "$id [ERROR] variable templatedir is empty"
-        return 1
+    if [ ! "$templatedir" ] || [ ! -d "$templatedir" ]; then
+	CygbuildWarn "$id [ERROR] Can access templatedir: '$templatedir'"
+	return 1
     fi
 
-    local destdir=$DIR_CYGPATCH
-    local userdir=$CYGBUILD_TEMPLATE_DIR_USER
+    local destdir="$DIR_CYGPATCH"
+    local userdir="$CYGBUILD_TEMPLATE_DIR_USER"
 
     if [ ! "$destdir" ]; then
-        CygbuildWarn "$id [ERROR] variable 'destdir' is empty"
-        return 1
+	CygbuildWarn "$id [ERROR] variable 'destdir' is empty"
+	return 1
     fi
 
     if [ ! -d "$destdir" ]; then
-        CygbuildCmdMkdirs "$verbose" || return 1
+	CygbuildCmdMkdirs "$verbose" || return 1
     fi
 
-    CygbuildCmdFilesWrite $destdir $userdir $templatedir
+    CygbuildCmdFilesWrite "$destdir" "$userdir" "$templatedir"
+}
+
+function CygbuildCmdPackageBinMain()
+{
+    local strip="$1"
+
+    CygbuildNoticeMaybe
+    CygbuildNoticeGPG
+    CygbuildNoticeDevel "pacakge"
+
+    if [ "$strip" ]; then
+	CygbuildStripCheck      &&
+	CygbuildCmdPkgBinaryMain
+    else
+	CygbuildCmdPkgBinaryMain
+    fi
+}
+
+function CygbuildCmdPackageDevMain()
+{
+    local strip="$1"
+
+    CygbuildNoticeMaybe
+    if [ "$strip" ]; then
+	CygbuildStripCheck      &&
+	CygbuildCmdPkgDevelMain
+    else
+	CygbuildCmdPkgDevelMain
+    fi
+}
+
+function CygbuildCmdAllMain()
+{
+    local id="$0.$FUNCNAME"
+    local finish="$1"
+
+    #   The "prep" will also run "clean" and "distclean"
+    #   because there are misconfigured source packages
+    #   that dstribute compiled binaries.
+
+    CygbuildEcho "-- [NOTE] command [all] is used for checking" \
+	 "build procedure only." \
+	 "See -h for source development options."
+
+    CygbuildCmdGPGVerifyMain Yn     &&
+    CygbuildCmdPrepMain             &&
+    CygbuildCmdShadowMain           &&
+    CygbuildCmdConfMain             &&
+    CygbuildCmdBuildMain            &&
+    CygbuildCmdInstallMain          &&
+    CygbuildCmdStripMain            &&
+
+    if WasLibraryInstall ; then
+	CygbuildCmdPackageDevMain
+
+    else
+	CygbuildCmdPkgBinaryMain &&
+	{
+	    if CygbuildHelpSourcePackage ; then
+		CygbuildCmdPkgSourceMain
+	    elif [ "$OPTION_GBS_COMPAT" ] ; then
+		CygbuildEcho "-- Not attempting to build a source package"
+	    fi ;
+	}
+    fi
+
+    local status=$?
+
+    if [ ! "$finish" ] ; then
+	return $status
+    fi
+
+    if [ "$status" != "0" ]; then
+	if CygbuildAskYes "There was an error. Run [finish]"
+	then
+	    CygbuildCmdFinishMain
+	else
+	    echo "... remove the SRC directory when ready"
+	fi
+    else
+	CygbuildCmdFinishMain
+    fi
 }
 
 function CygbuildCmdFinishMain()
@@ -9030,33 +10554,34 @@ function CygbuildCmdFinishMain()
 
     if [[ $objdir == *$PKG-$VER*  ]];then
 
-        echo "** [finish] Removing $objdir"
+	CygbuildEcho "== finish: removing $objdir"
 
-        if CygbuildIsGbsCompat ; then
-            echo "-- [NOTE] GBS compat mode: results are not in ./.sinst" \
-                 "but in $TOPDIR. Please note that possible GPG signatures" \
-                 "are now invalid"
+	if CygbuildIsGbsCompat ; then
+	    CygbuildEcho "-- [NOTE] GBS compat mode: results" \
+		"are not in ./.sinst" \
+		 "but in $TOPDIR. Please note that possible GPG signatures" \
+		 "are now invalid"
 
-            CygbuildPushd
-                #   Display *-src package and binary package
-                cd "$TOPDIR" && ls -lat | head -3 | sed 's/^/   /'
-            CygbuildPopd
-        fi
+	    CygbuildPushd
+		#   Display *-src package and binary package
+		cd "$TOPDIR" && ls --all -lt | head --lines=3 | sed 's/^/   /'
+	    CygbuildPopd
+	fi
 
-        if [ "$(pwd)" = "$objdir" ]; then
-            cd "$TOPDIR"                 #  Can't remove, if we're inside it
-        fi
+	if [ "$(pwd)" = "$objdir" ]; then
+	    cd "$TOPDIR"                 #  Can't remove, if we're inside it
+	fi
 
-        $RM -rf "$objdir"
-        status=$?
+	rm -rf "$objdir"
+	status=$?
 
-        if [ -d "$objdir" ]; then
-            echo "--   [NOTE] rm failed. Is Windows using the directory?"
-        fi
+	if [ -d "$objdir" ]; then
+	    CygbuildEcho "-- [NOTE] rm failed. Is Windows using the directory?"
+	fi
 
     else
-        CygbuildWarn "$id: [WARN] Doesn't look like unpack dir [$PKG-$VER]," \
-             "so not touching $objdir"
+	CygbuildWarn "$id: [WARN] Doesn't look like unpack dir [$PKG-$VER]," \
+	     "so not touching $objdir"
     fi
 
     return $status
@@ -9074,19 +10599,19 @@ function CygbuildFilePackageGuessFromDirectory()
     local dir=$(pwd)
     local ret
 
-    #   Does it look like foo-N.N ?
+    #   Does it look like it would have foo-N.N ?
 
-    [[ ! $dir == *-*[0-9]* ]]  && return 1
+    [[ ! $dir == *[0-9]* ]]  && return 1
 
     if CygbuildDefineVersionVariables $dir ; then
 
-        ret=$CYGBUILD_STATIC_VER_PACKAGE-$CYGBUILD_STATIC_VER_VERSION
+	ret=$CYGBUILD_STATIC_VER_PACKAGE-$CYGBUILD_STATIC_VER_VERSION
 
-        #  Directory looks like package-N.N/ add RELEASE
+	#  Directory looks like package-N.N/ add RELEASE
 
-        if [ "$OPTION_RELEASE" ]; then
-            ret=$ret-$OPTION_RELEASE
-        fi
+	if [ "$OPTION_RELEASE" ]; then
+	    ret=$ret-$OPTION_RELEASE
+	fi
     fi
 
     dummy="$id: RETURN"         # Will show up in debugger
@@ -9098,14 +10623,14 @@ function CygbuildFilePackageGuessArchive()
     local regexp="$1"
     local ignore="$2"
 
-    $LS | $AWK  \
+    ls | awk  \
     '
      $0 ~ regexp  {
-        if (length(ignore)>1  &&  match($0, ignore) > 1)
-        {
-            next;
-        }
-        print;
+	if (length(ignore)>1  &&  match($0, ignore) > 1)
+	{
+	    next;
+	}
+	print;
     }' regexp="$regexp" ignore="$ignore"
 }
 
@@ -9130,7 +10655,7 @@ function CygbuildFilePackageGuessMain()
     #       <unpack dir i.e. TOP dir>
 
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #   If there is only one PACKAGE in current directory, make an educated
     #   guess and use that if user did not supply option -f
@@ -9151,31 +10676,40 @@ function CygbuildFilePackageGuessMain()
 
     if CygbuildIsArchiveScript ; then
 
-        #  Debian uses: package_version.orig.tar.gz
+	#  Debian uses: package_version.orig.tar.gz
 
-        local ver="$SCRIPT_PACKAGE[_-]$SCRIPT_VERSION"
+	local nameRe
+	CygbuildStrToRegexpSafe "$SCRIPT_PACKAGE" > $retval
+	[ -s $retval ] && nameRe=$(< $retval)
 
-        CygbuildFilePackageGuessArchive \
-            "$ver.(tar.gz|tar.bz2|orig.tar.gz|orig.tar.bz2|tgz)" \
-            "(-src.tar.bz2|$SCRIPT_PKGVER-$SCRIPT_RELEASE[.]|[.]sig)" \
-            >  $retval
+	local verRe
+	CygbuildStrToRegexpSafe "$SCRIPT_VERSION" > $retval
+	[ -s $retval ] && verRe=$(< $retval)
 
-        arr=( $(< $retval) )
-        dummy="${arr[*]}"          # For bash debugging, what we got?
-        len=${#arr[*]}
+	local ver="$nameRe[_-]$verRe"
+	local ext="(orig[.])?tar[.](gz|bz2|lzma)|tgz|tbz"
 
-        if [ $len = "0" ]; then
-            CygbuildWarn "-- [WARN] Packing script detection failed."
-        fi
+	CygbuildFilePackageGuessArchive \
+	    "$ver[.]($ext)" \
+	    "(-src.tar.(bz2|lzma)|$nameRe-$verRe-$SCRIPT_RELEASE[.]|[.]sig)" \
+	    >  $retval
+
+	arr=( $(< $retval) )
+	dummy="${arr[*]}"          # For bash debugging, what we got?
+	len=${#arr[*]}
+
+	if [ $len = "0" ]; then
+	    CygbuildWarn "-- [WARN] Original archive detection failed."
+	fi
 
     else
 
-        CygbuildFilePackageGuessArchive \
-            "[0-9.]+-[0-9].*(tar.bz2)" \
-            >  $retval
+	CygbuildFilePackageGuessArchive \
+	    "[0-9.]+-[0-9].*(tar.bz2)" \
+	    >  $retval
 
-        arr=( $(< $retval) )
-        len=${#arr[*]}
+	arr=( $(< $retval) )
+	len=${#arr[*]}
     fi
 
     #   Check if all files have same first word: PACKAGENAME. If not,
@@ -9183,46 +10717,43 @@ function CygbuildFilePackageGuessMain()
 
     if [[ $len -gt 1 ]]; then
 
-        local tmp=${arr[0]}     # package-N.N.tar.gz
-        local word=${tmp%%-*}   # package
-        local element fail
+	local tmp=${arr[0]}     # package-N.N.tar.gz
+	local word=${tmp%%-*}   # package
+	local element fail
 
-        for element in ${arr[*]}
-        do
-            if [[ "$element" != $word* ]]; then
-                CygbuildWarn \
-                    "--    [WARN] Different archive files: $word <> $element" \
-                    "Please use option -f FILE"
-                fail=1
-                break
-            fi
-        done
+	for element in ${arr[*]}
+	do
+	    if [[ "$element" != $word* ]]; then
+		CygbuildWarn \
+		    "-- [WARN] Different archive files: $word <> $element" \
+		    "Please use option -f FILE"
+		fail=1
+		break
+	    fi
+	done
 
-        if [ ! "$fail" ]; then
-            ret=${arr[0]}
-        fi
+	if [ ! "$fail" ]; then
+	    ret=${arr[0]}
+	fi
 
     elif [ "$len" = "1" ]; then     # Fresh and empty dir. Good. One tar file.
 
-        ret=${arr[0]}
+	ret=${arr[0]}
 
     else
 
-        #  No tar files around to guess, try if this directory holds
-        #  package name and user is currently porting a package
+	#  No tar files around to guess, try if this directory holds
+	#  package name and user is currently porting a package
 
-        local retval=$CYGBUILD_RETVAL.$FUNCNAME
-        CygbuildFilePackageGuessFromDirectory > $retval &&
-        ret=$(< $retval)
-
-        # CygbuildWarn "--   [INFO] Cannot find original package. Version guessed from dir"
+	CygbuildFilePackageGuessFromDirectory > $retval &&
+	[ -s $retval ] && ret=$(< $retval)
     fi
 
     local pwd=$(pwd)
 
     if [[ "$ret"  &&  $ret != */*  ]]; then
-        #  Make absolute path
-        ret=$pwd/$ret
+	#  Make absolute path
+	ret=$pwd/$ret
     fi
 
     #   When doing Source builds, the script is named foo-2.1-1.sh
@@ -9232,8 +10763,8 @@ function CygbuildFilePackageGuessMain()
     local tdir release
 
     if [ "$SCRIPT_PKGVER" ]; then
-        tdir=$pwd/$SCRIPT_PKGVER
-        release=$SCRIPT_RELEASE
+	tdir=$pwd/$SCRIPT_PKGVER
+	release=$SCRIPT_RELEASE
     fi
 
     dummy="$id: RETURN $ret $release $tdir"
@@ -9246,7 +10777,7 @@ function CygbuildFilePackageGuessMain()
 function CygbuildFileReleaseGuess()
 {
     local id="$0.$FUNCNAME"
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local ret
 
     #   Debian source packages are in format
@@ -9254,9 +10785,9 @@ function CygbuildFileReleaseGuess()
 
     local -a arr
 
-    $LS 2> /dev/null \
-        | $EGREP -e '[-_][0-9]+(-src\.tar|\.orig\.tar|\.patch)' \
-        > $retval
+    ls 2> /dev/null \
+	| $EGREP '[-_][0-9]+(-src\.tar|\.orig\.tar|\.patch)' \
+	> $retval
 
     [ -s $retval ] && arr=( $(< $retval) )
 
@@ -9265,25 +10796,25 @@ function CygbuildFileReleaseGuess()
     local count=${#arr[*]}
 
     if [ "$count" = "1" ]; then
-        ret=${arr[0]}
+	ret=${arr[0]}
     elif [ "$count" = "2" ]; then
 
-        #  Found exactly two, source and binary package. Pick source
-        #  package-N.N-RELEASE-src.tar.bz2
-        #  package-N.N-RELEASE.tar.bz2
+	#  Found exactly two, source and binary package. Pick source
+	#  package-N.N-RELEASE-src.tar.bz2
+	#  package-N.N-RELEASE.tar.bz2
 
-        echo "${arr[*]}"                \
-             | $TR ' ' '\n'             \
-             | $EGREP -e '-src|\.orig.' \
-             > $retval
+	echo "${arr[*]}"                      \
+	     | tr ' ' '\n'                   \
+	     | $EGREP --regexp='\.orig.|-src' \
+	     > $retval
 
-        ret=$(< $retval)
+	ret=$(< $retval)
     fi
 
     if [ "$ret" ]; then
-        echo $ret
+	echo $ret
     else
-        return 1
+	return 1
     fi
 }
 
@@ -9293,306 +10824,408 @@ function CygbuildFileReleaseGuess()
 #
 #######################################################################
 
-function CygbuildCommandMainCheckHelp()
+function CygbuildProgramVersion()
+{
+    local exitcode="$1"
+    shift
+    local short="$2"
+    shift
+
+    local str
+
+    if [ "$short" ]; then
+	str="$CYGBUILD_NAME "
+    fi
+
+    str="$str$CYGBUILD_VERSION"
+
+    if [ ! "$short" ]; then
+	str="$str (C) $CYGBUILD_AUTHOR"
+	str="$str License: $CYGBUILD_LICENSE"
+	str="$str Homepage: $CYGBUILD_HOMEPAGE_URL"
+    fi
+
+    local tag="##"
+
+    if [ "$exitcode" ] ; then
+	echo "$str"
+	exit $exitcode
+    else
+	if [[ "$*" == *@( -C|--color)* ]]; then
+	    echo -e "$CYGBUILD_COLOR_BLACK1$tag $str$CYGBUILD_COLOR_RESET"
+	else
+	    echo "$tag $str"
+	fi
+    fi
+}
+
+function CygbuildCommandMainCheckSpecial()
 {
     local tmp
 
+    if [[ "$*" == *--color* ]]; then
+	OPTION_COLOR="color"                                    # global-def
+    fi
+
     for tmp in "$@"
     do
-        case "$tmp" in
-            -h|help)
-                CygbuildHelpShort 0
-                ;;
-            --help)
-                CygbuildHelpLong 0
-                ;;
-            -V|--version)
-                echo "$CYGBUILD_NAME $CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
-                exit 0
-                ;;
-        esac
+	case "$tmp" in
+	    -h|help)
+		CygbuildHelpShort 0
+		;;
+	    --help)
+		CygbuildHelpLong 0
+		;;
+	    -V|--Version|--version)
+		CygbuildProgramVersion 0
+		;;
+	    patch-list|plist)
+		CygbuildPatchFileList CYGWIN-PATCHES
+		exit 0
+		;;
+	    download|dl)
+		CygbuildCmdDownloadUpstream
+		exit 0
+		;;
+	esac
     done
+
+    local opt1="(-b|--binary)"
+    local opt2="(-d|--dir)"
+    local opts="( +$opt1)?( +$opt2 +)?|( +$opt2)?( +$opt1 +)?"
+
+    local cmd=$(
+	echo $* |
+	grep --extended-regexp --only-matching --ignore-case \
+	     "cygsrc($opts| +)[a-z][^ ]+"
+    )
+
+    if [ "$cmd" ]; then
+
+	set -- $cmd
+	shift
+
+	local mode="source-binary"
+	local mkdir
+
+	while :
+	do
+	    case "$1" in
+		-b|--binary)
+		    shift
+		    mode="binary"
+		    ;;
+		-d|--dir*)
+		    shift
+		    mkdir="mkdir"
+		    ;;
+		*)
+		    break
+		    ;;
+	    esac
+	done
+
+	local pkg
+
+	for pkg in "$@"
+	do
+	  CygbuildPushd
+
+	    if [ "$mkdir" ] && [ -e "$pkg" ]; then
+		CygbuildDie "-- [ERROR] Already exists dir or file: $pkg"
+	    elif [ "$mkdir" ]; then
+		mkdir "$pkg"    || exit $?
+		cd "$pkg"       || exit $?
+	    fi
+
+	    local rmdir=""
+
+	    if ! CygbuildCmdDownloadCygwinPackage "$pkg" "$mode" ; then
+		rmdir="rmdir"
+	    fi
+
+	  CygbuildPopd
+
+	  if [ "$rmdir" ] &&
+	     [ "$mkdir" ] &&
+	     CygbuildIsDirEmpty "$pkg"
+	  then
+	      rmdir "$pkg"
+	  fi
+
+	done
+
+	exit $?
+    fi
 }
 
 function CygbuildCommandMain()
 {
     local id="$0.$FUNCNAME"
 
-    CygbuildBootVariablesId
-    CygbuildBootVariablesCache
-    CygbuildBootVariablesGlobal
+    CygbuildProgramVersion '' 'short' "$*"
+    CygbuildDefineGlobalScript
+    CygbuildBootVariablesGlobalEtcMain
 
-    local retval=$CYGBUILD_RETVAL.$FUNCNAME
+    CygbuildIsGbsCompat || CygbuildBootVariablesGlobalShareMain
+
+    CygbuildBootVariablesGlobalMain
+
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  If the first argument is filename, remove it
     #  ./links-1.99.20-1.sh --verbose all
 
-    if [[ "$1" == *+(cygbuild|.sh) ]]; then
-        shift
+    if [[ "$1" == *@(cygbuild|.sh) ]]; then
+	shift
     fi
 
-    CygbuildDefineGlobalCommands
     CygbuildDefileInstallVariables
 
     # ................................................. read options ...
-
-    local arg args dir quiet
-    local release package
-
-    local stripflag="yes"
-    unset verbose
-
-    local OPTIND=1
-
     #   Globally visible options
 
+    unset OPTION_COLOR              # global-def
     unset OPTION_DEBUG              # global-def
     unset OPTION_DEBUG_VERIFY       # global-def
     unset OPTION_FILE               # global-def
+    unset OPTION_FORCE              # global-def
     unset OPTION_GBS_COMPAT         # global-def
-    unset OPTION_RELEASE            # global-def
-    unset OPTION_PREFIX             # global-def
-    unset OPTION_SIGN               # global-def
     unset OPTION_PASSPHRASE         # global-def
-    unset OPTION_PREFIX             # global-def
-    unset OPTION_PREFIX_MAN         # global-def
-    unset OPTION_PREFIX_CYGINST     # global-def
+    unset OPTION_PREFIX_MODE        # global-def
     unset OPTION_PREFIX_CYGBUILD    # global-def
+    unset OPTION_PREFIX_CYGINST     # global-def
     unset OPTION_PREFIX_CYGSINST    # global-def
+    unset OPTION_PREFIX_MAN         # global-def
+    unset OPTION_RELEASE            # global-def
+    unset OPTION_SIGN               # global-def
+    unset OPTION_VC_PACKAGE         # global-def FIXME: unused
     unset verbose                   # global-def
     unset test                      # global-def
 
     OPTION_SPACE="yes"              # global-def
+    OPTION_COMPRESS="bz2"           # global-def
 
+    local arg args dir quiet release package
+    local stripflag="yes"
+    local OPTIND=1
+
+    unset verbose
 
     #   On Cygwin upgrades, it may be possible that this proram is not
     #   installed
 
+    local isgetopt="isgetop"
+
     if ! CygbuildWhich getopt > /dev/null ; then
-        CygbuildDie "$id: 'getopt' not in PATH. Cannot read options."
+        isgetopt=""
+
+        CygbuildIsGbsCompat ||
+	CygbuildDie "$id: [FATAL] 'getopt' (from package util-linux) not in PATH." \
+	    "Cannot parse options."
     fi
 
-    getopt \
-        -n $id \
-        --long checkout,debug:,Debug:,email:,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,cyginstdir:,cygbuilddir:,cygsinstdir:,install-usrlocal,file:,passphrase:,nomore-space,sign:,release:,Prefix:,sign:,test,verbose,version,Version,no-strip \
-        --option cDd:e:f:gmp:Pr:s:tvVx -- "$@" \
-        > $retval
+    if [ "$isgetopt" ]; then
+        getopt \
+	-n $id \
+	--long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
+	--option bcDd:e:f:glp:Pr:s:tvVx -- "$@" \
+	> $retval
 
-    if [ $? != 0 ] ; then
-        CygbuildDie "$id: Cannot read options."
+        [ "$?" = "0" ] || CygbuildDie "$id: Cannot read options."
+
+        eval set -- $(< $retval)
     fi
 
-    eval set -- $(< $retval)
-    tmp=15
+    local tmp=15                        # safeguard against infinite loop
 
     while [ "$*" ]
     do
+	local dummy="$1 => $*"                  # just for debugging
+	tmp=$((tmp - 1))
 
-      # safeguard against infinite loops
+	if [ $tmp -eq 0 ]; then
+	    CygbuildDie "$id:  [FATAL] Infinite loop while parsing arguments"
+	fi
 
-      tmp=$((tmp - 1))
+	case $1 in
 
-      if [ $tmp -eq 0 ]; then
-          CygbuildDie "$id:  [FATAL] Infinite loop while parsing arguments"
-      fi
+	    -b|--bzip2)
+		OPTION_COMPRESS="bz2"           # global-def
+		shift 1
+		;;
 
-      local dummy="$1, $*"        # just for debugging
+	    -c|--color)
+		OPTION_COLOR="color"            # global-def
+		shift 1
+		;;
 
-      case $1 in
+	    --cyginstdir)
+		OPTION_PREFIX_CYGINST="${2%/}"  # global-def no trail. slash
+		shift 2
+		;;
 
-            -c|--checkout)
-                OPTION_VC_PACKAGE="yes"         # global-def
-                shift 1
-                ;;
+	    --cygbuilddir)
+		OPTION_PREFIX_CYGBUILD="$2"     # global-def
+		shift 2
+		;;
 
-            --cyginstdir)
-                OPTION_PREFIX_CYGINST="${2%/}"  # global-def no trail. slash
-                shift 2
-                ;;
+	    --cygsinstdir)
+		OPTION_PREFIX_CYGSINST="$2"     # global-def
+		shift 2
+		;;
 
-            --cygbuilddir)
-                OPTION_PREFIX_CYGBUILD="$2"     # global-def
-                shift 2
-                ;;
+	    -d|--debug)
+		shift
+		if [[ "$1" != [0-9] ]]; then
+		    CygbuildDie "-- [ERROR] Debug level not numeric [$1]."
+		else
+		    OPTION_DEBUG=$1             # global-def
+		    shift
+		fi
+		;;
 
-            --cygsinstdir)
-                OPTION_PREFIX_CYGSINST="$2"     # global-def
-                shift 2
-                ;;
+	    -D|--Debug)
+		OPTION_DEBUG_VERIFY="yes"       # global-def
+		trap 1 2 3 15                   # cancel signals
+		shift
+		;;
 
-            -d|--debug)
-                if [[ "$2" != [0-9] ]]; then
-                    CygbuildWarn "-- [WARN] Debug level" \
-                        " not numeric [$2]. Adjusting to 1"
-                else
-                    OPTION_DEBUG=$2             # global-def
-                    shift 2
+	    -e|--email)
+		export CYGBUILD_EMAIL="$2"      # global-def
+		shift 2
+		;;
 
-                fi
-                ;;
+	    -g|--gbs)
+		export OPTION_GBS_COMPAT="gbs"  # global-def
+		shift 1
+		;;
 
-            -D|--Debug)
-                OPTION_DEBUG_VERIFY="yes"       # global-def
-                shift
-                ;;
+	    -f|--file)
+		OPTION_FILE="$2"                # global-def
+		package="$2"
+		CygbuildStrRemoveExt "$package" > $retval
+		package=$(< $retval)
+		shift 2
+		;;
 
-            -e|--email)
-                export CYGBUILD_EMAIL="$2"      # global-def
-                shift 2
-                ;;
+	    -F|--force)
+		OPTION_FORCE="force"             # global-def
+		shift 1
+		;;
 
-            -g|--gbs)
-                export OPTION_GBS_COMPAT="gbs"  # global-def
-                shift 1
-                ;;
+	    --install-prefix)
+		OPTION_PREFIX_MODE="$2"              # global-def
+		shift 2
+		;;
 
-            -f|--file)
-                OPTION_FILE="$2"                # global-def
-                package="$2"
-                CygbuildStrRemoveExt "$package" > $retval
-                package=$(< $retval)
-                shift 2
-                ;;
+	    --install-prefix-man)
+		OPTION_PREFIX_MAN="$2"          # global-def
+		shift 2
+		;;
 
-            --init-pkgdb)
-                CygbuildDefineGlobalPackageDatabase "$2"
-                shift 2
-                CygbuildExit 0 "-- Done. Database is up to date (for now)."
-                ;;
+	    --install-usrlocal)
+		shift
+		CygbuildDefileInstallVariablesUSRLOCAL
+		;;
 
-            --install-prefix)
-                OPTION_PREFIX="$2"              # global-def
-                shift 2
-                ;;
+	    -l|--lzma)
+		OPTION_COMPRESS="lzma"          # global-def
+		shift 1
+		;;
 
-            --install-prefix-man)
-                OPTION_PREFIX_MAN="$2"          # global-def
-                shift 2
-                ;;
+	    -p|--passphrase)
+		if [[ "$2" == -* ]]; then
+		    CygbuildDie "$id: [ERROR] -p option needs pass phrase." \
+			   "Got [$2]"
+		fi
 
-            --install-usrlocal)
-                shift
-                CygbuildDefileInstallVariablesUSRLOCAL
-                ;;
+		OPTION_PASSPHRASE="$2"          # global-def
+		shift 2
+		;;
 
-            -p|--passphrase)
-                if [[ "$2" == -* ]]; then
-                    CygbuildDie "$id: [ERROR] -p option needs pass phrase." \
-                           "Got [$2]"
-                fi
+	    -r|--release)
+		if [ "$2" = "date" ]; then
+		    CygbuildDate > $retval
+		    release=$(< $retval)
+		else
+		    release="$2"
+		fi
 
-                OPTION_PASSPHRASE="$2"          # global-def
-                shift 2
-                ;;
+		if ! CygbuildIsNumber "$release" ; then
+		    CygbuildDie "$id: [FATAL] release value must be numeric." \
+			 "Got [$release]"
+		    exit 1
+		fi
 
-            -m|--nomore-space)
-                OPTION_SPACE=""                 # global-def
-                shift
-                ;;
+		OPTION_RELEASE=$release         # global-def
+		shift 2
+		;;
 
-            -r|--release)
-                if [ "$2" = "date" ]; then
-                    CygbuildDate > $retval
-                    release=$(< $retval)
-                else
-                    release="$2"
-                fi
+	    -s|--sign)
+		if ! CygbuildGPGavailableCheck ; then
+		    CygbuildWarn "-- [WARN] -s option used, but no gpg" \
+			"is available"
+		fi
 
-                if ! CygbuildIsNumber "$release" ; then
-                    CygbuildDie "$id: [ERROR] release value must be numeric." \
-                         "Got [$release]"
-                    exit 1
-                fi
+		if [[ "$2" == -* ]]; then
+		    CygbuildDie "$id: [ERROR] -s option needs signer ID." \
+			"Got [$2]"
+		fi
 
-                OPTION_RELEASE=$release         # global-def
-                shift 2
-                ;;
+		OPTION_SIGN="$2"                # global-def
+		shift 2
+		;;
 
-            -s|--sign)
-                if ! CygbuildGPGavailableCheck ; then
-                    CygbuildWarn "-- [WARN] -s option used, but no gpg" \
-                        "is available"
-                fi
+	    -t|--test)
+		CygbuildEcho "-- [NOTE] RUNNING IN TEST MODE." \
+			     "Changes are minimized"
+		test="test"                     # global-def
+		shift
+		;;
 
-                if [[ "$2" == -* ]]; then
-                    CygbuildDie "$id: [ERROR] -s option needs signer ID." \
-                        "Got [$2]"
-                fi
+	    -v|--verbose)
+		verbose="--verbose"             # global-def
+		shift
+		;;
 
-                OPTION_SIGN="$2"                # global-def
-                shift 2
-                ;;
+	    -x|--no-strip)
+		stripflag=
+		shift
+		;;
 
-            -P|-Prefix)
-                OPTION_PREFIX="yes";            # global-def
-                shift
-                ;;
+	    --) shift
+		break
+		;;
 
-            -t|--test)
-                echo "-- [NOTE] RUNNING IN TEST MODE - Changes are minimized"
-                test="test"                     # global-def
-                shift
-                ;;
+	    -*) CygbuildDie "$id: Unknown option  [$1]. Aborted."
+		;;
 
-            -v|--verbose)
-                verbose="--verbose"             # global-def
-                shift
-                ;;
-
-            -V|--version|--Version)
-                echo $CYGBUILD_VERSION
-                return
-                ;;
-
-            -x|--no-strip)
-                stripflag=
-                shift
-                ;;
-
-            --) shift
+            [a-z]*)
+                #  End of options, when getopt is not available
+                # to write "--" marker
+                set -- $*
                 break
                 ;;
 
-            -*) CygbuildDie "$id: Unknown option  [$1]. Aborted."
-                ;;
-      esac
-    done
-
-    # ............................................ special commands ...
-    # These do not need to know about package, release etc.
-
-    local opt arg
-    local status=0
-
-    for opt in "$@"
-    do
-        case $opt in
-
-          getsrc)               shift
-                                arg="$1"
-                                shift
-                                CygbuildCmdGetSource "$arg"
-                                exit $?
-                                ;;
-        esac
+	esac
     done
 
     # ........................................ determine environment ...
 
-    if [ "$verbose" ] && [ ! "$OPT_VC_PACKAGE" ]; then
+    if [ "$verbose" ] && [ ! "$OPTION_VC_PACKAGE" ]; then
 
-        local vctype
-        CygbuildVersionControlType > $retval
-        [ -s $retval ] && vctype=$(< $retval)
+	local vctype
+	CygbuildVersionControlType > $retval
+	[ -s $retval ] && vctype=$(< $retval)
 
-        if [ "$vctype" ]; then
-            CygbuildWarn \
-                "-- [INFO] Version controlled source. Need option --checkout?"
-        fi
+	if [ "$vctype" ]; then
+	    CygbuildWarn \
+		"-- [INFO] Version controlled source. Need option --checkout?"
+	fi
     fi
 
     CygbuildCheckRunDir
-    CygbuildDefineGlobalScript
 
     #  See if user supplied the RELEASE. This can be implicit in the
     #  package name, in which case it is ok. Otherwise user has to
@@ -9600,60 +11233,59 @@ function CygbuildCommandMain()
     #  the build directories cannot be determined correctly
 
     PACKAGE_NAME_GUESS=                 # global-def
-    local releaseGuess
-    local srcGuess
+    local releaseGuess srcGuess
 
     if [ ! "$package" ]; then
 
-        if ! CygbuildFilePackageGuessMain > $retval ; then
-            echo "$id: [FATAL] $? CygbuildFilePackageGuessMain()"   \
-                 " call error $?"                                   \
-                 "Please debug and check content of $retval"        \
-                 "Is filesystem full?"
-            exit 1
-        fi
+	if ! CygbuildFilePackageGuessMain > $retval ; then
+	    echo "$id: [FATAL] $? CygbuildFilePackageGuessMain"     \
+		 " call error $?"                                   \
+		 "Please debug and check content of $retval"        \
+		 "Is filesystem full?"
+	    exit 1
+	fi
 
-        local -a arr=( $(< $retval) )
+	local -a arr=( $(< $retval) )
 
-        PACKAGE_NAME_GUESS=${arr[0]}
-        releaseGuess=${arr[1]}
-        srcGuess=${arr[2]}
-        package=$PACKAGE_NAME_GUESS
+	PACKAGE_NAME_GUESS="${arr[0]}"
+	releaseGuess="${arr[1]}"
+	srcGuess="${arr[2]}"
+	package="$PACKAGE_NAME_GUESS"
 
-        if [ $package = "!" ]; then
-            CygbuildDie "[FATAL] Can't determine package, version, release." \
-                "Are you at dir foo-N.N/ or do you need option -f ?"
-        fi
+	if [ "$package" = "!" ]; then
+	    CygbuildDie "[FATAL] Can't determine package, version, release." \
+		"Are you at dir foo-N.N/?"
+	fi
 
     fi
 
     if [ ! "$release" ]; then           # User did not give -r RELEASE
-        if [ "$releaseGuess" ]; then
-            release=$releaseGuess
-        else
-            CygbuildFileReleaseGuess > $retval
-            [ -s $retval ] && release=$(< $retval)
-        fi
+	if [ "$releaseGuess" ]; then
+	    release="$releaseGuess"
+	else
+	    CygbuildFileReleaseGuess > $retval
+	    [ -s $retval ] && release=$(< $retval)
+	fi
     fi
 
     if [ ! "$release" ] && [ "$package" ]; then
-        CygbuildStrRelease $package > $retval || exit 1
-        tmprel=$(< $retval)
+	CygbuildStrRelease $package > $retval || exit 1
+	tmprel=$(< $retval)
     fi
 
     if [ ! "$release" ] && [ ! "$tmprel" ]; then
 
-        #   User did not supply -r, or we cannot parse release from
-        #   -f NAME
+	#   User did not supply -r, or we cannot parse release from
+	#   -f NAME
 
-        CygbuildVerb "-- [NOTE] -r RELEASE not set. Assuming 1"
-        release=1
+	CygbuildVerb "-- [NOTE] -r RELEASE was not set. Assuming 1"
+	release=1
     fi
 
     if [ $# -lt 1 ]; then
-        CygbuildWarn "$id: [ERROR] COMMAND is missing." \
-            "See option -h"
-        exit 1
+	CygbuildWarn "$id: [ERROR] COMMAND is missing." \
+	    "See option -h"
+	exit 1
     fi
 
     # ................................................ set variables ...
@@ -9661,345 +11293,318 @@ function CygbuildCommandMain()
     local top src argDirective
 
     if [ "$srcGuess" ]; then
-        #   This is foo-2.1-1.sh unpack script, so source is not unpackges
-        #   yet.
-        top=$(pwd)
-        src=$srcGuess
-        argDirective=noCheckSrc
+	#   This is foo-2.1-1.sh unpack script, so source is not unpackges
+	#   yet.
+	top=$(pwd)
+	src=$srcGuess
+	argDirective=noCheckSrc
     else
-        CygbuildSrcDirLocation $(pwd) > $retval
-        local -a arr=( $(< $retval) )
+	CygbuildSrcDirLocation $(pwd) > $retval
+	local -a arr=( $(< $retval) )
 
-        top=${arr[0]}
-        src=${arr[1]}
+	top=${arr[0]}
+	src=${arr[1]}
     fi
 
     CygbuildDefineEnvClear
 
     CygbuildDefineGlobalMain    \
-        "$top"                  \
-        "$src"                  \
-        "$release"              \
-        "$package"              \
-        "$argDirective"
+	"$top"                  \
+	"$src"                  \
+	"$release"              \
+	"$package"              \
+	"$argDirective"
 
     if [ $? -ne 0 ]; then
-        #   Somehing went wrong while defining variables
-        exit 1
+	#   Somehing went wrong while defining variables
+	exit 1
     fi
 
-    CygbuildReadmeReleaseMatchCheck
+    CygbuildIsGbsCompat || CygbuildReadmeReleaseMatchCheck
 
     # ................................................ user commands ...
 
     local status=0
+    local opt
 
     for opt in "$@"
     do
-        case $opt in
+	case $opt in
+	    all)
+		CygbuildCmdAllMain finish
+		status=$?
+		;;
 
-          all)
-                #   The "prep" will also run "clean" and "distclean"
-                #   because there are misconfigured source packages
-                #   that dstribute compiled binaries.
+	    almostall)
+		CygbuildCmdAllMain
+		status=$?
+		;;
 
-                echo "-- [NOTE] command [all] is used for checking" \
-                     "build procedure only." \
-                     "See -h for source development options."
+	    auto*)
+		CygbuildCmdAutotool
+		status=$?
+		;;
 
-                #   The "{ A && B; } || :" reads:
-                #
-                #       IF command A succeeds, then run B. In either
-                #       case always return true, so that we can continue.
+	    *clean)
+		CygbuildCmdCleanByType $opt
+		status=$?
+		;;
 
-                CygbuildCmdGPGVerifyMain Yn     &&
-                CygbuildCmdPrepMain             &&
-                CygbuildCmdShadowMain           &&
-                CygbuildCmdConfMain             &&
-                CygbuildCmdBuildMain            &&
-                CygbuildCmdInstallMain          &&
-                CygbuildCmdStripMain            &&
-                CygbuildCmdPkgBinaryMain        &&
-                {
-                    if CygbuildHelpSourcePackage ; then
-                        CygbuildCmdPkgSourceMain
-                    elif [ "$OPTION_GBS_COMPAT" ] ; then
-                        echo "-- Not attempting to build a source package"
-                    fi ;
-                }
+	    check)
+		CygbuildCmdInstallCheckMain
+		status=$?
+		;;
 
-                status=$?
+	    checksig)
+		CygbuildCmdGPGVerifyMain
+		status=$?
+		;;
 
-                if [ "$status" != "0" ]; then
-                    if CygbuildAskYes "There was an error. Run [finish]"
-                    then
-                        CygbuildCmdFinishMain
-                        break
-                    else
-                        echo "... remove the SRC directory when ready"
-                    fi
-                else
-                    CygbuildCmdFinishMain
-                fi
+	    check-deps)
+		# CygbuildCmdDependCheckMain
+		CygbuildCmdInstallCheckBinFiles
+		status=$?
+		;;
 
-                ;;
+	    conf*)
+		CygbuildCmdConfMain
+		status=$?
+		;;
 
-          auto*)                CygbuildCmdAutotool
-                                ;;
+	    depend*)
+		CygbuildCmdDependMain
+		status=$?
+		;;
 
-          *clean)               CygbuildCmdCleanByType "$opt"
-                                status=$?
-                                ;;
+	    finish)
+		CygbuildCmdFinishMain
+		status=$?
+		;;
 
-          check)                CygbuildCmdInstallCheckMain
-                                status=$?
-                                ;;
+	    files)
+		CygbuildCmdFilesMain
+		status=$?
+		;;
 
-          checksig)             CygbuildCmdGPGVerifyMain
-                                status=$?
-                                ;;
+	    install)
+		CygbuildCmdInstallMain
+		status=$?
+		;;
 
-          check-deps)           # CygbuildCmdDependCheckMain
-                                CygbuildCmdInstallCheckBinFiles
-                                status=$?
-                                ;;
+	    install-extra)
+		#  Generate POD manuals and
+		#  compress manual pages etc.
+		CygbuildInstallExtraMain
+		status=$?
+		;;
 
-          conf*)                CygbuildCmdConfMain
-                                status=$?
-                                ;;
+	    import)
 
-          depend*)              CygbuildCmdDependMain
-                                status=$?
-                                ;;
+		local dir=$CYGBUILD_DIR_CYGPATCH_RELATIVE
+		local install
 
-          finish)               CygbuildCmdFinishMain
-                                status=$?
-                                ;;
+		#   If there is CYGWIN-PATCHES, then this is "upgrade"
+		#   Run also install in that case.
 
-          files)                CygbuildCmdFilesMain
-                                status=$?
-                                ;;
+		if [ -d "$dir" ]; then
+		    install="install"
+		    CygbuildCmdMkdirs
+		    CygbuildPatchApplyMaybe
+		else
+		  CygbuildCmdMkdirs
+		  CygbuildCmdFilesMain
+		fi                        &&
 
-          install)              CygbuildCmdInstallMain
-                                status=$?
-                                ;;
+		CygbuildCmdReadmeFixMain  &&
+		CygbuildCmdConfMain       &&
+		CygbuildCmdBuildMain      &&
+		[ ! "$install" ] || CygbuildCmdInstallMain
+		status=$?
+		;;
 
-          install-extra)        #  Generate POD manuals and
-                                #  compress manual pages
-                                CygbuildInstallExtraMain
-                                status=$?
-                                ;;
+	    make|build)
+		CygbuildCmdBuildMain
+		status=$?
+		;;
 
-          list)
-                                CygbuildPushd
-                                    cd $srcdir &&
-                                    find $instdir_relative -print
-                                CygbuildPopd
-                                ;;
+	    makedirs|mkdirs|dirs)
+		CygbuildCmdMkdirs $verbose
+		status=$?
+		;;
 
-          make|build)           CygbuildCmdBuildMain
-                                status=$?
-                                ;;
+	    makepatch|mkpatch)
+		CygbuildCmdMkpatchMain   \
+		    "$OPTION_SIGN"       \
+		    "$OPTION_PASSPHRASE" &&
+		CygbuildPatchCheck
+		status=$?
+		;;
 
-          makedirs|mkdirs)      CygbuildCmdMkdirs $verbose
-                                status=$?
-                                ;;
+	    package|bin-package|package-bin|pkg)
+		CygbuildCmdPackageBinMain "$stripflag"
+		status=$?
+		;;
 
-          makepatch|mkpatch)
-                                CygbuildCmdMkpatchMain   \
-                                    "$OPTION_SIGN"       \
-                                    "$OPTION_PASSPHRASE" &&
-                                CygbuildPatchCheck
-                                status=$?
-                                ;;
+	    package-devel|pkgdev)
+		CygbuildCmdPackageDevMain "$stripflag"
+		status=$?
+		;;
 
-          package|bin-package|package-bin|pkg)
-                                CygbuildNoticeMaybe
-                                CygbuildNoticeGPG
+	    package-sign|pkg-sign|sign|sign-package)
+		if WasLibraryInstall ; then
+		    CygbuildWarn "-- [WARN] Libs found." \
+			"Did you mean [package-devel]?"
+		fi
 
-                                if [ "$stripflag" ]; then
-                                    CygbuildStripCheck      &&
-                                    CygbuildCmdPkgBinaryMain
-                                    status=$?
-                                else
-                                    CygbuildCmdPkgBinaryMain
-                                    status=$?
-                                fi
-                                ;;
 
-          package-devel|pkgdev)
-                                CygbuildNoticeMaybe
-                                if [ "$stripflag" ]; then
-                                    CygbuildStripCheck      &&
-                                    CygbuildCmdPkgDevelMain
-                                    status=$?
-                                else
-                                    CygbuildCmdPkgDevelMain
-                                    status=$?
-                                fi
-                                ;;
+		if [ ! "$OPTION_SIGN" ]; then
+		    CygbuildWarn "[ERROR] -s option missing"
+		    status=1
+		else
+		    CygbuildGPGsignMain      \
+			"$OPTION_SIGN"       \
+			"$OPTION_PASSPHRASE"
+		    status=$?
+		fi
+		;;
 
-          package-sign|pkg-sign|sign|sign-package*)
+	    patch)
+		CygbuildPatchApplyMaybe
+		status=$?
+		;;
 
-                                if [ ! "$OPTION_SIGN" ]; then
-                                    CygbuildWarn "[ERROR] -s option missing"
-                                    status=1
-                                else
-                                    CygbuildGPGsignMain      \
-                                        "$OPTION_SIGN"       \
-                                        "$OPTION_PASSPHRASE"
-                                    status=$?
-                                fi
-                                ;;
+	    patch-check|pchk)
+		verbose="--verbose" CygbuildPatchCheck
+		CygbuildPatchListDisplay
+		status=$?
+		;;
 
-          repackage-all|repackage|repkg)
+	    prep*|unpack)
+		CygbuildCmdPrepMain
+		status=$?
+		;;
 
-                                #   - Both bin and source packages are made:
-                                #     install, pkg, fix, install pkg ...
-                                #   - This is needed twice due to way
-                                #     readmefix works.
+	    preremove)
+		CygbuildCmdPreremoveInstallMain
+		status=$?
+		;;
 
-                                CygbuildNoticeGPG
+	    postinstall)
+		CygbuildCmdPostInstallMain
+		status=$?
+		;;
 
-                                CygbuildCmdConfMain         &&
-                                CygbuildCmdBuildMain        &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdInstallCheckMain &&
-                                CygbuildStripCheck          &&
-                                CygbuildCmdPkgBinaryMain    &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgBinaryMain    &&
-                                {
-                                    CygbuildHelpSourcePackage   &&
-                                    CygbuildCmdPkgSourceMain ;
-                                }   || :                        &&
-                                CygbuildCmdPublishMain
-                                status=$?
-                                ;;
+	    publish)
+		CygbuildCmdPublishMain
+		status=$?
+		;;
 
-          repackage-bin|repkgbin)
-                                CygbuildNoticeGPG
+	    source-package|package-source|spkg)
+		CygbuildHelpSourcePackage
+		status=$?
 
-                                CygbuildCmdConfMain         &&
-                                CygbuildCmdBuildMain        &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgBinaryMain    &&
-                                CygbuildCmdInstallCheckMain
-                                status=$?
-                                ;;
+		if [ "$status" = "0" ]; then
+		    CygbuildNoticeGPG
+		    CygbuildNoticeMaybe
+		    CygbuildCmdPkgSourceMain
+		    status=$?
+		fi
+		;;
 
-          repackage-devel|repkgdev)
-                                CygbuildNoticeGPG
+	    readmefix)
+		CygbuildCmdReadmeFixMain
+		status=$?
+		;;
 
-                                CygbuildCmdConfMain         &&
-                                CygbuildCmdBuildMain        &&
-                                CygbuildCmdInstallMain      &&
-                                CygbuildCmdPkgDevelMain     &&
-                                CygbuildCmdInstallCheckMain
-                                status=$?
-                                ;;
+	    repackage-all|repackage|repkg)
 
-          patch)                CygbuildPatchApplyMaybe
-                                status=$?
-                                ;;
+		CygbuildNoticeGPG
 
-          patch-check)          verbose="verbose" CygbuildPatchCheck
-                                status=$?
-                                ;;
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildStripCheck          &&
+		CygbuildCmdPkgBinaryMain    &&
+		{
+		    CygbuildHelpSourcePackage   &&
+		    CygbuildCmdPkgSourceMain ;
+		}
+		status=$?
+		;;
 
-          prep*|unpack)         CygbuildCmdPrepMain
-                                status=$?
-                                ;;
+	    repackage-bin|repkgbin)
+		CygbuildNoticeGPG
 
-          preremove)            CygbuildCmdPreremoveInstallMain
-                                status=$?
-                                ;;
-          postinstall)          CygbuildCmdPostInstallMain
-                                status=$?
-                                ;;
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdPkgBinaryMain
+		status=$?
+		;;
 
-          publish)              CygbuildCmdPublishMain
-                                status=$?
-                                ;;
+	    repackage-devel|repkgdev)
+		CygbuildNoticeGPG
 
-          source-package|package-source|spkg)
+		CygbuildCmdConfMain         &&
+		CygbuildCmdBuildMain        &&
+		CygbuildCmdInstallMain      &&
+		CygbuildCmdPkgDevelMain
+		status=$?
+		;;
 
-                                CygbuildHelpSourcePackage
-                                status=$?
+	    rmshadow)
+		CygbuildCmdShadowDelete
+		status=$?
+		;;
 
-                                if [ "$status" = "0" ]; then
-                                    CygbuildNoticeGPG
-                                    CygbuildNoticeMaybe
-                                    CygbuildCmdPkgSourceMain
-                                    status=$?
-                                fi
-                                ;;
+	    shadow)
+		CygbuildCmdShadowDelete  &&
+		CygbuildCmdShadowMain
+		status=$?
+		;;
 
-          readme)               CygbuildDocFileReadme
-                                status=$?
-                                ;;
+	    strip)
+		if [ "$stripflag" ]; then
+		    CygbuildCmdStripMain
+		    status=$?
+		else
+		    status=0
+		fi
+		;;
 
-          readmefix)            CygbuildCmdReadmeFix
-                                status=$?
-                                ;;
+	    test)
+		CygbuildCmdTestMain
+		status=$?
+		;;
 
-          reshadow)             CygbuildCmdShadowDelete  &&
-                                CygbuildCmdShadowMain
-                                status=$?
-                                ;;
+	    unpatch)
+		CygbuildPatchApplyMaybe unpatch
+		status=$?
+		;;
 
-          rmshadow)             CygbuildCmdShadowDelete
-                                status=$?
-                                ;;
+	    vars)
+		set -x
+		CygbuildDefineGlobalMain "$TOPDIR" "$srcdir" \
+		    "$release" "$package"
+		return
+		;;
 
-          shadow)               CygbuildCmdShadowMain
-                                status=$?
-                                ;;
+	  verify)
+		CygbuildCmdGPGVerifyMain
+		status=$?
+		;;
 
-          strip)                if [ "$stripflag" ]; then
-                                    CygbuildCmdStripMain
-                                    status=$?
-                                else
-                                    status=0
-                                fi
-                                ;;
+	    *)  CygbuildWarn "$id: [ERROR] bad argument [$opt]. See -h"
+		exit 1
+		;;
+	esac
 
-          test)                 CygbuildCmdTestMain
-                                status=$?
-                                ;;
-
-          unpatch)              CygbuildPatchApplyMaybe unpatch
-                                status=$?
-                                ;;
-
-          upstream-download|udl)
-                                CygbuildCmdDownloadUpstream
-                                status=$?
-                                ;;
-
-          vars) set -x
-                CygbuildDefineGlobalMain "$TOPDIR" "$srcdir" \
-                    "$release" "$package"
-                return
-                ;;
-
-        verify) CygbuildCmdGPGVerifyMain
-                status=$?
-                ;;
-
-          *)    CygbuildWarn "$id: [ERROR] bad argument [$opt]. See -h"
-                exit 1
-                ;;
-
-        esac
-
-        if [ "$status" != "0" ]; then
-            CygbuildExit $status "$id: [FATAL] status is $status."
-        fi
-
+	if [ "$status" != "0" ]; then
+	    CygbuildExit $status "$id: [FATAL] status is $status."
+	fi
     done
 
-    echo "-- Done."
+    CygbuildEcho "-- Done."
 }
 
 function CygbuildMain()
@@ -10009,7 +11614,14 @@ function CygbuildMain()
     #  Run a quick option check before we call all initialization
     #  function that are slow. Also export library functions.
 
-    CygbuildCommandMainCheckHelp "$@"
+    CygbuildBootVariablesId
+    CygbuildBootVariablesGlobalColors
+    CygbuildBootVariablesGlobalCacheMain
+    CygbuildDefineGlobalCommands
+
+    CygbuildCommandMainCheckSpecial "$@"
+    CygbuildBootVariablesCache
+
     CygbuildBootFunctionExport
 
     #   This file can be included as a bash library. Like this:
@@ -10017,17 +11629,20 @@ function CygbuildMain()
     #       #!/bin/bash
     #       ... load library
     #       export CYGBUILD_LIB=1
-    #       source $(/usr/bin/which cygbuild.sh)
+    #       source $(/usr/bin/which cygbuild)
     #       ... call functions
 
-    if [ ! "$CYGBUILD_LIB" ]; then
+    if [ "$CYGBUILD_LIB" ]; then
 
-        if [[ $# -gt 0 ]]; then
-            CygbuildCommandMain "$@"
-            CygbuildFileCleanTemp
-        else
-            CygbuildWarn "$id: No options given. See -h"
-        fi
+	CygbuildBootVariablesGlobalMain
+
+    else
+	if [[ $# -gt 0 ]]; then
+	    CygbuildCommandMain "$@"
+	    CygbuildFileCleanTemp
+	else
+	    CygbuildWarn "$id: No options given. See -h"
+	fi
     fi
 }
 
@@ -10038,15 +11653,27 @@ function Test ()
     CYGBUILD_RETVAL="/tmp/Cygbuild.tmp"
     PERL=perl
 
-#    CygbuildDefineGlobalCommands
-    set -x
-
-    local tmp=/tmp/xterm-229
+    local tmp=$1
+    # tmp=annoyance-filter-R1.0d
+    # tmp=xterm-229
+    # tmp=remake-3.80+dbg-0.61.tar.gz
 
     CygbuildVersionInfo $tmp
-#    CygbuildStrPackage $tmp
+    CygbuildStrPackage $tmp
 }
 
+function TestRegression ()
+{
+    Test odt2txt-0.3+git20070827-1-src.tar.bz2
+    Test findbugs-1.3.0-rc1.tar.gz
+    Test jove4.16.0.70
+    Test cabber_0.4.0-test5.orig.tar.gz
+    Test unace1.2n
+    Test ctorrent_1.3.4-dnh3.2.orig.tar.gz
+    exit;
+}
+
+trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
 CygbuildMain "$@"
 
 # End of file

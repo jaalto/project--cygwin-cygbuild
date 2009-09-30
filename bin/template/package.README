@@ -1,0 +1,60 @@
+<PKG>
+------------------------------------------
+
+<one line description - sdesc of setup.hint>
+
+<short description, paragraph - ldesc of setup.hint>
+
+Runtime requirements:
+  cygwin
+
+Build requirements:
+  cygwin
+
+Canonical homepage:
+  http://... <where the upstream, non-cygwinize package lives>
+
+Canonical download:
+  ftp://...  <ditto>
+
+Version control repository:
+
+Mailing list:
+
+Forum / Wiki:
+
+IRC channel:
+
+Upstream contact:
+  Maintainer:
+  Bugs:
+
+License:
+  GPL
+
+Language:
+  C
+
+------------------------------------------
+
+Build instructions:
+  unpack <PKG>-*-src.tar.bz2
+    if you use setup to install this source package, it will be
+    unpacked under /usr/src automatically
+  cd /usr/src
+  ./<PKG>*.sh all
+
+------------------------------------------
+
+Files included in the binary distribution:
+  See content of *.tar.gz
+
+------------------------------------------
+
+Port Notes:
+
+----- version <VER>-<REL> -----
+- Initial release YYYY-MM-DD Firstname Lastname
+
+Cygwin port maintained by: Firstname Lastname <Your email here>
+Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later

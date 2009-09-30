@@ -1,0 +1,10 @@
+# See http://cygwin.com/setup.html   The 'category' can be:
+# Accessibility Admin Archive Audio Base Comm Database Devel Doc Editors
+# Games Gnome Graphics Interpreters Libs Mail Math Mingw Net Perl Python
+# Publishing Security Shells System Text Utils Web X11
+sdesc: ""
+ldesc: ""
+category: name [name...]
+requires: cygwin [package...]
+external-source: package
+conflicts:

@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#       Copyright (C) 2003-2007 Jari Aalto
+#       Copyright (C) 2003-2009 Jari Aalto
 #
-#   Copyright
+#   License
 #
 #       This program is free software; you can redistribute it and/or
 #       modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #       - Build everything using cygbuild.sh
 
 NAME="cygbuild-rebuild"
-VERSION="2007.0829.1325"
+VERSION="2007.0909.1501"
 
 find='find . -type d -maxdepth 1 | grep -Eve "^\.$|-orig" | sort'
 
@@ -37,18 +37,15 @@ targets="clean configure make install pkg readmefix install pkg spkg"
 prefix="****  "
 error="$prefix [ERROR]"
 
-
 function Help ()
 {
-    cat <<EOF
-
+    echo "\
 Call syntax: $0 [-h] [-i INCREASE] -d DIR
 
 For more information:
 
   man cygbuild-rebuild.sh
-
-EOF
+"
 }
 
 function Package ()
@@ -76,7 +73,6 @@ function Release ()
 
     echo $file
 }
-
 
 function Main ()
 {
@@ -149,9 +145,7 @@ function Main ()
         return
     fi
 
-
     # ................................................. Main program ...
-
 
     local dir
 
@@ -195,6 +189,6 @@ function Main ()
 }
 
 
-Main $*
+Main "$@"
 
 # End of file
