@@ -272,12 +272,16 @@ This option comes handy with command B<[check]> when someone else's
 binary package results are being checked. An example:
 
   $ ls
-    foo-2.1.tar.gz
-    foo-2.1-1.tar.bz2
-    foo-2.1-1-src.tar.bz2
-  ... make "pseudo" install directory
+  foo-2.1.tar.gz
+  foo-2.1-1.tar.bz2
+  foo-2.1-1-src.tar.bz2
+
+  ... make a "pseudo" install directory
+
   $ mkdir .inst
+
   ... examine the binary package
+
   $ (cd .inst ; tar -jxvf ../foo-2.1-1.tar.bz2)
   $ cygbuild -f foo-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
 
