@@ -37,6 +37,7 @@
 	(CygbuildDefineGlobalPythonVersion): Return status
 	(CygbuildDefineGlobalPerlVersion): Return status.
 	(CygbuildCmdFilesWrite): Use *.ex, not *.tmp extension.
+	(CygbuildInstallPackageDocs): Improve debug.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 

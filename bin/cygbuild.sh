@@ -9014,6 +9014,7 @@ function CygbuildInstallTaropt2match ()
 function CygbuildInstallPackageDocs()
 {
     local id="$0.$FUNCNAME"
+    local dummy				# For debug
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
     local scriptInstallDir="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
@@ -9150,6 +9151,7 @@ function CygbuildInstallPackageDocs()
 	#   man/manN/
 
 	local taropt="--extract"
+	dummy="test mode: $test"
 
 	if [ "$test" ]; then
 	    taropt="--list"
@@ -9159,9 +9161,17 @@ function CygbuildInstallPackageDocs()
 
 	if [ ! "$test" ] ; then
 
+	    dummy="tarOptInclude: $tarOptInclude"
+	    dummy="dir: $dir"
+	    dummy="extradir: $extradir"
+
 	    if [ "$tarOptInclude" ] || [ "$dir" ] || [ "$extradir" ]
 	    then
-		tar $optExclude $tarOptExclude $verbose \
+		dummy="tarOptExclude: $tarOptExclude"
+
+		tar $optExclude \
+		    $tarOptExclude \
+		    $verbose \
 		    --create --dereference --file=- \
 		    ${dir:+"."} \
 		    $extradir \
