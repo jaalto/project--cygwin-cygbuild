@@ -569,6 +569,8 @@ function CygbuildDefineGlobalPerlVersion()
 	    }
 	'
     )
+
+    [ "$PERL_VERSION" ]
 }
 
 function CygbuildDefineGlobalPythonVersion()
@@ -577,6 +579,20 @@ function CygbuildDefineGlobalPythonVersion()
 	python -V 2>&1 |
 	awk '{print $2}'
     )
+
+    [ "$PYTHON_VERSION" ]
+}
+
+function CygbuildDefineGlobalRubyVersion()
+{
+    #  ruby 1.8.7 (2009-06-12 patchlevel 174)
+
+    RUBY_VERSION=$(                               # global-def
+	ruby --version 2>&1 |
+	awk '{print $1}'
+    )
+
+    [ "$RUBY_VERSION" ]
 }
 
 function CygbuildBootVariablesCache()
@@ -649,19 +665,28 @@ function CygbuildBootVariablesGlobalShareSet()
     CYGBUILD_TEMPLATE_DIR_MAIN="$CYGBUILD_SHARE_DIR/template"   #global-def
 }
 
-function CygbuildBootVariablesGlobalCachePerlGenerate()
+function CygbuildBootVariablesGlobalCacheGenerate()
 {
-    local id="$0.$FUNCNAME"
-    local file="$dir/perl-${PERL_VERSION}.lst"
+    local package="$1"
+    local file="$2"
 
     if [ ! "$CYGCHECK" ]; then
-	CygbuildWarn "[WARN] cygcheck(1) not in PATH"
+	CygbuildWarn "[WARN] cygcheck(1) not in PATH." \
+	             "Cannot make cache: $package"
 	return 1
     fi
 
-    $CYGCHECK -l perl | ${PERLBIN:-perl} -pe 's,\r,,' > "$file"
+    $CYGCHECK -l $package | ${PERLBIN:-perl} -pe 's,\r,,' > "$file"
 
     [ -s "$file" ]
+}
+
+function CygbuildBootVariablesGlobalCachePerlGenerate()
+{
+    [ "$PERL_VERSION" ] || return 1
+    local file="$dir/perl-${PERL_VERSION}.lst"
+
+    CygbuildBootVariablesGlobalCacheGenerate perl "$file"
 }
 
 function CygbuildBootVariablesGlobalCachePerl()
@@ -669,7 +694,7 @@ function CygbuildBootVariablesGlobalCachePerl()
     local id="$0.$FUNCNAME"
     local dir="$1"
 
-    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerlVersion
+    [ "$PERL_VERSION" ] || CygbuildDefineGlobalPerlVersion || return 1
 
     #   Set Perl package content cache. This is needed to check if
     #   modules are Standard perl or from CPAN.
@@ -684,12 +709,20 @@ function CygbuildBootVariablesGlobalCachePerl()
     fi
 }
 
+function CygbuildBootVariablesGlobalCachePythonGenerate()
+{
+    [ "$PYTHON_VERSION" ] || return 1
+    local file="$dir/perl-${PYTHON_VERSION}.lst"
+
+    CygbuildBootVariablesGlobalCacheGenerate python "$file"
+}
+
 function CygbuildBootVariablesGlobalCachePython()
 {
     local id="$0.$FUNCNAME"
     local dir="$1"
 
-    [ "$PYTHON_VERSION" ] || CygbuildDefineGlobalPythonVersion
+    [ "$PYTHON_VERSION" ] || CygbuildDefineGlobalPythonVersion || return 1
 
     local file="$dir/python-${PYTHON_VERSION}.lst"
     CYGBUILD_CACHE_PYTHON_FILES=                                # global-def
@@ -698,6 +731,34 @@ function CygbuildBootVariablesGlobalCachePython()
 	CYGBUILD_CACHE_PYTHON_FILES="$file"                     # global-def
     else
 	CygbuildVerb "-- [WARN] No Python cache available: $file"
+    fi
+}
+
+function CygbuildBootVariablesGlobalCacheRubyGenerate()
+{
+    [ "$RUBY_VERSION" ] || return 1
+    local file="$dir/perl-${RUBY_VERSION}.lst"
+
+    CygbuildBootVariablesGlobalCacheGenerate perl "$file"
+}
+
+function CygbuildBootVariablesGlobalCacheRuby()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$1"
+
+    [ "$RUBY_VERSION" ] || CygbuildDefineGlobalRubyVersion || return 1
+
+    #   Set package content cache. This is needed to check if
+    #   modules are Standard Ruby
+
+    local file="$dir/perl-${RUBY_VERSION}.lst"
+    CYGBUILD_CACHE_RUBY_FILES=                                  # global-def
+
+    if [ -s "$file" ]; then
+	CYGBUILD_CACHE_RUBY_FILES="$file"                       # global-def
+    else
+	CygbuildVerb "-- [WARN] No Ruby cache available: $file"
     fi
 }
 
@@ -8804,7 +8865,6 @@ function CygbuildCmdDistcleanMain
 	#   Nothing to do
 	:
     elif CygbuildIsRubyPackage ; then
-
 	:
     else
 	CygbuildMakefileRunTarget "distclean" "$dir" "$opt"

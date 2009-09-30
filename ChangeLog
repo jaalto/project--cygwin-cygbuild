@@ -22,6 +22,13 @@
 	(CygbuildHelpLong): Move exit command to correct place.
 	(CygbuildBootVariablesGlobalCachePerlGenerate): New.
 	(CygbuildCygcheckLibraryDepListFull): Fix indentation.
+	(CygbuildBootVariablesGlobalCachePythonGenerate): New.
+	(CygbuildBootVariablesGlobalCacheGenerate): New.
+	(CygbuildDefineGlobalRubyVersion): New.
+	(CygbuildBootVariablesGlobalCacheRubyGenerate): New.
+	(CygbuildBootVariablesGlobalCacheRuby): New.
+	(CygbuildDefineGlobalPythonVersion): Return status
+	(CygbuildDefineGlobalPerlVersion): Return status.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 
