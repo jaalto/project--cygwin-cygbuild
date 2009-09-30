@@ -1,7 +1,8 @@
 2009-09-30  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl (Help): Work around Perl bug in
-	pod2text.
+	pod2text. Change option presentation to notation
+	'-o, --option'.
 
 	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
 	Correct *Waen() call to *Warn().

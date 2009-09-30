@@ -1017,7 +1017,7 @@ executables under C<usr/bin>? If everything is not in order, then you need
 to study the package's C<Makefile> and fix it to put files in proper
 locations.
 
-Here is shortened listing of a typical library package:
+Here is a shortened listing of a typical library package:
 
     usr/lib/libgc.la
     usr/lib/libgc.a

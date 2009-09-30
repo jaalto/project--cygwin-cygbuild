@@ -4290,12 +4290,12 @@ function CygbuildHelpLong()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local exit="$1"
-set -x
+
     [ ! "$CYGBUILD_STATIC_PERL_MODULE" ] &&
     CygbuildBootVariablesGlobalShareMain
 
     local lib="$CYGBUILD_STATIC_PERL_MODULE"
-set +x
+
     if [ "$lib" ] && [ -f "$lib" ]; then
 	perl $lib help
 	[ "$exit" ] && exit $exit
