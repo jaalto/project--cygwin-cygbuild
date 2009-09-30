@@ -365,7 +365,7 @@ B<NOTE:> This options should be avoided and it may be removed. Program is
 
 =over 4
 
-=item B<mkdirs>
+=item B<mkdirs, dirs>
 
 Make Cygwin build directories
 
