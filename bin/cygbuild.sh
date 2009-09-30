@@ -664,7 +664,7 @@ function CygbuildBootVariablesGlobalCachePerl()
     if [ -s "$file" ]; then
 	CYGBUILD_CACHE_PERL_FILES="$file"                       # global-def
     else
-	CygbuildVerb "-- [WARN] No Perl cache available."
+	CygbuildVerb "-- [WARN] No Perl cache available: $file"
     fi
 }
 
@@ -681,7 +681,7 @@ function CygbuildBootVariablesGlobalCachePython()
     if [ -s "$file" ]; then
 	CYGBUILD_CACHE_PYTHON_FILES="$file"                     # global-def
     else
-	CygbuildVerb "-- [WARN] No Pythin cache available."
+	CygbuildVerb "-- [WARN] No Pythin cache available: $file"
     fi
 }
 
