@@ -13,6 +13,7 @@
 	(CygbuildInstallCygwinPartPostinstall): Install
 	with modes 755, not 644.
 	(CygbuildBootVariablesGlobalCachePerl): Correct typo.
+	(CygbuildBootVariablesGlobalCachePython): Correct typo.
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 

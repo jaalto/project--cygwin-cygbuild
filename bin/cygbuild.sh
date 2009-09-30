@@ -681,7 +681,7 @@ function CygbuildBootVariablesGlobalCachePython()
     if [ -s "$file" ]; then
 	CYGBUILD_CACHE_PYTHON_FILES="$file"                     # global-def
     else
-	CygbuildVerb "-- [WARN] No Pythin cache avalable."
+	CygbuildVerb "-- [WARN] No Pythin cache available."
     fi
 }
 
