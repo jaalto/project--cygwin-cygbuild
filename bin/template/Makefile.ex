@@ -87,15 +87,22 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
 
+# Delete files fromt he build process.
 clean:
 	# clean
 	-rm -f *[#~] *.\#* *.o core \
 	*.pyc *.elc \
 	*.exe *.stackdump $(PACKAGE)
 
+#  Delete files that are created by configuring or building the program.
+#  Leave only the files that were in the distribution.
 distclean: clean
 
+#  Delete almost everything that can be reconstructed.
 realclean: clean
+
+#  This replaces 'realclean' in new GNU standards.
+maintainer-clean: realclean
 
 install-etc:
 	# install-etc
