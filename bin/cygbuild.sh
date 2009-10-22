@@ -287,7 +287,7 @@ function CygbuildMatchPatternList()
 	    fi
 	done
 
-    set +o noglob
+   set +o noglob
 
     return $ret
 }
@@ -1021,7 +1021,8 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.ex \
      --exclude=*.log \
      --exclude=*.orig \
-     --exclude=*.eps  \
+     --exclude=*.eps \
+     --exclude=*.mo \
      --exclude=*.rej \
      --exclude=*.stackdump \
      --exclude=*.swp \
@@ -6231,7 +6232,12 @@ function CygbuildCmdMkpatchMain()
 	diffsrc=${cursrcdir##$(pwd)/}
 
 	if  [ ! "$difforig" ] || [ ! -d "$difforig" ]; then
-	    CygbuildWarn "$id: No orig dir? Snapshot failed: $$difforig"
+	    CygbuildWarn "$id: No orig dir. Snapshot possibly failed: $difforig"
+	    return 1
+	fi
+
+	if  [ ! "$diffsrc" ] || [ ! -d "$diffsrc" ]; then
+	    CygbuildWarn "$id: No src dir. Snapshot possibly failed: $diffsrc"
 	    return 1
 	fi
 

@@ -23,6 +23,8 @@
 #
 #       Visit <http://www.gnu.org/copyleft/gpl.html>
 
+shopt -s extglob    # Use extra pattern matching options
+
 #######################################################################
 #
 #	    FILES
@@ -607,12 +609,11 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
     #
     #  NOTICE: All must be space separated, no tabs anywhere.
 
-    CYGBUILD_SETUP_HINT_CATEGORY="\
-    Accessibility\
+    CYGBUILD_SETUP_HINT_CATEGORY=" Accessibility\
     Admin\
     Archive\
     Audio\
-    Base
+    Base\
     Database\
     Devel\
     Doc\
@@ -638,8 +639,7 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
     Text\
     Utils\
     Web\
-    X11\
-    "
+    X11 "
 
     if [ ! "$path" ]; then
 	CygbuildWarn "$id: Missing argument PATH"
@@ -651,10 +651,14 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
 	return 1
     fi
 
+    local cr=$'\r'
+
     for item in $(< $retval) # Break on space to read categoies
     do
 	#  Skip first word, the "Category:" header
 	[[ "$item" == *:* ]] && continue
+
+	item=${item/$cr/}   # remove CR from the last item
 
 	if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
 	    CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"

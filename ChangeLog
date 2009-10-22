@@ -1,3 +1,9 @@
+2009-10-22  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh:
+	(CygbuildCmdInstallCheckSetupHintFieldCategory): Add a missing
+	backslash to continued line CYGBUILD_SETUP_HINT_CATEGORY.
+
 2009-09-30  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/Makefile.redirect.ex: Remove extra variables
@@ -49,6 +55,8 @@
 	'cygbuild_opt_exclude_tmp_files'.
 	(CygbuildFindLowlevel): Add *.ex.
 	(CygbuildCommandMainCheckSpecial): Add alias lspatch.
+	(CygbuildCmdMkpatchMain): Check that $diffsrc exists.
+	(CygbuildBootVariablesGlobalMain): Add *.mo
 
 2009-09-29  Jari Aalto  <jari.aalto@cante.net>
 
