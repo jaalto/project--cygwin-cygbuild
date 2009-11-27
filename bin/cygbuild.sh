@@ -3552,7 +3552,7 @@ function CygbuildFileReadOptionsMaybe()
 	str=$(< $retval)
 
 	if [ ! "$msg" ]; then
-	    CygbuildWarn "-- Reading external and more options:" \
+	    CygbuildWarn "-- Reading external:" \
 			 "${file#$srcdir/}: $str"
 	else
 	    CygbuildWarn "$msg"
@@ -5844,7 +5844,7 @@ function CygbuildPatchPrefixStripCountFromFilename()
     local id="$0.$FUNCNAME"
     local str=$1
 
-    #   Read the filename contains hint how much to strip, use it.
+    #   If the filename that contains a hint how much to strip, use it.
     #       CYGWIN/-PATCHES/foo-1.2.3.strip+3.patch
 
     [[ $str != *strip+*  ]] && return 1
