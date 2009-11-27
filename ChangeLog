@@ -1,3 +1,8 @@
+2009-11-27  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildObjDumpLibraryDepList): ignore Cygwin
+	1.7 MPR.DLL.
+
 2009-10-22  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/libcheck.sh:

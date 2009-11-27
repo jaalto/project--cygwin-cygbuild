@@ -1695,7 +1695,7 @@ CygbuildObjDumpLibraryDepList ()
 
     objdump -p "$file" |
 	awk '
-	    /KERNEL32|cygwin1.dll/ {
+	    /KERNEL32|cygwin1.dll|MPR.DLL/ {
 		next;
 	    }
 	    /DLL Name:/ {
