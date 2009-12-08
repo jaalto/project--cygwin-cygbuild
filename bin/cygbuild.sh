@@ -9949,7 +9949,8 @@ function CygbuildInstallFixInterpreterMain()
 
 	    CygbuildInstallFixInterpreterPerl "$file"
 
-	elif $EGREP --quiet "python" $retval &&
+	elif $EGREP --quiet "python"                $retval &&
+	   ! $EGREP --quiet '^[[:space:]]*\"'       $retval &&
 	   ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
 	then
 	    CygbuildEcho "-- [NOTE] Suspicious Python call" \
