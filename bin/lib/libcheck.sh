@@ -2,7 +2,7 @@
 #
 #   libcheck.sh -- Library of check functions for cygbuild
 #
-#       Copyright (C) 2003-2009 Jari Aalto
+#       Copyright (C) 2003-2010 Jari Aalto
 #
 #   License
 #
