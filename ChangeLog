@@ -3,10 +3,12 @@
 	* bin/lib/cygbuild.pl (UpdateAnnouncement): Replace generic
 	"package" with readl package name.
 
-	* bin/cygbuild.sh: (PackageUsesLibtoolMain): Adjust regexp '\blibtool\b'
-	to '\blibtoo' to notice "INTL_LIBTOOL_SUFFIX_PREFIX"
+	* bin/cygbuild.sh: (PackageUsesLibtoolMain): Adjust regexp
+	'\blibtool\b' to '\blibtoo' to notice "INTL_LIBTOOL_SUFFIX_PREFIX"
 	(CygbuildCommandMainCheckSpecial): Add alias ls-patch.
 	(CygbuildCmdDownloadCygwinPackage): Use setup-2.ini for Cygwin 1.7
+	(CygbuildDllToLibName): Add "mhash" case. Change zlib (doc) to
+	zlib0 (runtime).
 
 2009-12-08  Jari Aalto  <jari.aalto@cante.net>
 

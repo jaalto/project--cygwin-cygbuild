@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1209.1148"
+CYGBUILD_VERSION="2009.1209.1305"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1729,7 +1729,10 @@ CygbuildDllToLibName ()
 	# Special cases:
 
 	case "$lib" in
-	    libz) lib=zlib ;;
+	    libz)
+		lib=zlib0 ;;
+	    libmhash*)
+		lib=mhash ;;
 	esac
 
 	echo $lib
