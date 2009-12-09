@@ -1212,7 +1212,7 @@ function CygbuildCmdInstallCheckFSFaddress()
     local new="51 Franklin St, Fifth Floor, Boston, MA, 02111-1301 USA"
 
     if [ -s "$retval" ]; then
-	CygbuildEcho "-- [NOTE] Use new FSF address (<$url>: $new)"
+	CygbuildEcho "-- [NOTE] Old FSF address (new is <$url>: $new)"
 	cat $retval
     fi
 }
