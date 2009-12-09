@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1209.1122"
+CYGBUILD_VERSION="2009.1209.1148"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -7837,7 +7837,7 @@ CygbuildCmdDownloadCygwinPackage ()
 
     url=${url%/}        # Remove trailing slash
 
-    local file="setup.ini"
+    local file="setup-2.ini"
     local cachedir="$CYGBUILD_CACHE_DIR"
     local cache="$cachedir/$file"
 
@@ -10906,7 +10906,7 @@ function CygbuildCommandMainCheckSpecial()
 	    -V|--Version|--version)
 		CygbuildProgramVersion 0
 		;;
-	    patch-list|plist|lspatch)
+	    patch-list|plist|lspatch|ls-patch)
 		CygbuildPatchFileList CYGWIN-PATCHES
 		exit 0
 		;;

@@ -1,7 +1,12 @@
 2009-12-09  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Replace generic
+	"package" with readl package name.
+
 	* bin/cygbuild.sh: (PackageUsesLibtoolMain): Adjust regexp '\blibtool\b'
 	to '\blibtoo' to notice "INTL_LIBTOOL_SUFFIX_PREFIX"
+	(CygbuildCommandMainCheckSpecial): Add alias ls-patch.
+	(CygbuildCmdDownloadCygwinPackage): Use setup-2.ini for Cygwin 1.7
 
 2009-12-08  Jari Aalto  <jari.aalto@cante.net>
 
