@@ -1,3 +1,8 @@
+2009-12-09  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (PackageUsesLibtoolMain): Adjust regexp '\blibtool\b'
+	to '\blibtoo' to notice "INTL_LIBTOOL_SUFFIX_PREFIX"
+
 2009-12-08  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallFixInterpreterMain): Correct
