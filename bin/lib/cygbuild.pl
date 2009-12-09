@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.0205.1557';
+$VERSION = '2009.1209.1254';
 
 # ..................................................................
 
@@ -3687,19 +3687,18 @@ sub ReadMeFilesIncluded ($ $)
 
 sub UpdateAnnouncement ($$$$)
 {
-    my $id          = "$LIB.UpdateAnnouncement";
+    my $id = "$LIB.UpdateAnnouncement";
     my($file, $pkg, $ver, $rel) = @ARG;
 
     $debug  and  warn "$id: file [$file] pkg [$pkg] ver [$ver] rel [$rel]\n";
 
     $file  or  die "$id: FILE argument is empty";
 
-    my $orig = FileRead $file or die "$ERRNO";
-    local $ARG = $orig;
+    my $orig    = FileRead $file or die "$ERRNO";
+    local $ARG  = $orig;
 
     my $vid     = "$ver-$rel";                          # version id
     my $iso8601 = Date(-utc => "on");
-
     my $rest;
 
     if ( /(New \s+ package | Updated): .*? (?<rest> \s* --+ .*)/mxi )
@@ -3726,7 +3725,20 @@ sub UpdateAnnouncement ($$$$)
 
     s< ^Subject: \s* New \s+ Package: .* \r? \n ><>mxi;
 
+    # Change generic word "package"
+
+    s
+    < ^(?<subject> \s* Subject: \s* updated: \s*)package >
+    <$+{subject}$pkg>mxi;
+
     #  Update Copyright information.
+
+    print "$id: DEBUG $debug\n";
+
+    if ( $debug )
+    {
+	print "$id: [SUBJECT] $1\n" if /^ \s* (Subject.*)/mxi;
+    }
 
     $ARG = UpdateYears($ARG);
 
