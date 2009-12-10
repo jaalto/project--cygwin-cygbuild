@@ -7,6 +7,7 @@
 	as python.
 	(CygbuildDefineGlobalCompile): use SRCDIR to check Makefiles for
 	libtool.
+	(CygbuildShellEnvironenment): add CXXFLAGS.
 
 2009-12-09  Jari Aalto  <jari.aalto@cante.net>
 
