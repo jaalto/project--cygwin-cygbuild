@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.1209.1254';
+$VERSION = '2009.1210.1320';
 
 # ..................................................................
 
@@ -3701,7 +3701,7 @@ sub UpdateAnnouncement ($$$$)
     my $iso8601 = Date(-utc => "on");
     my $rest;
 
-    if ( /(New \s+ package | Updated): .*? (?<rest> \s* --+ .*)/mxi )
+    if ( /(New \s+ package | New | Updated): .*? (?<rest> \s* --+ .*)/mxi )
     {
 	$rest = $+{rest};
     }

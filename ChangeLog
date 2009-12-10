@@ -1,5 +1,8 @@
 2009-12-10  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl (UpdateAnnouncement): Accept 'New:' prefix,
+	not just 'New package:'
+
 	* bin/cygbuild.sh: (CygbuildDefineGlobalCompile): treat libpython
 	as python.
 	(CygbuildDefineGlobalCompile): use SRCDIR to check Makefiles for
