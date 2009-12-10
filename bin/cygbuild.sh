@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1209.1305"
+CYGBUILD_VERSION="2009.1209.1949"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1733,6 +1733,8 @@ CygbuildDllToLibName ()
 		lib=zlib0 ;;
 	    libmhash*)
 		lib=mhash ;;
+	    lib*python[0-9]*)
+		lib=python ;;
 	esac
 
 	echo $lib

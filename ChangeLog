@@ -1,4 +1,12 @@
+2009-12-10  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildDefineGlobalCompile): treat libpython
+	as python.
+
 2009-12-09  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckFSFaddress): adjust
+	wording.
 
 	* bin/lib/cygbuild.pl (UpdateAnnouncement): Replace generic
 	"package" with readl package name.
