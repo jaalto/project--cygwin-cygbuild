@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1209.1949"
+CYGBUILD_VERSION="2009.1210.1306"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3743,7 +3743,13 @@ function CygbuildDefineGlobalCompile()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     local make
-    CygbuildMakefileName "." Makefile.in Makefile.am > $retval &&
+
+    CygbuildMakefileName \
+	"$srcdir" \
+	Makefile.in \
+	Makefile.am \
+	> $retval &&
+
     make=$(< $retval)
 
     local libtool libtoolCompile

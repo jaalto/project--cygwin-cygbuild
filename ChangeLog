@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh: (CygbuildDefineGlobalCompile): treat libpython
 	as python.
+	(CygbuildDefineGlobalCompile): use SRCDIR to check Makefiles for
+	libtool.
 
 2009-12-09  Jari Aalto  <jari.aalto@cante.net>
 
