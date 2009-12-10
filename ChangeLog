@@ -9,6 +9,8 @@
 	(CygbuildDefineGlobalCompile): use SRCDIR to check Makefiles for
 	libtool.
 	(CygbuildShellEnvironenment): add CXXFLAGS.
+	(CygbuildDefineGlobalCompile): Add '-Wl,' to --no-undefined
+	linker flag.
 
 2009-12-09  Jari Aalto  <jari.aalto@cante.net>
 

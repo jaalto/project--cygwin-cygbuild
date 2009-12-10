@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1210.1712"
+CYGBUILD_VERSION="2009.1210.2347"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3772,16 +3772,16 @@ function CygbuildDefineGlobalCompile()
 	#  http://sourceware.org/autobook/autobook/autobook_88.html
 
 	if [ "$CYGBUILD_LDFLAGS" ]; then
-	    CYGBUILD_LDFLAGS="-no-undefined $CYGBUILD_LDFLAGS"  # global-def
+	    CYGBUILD_LDFLAGS="-Wl,--no-undefined $CYGBUILD_LDFLAGS"  # global-def
 	else
-	    CYGBUILD_LDFLAGS="-no-undefined"                    # global-def
+	    CYGBUILD_LDFLAGS="-Wl,--no-undefined"                    # global-def
 	fi
 
 	if [ "$CYGBUILD_AM_LDFLAGS" ]; then
 	    # CYGBUILD_AM_LDFLAGS  global-def
-	    CYGBUILD_AM_LDFLAGS="-no-undefined $CYGBUILD_AM_LDFLAGS"
+	    CYGBUILD_AM_LDFLAGS="-Wl,--no-undefined $CYGBUILD_AM_LDFLAGS"
 	else
-	    CYGBUILD_AM_LDFLAGS="-no-undefined"                 # global-def
+	    CYGBUILD_AM_LDFLAGS="-Wl,--no-undefined"                 # global-def
 	fi
 
     fi
