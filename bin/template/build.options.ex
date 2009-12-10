@@ -4,7 +4,7 @@
 # CYGBUILD_CFLAGS="-O2 -g"
 # CYGBUILD_CXXLAGS="-O2 -g"
 #
-# set to -no-undefined for libraries
+# set to -Wl,--no-undefined for libraries
 # CYGBUILD_LDFLAGS=""
 #
 # CYGBUILD_MAKEFLAGS="all xall"
