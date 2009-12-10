@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1210.1711"
+CYGBUILD_VERSION="2009.1210.1712"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -8722,7 +8722,7 @@ function CygbuildCmdBuildStdMakefile()
 
 		[ "$verbose" ] && set -x
 
-		echo eval make -f $makefile                 \
+		eval make -f $makefile                 \
 		    AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
 		    $env                                \
 		    $CYGBUILD_MAKEFLAGS
