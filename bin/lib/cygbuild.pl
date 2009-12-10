@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.1210.1320';
+$VERSION = '2009.1210.2126';
 
 # ..................................................................
 
@@ -3732,8 +3732,6 @@ sub UpdateAnnouncement ($$$$)
     <$+{subject}$pkg>mxi;
 
     #  Update Copyright information.
-
-    print "$id: DEBUG $debug\n";
 
     if ( $debug )
     {
