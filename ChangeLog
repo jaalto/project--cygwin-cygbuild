@@ -1,3 +1,12 @@
+2009-12-12  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/perl-cpan-patch.ex: New.
+
+	* bin/template/Makefile.ex (INSTALL_OBJS_DOC): New.
+	(install-doc): New.
+	(INSTALL_DIR): New.
+	(INSTALL_SCRIPT): New.
+
 2009-12-10  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl (UpdateAnnouncement): Accept 'New:' prefix,
