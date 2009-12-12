@@ -11,7 +11,7 @@
 
 BEGIN
 {
-    my @list = qw
+    my @need = qw
     (
         Mail::Box::Manager
  	Mail::Message
@@ -19,7 +19,7 @@ BEGIN
         Date::Parse
     );
 
-    for ( @list )
+    for ( @need )
     {
         eval "use $_;" ;
         push @list, $_   if $@;  # Eval error
@@ -33,3 +33,4 @@ BEGIN
     }
 }
 
+# End of file
