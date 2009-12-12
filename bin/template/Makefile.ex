@@ -7,18 +7,18 @@
 #
 #   License
 #
-#       This program is free software; you can redistribute it and/or modify
-#       it under the terms of the GNU General Public License as published by
-#       the Free Software Foundation; either version 2 of the License, or
-#       (at your option) any later version.
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
 #
-#       This program is distributed in the hope that it will be useful,
-#       but WITHOUT ANY WARRANTY; without even the implied warranty of
-#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#       GNU General Public License for more details.
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#	GNU General Public License for more details.
 #
-#       You should have received a copy of the GNU General Public License
-#       along with this program. If not, see <http://www.gnu.org/licenses/>.
+#	You should have received a copy of the GNU General Public License
+#	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -51,10 +51,13 @@ INSTALL_OBJS_BIN   = $(PACKAGE)
 INSTALL_OBJS_MAN1  = *.1
 INSTALL_OBJS_SHARE =
 INSTALL_OBJS_ETC   =
+INSTALL_OBJS_DOC   =
 
 INSTALL		= /usr/bin/install
-INSTALL_BIN	= $(INSTALL) -m 755
+INSTALL_BIN	= $(INSTALL) -m 755 -s
+INSTALL_SCRIPT	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
+INSTALL_DIR	= $(INSTALL) -m 644 -d
 INSTALL_SUID	= $(INSTALL) -m 4755
 
 LDFLAGS		=
@@ -106,18 +109,23 @@ maintainer-clean: realclean
 
 install-etc:
 	# install-etc
-	$(INSTALL_BIN) -d $(ETCDIR)
-	$(INSTALL_BIN)	  $(INSTALL_OBJS_ETC) $(ETCDIR)
+	$(INSTALL_DIR) $(ETCDIR)
+	$(INSTALL_BIN) $(INSTALL_OBJS_ETC) $(ETCDIR)
+
+install-doc:
+	# install-doc
+	$(INSTALL_DIR) $(DOCPKGDIR)
+	tar -cf - $(INSTALL_OBJS_DOC) | tar -C $(DOCPKGDIR) -xf -
 
 install-man:
 	# install-man
-	$(INSTALL_BIN) -d $(MANDIR1)
+	$(INSTALL_DIR) $(MANDIR1)
 	$(INSTALL_DATA) $(INSTALL_OBJS_MAN1) $(MANDIR1)
 
 install-bin:
 	# install-bin
-	$(INSTALL_BIN) -d $(BINDIR)
-	$(INSTALL_BIN) -s $(INSTALL_OBJS_BIN) $(BINDIR)
+	$(INSTALL_DIR) $(BINDIR)
+	$(INSTALL_BIN) $(INSTALL_OBJS_BIN) $(BINDIR)
 
 install: all install-bin install-man
 
