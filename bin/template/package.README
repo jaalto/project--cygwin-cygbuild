@@ -1,9 +1,15 @@
 <PKG>
 ------------------------------------------
 
-<one line description - sdesc of setup.hint>
+<One line description - sdesc of setup.hint>
 
-<short description, paragraph - ldesc of setup.hint>
+<Short description, paragraph - ldesc of setup.hint>
+
+<fFor perl>
+Before use, install additional perl modules:
+
+    perl -MCPAN -e 'install $_ for @ARGV' \
+        Time::ParseDate Time::Period
 
 Runtime requirements:
   cygwin
