@@ -54,11 +54,11 @@ INSTALL_OBJS_ETC   =
 INSTALL_OBJS_DOC   =
 
 INSTALL		= /usr/bin/install
-INSTALL_BIN	= $(INSTALL) -m 755 -s
-INSTALL_SCRIPT	= $(INSTALL) -m 755
-INSTALL_DATA	= $(INSTALL) -m 644
-INSTALL_DIR	= $(INSTALL) -m 644 -d
-INSTALL_SUID	= $(INSTALL) -m 4755
+INSTALL_BIN	= $(INSTALL) --mode=755 --strip
+INSTALL_SCRIPT	= $(INSTALL) --mode=755
+INSTALL_DATA	= $(INSTALL) --mode=644
+INSTALL_DIR	= $(INSTALL) --mode=644 --directory
+INSTALL_SUID	= $(INSTALL) --mode=4755
 
 LDFLAGS		=
 CC		= gcc
@@ -115,7 +115,8 @@ install-etc:
 install-doc:
 	# install-doc
 	$(INSTALL_DIR) $(DOCPKGDIR)
-	tar -cf - $(INSTALL_OBJS_DOC) | tar -C $(DOCPKGDIR) -xf -
+	tar --dereference --create --file - $(INSTALL_OBJS_DOC) | \
+	tar --directory $(DOCPKGDIR) --extract --file -
 
 install-man:
 	# install-man
