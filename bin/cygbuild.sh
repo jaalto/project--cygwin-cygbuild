@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1210.2347"
+CYGBUILD_VERSION="2009.1214.2347"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2320,6 +2320,7 @@ function CygbuildDefileInstallVariables()
  --infodir=$CYGBUILD_PREFIX/$prefix_info \
  --libdir=$CYGBUILD_PREFIX/$prefix_lib \
  --includedir=$CYGBUILD_PREFIX/$prefix_inc \
+ --with-intl \
 "
 }
 
@@ -8233,7 +8234,7 @@ function CygbuildConfDepend()
 function CygbuildConfOptionAdjustment()
 {
 
-    #    All messages must be printed to STDERR because erturn value
+    #    All messages must be printed to STDERR because return value
     #    is echoed
 
     local id="$0.$FUNCNAME"
@@ -8250,21 +8251,32 @@ function CygbuildConfOptionAdjustment()
     if [ "$verbose" ]; then
 	awk '/^[ \t]+--with(out)?-/ && ! /PACKAGE|linux/ {
 	    print
-	}' $conf > $retval
+	}' $conf > "$retval"
 
-	if [ -s $retval ] ; then
+	if [ -s "$retval" ] ; then
 	    CygbuildWarn "-- [NOTE] Configure supports additional options:"
 	    sed 's/^/ /' $retval >&2
 	fi
     fi
 
-    local str opt ret
+    local str ret
 
     for str in $options
     do
-	opt=${str%%=*}      # --prefix=/usr  => --prefix
+	local opt=${str%%=*}      # --prefix=/usr  => --prefix
 
-	if CygbuildGrepCheck "^[^#]*$opt" $conf ; then
+	local re=""
+	local lib=""
+
+	# GNU ./makefile supports --with-PACKAGE options. Check those
+
+	if [[ "$opt" == --with-* ]]; then
+	    local tmp=${opt%--with-}  # --with-intl
+	    lib=${opt#$tmp}           # intl
+	    re="|--with-PACKAGE"
+	fi
+
+	if CygbuildGrepCheck "^[^#]*($opt$re)" $conf ; then
 	    [ "$verbose" ] &&
 	    CygbuildWarn "-- [INFO] configure supports $opt"
 
@@ -10878,12 +10890,11 @@ function CygbuildProgramVersion()
 	str="$CYGBUILD_NAME "
     fi
 
-    str="$str$CYGBUILD_VERSION"
+    str="$str$CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
 
     if [ ! "$short" ]; then
 	str="$str (C) $CYGBUILD_AUTHOR"
 	str="$str License: $CYGBUILD_LICENSE"
-	str="$str Homepage: $CYGBUILD_HOMEPAGE_URL"
     fi
 
     local tag="##"

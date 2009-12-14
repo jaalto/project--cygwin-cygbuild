@@ -1,3 +1,11 @@
+2009-12-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CYGBUILD_CONFIGURE_OPTIONS):
+	Add --with-intl
+	(CygbuildConfOptionAdjustment): Add --with-* option
+	support check.
+	(CygbuildProgramVersion): Adjust display. Add URL.
+
 2009-12-12  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/perl-cpan-patch.ex: New.
