@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.1210.2126';
+$VERSION = '2009.1215.0959';
 
 # ..................................................................
 
@@ -2839,6 +2839,7 @@ sub MakefileDestdirSupport ($; $)
     my @files = FileScanMain '(?i)Makefile$|configure(?:\.in)?$', $dir;
 
     my    $ret = '';
+    my    $found = 0;
     local $ARG;
 
     for my $file ( @files )
@@ -2854,13 +2855,19 @@ sub MakefileDestdirSupport ($; $)
 	{
 	    $debug  and  warn "$id: Found $file\n";
 	    $ret = $file;
-	    last;
+	    $found++;
 	}
     }
 
-    my $code = $ret ? 0 : 1;
+    #  Only if *all* Makefiles found suppport DESTDIR, then return success
 
-    $debug  and  warn "$id:  RET [$ret] exit [$code]\n";
+    my $code = $found == @files ? 0 : 1;
+
+    if ( $debug )
+    {
+	warn "$id: FILES ",scalar @files, " support FOUND ", $found, "\n";
+	warn "$id: RET [$ret] exit [$code]\n";
+    }
 
     if ( $exit )
     {
