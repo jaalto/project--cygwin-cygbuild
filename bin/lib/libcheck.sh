@@ -1718,7 +1718,8 @@ function CygbuildCmdInstallCheckBinFiles()
 	    [ -s "$retval" ] && size=$(< "$retval")
 
 	    if [[ ! "$size" == [0-9]* ]]; then
-		CygbuildWarn "-- [WARNING] Internal error, can't read size: '$file'"
+		CygbuildWarn "-- [WARNING] Internal error, can't read" \
+		    " size: '$file'"
 	    else
 		if [[ $size -gt $maxsize ]]; then
 		    CygbuildEcho "-- [NOTE] Big file, need " \
@@ -1731,13 +1732,6 @@ function CygbuildCmdInstallCheckBinFiles()
 	    CygbuildWarn "-- [WARN] Should not have extension in $_file"
 	fi
 
-        #   Sometimes package includes compiled binaries for Linux.
-        #   Warn about those. The file(1) will report:
-        #
-        #   ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
-        #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
-        #   stripped
-
 	local str
         file "$file" > $retval
         [ -s "$retval" ] && str=$(< $retval)
@@ -1747,8 +1741,22 @@ function CygbuildCmdInstallCheckBinFiles()
 	local pybin="$PYTHONBIN"
 	local rbbin="$RUBYBIN"
 
+        #   Sometimes package includes compiled binaries for Linux.
+        #   Warn about those. The file(1) will report:
+        #
+        #   ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
+        #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
+        #   stripped
+
         if [[ "$str" == *Linux* ]]; then
             CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
+            status=1
+
+        elif [[ "$str" == *executable*Windows* ]] && [[ ! $file == *.exe ]]
+	then
+	    # All binaries must have ".exe" suffix
+	    # PE32 executable for MS Windows (console) Intel 80386 32-bit
+            CygbuildEcho "-- [ERROR] No *.exe suffix in $_file"
             status=1
 
         elif [[ "$str" == *Bourne-Again* ]] && [[ ! $depends == *bash* ]]
@@ -1811,7 +1819,7 @@ function CygbuildCmdInstallCheckBinFiles()
             if ! $EGREP --quiet "$rbbin([ \t]|$)" "$retval.1st"
             then
                 CygbuildWarn "-- [WARN] possibly wrong Ruby call" \
-                     "in $_file:" $(cat "$retval.1st")
+                     "in $_file:" $(< "$retval.1st")
             fi
 
 	    CygbuildCmdInstallCheckLibrariesRuby "$file"
