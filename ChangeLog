@@ -1,3 +1,20 @@
+2009-12-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (MakefileDestdirSupport):
+	Improve debug.
+
+	* bin/cygbuild.sh: (CygbuildCmdDownloadCygwinPackage): Use
+	setup.ini, not setup-2.ini. Cygwin 7 has been released and
+	is now official.
+
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
+	Check that all executables have *.exe suffix.
+
+2009-12-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (MakefileDestdirSupport): Require that
+	all Makefiles support DESTDIR before returning success.
+
 2009-12-14  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CYGBUILD_CONFIGURE_OPTIONS):
