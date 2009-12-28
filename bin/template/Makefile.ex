@@ -47,7 +47,25 @@ MANDIR5		= $(MANDIR)/man5
 MANDIR6		= $(MANDIR)/man6
 MANDIR8		= $(MANDIR)/man8
 
-INSTALL_OBJS_BIN   = $(PACKAGE)
+
+LDFLAGS		=
+CC		= gcc
+GCCFLAGS	= -Wall
+DEBUG		= -g
+CFLAGS		= $(CC_EXTRA_FLAGS) $(DEBUG) -O2
+CXX		= g++
+CXXFLAGS	= $(CXX_EXTRA_FLAGS) $(DEBUG) -O2
+
+ifneq ($(WINDIR),)
+EXT = .exe
+endif
+
+SRCS		= $(PACKAGE).c
+OBJS		= $(SRCS:.c=.o)
+EXE		= $(PACKAGE)$(EXT)
+LIBS		=
+
+INSTALL_OBJS_BIN   = $(EXE)
 INSTALL_OBJS_MAN1  = *.1
 INSTALL_OBJS_SHARE =
 INSTALL_OBJS_ETC   =
@@ -59,19 +77,6 @@ INSTALL_SCRIPT	= $(INSTALL) --mode=755
 INSTALL_DATA	= $(INSTALL) --mode=644
 INSTALL_DIR	= $(INSTALL) --mode=644 --directory
 INSTALL_SUID	= $(INSTALL) --mode=4755
-
-LDFLAGS		=
-CC		= gcc
-GCCFLAGS	= -Wall
-DEBUG		= -g
-CFLAGS		= $(CC_EXTRA_FLAGS) $(DEBUG) -O2
-CXX		= g++
-CXXFLAGS	= $(CXX_EXTRA_FLAGS) $(DEBUG) -O2
-
-SRCS		= $(PACKAGE).c
-OBJS		= $(SRCS:.c=.o)
-EXE		= $(PACKAGE)
-LIBS		=
 
 ASM_SRCS	=
 ASM_OBJS	= $(ASM_SRCS:.asm=.o)
