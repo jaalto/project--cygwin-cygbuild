@@ -1211,10 +1211,8 @@ function CygbuildCmdInstallCheckFSFaddress()
     local url="http://savannah.gnu.org/forum/forum.php?forum_id=3766"
     local new="51 Franklin St, Fifth Floor, Boston, MA, 02111-1301 USA"
 
-    if [ -s "$retval" ]; then
-	CygbuildEcho "-- [NOTE] Old FSF address (new is <$url>: $new)"
-	cat $retval
-    fi
+    CygbuildEcho "-- [NOTE] Old FSF address (new is <$url>: $new)"
+    cat $retval
 }
 
 function CygbuildCmdInstallCheckLineEndings()
@@ -1747,16 +1745,28 @@ function CygbuildCmdInstallCheckBinFiles()
         #   ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
         #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
         #   stripped
+	#
+
 
         if [[ "$str" == *Linux* ]]; then
             CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
             status=1
 
-        elif [[ "$str" == *executable*Windows* ]] && [[ ! $file == *.exe ]]
+        elif [[ "$str" == *executable*Windows\ \(console\)* ]] &&
+	     [[ ! $file == *.exe ]]
 	then
 	    # All binaries must have ".exe" suffix
 	    # PE32 executable for MS Windows (console) Intel 80386 32-bit
+
             CygbuildEcho "-- [ERROR] No *.exe suffix in $_file"
+            status=1
+
+        elif [[ "$str" == *executable*Windows\ \(DLL\)* ]] &&
+	     [[ $file != *.dll || $file != *.so ]]
+	then
+	    # *.so:  PE32 executable for MS Windows (DLL) (console) Intel 80386 32-bit
+
+            CygbuildEcho "-- [ERROR] No *.so or *.dll suffix in $_file"
             status=1
 
         elif [[ "$str" == *Bourne-Again* ]] && [[ ! $depends == *bash* ]]
