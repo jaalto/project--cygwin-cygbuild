@@ -4,6 +4,8 @@
 	overrride any user settings.
 	(unset -f awk...): Define at top level to remove any
 	functions in current environment that mask real programs.
+	(CygbuildCmdMkpatchMain): Improve failed patch message.
+	(CygbuildInstallFixInterpreterMain): Improve Python check regexp.
 
 2009-12-28  Jari Aalto  <jari.aalto@cante.net>
 

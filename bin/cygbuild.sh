@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2010.0128.1221"
+CYGBUILD_VERSION="2010.0128.1314"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6280,11 +6280,10 @@ function CygbuildCmdMkpatchMain()
 
 	    if [ "$status" != "1" ]; then
 
-		CygbuildWarn "$id: [ERROR] Making patch failed," \
-		     "check $origpkgdir and $out"        \
-		     "Do you need to run again [shadow]?"
-
-		$EGREP --line-number --invert-match 'files.*differ' $out
+		CygbuildWarn "$id: [ERROR] Making patch failed" \
+		     "with code $status."			\
+		     "Check ${origpkgdir#$srcdir/} and ${out#$srcdir/}" \
+		     "or do you need to run again [shadow]?"
 
 		return $status
 
@@ -9967,7 +9966,7 @@ function CygbuildInstallFixInterpreterMain()
 	head --lines=1 "$file" > $retval 2> /dev/null
 
 	if $EGREP --quiet "perl" $retval &&
-	 ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
+	 ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
 	then
 	    CygbuildVerb "-- [NOTE] Suspicious Perl call" \
 		"in $_file: $(cat $retval)"
@@ -9975,8 +9974,8 @@ function CygbuildInstallFixInterpreterMain()
 	    CygbuildInstallFixInterpreterPerl "$file"
 
 	elif $EGREP --quiet "python"                $retval &&
-	   ! $EGREP --quiet '^[[:space:]]*\"'       $retval &&
-	   ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
+	   ! $EGREP --quiet '^[[:space:]]*[\"]'     $retval &&
+	   ! $EGREP --quiet "$pybin([[:space:]-]|$)" $retval
 	then
 	    CygbuildEcho "-- [NOTE] Suspicious Python call" \
 		 "in $_file: $(cat $retval)"
