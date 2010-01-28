@@ -97,9 +97,9 @@ set -o pipefail     # status comes from the failed pipe command
 
 LC_ALL=C            # So that sort etc. works as expected.
 LANG=C
-PATH="/usr/bin:/usr/lib:/usr/sbin:/bin:/sbin"
+PATH="/usr/bin:/usr/lib:/usr/sbin:/bin:/sbin:$PATH"
 
-unset -f awk egrep grep tar perl
+unset -f awk egrep grep tar perl head tail sed gcc make wget
 
 #######################################################################
 #

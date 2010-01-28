@@ -1,4 +1,13 @@
+2010-01-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (PATH): Define at top level to
+	overrride any user settings.
+	(unset -f awk...): Define at top level to remove any
+	functions in current environment that mask real programs.
+
 2009-12-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/Makefile.ex (EXT): New variable.
 
 	* bin/lib/cygbuild.pl (MakefileDestdirSupport):
 	Improve debug.
