@@ -34,7 +34,7 @@ bindir		= $(exec_prefix)/bin
 sharedir	= $(prefix)/share
 
 BINDIR		= $(DESTDIR)$(bindir)
-DOCDIR		= $(DESTDIR)$(sharedir/doc
+DOCDIR		= $(DESTDIR)$(sharedir)/doc
 SHAREDIR	= $(DESTDIR)$(prefix)/share/$(PACKAGE)
 LIBDIR		= $(DESTDIR)$(prefix)/lib/$(PACKAGE)
 SBINDIR		= $(DESTDIR)$(exec_prefix)/sbin
@@ -57,7 +57,7 @@ INSTALL		= /usr/bin/install
 INSTALL_BIN	= $(INSTALL) -m 755 -s
 INSTALL_SCRIPT	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
-INSTALL_DIR	= $(INSTALL) -m 644 -d
+INSTALL_DIR	= $(INSTALL) -m 755 -d
 INSTALL_SUID	= $(INSTALL) -m 4755
 
 LDFLAGS		=
