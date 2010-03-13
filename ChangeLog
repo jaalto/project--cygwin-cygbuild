@@ -1,5 +1,9 @@
 2010-03-13 Sat  Jari Aalto  <jari.aalto@cante.net>
 
+	* Makefile (doc/manual/index.txt): New.
+	(doc/manual/index.html): New.
+	(doc): New.
+
 	* bin/lib/cygbuild.pl: (HELP::Other Commands): Fix typo in 'cysrc'
 	command option syntax.
 	(HELP::DESCRIPTION): Move after SYNOPSIS as per POSIX manual page

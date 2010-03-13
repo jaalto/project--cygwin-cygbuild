@@ -46,6 +46,15 @@ install-test:
 	make DESTDIR=`pwd`/tmp prefix=/. install
 	@echo "find tmp -type f | sort"
 
+doc/manual/index.html: bin/lib/cygbuild.pl
+	pod2html $< > $@
+
+doc/manual/index.txt: doc/manual/index.html
+	lynx -dump $< > $@
+
+doc: doc/manual/index.html doc/manual/index.txt
+	$(MAKE) -C bin man
+
 # www: [maintenance] Publish doc/ directory's WWW documentation
 www:
 	# Rule www - for Maintainer only
