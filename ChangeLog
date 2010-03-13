@@ -8,6 +8,9 @@
 	command option syntax.
 	(HELP::DESCRIPTION): Move after SYNOPSIS as per POSIX manual page
 	standard.
+	(HELP::Now the real thing; making a Cygwin package): Fix example.
+	(HELP::Contributing packages): Add wget link conributing example.
+	(HELP::OPTIONAL EXTERNAL DIRECTORIES): Chnage I<> to C<>.
 
 2010-01-28  Jari Aalto  <jari.aalto@cante.net>
 

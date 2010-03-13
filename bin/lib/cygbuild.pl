@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2010.0313.1605';
+$VERSION = '2010.0313.1705';
 
 # ..................................................................
 
@@ -989,10 +989,9 @@ release, add build release option B<-r 1>. Remember to increase build count
 if you make more releases of the same package.
 
     $ cd /tmp/build/foo-1.13/
-    $ cygbuild -r 1 -v makedirs files
-			  ==============
+    $ cygbuild -r 1 -v mkdirs files
 
-Command B<[makedirs]> created three dot-directories which should be
+Command B<[mkdirs]> created three dot-directories which should be
 C<foo-1.13/{.build,.inst,.sinst}>. Command B<[files]> wrote few template
 files of which two must be modified. The other C<.tmp> files are just
 examples they are needed for tricky packages.
@@ -1015,7 +1014,6 @@ packages. It will appear in directory C<./.sinst>:
 
    $ cd /tmp/build/foo-1.13/
    $ cygbuild -r 1 -v install strip package
-			 =====================
 
 6. Examine carefully the install phase and double check that the created
 archive looks correct. Run C<find(1)> to check the directory structure:
@@ -1065,7 +1063,6 @@ C<package-N.N/CYGWIN-PATCHES/>. Try this first:
 
    <your still at directory package-N.N/>
    $ cygbuild -r 1 -v source-package
-			 ==============
 
 That's it, if all succeeded. At directory up C<./.sinst> you should see two
 complete Cygwin Net release shipments: a binary package and a source
@@ -1085,12 +1082,16 @@ To contribute your package, place them somewhere available and send message
 to <cygwin-apps@cygwin.com> with following message. The ITP acronym used is
 borrowed from Debian and it means "intent to package":
 
-    Subject: [ITP] package-N.N
+    Subject: ITP: package-N.N
 
 B<Package submittal:> Include contents of C<setup.hint> and the binary
-package listing C<tar jtvf foo-1.13-RELEASE.tar.bz2>. Provide complete to a
-ftp/http server download links to package files where they can be
-downloaded when you submit a contributed package.
+package listing C<tar jtvf foo-1.13-RELEASE.tar.bz2>. Provide
+*complete* clickable ULR links where to download the files. An example:
+
+    wget \
+        http://example.com/cygwin/package/package-N.N-1-src.tar.bz2 \
+        http://example.com/cygwin/package/package-N.N-1.tar.bz2 \
+        http://example.com/cygwin/package/setup.hint
 
 B<Licensing:> As a package maintainer, the licensing responsibility is on
 your shoulders. If the upstream package's license if not OSD compatible
@@ -1168,7 +1169,7 @@ local disk:
 
 =head1 OPTIONAL EXTERNAL DIRECTORIES
 
-All files in I<CYGWIN-PATCHES/bin> are installed as executables into
+All files in C<CYGWIN-PATCHES/bin> are installed as executables into
 directory C<.inst/usr/bin>. The location can be changed if any of the
 files contains tag B<cyginstdir:> to point to new location. An example:
 
@@ -1180,8 +1181,8 @@ files contains tag B<cyginstdir:> to point to new location. An example:
 
 The following list of scripts is alphabetically ordered. The name of
 the script indicates when it is run or which command runs it. All
-files in C<CYGWIN-PATCHES/> that have suffix C<.tmp> are temporary
-templates and not used.
+files in C<CYGWIN-PATCHES/> that have suffix C<.tmp> or C<.ex> are
+temporary files or templates, and not used.
 
 =over 4
 
@@ -1794,9 +1795,10 @@ variable C<CYGBUILD_LIB> before C<source> command. When invoked this way,
 the I<cygbuild's> C<Main()> function in not invoked and options or
 commands are bypassed.
 
-B<WARNING:> All the functions are name space clean and contain prefix
-B<Cygbuild*>, but many global variables are defined that do not
-include the prefix: C<$instdir>, C<$builddir> etc.
+B<WARNING:> While the functions are name space clean and contain
+prefix B<Cygbuild*>, many global variables are defined that do not
+include this prefix. These variables include C<$instdir>, C<$builddir>
+etc.
 
 To get access to full power of the functions, these steps are needed:
 
