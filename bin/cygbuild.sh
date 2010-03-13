@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL v2 or later"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2009.1210.2347"
+CYGBUILD_VERSION="2010.0128.1314"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -97,6 +97,9 @@ set -o pipefail     # status comes from the failed pipe command
 
 LC_ALL=C            # So that sort etc. works as expected.
 LANG=C
+PATH="/usr/bin:/usr/lib:/usr/sbin:/bin:/sbin:$PATH"
+
+unset -f awk egrep grep tar perl head tail sed gcc make wget
 
 #######################################################################
 #
@@ -2320,6 +2323,7 @@ function CygbuildDefileInstallVariables()
  --infodir=$CYGBUILD_PREFIX/$prefix_info \
  --libdir=$CYGBUILD_PREFIX/$prefix_lib \
  --includedir=$CYGBUILD_PREFIX/$prefix_inc \
+ --with-intl \
 "
 }
 
@@ -6276,11 +6280,10 @@ function CygbuildCmdMkpatchMain()
 
 	    if [ "$status" != "1" ]; then
 
-		CygbuildWarn "$id: [ERROR] Making patch failed," \
-		     "check $origpkgdir and $out"        \
-		     "Do you need to run again [shadow]?"
-
-		$EGREP --line-number --invert-match 'files.*differ' $out
+		CygbuildWarn "$id: [ERROR] Making patch failed" \
+		     "with code $status."			\
+		     "Check ${origpkgdir#$srcdir/} and ${out#$srcdir/}" \
+		     "or do you need to run again [shadow]?"
 
 		return $status
 
@@ -7848,7 +7851,7 @@ CygbuildCmdDownloadCygwinPackage ()
 
     url=${url%/}        # Remove trailing slash
 
-    local file="setup-2.ini"
+    local file="setup.ini"
     local cachedir="$CYGBUILD_CACHE_DIR"
     local cache="$cachedir/$file"
 
@@ -8233,7 +8236,7 @@ function CygbuildConfDepend()
 function CygbuildConfOptionAdjustment()
 {
 
-    #    All messages must be printed to STDERR because erturn value
+    #    All messages must be printed to STDERR because return value
     #    is echoed
 
     local id="$0.$FUNCNAME"
@@ -8250,21 +8253,32 @@ function CygbuildConfOptionAdjustment()
     if [ "$verbose" ]; then
 	awk '/^[ \t]+--with(out)?-/ && ! /PACKAGE|linux/ {
 	    print
-	}' $conf > $retval
+	}' $conf > "$retval"
 
-	if [ -s $retval ] ; then
+	if [ -s "$retval" ] ; then
 	    CygbuildWarn "-- [NOTE] Configure supports additional options:"
 	    sed 's/^/ /' $retval >&2
 	fi
     fi
 
-    local str opt ret
+    local str ret
 
     for str in $options
     do
-	opt=${str%%=*}      # --prefix=/usr  => --prefix
+	local opt=${str%%=*}      # --prefix=/usr  => --prefix
 
-	if CygbuildGrepCheck "^[^#]*$opt" $conf ; then
+	local re=""
+	local lib=""
+
+	# GNU ./makefile supports --with-PACKAGE options. Check those
+
+	if [[ "$opt" == --with-* ]]; then
+	    local tmp=${opt%--with-}  # --with-intl
+	    lib=${opt#$tmp}           # intl
+	    re="|--with-PACKAGE"
+	fi
+
+	if CygbuildGrepCheck "^[^#]*($opt$re)" $conf ; then
 	    [ "$verbose" ] &&
 	    CygbuildWarn "-- [INFO] configure supports $opt"
 
@@ -9952,7 +9966,7 @@ function CygbuildInstallFixInterpreterMain()
 	head --lines=1 "$file" > $retval 2> /dev/null
 
 	if $EGREP --quiet "perl" $retval &&
-	 ! $EGREP --quiet "$plbin[[:space:]]*$" $retval
+	 ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
 	then
 	    CygbuildVerb "-- [NOTE] Suspicious Perl call" \
 		"in $_file: $(cat $retval)"
@@ -9960,8 +9974,8 @@ function CygbuildInstallFixInterpreterMain()
 	    CygbuildInstallFixInterpreterPerl "$file"
 
 	elif $EGREP --quiet "python"                $retval &&
-	   ! $EGREP --quiet '^[[:space:]]*\"'       $retval &&
-	   ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
+	   ! $EGREP --quiet '^[[:space:]]*[\"]'     $retval &&
+	   ! $EGREP --quiet "$pybin([[:space:]-]|$)" $retval
 	then
 	    CygbuildEcho "-- [NOTE] Suspicious Python call" \
 		 "in $_file: $(cat $retval)"
@@ -10878,12 +10892,11 @@ function CygbuildProgramVersion()
 	str="$CYGBUILD_NAME "
     fi
 
-    str="$str$CYGBUILD_VERSION"
+    str="$str$CYGBUILD_VERSION $CYGBUILD_HOMEPAGE_URL"
 
     if [ ! "$short" ]; then
 	str="$str (C) $CYGBUILD_AUTHOR"
 	str="$str License: $CYGBUILD_LICENSE"
-	str="$str Homepage: $CYGBUILD_HOMEPAGE_URL"
     fi
 
     local tag="##"

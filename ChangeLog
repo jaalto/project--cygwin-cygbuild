@@ -5,6 +5,42 @@
 	(HELP::DESCRIPTION): Move after SYNOPSIS as per POSIX manual page
 	standard.
 
+2010-01-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (PATH): Define at top level to
+	overrride any user settings.
+	(unset -f awk...): Define at top level to remove any
+	functions in current environment that mask real programs.
+	(CygbuildCmdMkpatchMain): Improve failed patch message.
+	(CygbuildInstallFixInterpreterMain): Improve Python check regexp.
+
+2009-12-28  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/Makefile.ex (EXT): New variable.
+
+	* bin/lib/cygbuild.pl (MakefileDestdirSupport):
+	Improve debug.
+
+	* bin/cygbuild.sh: (CygbuildCmdDownloadCygwinPackage): Use
+	setup.ini, not setup-2.ini. Cygwin 7 has been released and
+	is now official.
+
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckBinFiles):
+	Check that all executables have *.exe suffix.
+
+2009-12-15  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (MakefileDestdirSupport): Require that
+	all Makefiles support DESTDIR before returning success.
+
+2009-12-14  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CYGBUILD_CONFIGURE_OPTIONS):
+	Add --with-intl
+	(CygbuildConfOptionAdjustment): Add --with-* option
+	support check.
+	(CygbuildProgramVersion): Adjust display. Add URL.
+
 2009-12-12  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/perl-cpan-patch.ex: New.

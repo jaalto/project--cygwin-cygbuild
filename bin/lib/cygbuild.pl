@@ -26,7 +26,13 @@
 #
 #           $ cygbuild --help
 
-require 5.10.0;                 # perlre: Named backreferences
+# ****************************************************************************
+#
+#   Standard perl modules
+#
+# ****************************************************************************
+
+require 5.10.0;                 # perlre: Uses named backreferences
 use strict;
 use integer;
 
@@ -40,9 +46,10 @@ use autouse 'File::Find'    => qw( find                     );
 
 package File::Find;
     use vars qw($name $fullname);
+
 package main;
 
-use English;
+use English qw( -no_match_vars );
 use Cwd;
 # use Getopt::Long;
 # use POSIX qw(strftime);
@@ -84,11 +91,11 @@ use vars qw ( $VERSION );
 #   This is for use of Makefile.PL and ExtUtils::MakeMaker
 #   So that it puts the tardist number in format YYYY.MMDD
 #   The REAL version number is defined later
-
+#
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2010.0313.1600';
+$VERSION = '2010.0313.1605';
 
 # ..................................................................
 
@@ -2839,6 +2846,7 @@ sub MakefileDestdirSupport ($; $)
     my @files = FileScanMain '(?i)Makefile$|configure(?:\.in)?$', $dir;
 
     my    $ret = '';
+    my    $found = 0;
     local $ARG;
 
     for my $file ( @files )
@@ -2854,13 +2862,19 @@ sub MakefileDestdirSupport ($; $)
 	{
 	    $debug  and  warn "$id: Found $file\n";
 	    $ret = $file;
-	    last;
+	    $found++;
 	}
     }
 
-    my $code = $ret ? 0 : 1;
+    #  Only if *all* Makefiles found suppport DESTDIR, then return success
 
-    $debug  and  warn "$id:  RET [$ret] exit [$code]\n";
+    my $code = $found == @files ? 0 : 1;
+
+    if ( $debug )
+    {
+	warn "$id: FILES ",scalar @files, " support FOUND ", $found, "\n";
+	warn "$id: RET [$ret] exit [$code]\n";
+    }
 
     if ( $exit )
     {

@@ -47,6 +47,7 @@ MANDIR5		= $(MANDIR)/man5
 MANDIR6		= $(MANDIR)/man6
 MANDIR8		= $(MANDIR)/man8
 
+<<<<<<< HEAD
 INSTALL_OBJS_BIN   = $(PACKAGE)
 INSTALL_OBJS_MAN1  = *.1
 INSTALL_OBJS_SHARE =
@@ -59,6 +60,8 @@ INSTALL_SCRIPT	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
 INSTALL_DIR	= $(INSTALL) -m 755 -d
 INSTALL_SUID	= $(INSTALL) -m 4755
+=======
+>>>>>>> ecaec01aba5aa1755ab78c6638bee98cf5e82740
 
 LDFLAGS		=
 CC		= gcc
@@ -68,10 +71,27 @@ CFLAGS		= $(CC_EXTRA_FLAGS) $(DEBUG) -O2
 CXX		= g++
 CXXFLAGS	= $(CXX_EXTRA_FLAGS) $(DEBUG) -O2
 
+ifneq ($(WINDIR),)
+EXT = .exe
+endif
+
 SRCS		= $(PACKAGE).c
 OBJS		= $(SRCS:.c=.o)
-EXE		= $(PACKAGE)
+EXE		= $(PACKAGE)$(EXT)
 LIBS		=
+
+INSTALL_OBJS_BIN   = $(EXE)
+INSTALL_OBJS_MAN1  = *.1
+INSTALL_OBJS_SHARE =
+INSTALL_OBJS_ETC   =
+INSTALL_OBJS_DOC   =
+
+INSTALL		= /usr/bin/install
+INSTALL_BIN	= $(INSTALL) --mode=755 --strip
+INSTALL_SCRIPT	= $(INSTALL) --mode=755
+INSTALL_DATA	= $(INSTALL) --mode=644
+INSTALL_DIR	= $(INSTALL) --mode=644 --directory
+INSTALL_SUID	= $(INSTALL) --mode=4755
 
 ASM_SRCS	=
 ASM_OBJS	= $(ASM_SRCS:.asm=.o)
@@ -115,7 +135,8 @@ install-etc:
 install-doc:
 	# install-doc
 	$(INSTALL_DIR) $(DOCPKGDIR)
-	tar -cf - $(INSTALL_OBJS_DOC) | tar -C $(DOCPKGDIR) -xf -
+	tar --dereference --create --file - $(INSTALL_OBJS_DOC) | \
+	tar --directory $(DOCPKGDIR) --extract --file -
 
 install-man:
 	# install-man
