@@ -88,7 +88,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2009.1210.2126';
+$VERSION = '2010.0313.1600';
 
 # ..................................................................
 
@@ -115,7 +115,82 @@ cygbuild - Cygwin source and binary package build script
 
     cygbuild [options] [-r RELEASE] CMD [CMD ...]
 
-=head1 DESCRIPTION - A QUICK OVERVIEW
+=head1 DESCRIPTION
+
+This program builds Cygwin binary and source packages. Refer to I<Cygwin
+Package Contributor's Guide> at http://cygwin.com/setup.html for more
+information about the details of packaging phase. Due to complex nature of
+various source packages out there, it is impossible to completely automate
+the packaging steps. Some manual work will always be needed. The hairy
+ports are those that have very vague and misbehaving C<Makefile> which
+install files to all over the system and distribute copies of files with
+cp(1) instead of install(1). Ahem, you as "the porter", know the
+drill and have to use your hands to C<Makefile> mud tar pit. Solid
+C<Makefile> experience is therefore a requirement before thinking to port
+any packages to Cygwin.
+
+If gpg(1) is installed, the patch, binary and source package can be
+cryptographically signed. See options B<--sign> and B<--passphrase>.
+
+=head2 Packages with no version number
+
+To port a package which does not have a version number, one has to be
+generated out of the blue. Program relies on the fact that the VERSION is
+available both in the original package name and in the unpack directory.
+The package extensions can be C<.gz>, C<*.bz2> or C<*.tgz>. The recognized
+package filename formats include:
+
+    package-N[.N]+.tar.gz                Universal packaging format
+    package_N[.N]+.orig.tar.gz           Debian source packages
+
+Like in here:
+
+    foo-1.2.tar.gz, foo-0.0.2.tar.bz2, foo-12.0.2.1.tgz
+
+The package name can consist of many words separated by hyphens:
+
+    package-name-long-N[.N]+.tar.gz         Uses hyphens only
+    package_name_invalid-N[.N]+.tar.gz      Underscores not allowed
+
+In case file uses some other naming and numbering scheme, it's a problem.
+Similarly if the unpack directory structure does not use universal scheme
+C<package-N.N>, it's a problem. Suppose a package unpacks like this:
+
+    tar zxvf package-beta-latest.tar.gz
+	...
+	package-latest
+	package-latest/src
+	package-latest/doc
+
+The situation can be coped by making a symbolic link to whatever is
+appropriate for the version number. If unsure, pick a YYYYMMDD in case
+there is no relevant version that can be used for the package.
+
+    ln -s package-beta-latest.tar.gz package-YYYYMMDD.tar.gz
+    ln -s package-latest/ package-YYYYMMDD/
+
+It is important that you do all your work inside the directory with VERSION
+number, not in directory C<package-latest/>.
+
+    cd package-YYYYMMDD/
+    ... now proceed with the porting
+
+=head2 Packages with non-standard versioning schemes
+
+=head2 Packaging directly from version control repositories
+
+It is easy to make build snapshots by using symlinks with time based
+version numbers, like C<package-20010123>, which effectively means
+YYYYMMDD. To make a release, it could be done like this:
+
+    cvs -d :pserver:<remote> co foopackage
+    date=$(date "+%Y%M%d")
+    ln -s foopackage foopackage-$date
+    cd foopackage-$date
+    ... proceed to package this snapshot
+    cygbuild -r 1 mkdirs files conf make install package source-package
+
+=head1 A QUICK OVERVIEW
 
 The directories used in the program are as follows:
 
@@ -780,7 +855,7 @@ Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
 
 Same as command B<[all]> but without the B<[finish]> step.
 
-=item B<cygsrc [-b|--binary] [<--dir|-d>] PACKAGE>
+=item B<cygsrc [-b|--binary] [--dir|-d] PACKAGE>
 
 NOTES: 1) This command must be run at an empty directory and 2) No
 other command line options are interpreted. This is a stand alone
@@ -856,81 +931,6 @@ Print variables and quit. Use this option to see what files and directories
 program thinks that it will be using.
 
 =back
-
-=head1 DESCRIPTION
-
-This program builds Cygwin binary and source packages. Refer to I<Cygwin
-Package Contributor's Guide> at http://cygwin.com/setup.html for more
-information about the details of packaging phase. Due to complex nature of
-various source packages out there, it is impossible to completely automate
-the packaging steps. Some manual work will always be needed. The hairy
-ports are those that have very vague and misbehaving C<Makefile> which
-install files to all over the system and distribute copies of files with
-cp(1) instead of install(1). Ahem, you as "the porter", know the
-drill and have to use your hands to C<Makefile> mud tar pit. Solid
-C<Makefile> experience is therefore a requirement before thinking to port
-any packages to Cygwin.
-
-If gpg(1) is installed, the patch, binary and source package can be
-cryptographically signed. See options B<--sign> and B<--passphrase>.
-
-=head2 Packages with no version number
-
-To port a package which does not have a version number, one has to be
-generated out of the blue. Program relies on the fact that the VERSION is
-available both in the original package name and in the unpack directory.
-The package extensions can be C<.gz>, C<*.bz2> or C<*.tgz>. The recognized
-package filename formats include:
-
-    package-N[.N]+.tar.gz                Universal packaging format
-    package_N[.N]+.orig.tar.gz           Debian source packages
-
-Like in here:
-
-    foo-1.2.tar.gz, foo-0.0.2.tar.bz2, foo-12.0.2.1.tgz
-
-The package name can consist of many words separated by hyphens:
-
-    package-name-long-N[.N]+.tar.gz         Uses hyphens only
-    package_name_invalid-N[.N]+.tar.gz      Underscores not allowed
-
-In case file uses some other naming and numbering scheme, it's a problem.
-Similarly if the unpack directory structure does not use universal scheme
-C<package-N.N>, it's a problem. Suppose a package unpacks like this:
-
-    $ tar zxvf package-beta-latest.tar.gz
-	...
-	package-latest
-	package-latest/src
-	package-latest/doc
-
-The situation can be coped by making a symbolic link to whatever is
-appropriate for the version number. If unsure, pick a YYYYMMDD in case
-there is no relevant version that can be used for the package.
-
-    $ ln -s package-beta-latest.tar.gz package-YYYYMMDD.tar.gz
-    $ ln -s package-latest/ package-YYYYMMDD/
-
-It is important that you do all your work inside the directory with VERSION
-number, not in directory C<package-latest/>.
-
-    $ cd package-YYYYMMDD/
-    ... now proceed with the porting
-
-=head2 Packages with non-standard versioning schemes
-
-=head2 Packaging directly from version control repositories
-
-It is easy to make build snapshots by using symlinks with time based
-version numbers, like C<package-20010123>, which effectively means
-YYYYMMDD. To make a release, it could be done like this:
-
-    $ cvs -d :pserver:<remote> co foopackage
-    $ date=$(date "+%Y%M%d")
-    $ ln -s foopackage foopackage-$date
-    $ cd foopackage-$date
-    ... proceed to package this snapshot
-    $ cygbuild -r 1 mkdirs files conf make install package source-package
 
 =head1 MAKING CYGWIN NET RELEASES
 

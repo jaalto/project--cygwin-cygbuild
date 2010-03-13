@@ -1,3 +1,10 @@
+2010-03-13 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (HELP::Other Commands): Fix typo in 'cysrc'
+	command option syntax.
+	(HELP::DESCRIPTION): Move after SYNOPSIS as per POSIX manual page
+	standard.
+
 2009-12-12  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/perl-cpan-patch.ex: New.
@@ -5406,7 +5413,7 @@
 	(function CygbuildDefineVersionVariables()): 1.403 Removed
 	subshell call.
 	(function CygbuildCommandMain()): 1.403 Removed subshell
-	call from Å¥CygbuildFilePackageGuessMain'.
+	call from `CygbuildFilePackageGuessMain'.
 	(function CygbuildExtractTar()): 1.403 Removed subshell calls from
 	`CygbuildStrPackage' and `CygbuildStrVersion'.
 	(function CygbuildExtractMain()): 1.403 Removed subshell
@@ -6230,7 +6237,7 @@
 	(STATIC_VER_RELEASE):New global static variable.
 	(STATIC_VER_STRING): New global static variable.
 	(function CygbuildCommandsMain()): 1.233 Renamed. Was
-	Å¥CygbuildMain'.
+	`CygbuildMain'.
 	(function CygbuildMain ()): 1.233 New. Put all init
 	code inside function to make it easier to debug.
 	(function CygbuildDefineVersionVariables()): 1.233 Added cache
