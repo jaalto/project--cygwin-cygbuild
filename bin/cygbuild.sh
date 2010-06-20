@@ -5372,6 +5372,7 @@ function CygbuildCmdPkgDevelStandardDoc()
 
 	    CygbuildEcho "-- devel-doc" ${tar#$srcdir/}
 
+	    # FIXME: taropt is not defined !!
 	    tar $taropt $tar $(< $retval.doc) ||
 	    {
 		status=$?
@@ -5404,8 +5405,8 @@ function CygbuildCmdPkgDevelStandardBin()
 
 	    CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
-	    tar $taropt --create --file=$tar \
-	    $(< $retval.bin) $(< $retval.man.bin) ||
+	    tar $taropt --create --group=nobody --file=$tar \
+	        $(< $retval.bin) $(< $retval.man.bin) ||
 	    {
 		status=$?
 		CygbuildPopd
@@ -6201,7 +6202,7 @@ function CygbuildCmdMkpatchMain()
 
 
 	    tar $CYGBUILD_TAR_EXCLUDE \
-		--create --file=- . \
+		--create --group=nobody --file=- . \
 		| (
 		    cd "$cursrcdir" &&
 		    tar --extract --no-same-owner --no-same-permissions --file=-
@@ -9233,7 +9234,7 @@ function CygbuildInstallPackageDocs()
 		tar $optExclude \
 		    $tarOptExclude \
 		    $verbose \
-		    --create --dereference --file=- \
+		    --create --group=nobody --dereference --file=- \
 		    ${dir:+"."} \
 		    $extradir \
 		    $tarOptInclude \
@@ -9764,7 +9765,8 @@ function CygbuildInstallFixDocdirInstall()
 	return 0
     fi
 
-    if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- . |
+    if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- \
+	 --group=nobody . |
 	 {
 	    mkdir -p "$dest"                                    &&
 	    tar --directory "$dest" --extract \
@@ -9913,22 +9915,24 @@ function CygbuildInstallFixEtcdirInstall()
     local ptar="$retval.pre-post.tar"
 
     if [ "$list" ]; then
-	${test:+echo} tar           \
-	--directory "$pkgetcdir"    \
-	--create                    \
-	--file=$ptar                \
+	${test:+echo} tar		\
+	--directory "$pkgetcdir"	\
+	--create			\
+	--group=nobody			\
+	--file=$ptar			\
 	$list
     fi
 
     local tar="$retval.tar"
 
     #   All the rest files
-    ${test:+echo} tar               \
-	--directory "$pkgetcdir"    \
-	--create                    \
-	--file=$tar                 \
-	--exclude=*preremove*       \
-	--exclude=*postinstall*     \
+    ${test:+echo} tar			\
+	--directory "$pkgetcdir"	\
+	--create			\
+	--group=nobody			\
+	--file=$tar			\
+	--exclude=*preremove*		\
+	--exclude=*postinstall*		\
 	.
 
     #   Now recreate the directory structure for Cygwin
