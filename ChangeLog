@@ -1,3 +1,26 @@
+2010-06-20  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh:
+	(CygbuildGPGsignFiles): don't return error on memory lock warning.
+	(CygbuildCmdMkpatchMain): Add
+	--no-same-owner --no-same-permissions to tar extract call.
+	(CygbuildCmdDownloadCygwinPackage): Add
+	--no-same-owner --no-same-permissions to tar extract call.
+	(CygbuildInstallPackageDocs): Add
+	--no-same-owner --no-same-permissions to tar extract call.
+	(CygbuildInstallFixDocdirInstall): Add
+	--no-same-owner --no-same-permissions to tar extract call.
+	(CygbuildInstallFixEtcdirInstall): Add
+	--no-same-owner --no-same-permissions to tar extract call.
+	(CygbuildInstallFixEtcdirInstall): Add
+	--no-same-owner --no-same-permissions to tar extract call.
+	(CYGBUILD_LICENSE): Change to one word: GPL-2+
+
+2010-06-17  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildRunPythonSetupCmd): Check python
+	binary before use.
+
 2010-01-28  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (PATH): Define at top level to
