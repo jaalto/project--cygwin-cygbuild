@@ -11506,7 +11506,7 @@ function CygbuildCommandMain()
 		status=$?
 		;;
 
-	    makedirs|mkdirs|dirs)
+	    makedir*|mkdir*|dir*)
 		CygbuildCmdMkdirs $verbose
 		status=$?
 		;;
