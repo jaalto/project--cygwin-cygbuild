@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2010.0313.1705';
+$VERSION = '2010.0622.2146';
 
 # ..................................................................
 
@@ -1365,6 +1365,27 @@ unconventionally 1 on success and N > 1 on error.
 
     [ "$?" = "1" ]
     # End of file
+
+=item B<install.lst>
+
+This file lists install(1) comatible entries in separate lines. The format is:
+
+    <src>  <destination> [<mode, defaults to 755>]
+
+If I<destination> contains a trailing slash, the I<src> is installed
+to that directory. If there is no trailing slash, the last element is
+used for filename. The third parameter is optional I<mode> argument
+passed to C<install -m MODE>. Expansion variables that are available
+are C<$PKG> for package name and C<$VER> for version number. Notice that
+the I<destination> does not contains starting slash.1 Comments starting with
+"#" and empty lines are ignored.
+
+Examples:
+
+    zip usr/bin/		# install to /usr/bin/zip, mode 755
+    zip usr/bin/new		# install to /usr/bin/new, mode 755
+    util usr/share/lib/$PKG/
+    util/program usr/share/doc/$PKG-VER/contrib/
 
 =item B<install.sh>
 

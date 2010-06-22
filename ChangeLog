@@ -2,9 +2,15 @@
 
 	* bin/lib/cygbuild.pl (FileScanWantedGeneral): Replace $MATCH
 	with $1.
+	(HELP::OPTIONAL EXTERNAL FILES): Document new file install.lst
 
 	* bin/cygbuild.sh: (CygbuildCommandMain): Make 's' optional in
 	'mkdir' command.
+	(CygbuildCmdInstallList): New. Add support for install.lst
+	control file.
+	(CygbuildCmdInstallMain): Call `CygbuildCmdInstallList'.
+	(CygbuildDefineGlobalMain): Add SCRIPT_INSTALL_LST_CYGFILE.
+	(fromdir):
 
 2010-06-20  Jari Aalto  <jari.aalto@cante.net>
 

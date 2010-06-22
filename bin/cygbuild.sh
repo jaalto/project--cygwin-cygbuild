@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0620.1344"
+CYGBUILD_VERSION="2010.0622.2157"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4089,6 +4089,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
     SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
 
+    SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
@@ -10194,9 +10195,61 @@ function CygbuildCmdInstallPatchVerify()
     fi
 }
 
+function CygbuildCmdInstallList()
+{
+    local file="$SCRIPT_INSTALL_LST_CYGFILE"
+
+    if [ -f "$file" ]; then
+	CygbuildEcho "--- Installing with external:" \
+		     "${file#$srcdir/}"
+
+	local out=$reval.lst
+
+	#  Remove comments and substitute variables
+
+	sed -e 's,#.*,,' \
+	    -e 's,\$PKG,$PKG,' \
+	    -e 's,\$VER,$VER,' \
+	    $file > $out
+
+	local line=0
+
+	while read from to mode
+	do
+	    [ "$to" ]   || continue
+	    [ "$mode" ] || mode=755
+
+	    line=$(( line + 1 ))
+
+	    if [[ "$to" == /* ]]; then
+		CygbuildWarn "$id: [WARN] Skipped." \
+		    "Invalid 2nd arg in install.lst line $line"
+		continue
+
+	    elif [[ "$to" == */ ]]; then
+		${test+echo} install -m 755 -d $instdir/$to
+
+	    elif [[ "$to" == */* ]]; then
+		local dir=${to%/*}
+		${test+echo} install -m 755 -d $instdir/$dir
+
+	    else
+		CygbuildWarn "$id: [WARN] Skipped." \
+		    "Invalid install.lst line $line"
+		continue
+	    fi
+
+	    ${test+echo} install -m $mode $builddir/$from $instdir/$to
+
+	done < $out
+    fi
+}
+
 function CygbuildCmdInstallMain()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
     local scriptInstall="$SCRIPT_INSTALL_MAIN_CYGFILE"
     local scriptAfter="$SCRIPT_INSTALL_AFTER_CYGFILE"
     local thispath="$CYGBUILD_PROG_FULLPATH"
@@ -10230,6 +10283,8 @@ function CygbuildCmdInstallMain()
 	    CygbuildPopd
 	    return $status
 	fi
+
+	CygbuildCmdInstallList
 
 	if [ -f "$scriptInstall" ]; then
 
