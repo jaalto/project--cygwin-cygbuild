@@ -1,6 +1,4 @@
--- Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 To: cygwin-announce@cygwin.com
-Subject: Updated: package N.N
 Subject: New package: package N.N -- decription
 
 PACKAGE DESCRIPTION
