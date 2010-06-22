@@ -42,11 +42,11 @@
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
-CYGBUILD_LICENSE="GPL v2 or later"
+CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
-#  Automatically updated by developer's Emacs config upon C-x C-s (save cmd)
-CYGBUILD_VERSION="2010.0128.1314"
+#  Automatically updated by developer's Editor on save
+CYGBUILD_VERSION="2010.0620.1344"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -3611,6 +3611,7 @@ function CygbuildDefineGlobalCommands()
 	GPGOPT="\
   --no-permission-warning\
   --no-secmem-warning\
+  --no-require-secmem
   --no-mdc-warning"
 
     fi
@@ -4732,14 +4733,20 @@ function CygbuildGPGsignFiles()
 		status=$?
 	fi
 
-	local display=
+	local display
 
 	[ "$verbose" ] && display="display"
 
 	if [ "$status" != "0" ]; then
 	    STATUS=$status
-	    CygbuildWarn "-- [ERROR] signing failed: ${file##*/}"
+	    CygbuildWarn "-- [WARN] signing note: ${file##*/}"
 	    display="display"
+
+	    # gpg: can't lock memory: Permission denied
+
+	    if grep -qEi 'lock memory' $retval ; then
+		STATUS=0
+	    fi
 	fi
 
 	[ "$display" ] && cat $retval
@@ -5365,6 +5372,7 @@ function CygbuildCmdPkgDevelStandardDoc()
 
 	    CygbuildEcho "-- devel-doc" ${tar#$srcdir/}
 
+	    # FIXME: taropt is not defined !!
 	    tar $taropt $tar $(< $retval.doc) ||
 	    {
 		status=$?
@@ -5397,8 +5405,8 @@ function CygbuildCmdPkgDevelStandardBin()
 
 	    CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
-	    tar $taropt --create --file=$tar \
-	    $(< $retval.bin) $(< $retval.man.bin) ||
+	    tar $taropt --create --group=nobody --file=$tar \
+	        $(< $retval.bin) $(< $retval.man.bin) ||
 	    {
 		status=$?
 		CygbuildPopd
@@ -6153,12 +6161,12 @@ function CygbuildCmdMkpatchMain()
 	fi
 
 	dummy="PWD is $(pwd)"                  # Used for debugging
-	opt="--extract --file"
 
-	tar --directory "$cd" $opt "$file" ||
+	tar --directory "$cd" --extract \
+	    --no-same-owner --no-same-permissions --file "$file" ||
 	{
 	    status=$?
-	    echo "$id: [ERROR] tar --directory $cd $opt $file"
+	    echo "$id: [ERROR] tar --directory -C $cd -xf $file"
 	    return $status
 	}
 
@@ -6194,8 +6202,11 @@ function CygbuildCmdMkpatchMain()
 
 
 	    tar $CYGBUILD_TAR_EXCLUDE \
-		--create --file=- . \
-		| ( cd "$cursrcdir" && tar --extract --file=- ) \
+		--create --group=nobody --file=- . \
+		| (
+		    cd "$cursrcdir" &&
+		    tar --extract --no-same-owner --no-same-permissions --file=-
+	          ) \
 		|| exit 1
 
 	    CygbuildEcho "-- Wait, undoing local patches" \
@@ -7076,10 +7087,16 @@ function CygbuildMakefileRunInstallRubyMain()
 function CygbuildRunPythonSetupCmd()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local pybin="$PYTHONBIN"
 
     CygbuildVerb "-- Running Python command: $*"
 
-    CygbuildRunShell python setup.py "$@" > $retval 2>&1
+    if [ ! -x "$pybin" ]; then
+    	CygbuildWarn "-- [WARN] Not found $pybin"
+    	return 1
+    fi
+
+    CygbuildRunShell $pybin setup.py "$@" > $retval 2>&1
     local status=$?
 
     if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
@@ -7480,7 +7497,7 @@ function CygbuildExtractTar()
     CygbuildTarDirectory $file > $retval || return $?
     local dir=$(< $retval)
 
-    local opt="$verbose --no-same-owner $z --extract --file"
+    local opt="$verbose --no-same-owner --no-same-permissions --extract $z --file"
     CygbuildEcho "-- Extracting $file"
 
     if [ "$dir" != "$expectdir" ]; then
@@ -7946,7 +7963,8 @@ CygbuildCmdDownloadCygwinPackage ()
     then
 	CygbuildEcho "-- Good, archive already extracted: $archive"
     else
-	tar $verbose --extract --file="$archive"
+	tar $verbose --extract --no-same-owner --no-same-permissions \
+	    --file="$archive"
     fi
 
     if ! CygbuildWhichCheck filterdiff ; then
@@ -9193,7 +9211,7 @@ function CygbuildInstallPackageDocs()
 	#   Remove manual pages, there are already installed in
 	#   man/manN/
 
-	local taropt="--extract"
+	local taropt="--extract --no-same-owner --no-same-permissions"
 	dummy="test mode: $test"
 
 	if [ "$test" ]; then
@@ -9216,7 +9234,7 @@ function CygbuildInstallPackageDocs()
 		tar $optExclude \
 		    $tarOptExclude \
 		    $verbose \
-		    --create --dereference --file=- \
+		    --create --group=nobody --dereference --file=- \
 		    ${dir:+"."} \
 		    $extradir \
 		    $tarOptInclude \
@@ -9747,10 +9765,12 @@ function CygbuildInstallFixDocdirInstall()
 	return 0
     fi
 
-    if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- . |
+    if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- \
+	 --group=nobody . |
 	 {
-	    mkdir -p "$dest"                            &&
-	    tar --directory "$dest" --extract --file=-  &&
+	    mkdir -p "$dest"                                    &&
+	    tar --directory "$dest" --extract \
+		--no-same-owner --no-same-permissions --file=-  &&
 	    rm -rf "$pkgdocdir" ;
 	 }
     then
@@ -9895,29 +9915,32 @@ function CygbuildInstallFixEtcdirInstall()
     local ptar="$retval.pre-post.tar"
 
     if [ "$list" ]; then
-	${test:+echo} tar           \
-	--directory "$pkgetcdir"    \
-	--create                    \
-	--file=$ptar                \
+	${test:+echo} tar		\
+	--directory "$pkgetcdir"	\
+	--create			\
+	--group=nobody			\
+	--file=$ptar			\
 	$list
     fi
 
     local tar="$retval.tar"
 
     #   All the rest files
-    ${test:+echo} tar               \
-	--directory "$pkgetcdir"    \
-	--create                    \
-	--file=$tar                 \
-	--exclude=*preremove*       \
-	--exclude=*postinstall*     \
+    ${test:+echo} tar			\
+	--directory "$pkgetcdir"	\
+	--create			\
+	--group=nobody			\
+	--file=$tar			\
+	--exclude=*preremove*		\
+	--exclude=*postinstall*		\
 	.
 
     #   Now recreate the directory structure for Cygwin
     ${test:+echo} rm -rf "$pkgetcdir"/*
 
     if [ -f $ptar ]; then
-	${test:+echo} tar --directory "$pkgetcdir" --extract --file=$ptar
+	${test:+echo} tar --directory "$pkgetcdir" --extract \
+	              --no-same-owner --no-same-permissions --file=$ptar
     fi
 
     if [ -s $tar ]; then
@@ -9925,7 +9948,8 @@ function CygbuildInstallFixEtcdirInstall()
 	local dest="$DIR_DEFAULTS_GENERAL/etc"
 
 	${test:+echo} mkdir --parents "$dest"   &&
-	${test:+echo} tar --directory "$dest" --extract --file=$tar
+	${test:+echo} tar --directory "$dest" --extract \
+	              --no-same-owner --no-same-permissions --file=$tar
 
 	if [ ! "$?" = "0" ]; then
 	    [ ! "$test" ] &&
@@ -9965,19 +9989,19 @@ function CygbuildInstallFixInterpreterMain()
 
 	head --lines=1 "$file" > $retval 2> /dev/null
 
-	if $EGREP --quiet "perl" $retval &&
+	if $EGREP --quiet "#.*perl" $retval &&
 	 ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
 	then
-	    CygbuildVerb "-- [NOTE] Suspicious Perl call" \
+	    CygbuildVerb "-- [NOTE] Possibly suspicious Perl call" \
 		"in $_file: $(cat $retval)"
 
 	    CygbuildInstallFixInterpreterPerl "$file"
 
-	elif $EGREP --quiet "python"                $retval &&
+	elif $EGREP --quiet "#.*python"             $retval &&
 	   ! $EGREP --quiet '^[[:space:]]*[\"]'     $retval &&
-	   ! $EGREP --quiet "$pybin([[:space:]-]|$)" $retval
+	   ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
 	then
-	    CygbuildEcho "-- [NOTE] Suspicious Python call" \
+	    CygbuildEcho "-- [NOTE] Possibly suspicious Python call" \
 		 "in $_file: $(cat $retval)"
 
 	    CygbuildInstallFixInterpreterGeneric "$pybin" "$file"
@@ -9990,6 +10014,7 @@ function CygbuildInstallFixInterpreterMain()
 	fi
 
     done < $retval.list
+set +x
 }
 
 function CygbuildInstallFixPerlPacklist()
