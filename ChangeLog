@@ -20,6 +20,8 @@
 	which contains special regexp characters, like in libstdc++
 	(CygbuildCygcheckLibraryDepReadme): correct library handlling
 	which contains special regexp characters, like in libstdc++
+	(CygbuildInstallExtraManual): Allow also CYGWIN-PATCHES/man
+	directory.
 
 2010-06-20  Jari Aalto  <jari.aalto@cante.net>
 

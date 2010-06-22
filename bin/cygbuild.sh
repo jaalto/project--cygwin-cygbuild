@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0622.2314"
+CYGBUILD_VERSION="2010.0622.2343"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9311,6 +9311,9 @@ function CygbuildInstallExtraManual()
 
     elif [ -d "$mandir/manpages" ]; then
 	mandir="$mandir/manpages"
+
+    elif [ -d "$mandir/man" ]; then
+	mandir="$mandir/man"
     fi
 
     #   Convert Perl pod pages to manuals.
