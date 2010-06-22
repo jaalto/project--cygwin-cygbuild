@@ -2527,9 +2527,9 @@ sub FileScanWantedGeneral ()
 
     $debug > 3  and  warn "$id: $path\n";
 
-    if ( $FILE_REGEXP_PRUNE  and  $path =~ /$FILE_REGEXP_PRUNE/ )
+    if ( $FILE_REGEXP_PRUNE  and  $path =~ /($FILE_REGEXP_PRUNE)/ )
     {
-	$debug  and  warn "$id: PRUNE $path [$MATCH]\n";
+	$debug  and  warn "$id: PRUNE $path [$1]\n";
 	$File::Find::prune = 1;
 	return;
     }

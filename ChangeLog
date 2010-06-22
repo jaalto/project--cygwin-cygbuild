@@ -1,3 +1,11 @@
+2010-06-22  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl (FileScanWantedGeneral): Replace $MATCH
+	with $1.
+
+	* bin/cygbuild.sh: (CygbuildCommandMain): Make 's' optional in
+	'mkdir' command.
+
 2010-06-20  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh:
