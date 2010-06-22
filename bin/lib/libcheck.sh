@@ -735,7 +735,10 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
 
     for lib in $(< $retval)	# Break line on space to get LIBs
     do
-        if $EGREP --quiet --files-with-matches "\<$lib\>" "$database"
+	local re=$lib
+	re=${re//\+/\\+}		# libstcc++ =>  libstcc\+\+
+
+        if $EGREP --quiet --files-with-matches "\<$re\>" "$database"
         then
             CygbuildEcho "-- OK requires: $lib"
         else

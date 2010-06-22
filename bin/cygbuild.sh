@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0622.2157"
+CYGBUILD_VERSION="2010.0622.2314"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1738,6 +1738,8 @@ CygbuildDllToLibName ()
 		lib=mhash ;;
 	    lib*python[0-9]*)
 		lib=python ;;
+	    libgcc_s1)
+		lib=libgcc1 ;;
 	esac
 
 	echo $lib
@@ -1926,7 +1928,10 @@ function CygbuildCygcheckLibraryDepReadme()
 
     while read lib
     do
-	if ! $EGREP --quiet " \<$lib" $readme
+	local re=$lib
+	re=${re//\+/\\+}		# libstcc++ =>  libstcc\+\+
+
+	if ! $EGREP --quiet " \<$re" $readme   # <LIB>-devel
 	then
 	    CygbuildWarn "-- [ERROR] $PKG.README does not mention $lib"
 	fi
@@ -1943,7 +1948,10 @@ CygbuildCygcheckLibraryDepSetup ()
 
     while read lib
     do
-	if ! $EGREP --quiet "^ *requires:.*\b$lib\b" $setup
+	local re=$lib
+	re=${re//\+/\\+}		# libstcc++ =>  libstcc\+\+
+
+	if ! $EGREP --quiet "^ *requires:.*\<$re\>" $setup
 	then
 	    CygbuildWarn "-- [ERROR] setup.hint lacks $lib"
 	fi
@@ -2148,7 +2156,6 @@ function CygbuildCygcheckLibraryDepMain()
        "$retval" > "$retval.pkglist"
     then
 	CygbuildCygcheckLibraryDepAdjust "$retval.pkglist"
-	# CygbuildCygcheckLibraryDepReadme "$retval.pkglist"
 
 	sed 's/^ \+//' "$retval.pkglist" |
 	    sort --unique |
@@ -10199,50 +10206,50 @@ function CygbuildCmdInstallList()
 {
     local file="$SCRIPT_INSTALL_LST_CYGFILE"
 
-    if [ -f "$file" ]; then
-	CygbuildEcho "--- Installing with external:" \
-		     "${file#$srcdir/}"
+    [ -f "$file" ] || return 1
 
-	local out=$reval.lst
+    CygbuildEcho "--- Installing with external:" \
+		 "${file#$srcdir/}"
 
-	#  Remove comments and substitute variables
+    local out=$reval.lst
 
-	sed -e 's,#.*,,' \
-	    -e 's,\$PKG,$PKG,' \
-	    -e 's,\$VER,$VER,' \
-	    $file > $out
+    #  Remove comments and substitute variables
 
-	local line=0
+    sed -e 's,#.*,,' \
+	-e 's,\$PKG,$PKG,' \
+	-e 's,\$VER,$VER,' \
+	$file > $out
 
-	while read from to mode
-	do
-	    [ "$to" ]   || continue
-	    [ "$mode" ] || mode=755
+    local line=0
 
-	    line=$(( line + 1 ))
+    while read from to mode
+    do
+	[ "$to" ]   || continue
+	[ "$mode" ] || mode=755
 
-	    if [[ "$to" == /* ]]; then
-		CygbuildWarn "$id: [WARN] Skipped." \
-		    "Invalid 2nd arg in install.lst line $line"
-		continue
+	line=$(( line + 1 ))
 
-	    elif [[ "$to" == */ ]]; then
-		${test+echo} install -m 755 -d $instdir/$to
+	if [[ "$to" == /* ]]; then
+	    CygbuildWarn "$id: [WARN] Skipped." \
+		"Invalid 2nd arg in install.lst line $line"
+	    continue
 
-	    elif [[ "$to" == */* ]]; then
-		local dir=${to%/*}
-		${test+echo} install -m 755 -d $instdir/$dir
+	elif [[ "$to" == */ ]]; then
+	    ${test+echo} install -m 755 -d $instdir/$to
 
-	    else
-		CygbuildWarn "$id: [WARN] Skipped." \
-		    "Invalid install.lst line $line"
-		continue
-	    fi
+	elif [[ "$to" == */* ]]; then
+	    local dir=${to%/*}
+	    ${test+echo} install -m 755 -d $instdir/$dir
 
-	    ${test+echo} install -m $mode $builddir/$from $instdir/$to
+	else
+	    CygbuildWarn "$id: [WARN] Skipped." \
+		"Invalid install.lst line $line"
+	    continue
+	fi
 
-	done < $out
-    fi
+	${test+echo} install -m $mode $builddir/$from $instdir/$to
+
+    done < $out
 }
 
 function CygbuildCmdInstallMain()
@@ -10284,8 +10291,6 @@ function CygbuildCmdInstallMain()
 	    return $status
 	fi
 
-	CygbuildCmdInstallList
-
 	if [ -f "$scriptInstall" ]; then
 
 	    mkdir --parents $verbose "$dir"
@@ -10310,6 +10315,7 @@ function CygbuildCmdInstallMain()
 		${dir#$srcdir/} \
 		${test:+(TEST MODE)}
 
+            CygbuildCmdInstallList ||
 	    CygbuildMakefileRunInstallMain ||
 	    {
 		status=$?

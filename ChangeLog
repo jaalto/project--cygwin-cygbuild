@@ -1,5 +1,10 @@
 2010-06-22  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh:
+	(CygbuildCmdInstallCheckSetupHintDependExists) correct library
+	handllinga which contains special regexp characters, like in
+	libstdc++
+
 	* bin/lib/cygbuild.pl (FileScanWantedGeneral): Replace $MATCH
 	with $1.
 	(HELP::OPTIONAL EXTERNAL FILES): Document new file install.lst
@@ -10,7 +15,11 @@
 	control file.
 	(CygbuildCmdInstallMain): Call `CygbuildCmdInstallList'.
 	(CygbuildDefineGlobalMain): Add SCRIPT_INSTALL_LST_CYGFILE.
-	(fromdir):
+	(CygbuildDllToLibName): add libgcc_s1.
+	(CygbuildCygcheckLibraryDepSetup): correct library handlling
+	which contains special regexp characters, like in libstdc++
+	(CygbuildCygcheckLibraryDepReadme): correct library handlling
+	which contains special regexp characters, like in libstdc++
 
 2010-06-20  Jari Aalto  <jari.aalto@cante.net>
 
