@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2010.0622.2146';
+$VERSION = '2010.0622.2314';
 
 # ..................................................................
 
@@ -1368,7 +1368,10 @@ unconventionally 1 on success and N > 1 on error.
 
 =item B<install.lst>
 
-This file lists install(1) comatible entries in separate lines. The format is:
+NOTE: if file exists, the C<make install> target is not run.
+
+List install(1) comatible entries in separate lines. The
+format is:
 
     <src>  <destination> [<mode, defaults to 755>]
 
