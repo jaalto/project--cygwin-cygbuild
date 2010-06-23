@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0623.1120"
+CYGBUILD_VERSION="2010.0623.2056"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5800,22 +5800,57 @@ function CygbuildPatchApplyRun()
     fi
 }
 
-function CygbuildPatchFileList()
+function CygbuildPatchFileQuilt()
 {
     local id="$0.$FUNCNAME"
     local dir=${1:-${DIR_CYGPATCH:?Variable not defined}}
 
+    CygbuildFindLowlevel "$dir"		\
+	-o -type d                      \
+	    '('                         \
+		-path "*/tmp*"          \
+	    ')'                         \
+	    -prune                      \
+	    -a ! -name "tmp*"		\
+	-o -type f			\
+	    -name series		|
+    sort
+}
+
+function CygbuildPatchFileList()
+{
+    local id="$0.$FUNCNAME"
+    local dir=${1:-${DIR_CYGPATCH:?Variable not defined}}
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
     [ "$dir" ] || return 0
 
-    CygbuildFindLowlevel "$dir"     \
-	-a -type d                  \
-	    '('                     \
-		! -name "tmp"       \
-	    ')'                     \
-	    -prune                  \
-	-o -type f                  \
-	    -name "*patch"          |
-	sed "s,^\.,$dir,"           |
+    local file=$retval
+
+    #   See if there are any quilt(1) files
+    #   and ignore those directories
+
+   CygbuildPatchFileQuilt  |
+        sed 's,/series$,,' \
+	> $retval
+
+    if [ ! -s $retval ]; then
+	#   Generate fake content, see grep(1) next
+	echo "ThisRegexpIsNotMathed" > $retval
+    fi
+
+    #   Grep there filters out quilt directories
+
+    CygbuildFindLowlevel "$dir"         \
+	-o -type d                      \
+	    '('                         \
+		-path "*/tmp*"          \
+	    ')'                         \
+	    -prune                      \
+	    -a ! -name "tmp*"		\
+	-o -type f                      \
+	    -name "*patch"              |
+	grep -vFf $retval		|
 	sort
 }
 
@@ -5932,6 +5967,49 @@ function CygbuildPatchPrefixStripCountMain ()
     CygbuildPatchPrefixStripCountFromContent  "$file"
 }
 
+function CygbuildPatchApplyQuiltMaybe()
+{
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local cmd="$1"  # {patch,unpatch}[-nostat][-quiet][-force]
+    local verb
+
+    # FIXME: De we need to handle *-force option?
+
+    if [ "$verbose" ]; then
+	verb="-v"
+    fi
+
+    if [[ "$cmd" == *-quiet ]]; then
+	verb=
+	cmd=${cmd%-quiet}
+    fi
+
+   CygbuildPatchFileQuilt > $retval
+
+   [ -s $retval ] || return 0
+
+   CygbuildWhichCheck quilt ||
+   CygbuildDie "[FATAL] $id: Can't handle patches. quilt not in PATH"
+
+   local series
+
+    while read series
+    do
+	CygbuildEcho "-- Quilt" ${series#TOPDIR/}
+
+	local dir=${series%/series}
+	local quilt="quilt push -a"
+
+	if [[ "$cmd" = unpatch* ]]; then
+	    quilt="quilt pop -a"
+	fi
+
+	CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C $quilt $verb ||
+	return $?
+
+    done < $retval
+}
+
 function CygbuildPatchApplyMaybe()
 {
     local id="$0.$FUNCNAME"
@@ -5952,6 +6030,8 @@ function CygbuildPatchApplyMaybe()
 	#   the patches applied can be seen at glance
 	verb="gbs verbose"
     fi
+
+    CygbuildPatchApplyQuiltMaybe $cmd || return $?
 
     if [[ "$cmd" == *-force ]]; then
 	force="force"
@@ -5997,7 +6077,7 @@ function CygbuildPatchApplyMaybe()
 
     # FIXME: patch-before.sh
 
-    local file done continue record
+    local file
 
     for file in $list
     do
@@ -6005,9 +6085,9 @@ function CygbuildPatchApplyMaybe()
 
 	local name=${file#$srcdir\/}
 	local grep="$GREP --quiet --ignore-case --fixed-strings"
-	done=
-	continue=
-	record=
+	local done=
+	local continue=
+	local record=
 
 	if [ "$statCheck" ]; then
 	    if [ -f "$statfile" ]; then

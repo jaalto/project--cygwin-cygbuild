@@ -14,6 +14,11 @@
 	message.
 	(CygbuildDefineGlobalMain): instead of PK-VER install to
 	PKG (DIR_DOC_GENERAL).
+	(CygbuildPatchFileList): Filter out quilt directories. Fix
+	find(1) bug to ignore tmp* directories.
+	(CygbuildPatchFileQuilt): New.
+	(CygbuildPatchApplyQuiltMaybe): New.
+	(CygbuildPatchApplyMaybe): Add quilt 'series' file support.
 
 2010-06-22  Jari Aalto  <jari.aalto@cante.net>
 
