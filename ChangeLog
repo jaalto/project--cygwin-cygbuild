@@ -1,3 +1,18 @@
+2010-06-23  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Use prox '+:'
+	variabe substitution.
+	(CygbuildDefineGlobalPythonVersion): New global variable
+	PYTHON_VERSION_MAJOR
+	(CygbuildMakefileRunInstallPythonDistutilsStart): New.
+	(CygbuildMakefileRunInstallPythonDistutilsStop): New.
+	(CygbuildMakefileRunInstallPythonMain): Add support for installing
+	libraries that use *.pth. Requires custom ~/.pydistutils.cfg
+	and PYTHONPATH.
+	(CygbuildIsPythonLibrary): New.
+	(CygbuildCygDirCheck): Tim leading path in displayed warning
+	message.
+
 2010-06-22  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/libcheck.sh:
@@ -22,6 +37,8 @@
 	which contains special regexp characters, like in libstdc++
 	(CygbuildInstallExtraManual): Allow also CYGWIN-PATCHES/man
 	directory.
+	(CygbuildCmdDownloadUpstream): Correct pwget option from --Tag
+	to --tag.
 
 2010-06-20  Jari Aalto  <jari.aalto@cante.net>
 

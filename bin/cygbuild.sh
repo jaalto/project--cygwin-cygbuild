@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0622.2343"
+CYGBUILD_VERSION="2010.0623.0942"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -578,6 +578,14 @@ function CygbuildDefineGlobalPythonVersion()
 	python -V 2>&1 |
 	awk '{print $2}'
     )
+
+    if [[ "$PYTHON_VERSION" == *.*.* ]]; then
+	# N.N.N => N.N
+	PYTHON_VERSION_MAJOR=${PYTHON_VERSION%.*}   # global-def
+
+    elif [[ "$PYTHON_VERSION" == *.* ]]; then
+	PYTHON_VERSION_MAJOR=$PYTHON_VERSION}       # global-def
+    fi
 
     [ "$PYTHON_VERSION" ]
 }
@@ -2895,6 +2903,26 @@ function CygbuildIsMakefileTarget()
     CygbuildGrepCheck "^$target:" $file
 }
 
+function CygbuildIsPythonLibrary()
+{
+    # Some libraries cntains following texts:
+    #
+    #     Topic :: Software Development :: Libraries :: Python Modules
+
+    CygbuildGrepCheck \
+	"Libraries[[:space:]]*::[[:space:]]*Python[[:space:]]*Modules" \
+	setup.py
+}
+
+function CygbuildIsPythonSetuptools()
+{
+    # Check if setup.py uses "setuptools"
+
+    CygbuildGrepCheck \
+	"setuptools" \
+	setup.py
+}
+
 function CygbuildIsMakefileCplusplus()
 {
     #   FIXME: Any better file patterns?
@@ -2902,16 +2930,22 @@ function CygbuildIsMakefileCplusplus()
     #   very reliable way to test it.
 
     CygbuildGrepCheck "^[^#]+=[[:space:]]*[gc][+][+]" \
-	*Makefile makefile *.mk \
-	src/*Makefile src/makefile src/*.mk
+	*Makefile \
+	makefile *.mk \
+	src/*Makefile \
+	src/makefile \
+	src/*.mk
 }
 
 function CygbuildIsMakefileCstandard()
 {
     # FIXME: Any better file patterns?
     CygbuildGrepCheck "^[^#]+=[[:space:]]*(gcc|cc)" \
-	*Makefile makefile *.mk \
-	src/*Makefile src/makefile src/*.mk
+	*Makefile \
+	makefile *.mk \
+	src/*Makefile \
+	src/makefile \
+	src/*.mk
 }
 
 function CygbuildIsCplusplusPackage()
@@ -4569,7 +4603,10 @@ function CygbuildCygDirCheck()
 	       "Did forget to run [files]'?"
     fi
 
-    $EGREP --line-number --regexp='[<](PKG|VER|REL)[>]' $readme /dev/null
+    # sed command trims the leading part of /path/to/.inst => .inst
+
+    $EGREP --line-number --regexp='[<](PKG|VER|REL)[>]' $readme /dev/null |
+    sed 's,^.*\.inst,.inst,'
 
     if [ "$?" = "0" ]; then
 	CygbuildWarn \
@@ -6527,7 +6564,7 @@ function CygbuildCmdDownloadUpstream ()
     (
 	cd .. &&
 	perl $bin ${OPTION_DEBUG+--debug=3} --verbose \
-	     --new --config $conf --Tag $pkg
+	     --new --config $conf --tag $pkg
     )
 }
 
@@ -7050,6 +7087,34 @@ function CygbuildMakefileRunInstallPythonFix()
     fi
 }
 
+function CygbuildShellEnvironenment()
+{
+    local list
+
+    [ "$CYGBUILD_CC" ] &&
+    list="$list CC='${CYGBUILD_CC}'"
+
+    [ "$CYGBUILD_CXX" ] &&
+    list="$list CXX='${CYGBUILD_CXX}'"
+
+    [ "$CYGBUILD_LDFLAGS" ] &&
+    list="$list LDFLAGS='${CYGBUILD_LDFLAGS}'"
+
+    [ "$CYGBUILD_CFLAGS" ] &&
+    list="$list CFLAGS='${CYGBUILD_CFLAGS}'"
+
+    [ "$CYGBUILD_CXXFLAGS" ] &&
+    list="$list CXXFLAGS='${CYGBUILD_CXXFLAGS}'"
+
+    list="$list DESTDIR=$instdir prefix=/usr"
+
+    if CygbuildIsEmpty "$list" ; then
+	return 1
+    fi
+
+    echo $list
+}
+
 function CygbuildRunShell()
 {
     local id="$0.$FUNCNAME"
@@ -7104,7 +7169,11 @@ function CygbuildRunPythonSetupCmd()
     	return 1
     fi
 
-    CygbuildRunShell $pybin setup.py "$@" > $retval 2>&1
+    CygbuildRunShell \
+	$pybin \
+	setup.py \
+	"$@" > $retval 2>&1
+
     local status=$?
 
     if [ "$verbose" ] || [ ! "$status" = "0" ] ; then
@@ -7112,6 +7181,48 @@ function CygbuildRunPythonSetupCmd()
     fi
 
     return $status
+}
+
+function CygbuildMakefileRunInstallPythonDistutilsStart()
+{
+    # http://peak.telecommunity.com/DevCenter/EasyInstall#traditional-pythonpath-based-installation
+
+    local conf="$HOME/.pydistutils.cfg"
+    local flag="$conf.cygbuild"
+
+    if [ ! -f "$flag" ]; then
+	CygbuildRun touch "$conf.cygbuild"
+
+	[ -f "$conf" ] && CygbuildRun cp "$conf" "$conf.bak"
+
+	[ "$test" ] && return 0
+
+	local python=python$PYTHON_VERSION_MAJOR
+	local lib=$instdir/usr/lib/$python/site-packages
+
+	echo "\
+[install]
+install_lib = $lib
+install_scripts = $instdir/usr/bin
+" > $conf
+
+    fi
+}
+
+function CygbuildMakefileRunInstallPythonDistutilsStop()
+{
+    local conf="$HOME/.pydistutils.cfg"
+    local flag="$conf.cygbuild"
+
+    if [ -f "$flag" ]; then
+	if [ -f "$conf.bak" ]; then
+	    CygbuildRun mv "$conf.bak" "$conf"
+	else
+	    CygbuildRun rm "$conf"
+	fi
+
+	CygbuildRun rm -f "$flag"
+    fi
 }
 
 function CygbuildMakefileRunInstallPythonMain()
@@ -7133,11 +7244,42 @@ function CygbuildMakefileRunInstallPythonMain()
     #   There is bug in Python: It always install under --prefix,
     #   no matter where --exec-prefix is set to.
 
-    CygbuildRunPythonSetupCmd       \
-	 install                    \
-	 --prefix=$pfx              \
-	 --exec-prefix=$pfx/bin     \
-	 ${1:-"$@"}
+    CygbuildMakefileRunInstallPythonDistutilsStart
+
+    local status
+
+    # Some libraries require special setup.py handling
+    # in order to install outside of system wide directory:
+    #
+    # - Custom ~/.pydistutils.cfg
+    # - PYTHONPATH set
+
+    local python=python$PYTHON_VERSION_MAJOR
+    local lib=$instdir/usr/lib/$python/site-packages
+
+    CygbuildEcho "-- Python $PYTHON_VERSION"
+
+    if CygbuildIsPythonSetuptools ; then
+	CygbuildWarn "-- [NOTE] autodetected setuptools"
+	CygbuildRun install -d -m 755 $lib
+    fi
+
+    (
+	export PYTHONPATH="$lib:$PYTHONPATH"
+
+	CygbuildRunPythonSetupCmd       \
+	    install                    \
+	    --prefix=$pfx              \
+	    --exec-prefix=$pfx/bin     \
+	    ${1:-"$@"}
+    )
+
+    status=$?
+
+    CygbuildMakefileRunInstallPythonDistutilsStop
+
+    return $status
+
 }
 
 function CygbuildMakefileRunPythonInDir ()
@@ -8161,34 +8303,6 @@ function CygbuildCmdPrepMain()
     else
 	CygbuildCmdPrepClean || return $?
     fi
-}
-
-function CygbuildShellEnvironenment()
-{
-    local list
-
-    [ "$CYGBUILD_CC" ] &&
-    list="$list CC='${CYGBUILD_CC}'"
-
-    [ "$CYGBUILD_CXX" ] &&
-    list="$list CXX='${CYGBUILD_CXX}'"
-
-    [ "$CYGBUILD_LDFLAGS" ] &&
-    list="$list LDFLAGS='${CYGBUILD_LDFLAGS}'"
-
-    [ "$CYGBUILD_CFLAGS" ] &&
-    list="$list CFLAGS='${CYGBUILD_CFLAGS}'"
-
-    [ "$CYGBUILD_CXXFLAGS" ] &&
-    list="$list CXXFLAGS='${CYGBUILD_CXXFLAGS}'"
-
-    list="$list DESTDIR=$instdir prefix=/usr"
-
-    if CygbuildIsEmpty "$list" ; then
-	return 1
-    fi
-
-    echo $list
 }
 
 function CygbuildCmdDependMain()
@@ -10025,7 +10139,6 @@ function CygbuildInstallFixInterpreterMain()
 	fi
 
     done < $retval.list
-set +x
 }
 
 function CygbuildInstallFixPerlPacklist()
@@ -10238,11 +10351,11 @@ function CygbuildCmdInstallList()
 	    continue
 
 	elif [[ "$to" == */ ]]; then
-	    ${test+echo} install -m 755 -d $instdir/$to
+	    ${test:+echo} install -m 755 -d $instdir/$to
 
 	elif [[ "$to" == */* ]]; then
 	    local dir=${to%/*}
-	    ${test+echo} install -m 755 -d $instdir/$dir
+	    ${test:+echo} install -m 755 -d $instdir/$dir
 
 	else
 	    CygbuildWarn "$id: [WARN] Skipped." \
@@ -10250,7 +10363,7 @@ function CygbuildCmdInstallList()
 	    continue
 	fi
 
-	${test+echo} install -m $mode $builddir/$from $instdir/$to
+	${test:+echo} install -m $mode $builddir/$from $instdir/$to
 
     done < $out
 }
