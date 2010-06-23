@@ -1,5 +1,7 @@
 To: cygwin-announce@cygwin.com
+Subject: Updated: package N.N
 Subject: New package: package N.N -- decription
+--text follows this line--
 
 PACKAGE DESCRIPTION
 ===================
