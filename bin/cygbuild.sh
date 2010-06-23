@@ -46,7 +46,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0623.0942"
+CYGBUILD_VERSION="2010.0623.1120"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4108,7 +4108,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     DIR_POSTINSTALL_CYGWIN=$instdir$CYGBUILD_SYSCONFDIR/postinstall
 
     DIR_DOC_CYGWIN=$instdir$prefix/$tmpdocdir/Cygwin            # global-def
-    DIR_DOC_GENERAL=$instdir$prefix/share/doc/$PKG-$VER         # global-def
+    DIR_DOC_GENERAL=$instdir$prefix/share/doc/$PKG              # global-def
     DIR_DEFAULTS_GENERAL=$instdir/etc/defaults                  # global-def
     DIR_INFO=$instdir$prefix/share/info                         # global-def
 

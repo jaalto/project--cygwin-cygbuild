@@ -12,6 +12,8 @@
 	(CygbuildIsPythonLibrary): New.
 	(CygbuildCygDirCheck): Tim leading path in displayed warning
 	message.
+	(CygbuildDefineGlobalMain): instead of PK-VER install to
+	PKG (DIR_DOC_GENERAL).
 
 2010-06-22  Jari Aalto  <jari.aalto@cante.net>
 
