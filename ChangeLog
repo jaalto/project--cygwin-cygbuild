@@ -1,3 +1,10 @@
+2010-06-24  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh
+	(top level): Update comments. Add unalias.
+	(CygbuildMakefileRunInstallPythonFix): Update displayed message.
+	(CygbuildPatchApplyQuiltMaybe): Improve quilt message.
+
 2010-06-23  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList): Use prox '+:'

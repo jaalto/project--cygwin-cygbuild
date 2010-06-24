@@ -23,16 +23,17 @@
 #
 #       If the name of the file is not "cygbuild" or "cygbuild.sh",
 #       then it has been auto-generated and you are looking at the
-#       result of packaging script. IN THAT CASE YOU SHOULD NOT TRY TO
-#       USE THIS PROGRAM FOR ANYTING ELSE THAN CALLING PROGRAM WITH ONE OF:
+#       result of packaging script.
 #
-#           -h
+#       IN THAT CASE YOU SHOULD NOT TRY TO USE THIS PROGRAM FOR
+#       ANYTHING ELSE THAN CALLING PROGRAM WITH ONE OF THE COMMANDS:
+#
 #           all
 #           almostall
 #
-#   Code notes
+#   Notes
 #
-#       o   Call program with option -h for quick help
+#       o   Option -h for quick help, -c for color, -v for verbose
 #       o   Global variables ARE_LIKE_THIS and local variables are areLikeThis
 #       o   GNU programs are required. grep(1), egrep(1), awk(1) etc.
 #
@@ -46,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0623.2056"
+CYGBUILD_VERSION="2010.0623.2126"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -99,7 +100,18 @@ LC_ALL=C            # So that sort etc. works as expected.
 LANG=C
 PATH="/usr/bin:/usr/lib:/usr/sbin:/bin:/sbin:$PATH"
 
-unset -f awk egrep grep tar perl head tail sed gcc make wget
+# Cancel any environment settings
+
+for tmp in \
+    awk egrep grep tar perl \
+    head tail sed gcc make wget \
+    quilt patch
+do
+    unset -f $tmp
+    unlalias $tmp 2> /dev/null
+done
+
+unset tmp
 
 #######################################################################
 #
@@ -5971,6 +5983,7 @@ function CygbuildPatchApplyQuiltMaybe()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local cmd="$1"  # {patch,unpatch}[-nostat][-quiet][-force]
+    local msg="patch"
     local verb
 
     # FIXME: De we need to handle *-force option?
@@ -5991,18 +6004,20 @@ function CygbuildPatchApplyQuiltMaybe()
    CygbuildWhichCheck quilt ||
    CygbuildDie "[FATAL] $id: Can't handle patches. quilt not in PATH"
 
+   local quilt="quilt push -a"
+
+   if [[ "$cmd" = unpatch* ]]; then
+       msg="unpatch"
+       quilt="quilt pop -a"
+   fi
+
    local series
 
     while read series
     do
-	CygbuildEcho "-- Quilt" ${series#TOPDIR/}
+	CygbuildEcho "-- Wait, quilt $msg" ${series#}
 
 	local dir=${series%/series}
-	local quilt="quilt push -a"
-
-	if [[ "$cmd" = unpatch* ]]; then
-	    quilt="quilt pop -a"
-	fi
 
 	CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C $quilt $verb ||
 	return $?
@@ -7162,7 +7177,7 @@ function CygbuildMakefileRunInstallPythonFix()
     if [ "$rmlist" ]; then
 	list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
 	rm $rmlist
-	CygbuildEcho "-- Recompiling python files (may take a while...)"
+	CygbuildEcho "-- Compiling python files (may take a while...)"
 	CygbuildPythonCompileFiles $list
     fi
 }
