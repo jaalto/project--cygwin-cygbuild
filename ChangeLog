@@ -1,11 +1,20 @@
 2010-06-24  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES):
+	document install.lst to remove suffixes .sh .pl .py
+
 	* bin/cygbuild.sh
 	(top level): Update comments. Add unalias.
+	(top level::CYGBUILD_INSTALL_INFO): New variable.
 	(CygbuildMakefileRunInstallPythonFix): Update displayed message.
 	(CygbuildPatchApplyQuiltMaybe): Improve quilt message.
 	Add handling for quilt error messages.
 	(CygbuildDllToLibName): Add openssl. Improve libz detection.
+	(CygbuildInstallPostinstallPartEtc): Change complex
+	process substitution <() to plain out/in file read.
+	(CygbuildCmdInstallList): During install remove suffixes
+	.sh .pl and .py. Substitute various CYGWIN-PATCHES/ prefixes.
+	(CygbuildHelpShort): New section INSTALL INSTARUCTIONS .
 
 2010-06-23  Jari Aalto  <jari.aalto@cante.net>
 
@@ -95,7 +104,7 @@
 	standard.
 	(HELP::Now the real thing; making a Cygwin package): Fix example.
 	(HELP::Contributing packages): Add wget link conributing example.
-	(HELP::OPTIONAL EXTERNAL DIRECTORIES): Chnage I<> to C<>.
+	(HELP::OPTIONAL EXTERNAL DIRECTORIES): Change I<> to C<>.
 2010-01-28  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (PATH): Define at top level to
@@ -469,7 +478,7 @@
 	-- Relocate massive amount of functions to libcheck.sh.
 	(CygbuildCmdInstallCheckMain): Rewritten. Move
 	logic to `CygbuildCmdInstallCheckEverything'.
-	(CygbuildInstallFixInterpreterMain): At beginning, chnage incorrect
+	(CygbuildInstallFixInterpreterMain): At beginning, change incorrect
 	variable debinition pybin to `rbbin'. This error caused all
 	python file to have ruby interpreters.
 	(CygbuildTarOptionCompress): Return --gzip, --bzip2, not j, z.
@@ -593,7 +602,7 @@
 2008-03-11  Jari Aalto  <jari.aalto@cante.net>
 
 	* etc/lib/cygbuild.pl:
-	-- Chnage all open command to 3-parameter form.
+	-- Change all open command to 3-parameter form.
 	(HELP::Packaging commands): Update
 	`readmefix' command documentation.
 	(UpdateYears): New.
@@ -604,7 +613,7 @@
 	colon.
 
 	* bin/cygbuild.sh: (CygbuildCmdInstallCheckCygpatchDirectory):
-	Chnage find(1) call to `CygbuildFindDo'.
+	Change find(1) call to `CygbuildFindDo'.
 	(CygbuildFindDo): Add more ignores. Like temporary,
 	monotone VCS and patch reject files.
 	(CygbuildCmdInstallCheckFSFaddress): New.
@@ -714,13 +723,13 @@
 
 	* etc/lib/cygbuild.pl: (HELP::Contributing packages): Fix
 	ITP message example.
-	(GPG EXAMPLES): Cosmetic chnages.
+	(GPG EXAMPLES): Cosmetic changes.
 
 	* bin/cygbuild.sh:
 	-- Change Verb() calls to Warn() calls near [WARN] messages.
 	(CygbuildCmdAllMain): Remove interactive
 	step if signatures failed.
-	(top level): Chnage var+value into POSIX var:+value format.
+	(top level): Change var+value into POSIX var:+value format.
 	Change -s (short) options in cat, diff ln, mv, rm, tar etc. to
 	--long options.
 	(CygbuildCmdInstallCheckShFile): New.
@@ -935,7 +944,7 @@
 	(CygbuildNoticeDevel): New.
 	(CygbuildCmdPackageBinMain): Remove unneeded status variable.
 	Call CygbuildNoticeDevel.
-	(CygbuildMakefilePrefixIsStandard): Chnage + to * in regext.
+	(CygbuildMakefilePrefixIsStandard): Change + to * in regext.
 	This finds prefix=value.
 
 2008-03-03  Jari Aalto  <jari.aalto@cante.net>
@@ -1416,7 +1425,7 @@
 
 	* bin/cygbuild.sh (CygbuildMakefileRunInstallPythonFix):
 	Check manual page location and fix it if needed.
-	(CygbuildInstallPackageInfo): chnage mkdir(1) to install(1).
+	(CygbuildInstallPackageInfo): change mkdir(1) to install(1).
 	(CygbuildCmdInstallCheckManualPages): Improve missing manual
 	page check.
 	(CygbuildMakefileRunInstall): Always run
@@ -1557,7 +1566,7 @@
 	(CygbuildCmdInstallCheckSetupHintCategory): New. Improve
 	Perl and Python checks.
 	(CygbuildCmdInstallCheckSetupHintDependExists): New (split).
-	Chnage [OK] to plain OK.
+	Change [OK] to plain OK.
 	(CygbuildCmdInstallCheckSetupHintLdesc): New (split)
 	(CygbuildCmdInstallCheckSetupHintSdesc): New (split)
 	(CygbuildCmdInstallCheckSetupHintFields): Completely new.
@@ -2110,7 +2119,7 @@
 	* etc/template/vc-cvs-checkout.sh.tmp (PATH): Added quotes.
 
 	* etc/template/install.sh.tmp: (InstallMake): Simplified a bit.
-	Chnaged from /bin/bash to /bin/sh
+	Changed from /bin/bash to /bin/sh
 
 2007-08-24    <jari aalto A T cante net>
 
@@ -2767,7 +2776,7 @@
 	Added && to make sure all Python and Perl install steps succeed.
 	(function CygbuildCmdInstallCheckEtc()): 1.791 If there are
 	no .inst/etc/* files, then don't check.
-	(function CygbuildCmdInstallCheckLibFiles()): 1.791 Chnaged WARN
+	(function CygbuildCmdInstallCheckLibFiles()): 1.791 Changed WARN
 	to INFO when no man pages are included. No more return (1) error
 	code.
 	(function CygbuildCmdBuildPython()): 1.791 Added -no-undefined
@@ -3544,7 +3553,7 @@
 
 2005-08-31  Jari Aalto  <jari dot aalto A T cante dot net>
 
-	* bin/cygbuild.sh (CYGBUILD_CONFIGURE_OPTIONS): Chnaged
+	* bin/cygbuild.sh (CYGBUILD_CONFIGURE_OPTIONS): Changed
 	--libexecdir=/usr/lib which is FHS compliant. Was /usr/sbin
 	in Cygwin documentation.
 	<http://cygwin.com/setup.html#package_contents>. See thread
@@ -4655,7 +4664,7 @@
 	* Makefile (install-etc-main): 1.22 Added missing paren.
 	(install-etc-template): 1.22 Added missing paren.
 
-	* index.html (Mailing list): 1.28 Chnaged license from
+	* index.html (Mailing list): 1.28 Changed license from
 	www.opencontent.org to creativecommons.org
 
 	* etc/template/configure.sh.tmp (function Configure()): 1.11
@@ -4703,7 +4712,7 @@
 
 2004-06-04 Fri  Jari Aalto  <jari dot aalto A T cante dt net>
 
-	* bin/cygbuild.pl (sub CygcheckDepsNeeded): 1.169 Previous chnages
+	* bin/cygbuild.pl (sub CygcheckDepsNeeded): 1.169 Previous changes
 	make function not to find new dependencies. The pronlem was $ARG, which
 	must not be used inside grep().
 
@@ -6126,7 +6135,7 @@
 	(sub CygcheckDependencies): 1.86 New.
 	(sub CygcheckDepsList): 1.86 New.
 	(sub CygcheckDepsCheckSetupIni): 1.86 New.
-	(sub FileRead): 1.86 Chnaged to use new Perl 5.8
+	(sub FileRead): 1.86 Changed to use new Perl 5.8
 	$FILE and removed local *FILE.
 	(sub FileWrite): 1.86 New.
 	(sub CygcheckDepsCheckMain): 1.86 New.
@@ -6206,7 +6215,7 @@
 	(top level): Added variable $PERL
 	(function CygbuildPerlModuleLocation()): 1.251 Removed search for
 	perl binary. Use $PERL instead.
-	(function CygbuildPerlModuleLocation()): 1.251 Chnaged return
+	(function CygbuildPerlModuleLocation()): 1.251 Changed return
 	values. was 'perl module', now returns only module.
 	(function CygbuildCmdReadmeFix()): 1.251 Changed subshell call
 	`CygbuildPerlModuleLocation' to use RETVAL method. This uses

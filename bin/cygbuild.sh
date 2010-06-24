@@ -47,13 +47,19 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0624.1403"
+CYGBUILD_VERSION="2010.0624.2228"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
 "http://mirrors.eu.kernel.org/sourceware/cygwin"}
+
+CYGBUILD_INSTALL_INFO="\
+    git clone git://git.savannah.nongnu.org/cygbuild.git
+    cd cygbuild
+    git checkout --track -b devel origin/devel
+    make install-symlink"
 
 #######################################################################
 #
@@ -1714,7 +1720,7 @@ CygbuildObjDumpLibraryDepList ()
 
     objdump -p "$file" |
 	awk '
-	    /KERNEL32|cygwin1.dll|MPR.DLL|GDI32|USER32/ {
+	    /KERNEL32|cygwin1.dll|MPR.DLL|GDI32|USER32|ntdll.dll/ {
 		next;
 	    }
 	    /DLL Name:/ {
@@ -4428,6 +4434,12 @@ DESCRIPTION
 	To publish      : publish; copy files to publish area
 	All phases      : all
 	All, no finish  : almostall
+
+INSTALL INSTARUCTIONS
+
+    Refer to 'Manual' at project page after installation:
+
+$CYGBUILD_INSTALL_INFO
 
 BUGS
     The long --help option consults a separate manual. To read it, a
@@ -10054,25 +10066,27 @@ function CygbuildInstallPostinstallPartInfo()
 function CygbuildInstallPostinstallPartEtc()
 {
     local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dest="$DIR_DEFAULTS_GENERAL"
 
     CygbuildEcho "-- Writing /etc postinstall script"
 
     #   Do we have a single file or directory?
-    #   The SED call filters out ./leading/path/to/file
+    #   The SED call filters out leading/path/to/etc
+
+    find  $dest \
+	! -path $dest \
+	-a ! -name preremove \
+	-a ! -name postinstall |
+    sed -e "s,$dest/,," \
+	> $retval
 
     local i list
 
     while read i
     do
 	list="$list $i"
-    done < <(
-	cd $dest &&
-	find . ! -name preremove -a ! -name postinstall |
-	    sed \
-	    -e 's,^\./,,' \
-	    -e 's,^\.$,,' \
-	)
+    done < $retval
 
     [ "$list" ] || return 0
 
@@ -10449,14 +10463,16 @@ function CygbuildCmdInstallList()
     #  Remove comments and substitute variables
 
     sed -e 's,#.*,,' \
-	-e 's,\$PKG,$PKG,' \
-	-e 's,\$VER,$VER,' \
+	-e "s,\$PKG,$PKG," \
+	-e "s,\$VER,$VER," \
 	$file > $out
 
     local line=0
 
     while read from to mode
     do
+	local dummy="from:$from to:$to"        # for debugging only
+
 	[ "$to" ]   || continue
 	[ "$mode" ] || mode=755
 
@@ -10480,7 +10496,22 @@ function CygbuildCmdInstallList()
 	    continue
 	fi
 
-	${test:+echo} install -m $mode $builddir/$from $instdir/$to
+	# Remove common suffixes
+
+        local name=$from
+	name=${name%.sh}
+	name=${name%.pl}
+	name=${name%.py}
+
+	# remove CYGWIN-PATCHES
+
+	name=${name#CYGWIN-PATCHES/conf/}
+	name=${name#CYGWIN-PATCHES/doc/}
+	name=${name#$to}
+
+        to=${to%/}			# No trailing slash
+
+	${test:+echo} install -m $mode $builddir/$from $instdir/$to/$name
 
     done < $out
 }

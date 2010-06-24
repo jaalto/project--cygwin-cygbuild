@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2010.0622.2314';
+$VERSION = '2010.0624.1957';
 
 # ..................................................................
 
@@ -1378,17 +1378,40 @@ format is:
 If I<destination> contains a trailing slash, the I<src> is installed
 to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional I<mode> argument
-passed to C<install -m MODE>. Expansion variables that are available
-are C<$PKG> for package name and C<$VER> for version number. Notice that
-the I<destination> does not contains starting slash.1 Comments starting with
-"#" and empty lines are ignored.
+passed to C<install -m MODE>.
+
+Expansion variables that are available are C<$PKG> for package name
+and C<$VER> for version number. Notice that the I<destination> does
+not contains starting slash. Common script suffixes like C<.sh .pl
+.py> from I<src> part are removed when copying the file to
+I<destination>; see example below and line 3.
+
+A special prefix deletion is also performed for C<CYGWIN-PATCHES>
+directoried. for I<src> part CYGWIN-PATCHES/{doc,conf} all
+components are removed. In addition all components of I<destination>
+is also removed. This allows making suitable "mirrors" of configuration
+directories. Below, first the prefix componen underlined is removed, the
+the matches I<destination> componen fromt he left:
+
+    CYGWIN-PATCHES/conf/etc/cron.d/program etc/cron.d/ 644
+    ===================+++++++++++         +++++++++++
+
+This effectiely produces command:
+
+    install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
+
+
+Comments starting with "#" and empty lines are ignored.
 
 Examples:
 
     zip usr/bin/		# install to /usr/bin/zip, mode 755
     zip usr/bin/new		# install to /usr/bin/new, mode 755
+    d.pl usr/bin/		# install to /usr/bin/d, mode 755
     util usr/share/lib/$PKG/
     util/program usr/share/doc/$PKG-VER/contrib/
+
+    CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/
 
 =item B<install.sh>
 
