@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0623.2126"
+CYGBUILD_VERSION="2010.0624.1403"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1714,7 +1714,7 @@ CygbuildObjDumpLibraryDepList ()
 
     objdump -p "$file" |
 	awk '
-	    /KERNEL32|cygwin1.dll|MPR.DLL/ {
+	    /KERNEL32|cygwin1.dll|MPR.DLL|GDI32|USER32/ {
 		next;
 	    }
 	    /DLL Name:/ {
@@ -1752,12 +1752,16 @@ CygbuildDllToLibName ()
 	# Special cases:
 
 	case "$lib" in
-	    libz)
+	    libz*)
 		lib=zlib0 ;;
+	    libbz2*1)
+		lib=libbz2_1 ;;
 	    libmhash*)
 		lib=mhash ;;
 	    lib*python[0-9]*)
 		lib=python ;;
+	    libcrypto* | libssl* )
+		lib=libopenssl098 ;;
 	    libgcc_s1)
 		lib=libgcc1 ;;
 	esac
@@ -6012,17 +6016,35 @@ function CygbuildPatchApplyQuiltMaybe()
    fi
 
    local series
+   local relative=$srcdir/
 
-    while read series
-    do
-	CygbuildEcho "-- Wait, quilt $msg" ${series#}
+   while read series
+   do
+       CygbuildEcho "-- Wait, quilt $msg" ${series#$relative}
 
-	local dir=${series%/series}
+       local dir=${series%/series}
+       local log=$retval.quilt
 
-	CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C $quilt $verb ||
-	return $?
+       CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
+	   $quilt $verb > $log 2>&1
 
-    done < $retval
+       local status=$?
+
+       cat $log
+
+       if $EGREP --quiet --ignore-case "series fully applied" $log
+       then
+           #   File series fully applied => status code 1
+	   status=""
+       fi
+
+       rm -f $log
+
+       [ "$status" ] && return $?
+
+   done < $retval
+
+   return 0
 }
 
 function CygbuildPatchApplyMaybe()

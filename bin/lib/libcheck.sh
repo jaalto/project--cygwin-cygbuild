@@ -1723,7 +1723,7 @@ function CygbuildCmdInstallCheckBinFiles()
 		    " size: '$file'"
 	    else
 		if [[ $size -gt $maxsize ]]; then
-		    CygbuildEcho "-- [NOTE] Big file, need " \
+		    CygbuildEcho "-- [NOTE] Big file, need" \
 			 "dynamic linking? $size $file"
 		fi
             fi
