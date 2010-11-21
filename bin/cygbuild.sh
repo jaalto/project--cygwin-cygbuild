@@ -47,13 +47,13 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.0624.2228"
+CYGBUILD_VERSION="2010.1121.1936"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
-"http://mirrors.eu.kernel.org/sourceware/cygwin"}
+"http://ftp.heanet.ie/mirrors/cygwin"}
 
 CYGBUILD_INSTALL_INFO="\
     git clone git://git.savannah.nongnu.org/cygbuild.git
