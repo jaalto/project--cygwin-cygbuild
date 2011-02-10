@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2010.1121.1936"
+CYGBUILD_VERSION="2011.0210.1518"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4755,7 +4755,10 @@ function CygbuildGPGsignFiles()
     [ ! "$signkey" ] && return
     [ $# -eq 0     ] && return
 
-    CygbuildGPGavailableCheck || return $?
+    if ! CygbuildGPGavailableCheck ; then
+	CygbuildWarn "-- [WARN] gpg not in PATH, cannot sign"
+	return 0
+    fi
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     date '+%Y-%m-%d %H:%M' > $retval

@@ -1,3 +1,8 @@
+2011-02-10  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildGPGsignFiles): Dispaly message if GPG
+	is not in PATH. Return success, not error to continue making package.
+
 2010-11-21  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CYGBUILD_SRCPKG_URL): Change from
