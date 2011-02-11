@@ -4,6 +4,7 @@
 
 	* bin/cygbuild.sh (CygbuildInstallExtraManual): Suport POD manual
 	pages in separate directories.
+	(CygbuildCmdInstallList): Compress */man/* files.
 
 2011-02-10  Jari Aalto  <jari.aalto@cante.net>
 

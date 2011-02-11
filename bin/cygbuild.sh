@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0211.1851"
+CYGBUILD_VERSION="2011.0211.1906"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10516,8 +10516,13 @@ function CygbuildCmdInstallList()
 	name=${name#$to}
 
         to=${to%/}			# No trailing slash
+	local tofile=$instdir/$to/$name
 
-	${test:+echo} install -m $mode $builddir/$from $instdir/$to/$name
+	${test:+echo} install -m $mode $builddir/$from $tofile
+
+	if [[ $to == */man/* ]]; then	# Compress manual pages
+	    gzip --best $tofile
+	fi
 
     done < $out
 }
