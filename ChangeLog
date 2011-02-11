@@ -1,3 +1,10 @@
+2011-02-11 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (HELP::install.lst): Fix typos.
+
+	* bin/cygbuild.sh (CygbuildInstallExtraManual): Suport POD manual
+	pages in separate directories.
+
 2011-02-10  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildGPGsignFiles): Dispaly message if GPG

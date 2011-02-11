@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0210.1518"
+CYGBUILD_VERSION="2011.0211.1851"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9565,7 +9565,7 @@ function CygbuildInstallExtraManual()
     #   Convert Perl pod pages to manuals.
 
     local done podcopy
-    local file page name nbr mansect manpage program
+    local file page name nbr mansect manpage program dir
 
     for file in $mandir/*.pod           \
 		$mandir/*.[1-9]         \
@@ -9579,11 +9579,14 @@ function CygbuildInstallExtraManual()
 
 	#  /path/to/program.1x.pod => program.1x.pod
 	name=${file##$DIR_CYGPATCH/}
+	dir=${name%%/*}
 
-	#  program.1x.pod => program.1x
-	name=${name%.pod}
+	[ "$dir" ] || dir="."
 
-	manpage=$DIR_CYGPATCH/$name
+	name=${name%.pod}		# program.1x.pod => program.1x
+	name=${name##*/}		# <dir>/program => program
+
+	manpage=$DIR_CYGPATCH/$dir/$name
 	program=${name%$addsect}        # program.1x => program.1
 	program=${program%.[0-9]}       # program.1 => program
 	nbr=${name##*.}                 # program.1x => 1x
@@ -9608,9 +9611,9 @@ function CygbuildInstallExtraManual()
 		--section="$nbr"                                    \
 		--release="dummy123"                                \
 		--center="User Contributed Documentation" $file |   \
-		sed -e 's/dummy123//g'                              \
+		sed  -e 's/dummy123//g'                             \
 		     -e "s/$name/$program/ig"                       \
-		> $manpage  ||                                      \
+		> $manpage ||                                       \
 		return $?
 
 	    podcopy=$manpage
