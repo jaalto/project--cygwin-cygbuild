@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2010.0624.1957';
+$VERSION = '2011.0211.1745';
 
 # ..................................................................
 
@@ -1370,7 +1370,7 @@ unconventionally 1 on success and N > 1 on error.
 
 NOTE: if file exists, the C<make install> target is not run.
 
-List install(1) comatible entries in separate lines. The
+List install(1) compatible entries in separate lines. The
 format is:
 
     <src>  <destination> [<mode, defaults to 755>]
@@ -1563,7 +1563,7 @@ directories.
 
 =item B<mandir>
 
-If this file exists, it should contain only one line: the dorectory
+If this file exists, it should contain only one line: the directory
 name relative to CYGWIN-PATCHES where the manual pages are stored. An
 example (which is also the default location):
 
