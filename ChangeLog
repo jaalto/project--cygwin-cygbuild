@@ -1,3 +1,11 @@
+2011-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Call
+	CygbuildCmdInstallListExists().
+	(CygbuildCmdInstallListExists): New.
+	(CygbuildCmdInstallList): Check common files like *.conf
+	and adjust mode accordingly.
+
 2011-02-11 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (HELP::install.lst): Fix typos.

@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0211.1906"
+CYGBUILD_VERSION="2011.0211.2249"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10455,6 +10455,13 @@ function CygbuildCmdInstallPatchVerify()
     fi
 }
 
+function CygbuildCmdInstallListExists()
+{
+    local file="$SCRIPT_INSTALL_LST_CYGFILE"
+
+    [ -f "$file" ]
+}
+
 function CygbuildCmdInstallList()
 {
     local file="$SCRIPT_INSTALL_LST_CYGFILE"
@@ -10474,13 +10481,24 @@ function CygbuildCmdInstallList()
 	$file > $out
 
     local line=0
+    local status=0
 
     while read from to mode
     do
 	local dummy="from:$from to:$to"        # for debugging only
 
 	[ "$to" ]   || continue
-	[ "$mode" ] || mode=755
+
+	if [ ! "$mode" ] ; then
+	    case "$to" in
+		*.conf | *.cf | *rc | etc/* | */doc/* | */man/* )
+		    mode=644
+		    ;;
+		*)
+		    mode=755
+		    ;;
+	    esac
+	fi
 
 	line=$(( line + 1 ))
 
@@ -10516,15 +10534,18 @@ function CygbuildCmdInstallList()
 	name=${name#$to}
 
         to=${to%/}			# No trailing slash
-	local tofile=$instdir/$to/$name
+	local tofile=$instdir/$to
 
-	${test:+echo} install -m $mode $builddir/$from $tofile
+	${test:+echo} install -m $mode $builddir/$from $tofile ||
+	status=$?
 
 	if [[ $to == */man/* ]]; then	# Compress manual pages
 	    gzip --best $tofile
 	fi
 
     done < $out
+
+    return $status
 }
 
 function CygbuildCmdInstallMain()
@@ -10590,13 +10611,16 @@ function CygbuildCmdInstallMain()
 		${dir#$srcdir/} \
 		${test:+(TEST MODE)}
 
-            CygbuildCmdInstallList ||
-	    CygbuildMakefileRunInstallMain ||
-	    {
-		status=$?
-		CygbuildPopd
-		return $status
-	    }
+            if CygbuildCmdInstallListExists ; then
+		CygbuildCmdInstallList || return $?
+	    else
+		CygbuildMakefileRunInstallMain ||
+		{
+		    status=$?
+		    CygbuildPopd
+		    return $status
+		}
+	    fi
 	fi
 
 	CygbuildMakefileRunInstallFixMain
