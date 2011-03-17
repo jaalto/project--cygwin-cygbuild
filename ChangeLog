@@ -1,3 +1,10 @@
+2011-03-17 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList):
+	FROM files that end to a number, like program.1, automatically
+	determine TO part. This allows installing manual pages without
+	specifying the destination path in CYGWIN-PATCHES/install.lst file.
+
 2011-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallMain): Call

@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0211.2249"
+CYGBUILD_VERSION="2011.0211.2259"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10485,9 +10485,25 @@ function CygbuildCmdInstallList()
 
     while read from to mode
     do
+
 	local dummy="from:$from to:$to"        # for debugging only
 
-	[ "$to" ]   || continue
+	if [ ! "$to" ]; then
+	    # location of manual pages need not to be specified
+
+	    case "$from" in
+	    	*.[1-8])
+	    	    local nbr=$from
+	    	    nbr=${nbr##*.}
+	    	    
+	    	    to="usr/share/man/man$nbr/"
+	    	    ;;
+	    	*)  
+	    	    CygbuildWarn "$id: [WARN] skipped: $from"
+	    	    continue
+	    	    ;;
+	    esac
+	fi
 
 	if [ ! "$mode" ] ; then
 	    case "$to" in
@@ -10538,10 +10554,6 @@ function CygbuildCmdInstallList()
 
 	${test:+echo} install -m $mode $builddir/$from $tofile ||
 	status=$?
-
-	if [[ $to == */man/* ]]; then	# Compress manual pages
-	    gzip --best $tofile
-	fi
 
     done < $out
 
@@ -10612,7 +10624,12 @@ function CygbuildCmdInstallMain()
 		${test:+(TEST MODE)}
 
             if CygbuildCmdInstallListExists ; then
-		CygbuildCmdInstallList || return $?
+		CygbuildCmdInstallList ||
+		{
+		    status=$?
+		    CygbuildPopd
+		    return $status
+		}
 	    else
 		CygbuildMakefileRunInstallMain ||
 		{
@@ -10662,8 +10679,9 @@ function CygbuildCmdInstallMain()
 
     CygbuildInstallExtraMain
     CygbuildInstallFixMain
-
+set -x
     CygbuildInstallCygwinPartPostinstall
+set +x
     CygbuildInstallExtraManualCompress
     CygbuildCmdInstallFinishMessage
 }
