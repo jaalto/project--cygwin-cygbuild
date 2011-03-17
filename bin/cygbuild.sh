@@ -10679,9 +10679,9 @@ function CygbuildCmdInstallMain()
 
     CygbuildInstallExtraMain
     CygbuildInstallFixMain
-set -x
+
     CygbuildInstallCygwinPartPostinstall
-set +x
+
     CygbuildInstallExtraManualCompress
     CygbuildCmdInstallFinishMessage
 }
