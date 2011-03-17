@@ -10488,6 +10488,8 @@ function CygbuildCmdInstallList()
 
 	local dummy="from:$from to:$to"        # for debugging only
 
+	[ "$from" ] || continue
+
 	if [ ! "$to" ]; then
 	    # location of manual pages need not to be specified
 
