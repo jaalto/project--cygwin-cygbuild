@@ -10526,11 +10526,11 @@ function CygbuildCmdInstallList()
 	    continue
 
 	elif [[ "$to" == */ ]]; then
-	    ${test:+echo} install -m 755 -d $instdir/$to
+	    ${test:+echo} install ${verbose+--verbose} -m 755 -d $instdir/$to
 
 	elif [[ "$to" == */* ]]; then
 	    local dir=${to%/*}
-	    ${test:+echo} install -m 755 -d $instdir/$dir
+	    ${test:+echo} install ${verbose+--verbose} -m 755 -d $instdir/$dir
 
 	else
 	    CygbuildWarn "$id: [WARN] Skipped." \
@@ -10554,7 +10554,7 @@ function CygbuildCmdInstallList()
         to=${to%/}			# No trailing slash
 	local tofile=$instdir/$to
 
-	${test:+echo} install -m $mode $builddir/$from $tofile ||
+	${test:+echo} install ${verbose+--verbose} -m $mode $builddir/$from $tofile ||
 	status=$?
 
     done < $out
