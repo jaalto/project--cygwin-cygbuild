@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0211.2259"
+CYGBUILD_VERSION="2011.0328.0626"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -114,7 +114,7 @@ for tmp in \
     quilt patch
 do
     unset -f $tmp
-    unlalias $tmp 2> /dev/null
+    unalias $tmp 2> /dev/null
 done
 
 unset tmp
@@ -10497,10 +10497,10 @@ function CygbuildCmdInstallList()
 	    	*.[1-8])
 	    	    local nbr=$from
 	    	    nbr=${nbr##*.}
-	    	    
+
 	    	    to="usr/share/man/man$nbr/"
 	    	    ;;
-	    	*)  
+	    	*)
 	    	    CygbuildWarn "$id: [WARN] skipped: $from"
 	    	    continue
 	    	    ;;

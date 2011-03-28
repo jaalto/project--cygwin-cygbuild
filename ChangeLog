@@ -1,3 +1,9 @@
+2011-03-28 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (top level::Cancel any environment settings):
+	Correct unlalias to unalias. Thanks to Ken Jackson
+	<ken@jackson.io>.
+
 2011-03-17 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList):
