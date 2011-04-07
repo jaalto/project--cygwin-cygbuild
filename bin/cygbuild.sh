@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0407.1628"
+CYGBUILD_VERSION="2011.0407.1749"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10481,11 +10481,13 @@ function CygbuildCmdInstallList()
 		 "${file#$srcdir/}"
 
     local out=$reval.lst
+    local docdir="usr/share/doc/$PKG"
 
     #  Remove comments and substitute variables
 
     sed -e 's,#.*,,' \
 	-e "s,\$PKG,$PKG," \
+	-e "s,\$DOC,$docdir," \
 	-e "s,\$VER,$VER," \
 	$file > $out
 
@@ -10521,17 +10523,20 @@ function CygbuildCmdInstallList()
 		*.conf | *.cf | *rc | etc/* | */doc/* | */man/* )
 		    mode=644
 		    ;;
-		*)
+		*/bin*)
 		    mode=755
+		    ;;
+		*)
+		    mode=644
 		    ;;
 	    esac
 	fi
 
 	line=$(( line + 1 ))
 
-	if [[ "$to" == /* ]]; then
+	if [[ "$to" == /* ]] ; then
 	    CygbuildWarn "$id: [WARN] Skipped." \
-		"Invalid 2nd arg in install.lst line $line"
+		"Absolute path ($to) in install.lst item line $line"
 	    continue
 
 	elif [[ "$to" == */ ]]; then

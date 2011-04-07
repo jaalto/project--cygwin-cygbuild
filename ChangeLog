@@ -1,3 +1,11 @@
+2011-04-07 Thu    <mervi@6715KLOY>
+
+	* bin/template/install.lst.ex: Add more examples.
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Add $DOC susbtitution
+	variable support in install.lst Default file install mode is now
+	644. All */bin* files are 755 by default.
+
 2011-04-07 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallExtraManual): Correct reading
