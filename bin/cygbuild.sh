@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2010 Jari Aalto
+#       Copyright (C) 2003-2011 Jari Aalto
 #
 #   License
 #
@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0328.0626"
+CYGBUILD_VERSION="2011.0407.1628"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9579,14 +9579,22 @@ function CygbuildInstallExtraManual()
 
 	#  /path/to/program.1x.pod => program.1x.pod
 	name=${file##$DIR_CYGPATCH/}
-	dir=${name%%/*}
 
-	[ "$dir" ] || dir="."
+	dir="."
+
+	if [[ $name == */* ]]; then
+	    dir=${name%%/*}
+	fi
 
 	name=${name%.pod}		# program.1x.pod => program.1x
 	name=${name##*/}		# <dir>/program => program
 
-	manpage=$DIR_CYGPATCH/$dir/$name
+	manpage=$dir/$name
+
+	if [ ! -f $manpage ]; then
+	    manpage=$DIR_CYGPATCH/$dir/$name
+	fi
+
 	program=${name%$addsect}        # program.1x => program.1
 	program=${program%.[0-9]}       # program.1 => program
 	nbr=${name##*.}                 # program.1x => 1x
@@ -9634,6 +9642,7 @@ function CygbuildInstallExtraManual()
 	    #  This was generated and installed, so remove it
 	    rm -f "$podcopy"
 	fi
+
     done
 }
 
@@ -11339,6 +11348,7 @@ function CygbuildCommandMainCheckSpecial()
 		CygbuildProgramVersion 0
 		;;
 	    patch-list|plist|lspatch|ls-patch)
+		DIR_CYGPATCH=CYGWIN-PATCHES
 		CygbuildPatchFileList CYGWIN-PATCHES
 		exit 0
 		;;

@@ -1,3 +1,14 @@
+2011-04-07 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildInstallExtraManual): Correct reading
+	patch to manual page from CYGWIN-PATCHES/install.lst
+
+2011-04-07 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCommandMainCheckSpecial): In ls-patch
+	command, define DIR_CYGPATCH which is needed in
+	CygbuildPatchFileQuilt(), called from CygbuildPatchFileList().
+
 2011-03-28 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (top level::Cancel any environment settings):
