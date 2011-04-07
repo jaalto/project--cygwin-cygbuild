@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0211.1745';
+$VERSION = '2011.0407.1821';
 
 # ..................................................................
 
@@ -1373,33 +1373,32 @@ NOTE: if file exists, the C<make install> target is not run.
 List install(1) compatible entries in separate lines. The
 format is:
 
-    <src>  <destination> [<mode, defaults to 755>]
+    <src> <destination> [<mode, defaults to 644>]
 
 If I<destination> contains a trailing slash, the I<src> is installed
 to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional I<mode> argument
 passed to C<install -m MODE>.
 
-Expansion variables that are available are C<$PKG> for package name
-and C<$VER> for version number. Notice that the I<destination> does
-not contains starting slash. Common script suffixes like C<.sh .pl
-.py> from I<src> part are removed when copying the file to
-I<destination>; see example below and line 3.
+Expansion variables that are provided are: C<$PKG> for package name
+and, C<$VER> for version number, C<$DOC> for package specific
+documentation directory. Notice that the I<destination> must not be an
+absolute path but a relative one user I<.inst/> directory. Common
+script suffixes like C<.sh .pl .py> from I<src> part are removed when
+copying the file to I<destination>; see line 3 in example.
 
-A special prefix deletion is also performed for C<CYGWIN-PATCHES>
-directoried. for I<src> part CYGWIN-PATCHES/{doc,conf} all
-components are removed. In addition all components of I<destination>
-is also removed. This allows making suitable "mirrors" of configuration
-directories. Below, first the prefix componen underlined is removed, the
-the matches I<destination> componen fromt he left:
+for I<src> part CYGWIN-PATCHES/{doc,conf} components are removed. In
+addition all components of I<destination> is also removed. This allows
+making suitable "mirrors" of configuration directories unser
+C<CYGWIN-PATCHES>. Here, first the prefix component underlined is
+removed, then the matchinf I<destination> component from the left:
 
     CYGWIN-PATCHES/conf/etc/cron.d/program etc/cron.d/ 644
     ===================+++++++++++         +++++++++++
 
-This effectiely produces command:
+The end result being:
 
     install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
-
 
 Comments starting with "#" and empty lines are ignored.
 
@@ -1410,7 +1409,9 @@ Examples:
     d.pl usr/bin/		# install to /usr/bin/d, mode 755
     util usr/share/lib/$PKG/
     util/program usr/share/doc/$PKG-VER/contrib/
-
+    man.1			# installs under /usr/share/man/man1/
+    man.5			# installs under /usr/share/man/man5/
+    this.doc $DOC/		# installs under /usr/share/doc/<program>/
     CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/
 
 =item B<install.sh>

@@ -1,5 +1,8 @@
 2011-04-07 Thu    <mervi@6715KLOY>
 
+	* bin/lib/cygbuild.pl: (OPTIONAL EXTERNAL FILES::install.lst).
+	Improve documentation. Add $DOC, add *.1 manual files examples.
+
 	* bin/template/install.lst.ex: Add more examples.
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList): Add $DOC susbtitution
