@@ -1,10 +1,9 @@
 #!/bin/sh
-# Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or later
 #
-# /etc/postinstall/<package>.sh [destdir]
+# This file is not used for anything.
 #
-# -- NOTE: This script will be run under /bin/sh
-# -- THIS AN EXAMPLE, MODIFY AS NEEDED
+# This contains snippets of code that can be copy/pasted
+# to installation etc. scripts.
 
 PATH="/sbin:/usr/sbin/:/bin:/usr/bin:/usr/X11R6/bin"
 LC_ALL="C"
@@ -61,119 +60,5 @@ Run ()
     echo "$@"
     [ "$test" ] || "$@"
 }
-
-InstallConffiles ()
-{
-    [ ! -f "$conffile" ] && return
-
-    #  Install default configuration files for system wide
-
-    latest=$(LC_ALL=C find /usr/share/doc/$package*/ \
-               -maxdepth 0 -type d \
-             | sort | tail -1 | sed 's,/$,,')
-
-    if [ ! "$latest" ]; then
-        Warn "$0: [FATAL] Cannot find $package install doc dir"
-        exit 1
-    fi
-
-    tmpprefix="${TEMPDIR:-/tmp}/tmp$$"
-    clean="$tmpprefix.to"
-
-    #  Filter out all comments. Grep only lines with filenames
-
-    grep -E '^[^#]*/|^[[:space]]*$' $conffile > $clean
-
-    while read from to
-    do
-        #  Both of these are are normally full file paths.
-        #  - Translate few special "variables"
-        #  - if TO is plain directory (ending to slash), reuse
-        #    filename from FROM part.
-
-        from=$(echo $dest$from | sed "s,\$PKGDOCDIR,$pkgdocdir$latest," )
-        to=$(echo $dest$to | sed "s,\$PKG,$pkgdocdir," )
-
-        [ ! "$from" ] && continue                       # empty line
-
-        if [ ! "$to" ] ; then
-            Warn "$conffile: [ERROR] in line: $from"
-            continue
-        fi
-
-        if [ -d "$to" ] || echo $to | grep "/$" > /dev/null; then
-            to=$(echo $to | sed 's,/$,,')
-            to=$to/$(basename $from)
-        fi
-
-        #  Install only if a) not already there b) not changed
-
-        name=$(basename $to)
-        default=$defaultsdir/$name
-
-        if [ ! -f "$to" ]; then
-            Run install -m 0644 $from $to
-
-        elif [ -f "$to" ] && [ ! -f "$default" ] ; then
-                Warn "$0: [$package:WARN] $to exists, no default"
-
-        elif [ -f "$to" ] && [ -f "$from" ] ; then
-
-            if cmp --quiet $default $to            # Same. No user changes
-            then
-                if ! cmp --quiet $from $default    # Not same. conf changes
-                then
-                    Run install -D -m 0644 $from $to
-                fi
-            else
-                Warn "$0: [WARN] $to has changed." \
-                     "Not installing new $from"
-            fi
-        fi
-
-        #  Install new default from this package so that next install
-        #  can compare if the file has stayed the same.
-
-        Run install -D -m 0644 $from $default
-
-    done < "$clean"
-
-    rm -f "$clean"
-}
-
-InstalInfo()
-{
-    cd "$infodir" || return $?
-
-    central="./dir"
-
-    # -- This part is optional --
-
-    # If *.info file does not have START-INFO-DIR-ENTRY ..
-    # END-INFO-DIR-ENTRY then the text must be supplied. Remmeber to
-    # add option --entry="$text" to call install-info
-    #
-    # If there are several *.info files, please
-    # handle them correctly and set $text for each.
-
-    # text="* $package: ($package). One line description here" #!! CHANGE
-
-    for file in $infodir/$package*.info
-    do
-        [ ! -f "$file" ] && continue
-
-        Run install-info --dir-file="$central" $file
-    done
-}
-
-Main()
-{
-    Environment "$@"    &&
-    InstalInfo          &&
-    InstallConffiles
-}
-
-# -- uncomment this line to activate --
-# Main "$@"
 
 # End of file
