@@ -4,6 +4,11 @@
 	(top level): Fix typos in coments.
 	(CygbuildCmdInstallList): Install *.sh, *.pl,
 	(CygbuildTarOptionCompress): Add LZMA support.
+	(CygbuildInstallPostinstallPartEtc): Rewrite /etc install
+	script.
+	(CygbuildPreRemoveWrite): Complete rewrite. This function
+	was not previously used.
+	(CygbuildInstallFixEtcdirInstall): Use CygbuildPreRemoveWrite().
 
 	*.py under /usr/bin by default. SuImplyfy mode 755 detection for
 	all files matching */bin/* in their path.

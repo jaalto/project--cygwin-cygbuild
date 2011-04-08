@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0408.1134"
+CYGBUILD_VERSION="2011.0408.1346"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -118,13 +118,13 @@ for tmp in \
     grep \
     head \
     make \
-    patch
+    patch \
     perl \
     quilt \
     sed \
     tail \
     tar \
-    wget \
+    wget
 do
     unset -f $tmp
     unalias $tmp 2> /dev/null
@@ -6768,7 +6768,9 @@ function CygbuildPostinstallWriteMain()
     if [ ! -f "$file" ]; then
 	echo "\
 #!/bin/sh
-# This is automatically generated file
+# This file has been automatically generated
+# by $CYGBUILD_NAME $CYGBUILD_VERSION
+#
 # Please do not remove section comments '#:<name>'
 
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
@@ -6789,8 +6791,9 @@ set -e
 function CygbuildPreRemoveWrite()
 {
     local id="$0.$FUNCNAME"
-    local str="$1"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local file="$SCRIPT_PREREMOVE_CYGFILE"
+    local dest="$DIR_DEFAULTS_GENERAL"
 
     if ! CygbuildIsTemplateFilesInstalled ; then
 	CygbuildWarn "$id: ERROR No $CYGBUILD_DIR_CYGPATCH_RELATIVE/ " \
@@ -6798,17 +6801,61 @@ function CygbuildPreRemoveWrite()
 	return 1
     fi
 
-    if [ ! "$str" ]; then
-	echo "$id: [FATAL] command string is empty"
-	return 1
+    CygbuildEcho "-- Writing /etc preremove script (if needed)"
 
-    elif [ -f "$file" ]; then
-	CygbuildWarn "$id: [WARN] cannot write " \
-	     "to $file => $str"
+    # if [ -f "$file" ]; then
+    # 	CygbuildWarn "-- [WARN] Already exists. Won't overwrite" \
+    # 	    ${file#$srcdir/}
+    # 	return 0
+    # fi
 
-    else
-	echo "$str" > "$file" || return 1
+    find "$dest" \
+	! -path $dest \
+	-a ! -name preremove \
+	-a ! -name postinstall \
+	> $retval
+
+    [ -s $retval ] || return 0
+
+    local item list
+
+    while read item
+    do
+	[ -d "$item" ] && continue
+
+	item=${item#$dest/}
+
+	list="$list $item"
+    done < $retval
+
+    [ "$list" ] || return 0
+
+    CygbuildEcho "-- Writing /etc preremove script"
+
+    echo "\
+#!/bin/sh
+# This file has been automatically generated
+# by $CYGBUILD_NAME $CYGBUILD_VERSION
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+LC_ALL=C
+
+dest=\$1
+echo \"\$0: Removing unmodified configuration files.\"
+
+for file in $list
+do
+    [ -e \"\$dest\$file\" ] || continue
+
+    if cmp --quiet \"\$dest/\$file\" \"/etc/defaults/\$file\" ; then
+	echo \"\$0: \$file hasn't been modified, will update\"
+        rm -f \"$dest/\$file\"
     fi
+done
+
+# End of file
+" > $file
+
 }
 
 function CygbuildMakefileCheck()
@@ -10108,18 +10155,23 @@ function CygbuildInstallPostinstallPartEtc()
     #   Do we have a single file or directory?
     #   The SED call filters out leading/path/to/etc
 
-    find  $dest \
+    find "$dest" \
 	! -path $dest \
 	-a ! -name preremove \
-	-a ! -name postinstall |
-    sed -e "s,$dest/,," \
+	-a ! -name postinstall \
 	> $retval
 
-    local i list
+    local item list
 
-    while read i
+    while read item
     do
-	list="$list $i"
+	if [ -d "$item" ]; then
+	    item="$item/"		# Append slash
+	fi
+
+	item=${item#$dest/}
+
+	list="$list $item"
     done < $retval
 
     [ "$list" ] || return 0
@@ -10128,17 +10180,18 @@ function CygbuildInstallPostinstallPartEtc()
 fromdir=/etc/defaults
 for i in $list
 do
-    src=\$fromdir/\$i
-    destdir=\$dest/\$i
+    from=\"\$fromdir/\$i\"
+    to=\"\$dest/\$i\"
 
-    [ -e \$destdir ] && continue
-
-    if [ -d \$src ] ; then
-	install -d -m 755 \$destdir
-	continue
-    fi
-
-    install -m 644 \$src \$destdir
+    case \"\$i\" in
+	*/) # Directory
+	    [ -d \"\$to\" ] && continue
+	    install -d -m 755 \"\$to\"
+	    ;;
+	*)  # File
+	    [ -e \"$to\" ] || install -m 644 \"\$from\" \"\$to\"
+	    ;;
+    esac
 done
 "
 
@@ -10251,6 +10304,7 @@ function CygbuildInstallFixEtcdirInstall()
     CygbuildEcho "-- [NOTE] Moving ${pkgetcdir#$(pwd)/} to" \
 		 ${DIR_DEFAULTS_GENERAL#$dir/}
 
+    CygbuildPreRemoveWrite
     CygbuildInstallPostinstallPartEtc
 }
 
