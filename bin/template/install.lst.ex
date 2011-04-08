@@ -1,9 +1,12 @@
-# List install(1) components: FROM TO [MODE; for /bin/ defaults 755]
-# Without trailing slash: rename file TO. Vars: $PKG $VER DOC
-# Manual pages are automatically install, no destination needed.
+# Syntax: FROM [TO [MODE; */bin/* defaults to 755]]
+#
+# Without trailing slash: rename file TO; TO expansions $PKG $VER DOC
+# Scripts and manpages are automatically installed; no TO is needed:
+# Script suffixes *.pl etc. are stripped on install.
 #
 #    program usr/bin/
-#    prg.sh  usr/bin/prg
+#    prg     usr/bin/newname
 #    README  $DOC/ 644
 #    man.1
+#    program.pl
 
