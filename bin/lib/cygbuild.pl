@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0407.1821';
+$VERSION = '2011.0408.1103';
 
 # ..................................................................
 
@@ -1373,23 +1373,11 @@ NOTE: if file exists, the C<make install> target is not run.
 List install(1) compatible entries in separate lines. The
 format is:
 
-    <src> <destination> [<mode, defaults to 644>]
+    <src> [<destination> [<mode, defaults to 644>]]
 
-If I<destination> contains a trailing slash, the I<src> is installed
-to that directory. If there is no trailing slash, the last element is
-used for filename. The third parameter is optional I<mode> argument
-passed to C<install -m MODE>.
-
-Expansion variables that are provided are: C<$PKG> for package name
-and, C<$VER> for version number, C<$DOC> for package specific
-documentation directory. Notice that the I<destination> must not be an
-absolute path but a relative one user I<.inst/> directory. Common
-script suffixes like C<.sh .pl .py> from I<src> part are removed when
-copying the file to I<destination>; see line 3 in example.
-
-for I<src> part CYGWIN-PATCHES/{doc,conf} components are removed. In
-addition all components of I<destination> is also removed. This allows
-making suitable "mirrors" of configuration directories unser
+For the I<src> part CYGWIN-PATCHES/{doc,conf} components are removed.
+In addition all components of I<destination> is also removed. This
+allows making suitable "mirrors" of configuration directories unser
 C<CYGWIN-PATCHES>. Here, first the prefix component underlined is
 removed, then the matchinf I<destination> component from the left:
 
@@ -1400,19 +1388,37 @@ The end result being:
 
     install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
 
+If I<destination> contains a trailing slash, the I<src> is installed
+to that directory. If there is no trailing slash, the last element is
+used for filename. The third parameter is optional I<mode> argument
+passed to C<install -m MODE>.
+
+In I<destination> part, expansion variables provided are: C<$PKG> for
+package name, C<$VER> for version number and C<$DOC> for package
+specific documentation directory. Notice that the I<destination> must
+not be an absolute path but a relative one under I<.inst/> directory.
+Common script suffixes like C<.sh .pl .py> from I<src> part are
+removed when copying the file to I<destination>. For commonly known
+files, like C<.sh .pl .py> and manual pages that end to an number, the
+I<destination> is not needed. See exampels below.
+
 Comments starting with "#" and empty lines are ignored.
 
 Examples:
 
     zip usr/bin/		# install to /usr/bin/zip, mode 755
     zip usr/bin/new		# install to /usr/bin/new, mode 755
-    d.pl usr/bin/		# install to /usr/bin/d, mode 755
+    prg.pl usr/bin/		# install to /usr/bin/prg, mode 755
     util usr/share/lib/$PKG/
     util/program usr/share/doc/$PKG-VER/contrib/
-    man.1			# installs under /usr/share/man/man1/
-    man.5			# installs under /usr/share/man/man5/
-    this.doc $DOC/		# installs under /usr/share/doc/<program>/
+    this.doc $DOC/		# install under /usr/share/doc/<program>/
     CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/
+
+    # For some known files the <dest> is not needed.
+
+    prg.pl			# install to /usr/bin/prg, mode 755
+    man.1			# install under /usr/share/man/man1/, mode 644
+    man.5			# install under /usr/share/man/man5/, mode 644
 
 =item B<install.sh>
 

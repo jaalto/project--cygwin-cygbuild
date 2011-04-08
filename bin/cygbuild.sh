@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0407.1749"
+CYGBUILD_VERSION="2011.0408.1049"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10501,18 +10501,32 @@ function CygbuildCmdInstallList()
 
 	[ "$from" ] || continue
 
+	local ext				# .sh .pl .1 .5 etc.
+
+	if [ "$from" == *.* ]; then
+	    ext=${from##*.}
+	fi
+
+	local name=$from
+
+	if [ "$ext" ]; then
+	    name=${from%.$ext}			# Without extension
+	fi
+
 	if [ ! "$to" ]; then
 	    # location of manual pages need not to be specified
 
 	    case "$from" in
 	    	*.[1-8])
-	    	    local nbr=$from
-	    	    nbr=${nbr##*.}
-
-	    	    to="usr/share/man/man$nbr/"
+	    	    to="usr/share/man/man$ext/"
 	    	    ;;
+
+	    	*.sh | *.pl | *.py)
+		    to="usr/bin/$name"
+		    ;;
+
 	    	*)
-	    	    CygbuildWarn "$id: [WARN] skipped: $from"
+	    	    CygbuildWarn "$id: [WARN] skipped entry: $from"
 	    	    continue
 	    	    ;;
 	    esac
@@ -10520,10 +10534,7 @@ function CygbuildCmdInstallList()
 
 	if [ ! "$mode" ] ; then
 	    case "$to" in
-		*.conf | *.cf | *rc | etc/* | */doc/* | */man/* )
-		    mode=644
-		    ;;
-		*/bin*)
+		*/bin/*)
 		    mode=755
 		    ;;
 		*)

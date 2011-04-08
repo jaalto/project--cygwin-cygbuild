@@ -1,3 +1,9 @@
+2011-04-08 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Install *.sh, *.pl,
+	*.py under /usr/bin by default. SuImplyfy mode 755 detection for
+	all files matching */bin/* in their path.
+
 2011-04-07 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (OPTIONAL EXTERNAL FILES::install.lst).
