@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0408.1103';
+$VERSION = '2011.0408.1402';
 
 # ..................................................................
 
@@ -1399,8 +1399,8 @@ specific documentation directory. Notice that the I<destination> must
 not be an absolute path but a relative one under I<.inst/> directory.
 Common script suffixes like C<.sh .pl .py> from I<src> part are
 removed when copying the file to I<destination>. For commonly known
-files, like C<.sh .pl .py> and manual pages that end to an number, the
-I<destination> is not needed. See exampels below.
+files, like C<.sh .pl .py>, text files and manual pages that end to an
+number, the I<destination> is not needed. See exampels below.
 
 Comments starting with "#" and empty lines are ignored.
 
@@ -1417,6 +1417,7 @@ Examples:
     # For some known files the <dest> is not needed.
 
     prg.pl			# install to /usr/bin/prg, mode 755
+    manual.txt			# install to /usr/share/doc/<package>/, mode 644
     man.1			# install under /usr/share/man/man1/, mode 644
     man.5			# install under /usr/share/man/man5/, mode 644
 
