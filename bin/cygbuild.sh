@@ -39,7 +39,7 @@
 #
 #   Other notes
 #
-#       o   cygcheck is a MingW application and output conatains CRLF
+#       o   cygcheck is a MingW application and output contains CRLF
 
 CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0408.1049"
+CYGBUILD_VERSION="2011.0408.1134"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -75,11 +75,11 @@ CYGBUILD_INSTALL_INFO="\
 #
 #   NOTE: In some places the sh is copy of bash (or symlink), but bash
 #   would still restrict it to certain features. The simplistic test
-#   is not enough. See bash manual anc section "INVOCATION".
+#   is not enough. See bash manual and section "INVOCATION".
 #
 #       eval "[[ 1 ]]" > /dev/null
 #
-#   The process substitution tested will fail in bash running as
+#   The process substitution test will fail under Bash running as
 #   "sh" mode.
 #
 #    eval ": <(:)" > /dev/null
@@ -89,7 +89,7 @@ CYGBUILD_INSTALL_INFO="\
     prg="$0"
 
     # If we did not find ourselves, most probably we were run as
-    # 'sh PROGRAM' in which case we are not to be found in the path.
+    # 'sh PROGRAM' in which case we are not to be found in PATH.
 
     if [ -f "$prg" ]; then
 	[ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
@@ -103,15 +103,28 @@ shopt -s extglob    # Use extra pattern matching options
 set -o pipefail     # status comes from the failed pipe command
 
 LC_ALL=C            # So that sort etc. works as expected.
-LANG=C
+LANG=C		    # Display errors in plain English
+
+# Use clean PATH
+
 PATH="/usr/bin:/usr/lib:/usr/sbin:/bin:/sbin:$PATH"
 
 # Cancel any environment settings
 
 for tmp in \
-    awk egrep grep tar perl \
-    head tail sed gcc make wget \
-    quilt patch
+    awk \
+    egrep \
+    gcc \
+    grep \
+    head \
+    make \
+    patch
+    perl \
+    quilt \
+    sed \
+    tail \
+    tar \
+    wget \
 do
     unset -f $tmp
     unalias $tmp 2> /dev/null
@@ -146,15 +159,19 @@ function CygbuildPopd()
 
 function CygbuildWhich()
 {
-    # returns path name. Do NOT use which(1) under Cygwin.
-    # it does not find programs that are symlinks
+    # Returns path name.
+    #
+    # Do NOT use which(1) under Cygwin. It does not find programs that
+    # are symlinks
 
     [ "$1" ] && type -p "$1" 2> /dev/null
 }
 
 function CygbuildWhichCheck()
 {
-    # Ignore return values (path name)
+    # Ignore return value; the path name itself.
+    # We're interested in status code only for the caller.
+
     [ "$1" ] && CygbuildWhich "$1" > /dev/null
 }
 
@@ -215,15 +232,17 @@ function CygbuildTarOptionCompress()
     # FIXME: lzma
 
     case "$1" in
-	*.tar.gz|*.tgz)   echo "--gzip" ;;
-	*.bz2|*.tbz*)     echo "--bzip2" ;;
-	*)                return 1 ;;
+	*.tar.gz | *.tgz)  echo "--gzip"  ;;
+	*.bz2    | *.tbz*) echo "--bzip2" ;;
+	*.lzma   | *.tbz*) echo "--use-compress-program=lzma" ;;
+	*)                 return 1 ;;
     esac
 }
 
 function CygbuildStrToRegexpSafe()
 {
     # Just quick conversion
+
     local str="$1"
 
     [ "$str" ] || return 1
