@@ -1,3 +1,8 @@
+2011-04-09 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPreRemoveWrite): Improve
+	generated script. Use *.prev file.
+
 2011-04-08 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh
@@ -9,6 +14,9 @@
 	(CygbuildPreRemoveWrite): Complete rewrite. This function
 	was not previously used.
 	(CygbuildInstallFixEtcdirInstall): Use CygbuildPreRemoveWrite().
+	(CygbuildCmdInstallList): Support *.txt file install without
+	<destination> directory.
+	(CygbuildPreRemoveWrite): Remove timestamp.
 
 	*.py under /usr/bin by default. SuImplyfy mode 755 detection for
 	all files matching */bin/* in their path.
