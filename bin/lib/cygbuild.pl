@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0408.1402';
+$VERSION = '2011.0409.1802';
 
 # ..................................................................
 
@@ -215,6 +215,10 @@ The directories used in the program are as follows:
 	  |  |  <separate "shadow" directory where compiling happens>
 	  |  |  <contains only symlinks and object *.o etc. files>
 	  |  |
+	  |  +- package-1.2.3/
+          |  |  <Used during taking a diff for Cygwin source package>
+          |  |  <"make clean", unpatches sources; copy of ROOT/package-1.2.3>
+          |  |
 	  |  +- package-1.2.3-orig/
 	  |     <Used during taking a diff for Cygwin source package>
 	  |
