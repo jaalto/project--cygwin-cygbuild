@@ -2,6 +2,17 @@
 
 	* bin/cygbuild.sh (CygbuildPreRemoveWrite): Improve
 	generated script. Use *.prev file.
+	(CygbuildPatchApplyQuiltMaybe): Correct return status on
+	failure. Add check for message ¨"no patch.*removed".
+	(CygbuildBootVariablesGlobalMain): The [mkpatch] command did not
+	unpatch quilt. This was due to tar not mirroring the .pc directory
+	during snapshot. Remove .pc from
+	$cygbuild_opt_exclude_version_control. Add .pcto
+	$CYGBUILD_TAR_INSTALL_EXCLUDE. Add .pc to
+	$CYGBUILD_DIFF_OPTIONS.
+	(CygbuildPatchFileList): Use PWD not DIR_CYGPATCH.
+	(CygbuildPatchFileQuilt): Use PWD not DIR_CYGPATCH.
+	(CygbuildPatchApplyQuiltMaybe): Add support for --debug option.
 
 2011-04-08 Fri  Jari Aalto  <jari.aalto@cante.net>
 

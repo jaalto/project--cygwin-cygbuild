@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0409.1652"
+CYGBUILD_VERSION="2011.0409.1818"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1011,8 +1011,7 @@ function CygbuildBootVariablesGlobalMain()
     #   .svn = See http://subversion.tigris.org/
     #   .bzr = bazaar-ng http://bazaar-ng.org/
     #   .hg  = Mercurical http://www.serpentine.com/mercurial
-    #   MT   = and .mtn; See http://www.venge.net/monotone/
-    #   .pc  = Quilt's (patch management) state directory
+    #   .mtn = and MT; See http://www.venge.net/monotone/
     #
     #   The lowercase variables are used only in this section.
     #   The uppercase variables are globals used in functions.
@@ -1027,7 +1026,6 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=.hg \
      --exclude=.hgignore \
      --exclude=.mtn \
-     --exclude=.pc \
      --exclude=.quilt \
      --exclude=.svn \
      --exclude=.svnignore \
@@ -1195,6 +1193,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*RISC* \
      --exclude=*bsd* \
      --exclude=*.hp* \
+     --exclude=.pc \
      $cygbuild_opt_exclude_man_files \
      $cygbuild_opt_exclude_info_files \
      $cygbuild_opt_exclude_auto_files \
@@ -1224,6 +1223,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.Plo \
      --exclude=*.Tpo \
      --exclude=*.Po \
+     --exclude=.pc \
      $cygbuild_opt_exclude_cache_files \
      $cygbuild_opt_exclude_archive_files \
      $cygbuild_opt_exclude_library_files \
@@ -5853,7 +5853,7 @@ function CygbuildPatchApplyRun()
 function CygbuildPatchFileQuilt()
 {
     local id="$0.$FUNCNAME"
-    local dir=${1:-${DIR_CYGPATCH:?Variable not defined}}
+    local dir=${1:-$(pwd)} #  ${DIR_CYGPATCH:?Variable not defined}}
 
     CygbuildFindLowlevel "$dir"		\
 	-o -type d                      \
@@ -5870,7 +5870,7 @@ function CygbuildPatchFileQuilt()
 function CygbuildPatchFileList()
 {
     local id="$0.$FUNCNAME"
-    local dir=${1:-${DIR_CYGPATCH:?Variable not defined}}
+    local dir=${1:-$(pwd)} # ${DIR_CYGPATCH:?Variable not defined}}
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     [ "$dir" ] || return 0
@@ -6024,6 +6024,9 @@ function CygbuildPatchApplyQuiltMaybe()
     local msg="patch"
     local verb
 
+    local debug
+    [[ "$OPTION_DEBUG" > 0 ]] && debug="debug"
+
     # FIXME: De we need to handle *-force option?
 
     if [ "$verbose" ]; then
@@ -6059,14 +6062,21 @@ function CygbuildPatchApplyQuiltMaybe()
        local dir=${series%/series}
        local log=$retval.quilt
 
+       [ "$debug" ] && set -x
+
+       local dummy=$(pwd)		# For debugging
+
        CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
 	   $quilt $verb > $log 2>&1
-
        local status=$?
+
+       [ "$debug" ] && set +x
 
        cat $log
 
-       if $EGREP --quiet --ignore-case "series fully applied" $log
+       if $EGREP --quiet --ignore-case \
+	  "no patch.*removed|series fully applied" \
+	  $log
        then
            #   File series fully applied => status code 1
 	   status=""
@@ -6074,7 +6084,7 @@ function CygbuildPatchApplyQuiltMaybe()
 
        rm -f $log
 
-       [ "$status" ] && return $?
+       [ "$status" ] && return $status
 
    done < $retval
 
@@ -6279,13 +6289,15 @@ function CygbuildCmdMkpatchMain()
     #
     #       ROOT/foo-1.12/
     #                   |
-    #                   +-.build/         BUILDDIR_ROOT
+    #			+-.build/build/	    $builddir_root
     #                   +-.sinst/
     #                   +-.inst/
     #
     #   1) Extract ROOT/foo.1.12.tar.gz in $builddir_root
-    #   2) rename extracted dir ROOT/foo-1.12/.build/.build/foo-1.12/
-    #      to ROOT/foo-1.12/.build/.build/foo-1.12-orig/
+    #
+    #   2) rename extracted dir ROOT/foo-1.12/.build/build/foo-1.12/
+    #      to                   ROOT/foo-1.12/.build/build/foo-1.12-orig/
+    #
     #   3) copy (exclude .*) with tar ROOT/foo-1.12 => ROOT/foo-1.12/.build
     #
     #   4) diff -r ROOT/foo-1.12/.build/foo-1.12-orig/
@@ -6396,7 +6408,6 @@ function CygbuildCmdMkpatchMain()
 
 	    dummy="PWD is $(pwd)"           # Used for debugging
 
-
 	    tar $CYGBUILD_TAR_EXCLUDE \
 		--create --group=nobody --file=- . \
 		| (
@@ -6410,8 +6421,8 @@ function CygbuildCmdMkpatchMain()
 
 	    (
 		#   We must not touch the patch status file, because
-		#   this is just temporary unpatching so that we can
-		#   take the diff.
+		#   this is just a temporary unpatching only for during
+		#   taking the diff.
 
 		cd $cursrcdir &&
 		CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
