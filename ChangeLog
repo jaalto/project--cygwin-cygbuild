@@ -1,3 +1,8 @@
+2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPatchFileList): Ignore .s?inst
+	and .build directories.
+
 2011-04-09 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildPreRemoveWrite): Improve

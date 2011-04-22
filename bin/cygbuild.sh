@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0409.1818"
+CYGBUILD_VERSION="2011.0422.1852"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5894,10 +5894,16 @@ function CygbuildPatchFileList()
     CygbuildFindLowlevel "$dir"         \
 	-o -type d                      \
 	    '('                         \
-		-path "*/tmp*"          \
+	        -name ".inst"           \
+	        -o -name ".sinst"       \
+	        -o -name ".build"       \
+		-o -path "*/tmp*"       \
 	    ')'                         \
 	    -prune                      \
 	    -a ! -name "tmp*"		\
+	    -a ! -name ".inst"          \
+	    -a ! -name ".sinst"         \
+	    -a ! -name ".build"         \
 	-o -type f                      \
 	    -name "*patch"              |
 	grep -vFf $retval		|
