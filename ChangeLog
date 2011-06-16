@@ -4,6 +4,7 @@
 	"-o" option to "-a" to ignore */tmp directories.
 	(CygbuildPatchApplyQuiltMaybe): Check for empty
 	quilt "series" file in for-loop.
+	(CygbuildHelpShort): Fix typo in heading.
 
 2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
 

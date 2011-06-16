@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0616.2155"
+CYGBUILD_VERSION="2011.0616.2209"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4454,7 +4454,7 @@ DESCRIPTION
 	All phases      : all
 	All, no finish  : almostall
 
-INSTALL INSTARUCTIONS
+INSTALL INSTRUCTIONS
 
     Refer to 'Manual' at project page after installation:
 
