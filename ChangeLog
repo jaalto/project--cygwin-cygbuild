@@ -1,3 +1,8 @@
+2011-06-16 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPatchFileQuilt): Correct
+	"-o" option to "-a" to ignore */tmp directories.
+
 2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildPatchFileList): Ignore .s?inst

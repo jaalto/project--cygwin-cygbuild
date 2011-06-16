@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0422.1852"
+CYGBUILD_VERSION="2011.0616.2155"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5856,7 +5856,7 @@ function CygbuildPatchFileQuilt()
     local dir=${1:-$(pwd)} #  ${DIR_CYGPATCH:?Variable not defined}}
 
     CygbuildFindLowlevel "$dir"		\
-	-o -type d                      \
+	-a -type d                      \
 	    '('                         \
 		-path "*/tmp*"          \
 	    ')'                         \
@@ -6064,6 +6064,11 @@ function CygbuildPatchApplyQuiltMaybe()
    while read series
    do
        CygbuildEcho "-- Wait, quilt $msg" ${series#$relative}
+
+       if [ ! -s "$series" ]; then
+	   CygbuildWarn "-- [WARN] empty quilt control file. Ignored for now."
+	   continue
+       fi
 
        local dir=${series%/series}
        local log=$retval.quilt
