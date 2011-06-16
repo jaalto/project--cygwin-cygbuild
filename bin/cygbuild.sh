@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0616.2209"
+CYGBUILD_VERSION="2011.0616.2211"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4470,7 +4470,7 @@ STANDARDS
 
 AUTHOR
     Copyright (C) $CYGBUILD_AUTHOR
-    Released under $CYGBUILD_LICENSE
+    License: $CYGBUILD_LICENSE
     Version $CYGBUILD_VERSION
     Homepage <$CYGBUILD_HOMEPAGE_URL>"
 
@@ -11443,7 +11443,7 @@ function CygbuildProgramVersion()
 
     if [ ! "$short" ]; then
 	str="$str (C) $CYGBUILD_AUTHOR"
-	str="$str License: $CYGBUILD_LICENSE"
+	str="$str, License: $CYGBUILD_LICENSE"
     fi
 
     local tag="##"

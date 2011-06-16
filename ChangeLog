@@ -5,6 +5,8 @@
 	(CygbuildPatchApplyQuiltMaybe): Check for empty
 	quilt "series" file in for-loop.
 	(CygbuildHelpShort): Fix typo in heading.
+	(CygbuildProgramVersion): Use comma to separate License
+	information.
 
 2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
 
