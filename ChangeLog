@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh (CygbuildPatchFileQuilt): Correct
 	"-o" option to "-a" to ignore */tmp directories.
+	(CygbuildPatchApplyQuiltMaybe): Check for empty
+	quilt "series" file in for-loop.
 
 2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
 
