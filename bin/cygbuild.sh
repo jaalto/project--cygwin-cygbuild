@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0616.2211"
+CYGBUILD_VERSION="2011.0616.2218"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -140,11 +140,9 @@ unset tmp
 
 function CygbuildAskYes()
 {
-    echo -n -e "$* (y/N) "
-    local ans
-    read ans
+    read "$* (y/N) "
 
-    [[ "$ans" == [yY]* ]]
+    [[ "$REPLY" == [yY]* ]]
 }
 
 function CygbuildPushd()

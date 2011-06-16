@@ -7,6 +7,7 @@
 	(CygbuildHelpShort): Fix typo in heading.
 	(CygbuildProgramVersion): Use comma to separate License
 	information.
+	(CygbuildAskYes): Simplify code. Remove local variable.
 
 2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
 
