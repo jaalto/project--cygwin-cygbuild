@@ -1,3 +1,84 @@
+2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdPkgDevelStandardBin):
+	Change tar group from nobody to $CYGBUILD_TAR_GROUP.
+	(CygbuildBootVariablesGlobalMain): define
+	$CYGBUILD_TAR_GROUP.
+	(CygbuildCmdMkpatchMain): Use $CYGBUILD_TAR_GROUP.
+	(CygbuildInstallPackageDocs): Use $CYGBUILD_TAR_GROUP.
+	(CygbuildInstallFixDocdirInstall): Use $CYGBUILD_TAR_GROUP.
+	(CygbuildInstallFixEtcdirInstall): Use $CYGBUILD_TAR_GROUP.
+
+2011-06-16 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPatchFileQuilt): Correct
+	"-o" option to "-a" to ignore */tmp directories.
+	(CygbuildPatchApplyQuiltMaybe): Check for empty
+	quilt "series" file in for-loop.
+	(CygbuildHelpShort): Fix typo in heading.
+	(CygbuildProgramVersion): Use comma to separate License
+	information.
+	(CygbuildAskYes): Simplify code. Remove local variable.
+
+2011-04-22 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPatchFileList): Ignore .s?inst
+	and .build directories.
+
+2011-04-09 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPreRemoveWrite): Improve
+	generated script. Use *.prev file.
+	(CygbuildPatchApplyQuiltMaybe): Correct return status on
+	failure. Add check for message ¨"no patch.*removed".
+	(CygbuildBootVariablesGlobalMain): The [mkpatch] command did not
+	unpatch quilt. This was due to tar not mirroring the .pc directory
+	during snapshot. Remove .pc from
+	$cygbuild_opt_exclude_version_control. Add .pcto
+	$CYGBUILD_TAR_INSTALL_EXCLUDE. Add .pc to
+	$CYGBUILD_DIFF_OPTIONS.
+	(CygbuildPatchFileList): Use PWD not DIR_CYGPATCH.
+	(CygbuildPatchFileQuilt): Use PWD not DIR_CYGPATCH.
+	(CygbuildPatchApplyQuiltMaybe): Add support for --debug option.
+
+2011-04-08 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh
+	(top level): Fix typos in coments.
+	(CygbuildCmdInstallList): Install *.sh, *.pl,
+	(CygbuildTarOptionCompress): Add LZMA support.
+	(CygbuildInstallPostinstallPartEtc): Rewrite /etc install
+	script.
+	(CygbuildPreRemoveWrite): Complete rewrite. This function
+	was not previously used.
+	(CygbuildInstallFixEtcdirInstall): Use CygbuildPreRemoveWrite().
+	(CygbuildCmdInstallList): Support *.txt file install without
+	<destination> directory.
+	(CygbuildPreRemoveWrite): Remove timestamp.
+
+	*.py under /usr/bin by default. SuImplyfy mode 755 detection for
+	all files matching */bin/* in their path.
+
+2011-04-07 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (OPTIONAL EXTERNAL FILES::install.lst).
+	Improve documentation. Add $DOC, add *.1 manual files examples.
+
+	* bin/template/install.lst.ex: Add more examples.
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Add $DOC susbtitution
+	variable support in install.lst Default file install mode is now
+	644. All */bin* files are 755 by default.
+
+	* bin/cygbuild.sh (CygbuildInstallExtraManual): Correct reading
+	patch to manual page from CYGWIN-PATCHES/install.lst
+
+2011-04-07 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCommandMainCheckSpecial): In ls-patch
+	command, define DIR_CYGPATCH which is needed in
+	CygbuildPatchFileQuilt(), called from CygbuildPatchFileList().
+
 2011-03-28 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (top level::Cancel any environment settings):
