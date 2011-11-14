@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2011 Jari Aalto
+#       Copyright (C) 2003-2012 Jari Aalto
 #
 #   License
 #
@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.0616.2219"
+CYGBUILD_VERSION="2011.1112.1441"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1158,6 +1158,22 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=.sinst \
      --exclude=tmp \
     "
+
+    local group="root"  # This always exists
+
+    if [ -f /etc/group ]; then
+
+	local line 	# Format is => users:S-1-5-32-545:545:
+
+	while read line
+	do
+	    case "$line" in
+		nobody*) group=nobody ; break ;;
+	    esac
+	done < /etc/group
+    fi
+
+    CYGBUILD_TAR_GROUP="$group"
 
     #  1) When making snapshot copy of the original sources to elsewhere.
     #  2) when building Cygwin Net Release source and binary packages
@@ -5496,10 +5512,11 @@ function CygbuildCmdPkgDevelStandardBin()
 	    local z=$(< $retval)
 
 	    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
+	    local group="--group=$CYGBUILD_TAR_GROUP"
 
 	    CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
-	    tar $taropt --create --group=nobody --file=$tar \
+	    tar $taropt --create $group --file=$tar \
 	        $(< $retval.bin) $(< $retval.man.bin) ||
 	    {
 		status=$?
@@ -5509,6 +5526,7 @@ function CygbuildCmdPkgDevelStandardBin()
 
 	    RETVAL="$tar"
 	fi
+
     CygbuildPopd
 }
 
@@ -6417,9 +6435,10 @@ function CygbuildCmdMkpatchMain()
 	    mkdir --parents "$cursrcdir" || exit 1
 
 	    dummy="PWD is $(pwd)"           # Used for debugging
+	    local group="--group=$CYGBUILD_TAR_GROUP"
 
 	    tar $CYGBUILD_TAR_EXCLUDE \
-		--create --group=nobody --file=- . \
+		--create $group --file=- . \
 		| (
 		    cd "$cursrcdir" &&
 		    tar --extract --no-same-owner --no-same-permissions --file=-
@@ -9585,13 +9604,13 @@ function CygbuildInstallPackageDocs()
 
 	    if [ "$tarOptInclude" ] || [ "$dir" ] || [ "$extradir" ]
 	    then
-
+		local group="--group=$CYGBUILD_TAR_GROUP"
 		dummy="tarOptExclude: $tarOptExclude"
 
 		tar $optExclude \
 		    $tarOptExclude \
 		    $verbose \
-		    --create --group=nobody --dereference --file=- \
+		    --create $group --dereference --file=- \
 		    ${dir:+"."} \
 		    $extradir \
 		    $tarOptInclude \
@@ -10137,8 +10156,10 @@ function CygbuildInstallFixDocdirInstall()
 	return 0
     fi
 
+    local group="--group=$CYGBUILD_TAR_GROUP"
+
     if ! ${test:+echo} tar --directory "$pkgdocdir" --create --file=- \
-	 --group=nobody . |
+	 $group . |
 	 {
 	    mkdir -p "$dest"                                    &&
 	    tar --directory "$dest" --extract \
@@ -10295,12 +10316,13 @@ function CygbuildInstallFixEtcdirInstall()
     done
 
     local ptar="$retval.pre-post.tar"
+    local group="--group=$CYGBUILD_TAR_GROUP"
 
     if [ "$list" ]; then
 	${test:+echo} tar		\
 	--directory "$pkgetcdir"	\
 	--create			\
-	--group=nobody			\
+	$group			        \
 	--file=$ptar			\
 	$list
     fi
@@ -10311,7 +10333,7 @@ function CygbuildInstallFixEtcdirInstall()
     ${test:+echo} tar			\
 	--directory "$pkgetcdir"	\
 	--create			\
-	--group=nobody			\
+	$group			        \
 	--file=$tar			\
 	--exclude=*preremove*		\
 	--exclude=*postinstall*		\

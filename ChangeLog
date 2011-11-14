@@ -1,3 +1,14 @@
+2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdPkgDevelStandardBin):
+	Change tar group from nobody to $CYGBUILD_TAR_GROUP.
+	(CygbuildBootVariablesGlobalMain): define
+	$CYGBUILD_TAR_GROUP.
+	(CygbuildCmdMkpatchMain): Use $CYGBUILD_TAR_GROUP.
+	(CygbuildInstallPackageDocs): Use $CYGBUILD_TAR_GROUP.
+	(CygbuildInstallFixDocdirInstall): Use $CYGBUILD_TAR_GROUP.
+	(CygbuildInstallFixEtcdirInstall): Use $CYGBUILD_TAR_GROUP.
+
 2011-06-16 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildPatchFileQuilt): Correct
