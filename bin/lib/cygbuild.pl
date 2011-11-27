@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0211.1745';
+$VERSION = '2011.0409.1802';
 
 # ..................................................................
 
@@ -215,6 +215,10 @@ The directories used in the program are as follows:
 	  |  |  <separate "shadow" directory where compiling happens>
 	  |  |  <contains only symlinks and object *.o etc. files>
 	  |  |
+	  |  +- package-1.2.3/
+          |  |  <Used during taking a diff for Cygwin source package>
+          |  |  <"make clean", unpatches sources; copy of ROOT/package-1.2.3>
+          |  |
 	  |  +- package-1.2.3-orig/
 	  |     <Used during taking a diff for Cygwin source package>
 	  |
@@ -1373,33 +1377,34 @@ NOTE: if file exists, the C<make install> target is not run.
 List install(1) compatible entries in separate lines. The
 format is:
 
-    <src>  <destination> [<mode, defaults to 755>]
+    <src> [<destination> [<mode, defaults to 644>]]
+
+For the I<src> part CYGWIN-PATCHES/{doc,conf} components are removed.
+In addition all components of I<destination> is also removed. This
+allows making suitable "mirrors" of configuration directories unser
+C<CYGWIN-PATCHES>. Here, first the prefix component underlined is
+removed, then the matchinf I<destination> component from the left:
+
+    CYGWIN-PATCHES/conf/etc/cron.d/program etc/cron.d/ 644
+    ===================+++++++++++         +++++++++++
+
+The end result being:
+
+    install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
 
 If I<destination> contains a trailing slash, the I<src> is installed
 to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional I<mode> argument
 passed to C<install -m MODE>.
 
-Expansion variables that are available are C<$PKG> for package name
-and C<$VER> for version number. Notice that the I<destination> does
-not contains starting slash. Common script suffixes like C<.sh .pl
-.py> from I<src> part are removed when copying the file to
-I<destination>; see example below and line 3.
-
-A special prefix deletion is also performed for C<CYGWIN-PATCHES>
-directoried. for I<src> part CYGWIN-PATCHES/{doc,conf} all
-components are removed. In addition all components of I<destination>
-is also removed. This allows making suitable "mirrors" of configuration
-directories. Below, first the prefix componen underlined is removed, the
-the matches I<destination> componen fromt he left:
-
-    CYGWIN-PATCHES/conf/etc/cron.d/program etc/cron.d/ 644
-    ===================+++++++++++         +++++++++++
-
-This effectiely produces command:
-
-    install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
-
+In I<destination> part, expansion variables provided are: C<$PKG> for
+package name, C<$VER> for version number and C<$DOC> for package
+specific documentation directory. Notice that the I<destination> must
+not be an absolute path but a relative one under I<.inst/> directory.
+Common script suffixes like C<.sh .pl .py> from I<src> part are
+removed when copying the file to I<destination>. For commonly known
+files, like C<.sh .pl .py>, text files and manual pages that end to an
+number, the I<destination> is not needed. See exampels below.
 
 Comments starting with "#" and empty lines are ignored.
 
@@ -1407,11 +1412,18 @@ Examples:
 
     zip usr/bin/		# install to /usr/bin/zip, mode 755
     zip usr/bin/new		# install to /usr/bin/new, mode 755
-    d.pl usr/bin/		# install to /usr/bin/d, mode 755
+    prg.pl usr/bin/		# install to /usr/bin/prg, mode 755
     util usr/share/lib/$PKG/
     util/program usr/share/doc/$PKG-VER/contrib/
-
+    this.doc $DOC/		# install under /usr/share/doc/<program>/
     CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/
+
+    # For some known files the <dest> is not needed.
+
+    prg.pl			# install to /usr/bin/prg, mode 755
+    manual.txt			# install to /usr/share/doc/<package>/, mode 644
+    man.1			# install under /usr/share/man/man1/, mode 644
+    man.5			# install under /usr/share/man/man5/, mode 644
 
 =item B<install.sh>
 
