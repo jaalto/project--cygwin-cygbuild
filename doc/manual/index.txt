@@ -806,7 +806,7 @@ Other commands
 
    download
           Check upstream site for new versions. External program
-          mywebget.pl [66]http://freshmeat.net/projects/perlwebget is used
+          mywebget.pl [66]http://freecode.net/projects/perlwebget is used
           to do the download. The configuration file
           CYGWIN-PATCHES/upstream.perl-webget must contain URL and
           additional parameters how to retrieve newer versions. See
@@ -1947,7 +1947,7 @@ setup.hint should list all dependencies
 
                                   AVAILABILITY
 
-   [94]http://freshmeat.net/projects/cygbuild
+   [94]http://freecode.net/projects/cygbuild
      __________________________________________________________________
 
                                     OSNAMES
@@ -2033,7 +2033,7 @@ References
   63. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#postinstall_sh
   64. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#preremove_sh
   65. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#reshadow
-  66. http://freshmeat.net/projects/perlwebget
+  66. http://freecode.net/projects/perlwebget
   67. http://prdownloads.sourceforge.net/foo/foo-0.9.1.tar.bz2
   68. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#configure
   69. http://cygwin.com/setup.html
@@ -2061,4 +2061,4 @@ References
   91. http://example.com/source
   92. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#postinstall
   93. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#postinstall
-  94. http://freshmeat.net/projects/cygbuild
+  94. http://freecode.net/projects/cygbuild

@@ -923,7 +923,7 @@ missing shadow directory and make it as needed.
 =item B<download>
 
 Check upstream site for new versions. External program I<mywebget.pl>
-http://freshmeat.net/projects/perlwebget is used to do the download. The
+http://freecode.net/projects/perlwebget is used to do the download. The
 configuration file C<CYGWIN-PATCHES/upstream.perl-webget> must contain URL
 and additional parameters how to retrieve newer versions. See
 I<mywebget.pl>'s manual for more information. Here is an example
@@ -2187,7 +2187,7 @@ B<Base> category.
 
 =head1 AVAILABILITY
 
-http://freshmeat.net/projects/cygbuild
+http://freecode.net/projects/cygbuild
 
 =head1 OSNAMES
 

@@ -41,7 +41,7 @@
 #
 #       o   cygcheck is a MingW application and output conatains CRLF
 
-CYGBUILD_HOMEPAGE_URL="http://freshmeat.net/projects/cygbuild"
+CYGBUILD_HOMEPAGE_URL="http://freecode.net/projects/cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
 CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
@@ -6674,7 +6674,7 @@ function CygbuildCmdDownloadUpstream ()
     if [ ! "$bin" ]; then
 	CygbuildWarn "-- [ERROR] '$PRG' not found in PATH."
 	CygbuildWarn "-- Download from" \
-	    "http://freshmeat.net/projects/perl-webget"
+	    "http://freecode.net/projects/perl-webget"
 	return 1
     fi
 
