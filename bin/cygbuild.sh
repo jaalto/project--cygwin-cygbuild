@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0129.0814"
+CYGBUILD_VERSION="2012.0129.0834"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -7011,6 +7011,8 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
 	local from="$poddir/$PKG.pod"
 	local to="$realdir/$name"
 
+	# Move perllocal.pod to <PACKAGE NAME>.pod
+
 	install -D -m 644 "$file" "$storedir/$PKG.pod" || return $?
 
 	rm "$file" || return $?
@@ -7021,6 +7023,8 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
 	#   ...
 	#   C<EXE_FILES: linklint-2.3.5>
 
+	to=${to##*.inst}
+
 	local commands="\
 from='$from'
 to='$to'
@@ -7030,7 +7034,7 @@ grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 	CygbuildPostinstallWriteMain "Perl" "$commands" || return $?
 
     done < $retval
-
+exit 777
 # FIXME: remove
     #   Remove perl directory if there are no files in it
 

@@ -8,6 +8,8 @@
 	Correct PFX variable sent to CygbuildMakefileRunInstallCygwinOptions()
 	(CygbuildMakefileRunInstallCygwinOptions): Add leading slash to
 	docpfx variable.
+	(CygbuildMakeRunInstallFixPerlPostinstall): Before writing stanza,
+	delete path up till .inst/ directory for postinstall script.
 
 2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
 
