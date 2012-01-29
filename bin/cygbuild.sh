@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0129.0834"
+CYGBUILD_VERSION="2012.0129.0836"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -7034,7 +7034,7 @@ grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 	CygbuildPostinstallWriteMain "Perl" "$commands" || return $?
 
     done < $retval
-exit 777
+
 # FIXME: remove
     #   Remove perl directory if there are no files in it
 
