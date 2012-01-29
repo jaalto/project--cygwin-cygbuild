@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.1112.1441"
+CYGBUILD_VERSION="2012.0129.0814"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -7588,7 +7588,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local pfx=${1:-"prefix=$CYGBUILD_PREFIX"}
-    local docpfx=${2:-$CYGBUILD_DOCDIR_FULL}
+    local docpfx=${2:-/$CYGBUILD_DOCDIR_FULL}
     local rest=$3
 
     local makeEnv="$EXTRA_ENV_OPTIONS_INSTALL"
@@ -7610,7 +7610,7 @@ function CygbuildMakefileRunInstallCygwinOptions()
 	CygbuildEcho "-- Extra make flags: $CYGBUILD_MAKEFLAGS"
     fi
 
-    #   Use subshell. The 'source' command does not pollute
+    #   Use subshell so that the "source" command does not pollute
     #   current environment.
 
     (
@@ -7742,7 +7742,7 @@ function CygbuildMakefileRunInstallMain()
 	#  - Set the PREFIX, so DESTDIR.
 
 	local pfx="$instdir$CYGBUILD_PREFIX"
-	local PFX="PREFIX=$pfx"
+	local PFX="PREFIX=$CYGBUILD_PREFIX"
 
 	CygbuildVerb "-- ... Looks like Perl package"
 
