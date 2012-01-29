@@ -315,10 +315,13 @@ function CygbuildCmdInstallCheckShellFiles ()
 
         if [[ "$rest" == *perl* ]]; then
             CygbuildCmdInstallCheckPerlFile "$file"
+
         elif [[ "$rest" = *python* ]]; then
             CygbuildCmdInstallCheckPythonFile "$file"
+
         elif [[ "$rest" = *\ Bourne\ * ]]; then
             CygbuildCmdInstallCheckShFile "$file"
+
         elif [[ "$rest" = *Bourne-Again* ]]; then
 	    #	We need to enable extglob becaus "-nx" won't execute
 	    #	any commands in the code.
