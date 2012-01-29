@@ -19,6 +19,7 @@
 	(CygbuildMakeRunInstallFixPerlPostinstall): Before writing stanza,
 	delete path up till .inst/ directory for postinstall script.
 	(CygbuildCmdGPGVerifyMain): Do not stop on signature failure.
+	(CygbuildPatchFileList): Use more strict "tmp" directory exclusion.
 
 2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
 

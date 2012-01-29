@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0129.1154"
+CYGBUILD_VERSION="2012.0129.1216"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5047,17 +5047,17 @@ function CygbuildCmdGPGVerifyMain()
     local status=0
 
     if ! CygbuildGPGsignatureCheck $list && [ ! "$force" ] ; then
-	status=1
-	echo -n "-- [WARN] signature check(s) failed. "
+	status=0
+	CygbuildEcho "-- [WARN] signature check(s) failed."
 
-	if [ ! "$interactive" ]; then
-	    echo -e "\n"
-	else
-	    echo -e "\n"
-	    # if CygbuildAskYes "Still continue?" ; then
-	    # 	status=0
-	    # fi
-	fi
+	# if [ ! "$interactive" ]; then
+	#     echo -e "\n"
+	# else
+	#     echo -e "\n"
+	#     if CygbuildAskYes "Still continue?" ; then
+	#     	status=0
+	#     fi
+	# fi
     fi
 
     [ "$force" ] && return 0
@@ -5907,7 +5907,7 @@ function CygbuildPatchFileList()
 	echo "ThisRegexpIsNotMathed" > $retval
     fi
 
-    #   Grep there filters out quilt directories
+    #   Grep filters out quilt directories
 
     CygbuildFindLowlevel "$dir"         \
 	-o -type d                      \
@@ -5915,7 +5915,7 @@ function CygbuildPatchFileList()
 	        -name ".inst"           \
 	        -o -name ".sinst"       \
 	        -o -name ".build"       \
-		-o -path "*/tmp*"       \
+		-o -path "*/*CYGWIN-PATCHES/tmp*" \
 	    ')'                         \
 	    -prune                      \
 	    -a ! -name "tmp*"		\
@@ -5923,7 +5923,7 @@ function CygbuildPatchFileList()
 	    -a ! -name ".sinst"         \
 	    -a ! -name ".build"         \
 	-o -type f                      \
-	    -name "*patch"              |
+	    -name "*.patch"             |
 	grep -vFf $retval		|
 	sort
 }
@@ -12235,6 +12235,15 @@ function CygbuildCommandMain()
     CygbuildEcho "-- Done."
 }
 
+function CygbuildMainBoot()
+{
+    CygbuildBootVariablesId
+    CygbuildBootVariablesGlobalColors
+    CygbuildBootVariablesGlobalCacheMain
+    CygbuildDefineGlobalCommands
+}
+
+
 function CygbuildMain()
 {
     local id="$0.$FUNCNAME"
@@ -12242,10 +12251,7 @@ function CygbuildMain()
     #  Run a quick option check before we call all initialization
     #  function that are slow. Also export library functions.
 
-    CygbuildBootVariablesId
-    CygbuildBootVariablesGlobalColors
-    CygbuildBootVariablesGlobalCacheMain
-    CygbuildDefineGlobalCommands
+    CygbuildMainBoot
 
     CygbuildCommandMainCheckSpecial "$@"
     CygbuildBootVariablesCache
@@ -12302,6 +12308,11 @@ function TestRegression ()
 }
 
 trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
+
+# -- FOR DEBUGGING --
+# CygbuildMainBoot
+# CygbuildPatchFileList
+
 CygbuildMain "$@"
 
 # End of file
