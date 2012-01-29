@@ -940,9 +940,9 @@ function CygbuildPerlLibraryList()
     #	2. grep: return only matched portion.
 
     ${EGREP:-grep -E} --only-matching \
-	'^[^#]*\<[^#$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
+	'^[^#]*\<[^#$][a-zA-Z]+(::[a-zA-Z]+)+\>' "$@" |
     ${EGREP:-grep -E} --only-matching \
-	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' |
+	'\<[^$][a-zA-Z]+(::[a-zA-Z]+)+\>' |
     sort --unique
 }
 

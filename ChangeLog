@@ -1,5 +1,10 @@
 2012-01-29 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckShellFiles): Improve
+	legibility.
+	(CygbuildPerlLibraryList): Improve package matching regexp to see
+	More::ThanTwo, Like::This::One.
+
 	* bin/template/install.lst.ex: Improve comments.
 
 	* bin/template/install-after.sh.ex (Main): Add libdir variable.
