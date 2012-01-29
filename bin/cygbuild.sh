@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0129.1353"
+CYGBUILD_VERSION="2012.0129.1538"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5900,7 +5900,7 @@ function CygbuildPatchFileList()
     #   See if there are any quilt(1) files
     #   and ignore those directories
 
-   CygbuildPatchFileQuilt  |
+   CygbuildPatchFileQuilt "$DIR_CYGPATCH" |
         sed 's,/series$,,' \
 	> $retval
 
@@ -6064,7 +6064,7 @@ function CygbuildPatchApplyQuiltMaybe()
 	cmd=${cmd%-quiet}
     fi
 
-   CygbuildPatchFileQuilt > $retval
+   CygbuildPatchFileQuilt "$DIR_CYGPATCH" > $retval
 
    [ -s $retval ] || return 0
 

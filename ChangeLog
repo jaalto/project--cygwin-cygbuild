@@ -21,6 +21,10 @@
 	(CygbuildCmdGPGVerifyMain): Do not stop on signature failure.
 	(CygbuildPatchFileList): Use more strict "tmp" directory exclusion.
 	(CygbuildDllToLibName): Add libpng14
+	(CygbuildPatchApplyQuiltMaybe): Call CygbuildPatchFileQuilt() with
+	$DIR_CYGPATCH directory.
+	(CygbuildPatchFileList): Call CygbuildPatchFileQuilt() with
+	$DIR_CYGPATCH directory.
 
 2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
 
