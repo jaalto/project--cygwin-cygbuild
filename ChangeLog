@@ -1,3 +1,14 @@
+2012-01-29 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/install.lst.ex: Improve comments.
+
+	* bin/template/install-after.sh.ex (Main): Add libdir variable.
+
+	* bin/cygbuild.sh (CygbuildMakefileRunInstallMain):
+	Correct PFX variable sent to CygbuildMakefileRunInstallCygwinOptions()
+	(CygbuildMakefileRunInstallCygwinOptions): Add leading slash to
+	docpfx variable.
+
 2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdPkgDevelStandardBin):
@@ -30,7 +41,7 @@
 	* bin/cygbuild.sh (CygbuildPreRemoveWrite): Improve
 	generated script. Use *.prev file.
 	(CygbuildPatchApplyQuiltMaybe): Correct return status on
-	failure. Add check for message ¨"no patch.*removed".
+	failure. Add check for message "no patch.*removed".
 	(CygbuildBootVariablesGlobalMain): The [mkpatch] command did not
 	unpatch quilt. This was due to tar not mirroring the .pc directory
 	during snapshot. Remove .pc from
