@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0211.1745';
+$VERSION = '2012.0129.1142';
 
 # ..................................................................
 
@@ -2786,11 +2786,15 @@ sub FileReadSlow ($)
     my $id = "$LIB.FileRead";
     my($file) = @ARG;
 
+    $debug > 2  and  warn "$id: Read [$file]";
+
     open my $FILE, "<", "$file"
 	or die "$id: Cannot open file [$file] $ERRNO";
 
     my $content = join '', <$FILE>;
     close $FILE;
+
+    $debug > 9  and  warn "$id: CONTENT [$content]";
 
     $content;
 }
@@ -3831,7 +3835,7 @@ sub UpdateAnnouncement ($$$$)
 
 sub UpdateNewVersionStanza (%)
 {
-    my $id          = "$LIB.UpdatePackageTags";
+    my $id          = "$LIB.UpdateNewVersionStanza";
     my %hash        = @ARG;
 
     local $ARG      = $hash{-str};
@@ -3903,6 +3907,8 @@ sub UpdatePackageTags (%)
 
     $debug  and  warn "$id: pkg [$pkg] ver [$ver] rel [$rel]\n";
 
+    $debug > 5  and  warn "$id: INPUT ARG\n$ARG";
+
     #     unpack <PKG>-VER-REL-src.tar.bz2
 
     my $fullpkg = "$pkg-$ver-$rel";
@@ -3939,6 +3945,8 @@ sub UpdatePackageTags (%)
     # because it can be seen from tar.gz file
     #
     # $ARG = ReadMeFilesIncluded $binpkg, $ARG;
+
+    $debug > 5  and  warn "$id: OUTPUT ARG\n$ARG";
 
     $ARG;
 }
@@ -4085,7 +4093,7 @@ sub FileFix ($@)
 
 sub ReadmeFix ($ $$$)
 {
-    my $id = "$PROGRAM_NAME.ReadmeFix";
+    my $id = "$LIB.ReadmeFix";
     my($file, $pkg, $ver, $rel) = @ARG;
 
     $debug  and
@@ -4096,7 +4104,13 @@ sub ReadmeFix ($ $$$)
     $ver  or  die "$id: No argument: VERSION";
     $rel  or  die "$id: No argument: RELEASE";
 
-    my $orig = FileRead $file or die "$ERRNO";
+    my $orig = FileRead $file;
+
+    unless ($orig)
+    {
+	warn "$id: Empty file: $file";
+	return;
+    }
 
     my $str = UpdateYears $orig;
 
@@ -4114,7 +4128,20 @@ sub ReadmeFix ($ $$$)
 	-rel => $rel
 	;
 
-    unless ( length $orig == length $str )
+    my $olen = length $orig;
+    my $clen = length $str;
+
+    my ($oline) = ( $orig =~ /^(.*)/ );
+    my ($cline) = ( $str =~ /^(.*)/ );
+
+    $debug  and  warn "$id: orig len [$olen] current len [$clen]";
+    $debug  and  warn "$id: orig line [$oline] current line [$cline]";
+
+    if ( $olen == $clen  and  $oline eq $cline )
+    {
+	$debug  and  warn "$id: RETURN (no change)";
+    }
+    else
     {
 	FileWrite $file, $str;
     }
@@ -4398,13 +4425,13 @@ sub TestDriverCygwinSetupIni ()
 
 sub TestDriverReadmeFix ()
 {
-    $debug = 3;
+    $debug = 10;
 
     ReadmeFix
-      "CYGWIN-PATCHES/cdargs.README"
-      , "cdargs"
-      , "1.35"
-      , "1"
+      "CYGWIN-PATCHES/pristine-tar.README"
+      , "pristine-tar"
+      , "1.17"
+      , "1"    # Cygwin Release
       ;
 
     exit;
@@ -4596,7 +4623,7 @@ sub Main (;@)
 {
     # $debug = 2;
 
-    if ( @ARG and $ARG[0] =~ /help/ )
+    if ( @ARG  and  $ARG[0] =~ /help/ )
     {
 	shift @ARG;
 	Help(@ARG);
@@ -4618,7 +4645,9 @@ sub Test ()
     print "[Version] ", Version $a, " [Package] ", Package $a, "\n";
 }
 
-# Test; die;
+# TestDriverReadmeFix();
+# Test();
+# die;
 
 #   Interactive call from command line contains parameters
 #   like in "cygbuild.pl help --man"
