@@ -18,6 +18,7 @@
 	docpfx variable.
 	(CygbuildMakeRunInstallFixPerlPostinstall): Before writing stanza,
 	delete path up till .inst/ directory for postinstall script.
+	(CygbuildCmdGPGVerifyMain): Do not stop on signature failure.
 
 2011-11-12 Sat  Jari Aalto  <jari.aalto@cante.net>
 

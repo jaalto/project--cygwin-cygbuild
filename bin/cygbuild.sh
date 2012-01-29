@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0129.0836"
+CYGBUILD_VERSION="2012.0129.1154"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5053,9 +5053,10 @@ function CygbuildCmdGPGVerifyMain()
 	if [ ! "$interactive" ]; then
 	    echo -e "\n"
 	else
-	    if CygbuildAskYes "Still continue?" ; then
-		status=0
-	    fi
+	    echo -e "\n"
+	    # if CygbuildAskYes "Still continue?" ; then
+	    # 	status=0
+	    # fi
 	fi
     fi
 
