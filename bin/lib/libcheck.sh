@@ -1009,7 +1009,7 @@ function CygbuildCmdInstallCheckLibrariesPerl()
 	fi
 
 	CygbuildEcho "-- Possible libary deps in" ${file#$srcdir/}
-	sort -r $deps | sed 's/^/   /'    # CPAN last
+	sort -r $deps | sed 's/^/   / ; s/ \+$//'    # CPAN last
     fi
 }
 
