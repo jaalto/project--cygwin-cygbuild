@@ -1,3 +1,7 @@
+2012-02-01 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/cygwin-announce.mail.ex: Replace @ with (at).
+
 2012-01-29 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl (ReadmeFix): Check empty file. Check
