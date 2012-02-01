@@ -11,6 +11,7 @@
 	(CygbuildFilePackageGuessMain): In call to CygbuildFilePackageGuessArchive(),
 	support LZMA and XZ.
 	(CygbuildDefineGlobalMain): Use $OPTION_COMPRESS and not hard coded bz2.
+	(CygbuildCommandMain): Add missing --verbose option from getopt call.
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckLibrariesPerlListLocal): New.
 	(CygbuildCmdInstallCheckLibrariesPerl): Filter out local libs.

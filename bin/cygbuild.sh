@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0201.0837"
+CYGBUILD_VERSION="2012.0201.0942"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -11704,7 +11704,7 @@ function CygbuildCommandMain()
     if [ "$isgetopt" ]; then
         getopt \
         -n $id \
-        --long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,no-strip,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,xz \
+        --long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,no-strip,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,verbose,xz \
         --option bcDd:e:f:glp:Pr:s:tvVx -- "$@" \
         > $retval
 
