@@ -946,12 +946,47 @@ function CygbuildPerlLibraryList()
     sort --unique
 }
 
+function CygbuildCmdInstallCheckLibrariesPerlListLocal()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+    local deps="$retval.depends"
+    local dir=${1:-$instdir/usr/lib}
+
+    [ -d $dir ] || return
+
+    find $dir -type f -path "*/perl*/*.pm" > $retval
+
+    local list file libpart
+
+    while read file
+    do
+
+	# .inst/usr/lib/perl5/vendor_perl/5.10/Lib/File.pm
+	# =>  .inst/usr/lib/perl5/vendor_perl
+
+        libpart=${file%/[0-9].[0-9]*/*}
+
+	file=${file#$libpart}		# 5.10/Lib/File.pm
+	file=${file#/[0-9].[0-9]*/}	# Lib/File.pm
+	file=${file//\//::}		# Lib::File.pm
+	file=${file%.pm}
+
+	[[ "$list" == *$file\ * ]] || list="$list $file"
+
+    done < $retval
+
+    [ "$list" ] && echo $list
+
+}
+
 function CygbuildCmdInstallCheckLibrariesPerl()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local deps="$retval.depends"
     local file="$1"
+    local locallibs="$2"
 
     [ "$verbose" ] || return 0
 
@@ -960,7 +995,19 @@ function CygbuildCmdInstallCheckLibrariesPerl()
 
     CygbuildPerlLibraryDependsMain $(< $retval) > $deps
 
-    if [ -s "$deps" ]; then
+    if [ -s $deps ]; then
+
+
+	# The package may have private libs that it uses.
+	# filter out those before considerign that they are
+	# external like from CPAN
+
+	if [ "$locallibs" ]; then
+	    local re=${locallibs// /\\|}
+	    sed "s/^[A-Za-z]\+ \+\($re\)/Pkg   \1/" $deps > $deps.fixed
+	    mv $deps.fixed $deps
+	fi
+
 	CygbuildEcho "-- Possible libary deps in" ${file#$srcdir/}
 	sort -r $deps | sed 's/^/   /'    # CPAN last
     fi
@@ -1684,6 +1731,12 @@ function CygbuildCmdInstallCheckBinFiles()
 
     local file
 
+    CygbuildCmdInstallCheckLibrariesPerlListLocal > $retval.perllib
+
+    local perl_locallibs
+
+    [ -s "$retval.perllib" ] && perl_locallibs=$(< $retval.perllib)
+
     while read file
     do
         [ -d "$file" ] && continue
@@ -1814,7 +1867,7 @@ function CygbuildCmdInstallCheckBinFiles()
                      "in $_file:" $(cat "$retval.1st")
             fi
 
-	    CygbuildCmdInstallCheckLibrariesPerl "$file"
+	    CygbuildCmdInstallCheckLibrariesPerl "$file" "$perl_locallibs"
 
         elif [[ "$str" == *python* ]]; then
 
