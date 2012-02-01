@@ -1,5 +1,17 @@
 2012-02-01 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh (CygbuildTarOptionCompress): Add XZ support. Correct
+	LZMA support.
+	(CygbuildCommandMain): Add option --xz.
+	(CygbuildCompress): Add XZ support.
+	(CygbuildTarOptionInUse): New.
+	(CygbuildStrRemoveExt): Add XZ support.
+	(CygbuildCygbuildDefineGlobalSrcOrigGuess): Add XZ support.
+	(CygbuildInstallExtraManualCompress): Add XZ support.
+	(CygbuildFilePackageGuessMain): In call to CygbuildFilePackageGuessArchive(),
+	support LZMA and XZ.
+	(CygbuildDefineGlobalMain): Use $OPTION_COMPRESS and not hard coded bz2.
+
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckLibrariesPerlListLocal): New.
 	(CygbuildCmdInstallCheckLibrariesPerl): Filter out local libs.
 

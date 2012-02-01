@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0129.1558"
+CYGBUILD_VERSION="2012.0201.0837"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -224,16 +224,37 @@ function CygbuildTarOptionCompress()
     local id="$0.$FUNCNAME"
 
     #   Return correct packaging command based on the filename
-    #   .tar.gz or .tgz     => "z" option
-    #   .bz2                => "j" option
-
-    # FIXME: lzma
+    # *.lzma) echo "--use-compress-program=lzma" ;;
 
     case "$1" in
-        *.tar.gz | *.tgz)  echo "--gzip"  ;;
-        *.bz2    | *.tbz*) echo "--bzip2" ;;
-        *.lzma   | *.tbz*) echo "--use-compress-program=lzma" ;;
-        *)                 return 1 ;;
+        *.tar.gz | *.tgz)
+	    echo "--gzip" ;;
+        *.bz2 | *.tbz*)
+	    echo "--bzip2" ;;
+        *.lzma)
+	    echo "--lzma" ;;
+        *.xz)
+	    echo "--xz" ;;
+        *)
+	    return 1 ;;
+    esac
+}
+
+function CygbuildTarOptionInUse()
+{
+    local id="$0.$FUNCNAME"
+
+    case "$OPTION_COMPRESS" in
+        gz)
+	    echo "--gzip" ;;
+        bz2)
+	    echo "--bzip2" ;;
+        lzma)
+	    echo "--lzma" ;;
+        xz)
+	    echo "--xz" ;;
+        *)
+	    echo "--gzip" ;;
     esac
 }
 
@@ -1148,6 +1169,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.tbz \
      --exclude=*.tbz2 \
      --exclude=*.tgz \
+     --exclude=*.xz \
      --exclude=*.zip \
      --exclude=*.zoo \
     "
@@ -2463,6 +2485,7 @@ function CygbuildStrRemoveExt()
     str=${str##*/}          # Remove path
     str=${str%.tar.gz}
     str=${str%.tar.bz2}
+    str=${str%.tar.xz}
     str=${str%.tar.lzma}
     str=${str%.tar.lzop}
     str=${str%.tgz}
@@ -4031,9 +4054,9 @@ function CygbuildDefineGlobalMain()
     # top=${top%/*}
 
     SCRIPT_SRC_PKG_BUILD=$FULLPKG.sh                            # global-def
-    NAME_SRC_PKG=$FULLPKG-src.tar.bz2                           # global-def
+    NAME_SRC_PKG=$FULLPKG-src.tar.$OPTION_COMPRESS              # global-def
     NAME_SRC_PATCH=$FULLPKG-cygwin.patch                        # global-def
-    NAME_BIN_PKG=$FULLPKG.tar.bz2                               # global-def
+    NAME_BIN_PKG=$FULLPKG.tar.$OPTION_COMPRESS                  # global-def
 
     LIBPKG=$PKG                                                 # global-def
 
@@ -4041,11 +4064,11 @@ function CygbuildDefineGlobalMain()
         LIBPKG=lib$PKG
     fi
 
-    NAME_LIB_PKG_MAIN=$LIBPKG.tar.bz2                           # global-def
+    NAME_LIB_PKG_MAIN=$LIBPKG.tar.$OPTION_COMPRESS              # global-def
 
-    NAME_PKG_LIB_DEV=$LIBPKG-devel-$VER-$REL.tar.bz2            # global-def
-    NAME_PKG_LIB_DOC=$LIBPKG-doc-$VER-$REL.tar.bz2              # global-def
-    NAME_PKG_LIB_BIN=$LIBPKG-bin-$VER-$REL.tar.bz2              # global-def
+    NAME_PKG_LIB_DEV=$LIBPKG-devel-$VER-$REL.tar.$OPTION_COMPRESS # global-def
+    NAME_PKG_LIB_DOC=$LIBPKG-doc-$VER-$REL.tar.$OPTION_COMPRESS # global-def
+    NAME_PKG_LIB_BIN=$LIBPKG-bin-$VER-$REL.tar.$OPTION_COMPRESS # global-def
 
     TOPDIR=$argTop                                              # global-def
     export srcdir=$argSrc
@@ -4224,7 +4247,7 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
     else
         local ext
 
-        for ext in .tar.gz .tgz .tar.bz2 .tbz2 .tar.lzma
+        for ext in .tar.gz .tgz .tar.bz2 .tbz2 .tar.lzma .tar.xz
         do
 
             #  Standard version uses hyphen  : package-NN.NN.tar.gz
@@ -4544,6 +4567,8 @@ function CygbuildCompress()
         bzip2 "$@"
     elif [ "$OPTION_COMPRESS" = "lzma" ]; then
         lzma "$@"
+    elif [ "$OPTION_COMPRESS" = "xz" ]; then
+        xz "$@"
     else
         gzip "$@"
     fi
@@ -4551,7 +4576,7 @@ function CygbuildCompress()
 
 function CygbuildCompressManualPage()
 {
-    # manual command does not support lzma yet
+    # man(1) command does not support lzma yet
 
     if [ "$OPTION_COMPRESS" = "bzip2" ]; then
         bzip2 "$@"
@@ -5751,7 +5776,8 @@ function CygbuildCmdPkgBinaryStandard()
 {
     local id="$0.$FUNCNAME"
     local status=0
-    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+    local z=$(CygbuildTarOptionInUse)
+    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z -cf"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local pkg=$FILE_BIN_PKG
 
@@ -6620,7 +6646,8 @@ function CygbuildCmdPkgSourceStandard()
     # .......................................... make source package ...
 
     local name="$SCRIPT_SRC_PKG_BUILD"    # script-VERSION-RELEASE.sh
-    local taropt="$verbose -jcf"
+    local z=$(CygbuildTarOptionInUse)
+    local taropt="$verbose $z -cf"
 
     CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG#$srcdir/}
 
@@ -9798,6 +9825,8 @@ function CygbuildInstallExtraManualCompress()
             '('                     \
                 ! -name "*gz"       \
                 -a ! -name "*.bz2"  \
+                -a ! -name "*.lzma" \
+                -a ! -name "*.xz"   \
             ')'                     \
             > $retval
 
@@ -11341,6 +11370,16 @@ function CygbuildFilePackageGuessMain()
             "[0-9.]+-[0-9].*(tar.bz2)" \
             >  $retval
 
+	[ -s $retval ] ||
+        CygbuildFilePackageGuessArchive \
+            "[0-9.]+-[0-9].*(tar.lzma)" \
+            >  $retval
+
+	[ -s $retval ] ||
+        CygbuildFilePackageGuessArchive \
+            "[0-9.]+-[0-9].*(tar.xz)" \
+            >  $retval
+
         arr=( $(< $retval) )
         len=${#arr[*]}
     fi
@@ -11641,7 +11680,7 @@ function CygbuildCommandMain()
     unset test                      # global-def
 
     OPTION_SPACE="yes"              # global-def
-    OPTION_COMPRESS="bz2"           # global-def
+    OPTION_COMPRESS="bz2"           # global-def -- THE DEFAULT
 
     local arg args dir quiet release package
     local stripflag="yes"
@@ -11665,7 +11704,7 @@ function CygbuildCommandMain()
     if [ "$isgetopt" ]; then
         getopt \
         -n $id \
-        --long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,verbose,no-strip \
+        --long bzip2,color,cyginstdir:,cygbuilddir:,debug:,Debug:,email:,file:,force,gbs,init-pkgdb:,install-prefix:,install-prefix-man:,install-usrlocal,no-strip,lzma,passphrase:,sign:,release:,Prefix:,sign:,test,xz \
         --option bcDd:e:f:glp:Pr:s:tvVx -- "$@" \
         > $retval
 
@@ -11688,7 +11727,7 @@ function CygbuildCommandMain()
         case $1 in
 
             -b|--bzip2)
-                OPTION_COMPRESS="bz2"           # global-def
+                OPTION_COMPRESS="bz2"           # global-def. THIS IS FILE EXTENSION
                 shift 1
                 ;;
 
@@ -11829,6 +11868,11 @@ function CygbuildCommandMain()
             -x|--no-strip)
                 stripflag=
                 shift
+                ;;
+
+            --xz)
+                OPTION_COMPRESS="xz"            # global-def
+                shift 1
                 ;;
 
             --) shift
