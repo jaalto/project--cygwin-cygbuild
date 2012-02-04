@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0201.0942"
+CYGBUILD_VERSION="2012.0204.0834"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4210,6 +4210,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
     SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
+    SCRIPT_CLEAN_CYGFILE=$DIR_CYGPATCH/clean.sh                 # global-def
 
     SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
@@ -8974,7 +8975,7 @@ function CygbuildCmdConfMain()
 
             CygbuildChmodExec $script
             $script $instdir | CygbuildMsgFilter
-            status=$?
+            status=$?			# FIXME: Inccorrect dir to Filter
 
         elif CygbuildIsPerlPackage ; then
 
@@ -9285,8 +9286,16 @@ function CygbuildCmdCleanMain()
     local makefile=$(< $retval)
 
     local status=0
+    local script="$SCRIPT_CLEAN_CYGFILE"
 
-    if CygbuildIsPythonPackage ; then
+    if [ -f "$script" ]; then
+
+        CygbuildEcho "--- Running external clean: $script"
+
+        CygbuildChmodExec $script
+        $script $instdir | CygbuildMsgFilter
+
+    elif CygbuildIsPythonPackage ; then
 
         CygbuildMakefileRunPythonInDir "$srcdir" clean
 

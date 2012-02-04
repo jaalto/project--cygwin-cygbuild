@@ -1,3 +1,10 @@
+2012-02-04 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/clean.sh.ex: New.
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Add SCRIPT_CLEAN_CYGFILE.
+	(CygbuildCmdCleanMain): Add support for custom clean.sh.
+
 2012-02-01 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildTarOptionCompress): Add XZ support. Correct
