@@ -5,7 +5,7 @@
 
 <Short description, paragraph - ldesc of setup.hint>
 
-<fFor perl>
+<For perl>
 Before use, install additional perl modules:
 
     cpan MODULE [MODULE ...]
