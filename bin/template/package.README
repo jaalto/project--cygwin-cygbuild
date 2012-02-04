@@ -8,10 +8,7 @@
 <For perl>
 Before use, install additional perl modules:
 
-    cpan MODULE [MODULE ...]
-
-    perl -MCPAN -e 'install $_ for @ARGV' \
-        Time::ParseDate Time::Period
+    cpan MODULE ...
 
 Runtime requirements:
   cygwin
