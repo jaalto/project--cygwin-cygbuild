@@ -2,8 +2,9 @@
 
 	* bin/template/clean.sh.ex: New.
 
-	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Add SCRIPT_CLEAN_CYGFILE.
-	(CygbuildCmdCleanMain): Add support for custom clean.sh.
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Add SCRIPT_CLEAN_CYGFILE,
+	SCRIPT_DISTCLEAN_CYGFILE.
+	(CygbuildCmdCleanMain): Add support for custom clean.sh, distclean.sh
 
 2012-02-01 Wed  Jari Aalto  <jari.aalto@cante.net>
 
