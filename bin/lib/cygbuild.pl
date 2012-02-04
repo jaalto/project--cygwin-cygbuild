@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0204.0842';
+$VERSION = '2012.0204.0847';
 
 # ..................................................................
 
@@ -512,10 +512,6 @@ Synonym for command B<[build]>.
 
 Run any I<make> target whose name ends to C<clean>. That is: clean,
 distclean, realclean etc.
-
-B<Note>: with I<clean> command, if there is user supplied
-C<package-N.N/CYGWIN-PATCHES/clean.sh> use it, instead of calling
-Makefile (or eq.)
 
 =back
 
@@ -1223,7 +1219,7 @@ commands:
 =item B<clean.sh>
 
 Perhaps C<make clean> does not handle things gracefully. In that case a custom
-C<CYGWIN-PATCHES/clean.sh> can be used.
+C<CYGWIN-PATCHES/clean.sh> can be used. See also I<distclean.sh>.
 
    1. chdir has been done to a source directory package-N.N/
    2. Script receives one argument: installation directory root.
@@ -1377,6 +1373,15 @@ unconventionally 1 on success and N > 1 on error.
 
     [ "$?" = "1" ]
     # End of file
+
+=item B<distclean.sh>
+
+Perhaps C<make distclean> does not handle things gracefully. In that
+case a custom C<CYGWIN-PATCHES/distclean.sh> can be used. See also
+I<clean.sh>.
+
+   1. chdir has been done to a source directory package-N.N/
+   2. Script receives one argument: installation directory root.
 
 =item B<install.lst>
 
