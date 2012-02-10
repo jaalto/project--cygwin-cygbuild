@@ -19,6 +19,8 @@ BEGIN
         Date::Parse
     );
 
+    my @list;
+
     for ( @need )
     {
         eval "use $_;" ;
