@@ -230,20 +230,6 @@ OPTIONS
           $ (cd .inst ; tar -jxvf ../foo-2.1-1.tar.bz2)
           $ cygbuild -f foo-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
 
-    -h  Print program's internal short help.
-
-    --help
-        Print long help (this page).
-
-    --install-prefix PREFIX
-        Set custom install PREFIX. The value must be path (no leading slash)
-        relative to install dir "./.sinst". The default is to install using
-        prefix value *usr*, which puts files in directories like:
-
-            usr/bin
-            usr/share/doc
-            ...
-
     --install-usrlocal
         Arrange all relevant prefixes to use "usr/local" install structure
         instead of the default "usr". With this option the packages created
@@ -289,6 +275,24 @@ OPTIONS
 
         NOTE: This options should be avoided and it may be removed. Program
         is 99% in the cases able to detect if and when strip is needed.
+
+    --xz
+        Use XZ compression instead of default package compression. This may
+        later affect the manual pages and the usr/share/doc/*/ content.
+
+    -h  Print program's internal short help.
+
+    --help
+        Print long help (this page).
+
+    --install-prefix PREFIX
+        Set custom install PREFIX. The value must be path (no leading slash)
+        relative to install dir "./.sinst". The default is to install using
+        prefix value *usr*, which puts files in directories like:
+
+            usr/bin
+            usr/share/doc
+            ...
 
 PACKAGE MAINTENANCE COMMANDS
   Preparation commands

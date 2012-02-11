@@ -367,27 +367,6 @@ binary package results are being checked. An example:</p>
   $ (cd .inst ; tar -jxvf ../foo-2.1-1.tar.bz2)
   $ cygbuild -f foo-2.1-1.tar.bz2 --cyginstdir .inst --verbose check</pre>
 </dd>
-<dt><strong><a name="h" class="item"><strong>-h</strong></a></strong></dt>
-
-<dd>
-<p>Print program's internal short help.</p>
-</dd>
-<dt><strong><a name="help" class="item"><strong>--help</strong></a></strong></dt>
-
-<dd>
-<p>Print long help (this page).</p>
-</dd>
-<dt><strong><a name="install_prefix_prefix" class="item"><strong>--install-prefix PREFIX</strong></a></strong></dt>
-
-<dd>
-<p>Set custom install PREFIX. The value must be path (no leading slash)
-relative to install dir <code>./.sinst</code>. The default is to install using prefix
-value <em>usr</em>, which puts files in directories like:</p>
-<pre>
-    usr/bin
-    usr/share/doc
-    ...</pre>
-</dd>
 <dt><strong><a name="install_usrlocal" class="item"><strong>--install-usrlocal</strong></a></strong></dt>
 
 <dd>
@@ -448,6 +427,33 @@ Use this option if package contains only interpreted files like Perl,
 Python or Shell scripts etc.</p>
 <p><strong>NOTE:</strong> This options should be avoided and it may be removed. Program is
 99% in the cases able to detect if and when strip is needed.</p>
+</dd>
+<dt><strong><a name="xz" class="item"><strong>--xz</strong></a></strong></dt>
+
+<dd>
+<p>Use XZ compression instead of default package compression. This
+may later affect the manual pages and the usr/share/doc/*/ content.</p>
+</dd>
+<dt><strong><a name="h" class="item"><strong>-h</strong></a></strong></dt>
+
+<dd>
+<p>Print program's internal short help.</p>
+</dd>
+<dt><strong><a name="help" class="item"><strong>--help</strong></a></strong></dt>
+
+<dd>
+<p>Print long help (this page).</p>
+</dd>
+<dt><strong><a name="install_prefix_prefix" class="item"><strong>--install-prefix PREFIX</strong></a></strong></dt>
+
+<dd>
+<p>Set custom install PREFIX. The value must be path (no leading slash)
+relative to install dir <code>./.sinst</code>. The default is to install using prefix
+value <em>usr</em>, which puts files in directories like:</p>
+<pre>
+    usr/bin
+    usr/share/doc
+    ...</pre>
 </dd>
 </dl>
 <p>
