@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0211.1125';
+$VERSION = '2012.0211.1147';
 
 # ..................................................................
 
@@ -367,24 +367,6 @@ binary package results are being checked. An example:
   $ (cd .inst ; tar -jxvf ../foo-2.1-1.tar.bz2)
   $ cygbuild -f foo-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
 
-=item B<-h>
-
-Print program's internal short help.
-
-=item B<--help>
-
-Print long help (this page).
-
-=item B<--install-prefix PREFIX>
-
-Set custom install PREFIX. The value must be path (no leading slash)
-relative to install dir C<./.sinst>. The default is to install using prefix
-value I<usr>, which puts files in directories like:
-
-    usr/bin
-    usr/share/doc
-    ...
-
 =item B<--install-usrlocal>
 
 Arrange all relevant prefixes to use C<usr/local> install structure instead
@@ -438,6 +420,29 @@ Python or Shell scripts etc.
 
 B<NOTE:> This options should be avoided and it may be removed. Program is
 99% in the cases able to detect if and when strip is needed.
+
+=item B<--xz>
+
+Use XZ compression instead of default package compression. This
+may later affect the manual pages and the usr/share/doc/*/ content.
+
+=item B<-h>
+
+Print program's internal short help.
+
+=item B<--help>
+
+Print long help (this page).
+
+=item B<--install-prefix PREFIX>
+
+Set custom install PREFIX. The value must be path (no leading slash)
+relative to install dir C<./.sinst>. The default is to install using prefix
+value I<usr>, which puts files in directories like:
+
+    usr/bin
+    usr/share/doc
+    ...
 
 =back
 
