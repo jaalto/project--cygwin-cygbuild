@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0211.1132"
+CYGBUILD_VERSION="2012.0211.1133"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9358,7 +9358,7 @@ function CygbuildCmdDistcleanMain
     if [ -f "$script" ]; then
 
         CygbuildEcho "--- Running external distclean:" \
-	    "${file#$srcdir/}"
+	    "${script#$srcdir/}"
 
         CygbuildChmodExec $script
         $script $instdir | CygbuildMsgFilter
