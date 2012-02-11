@@ -4,7 +4,7 @@
 <head>
 <title>cygbuild - Cygwin source and binary package build script</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rev="made" href="mailto:root@localhost" />
+<link rev="made" href="mailto:rurban@x-ray.at" />
 </head>
 
 <body style="background-color: white">
@@ -999,9 +999,8 @@ release, add build release option <strong>-r 1</strong>. Remember to increase bu
 if you make more releases of the same package.</p>
 <pre>
     $ cd /tmp/build/foo-1.13/
-    $ cygbuild -r 1 -v makedirs files
-                          ==============</pre>
-<p>Command <strong>[makedirs]</strong> created three dot-directories which should be
+    $ cygbuild -r 1 -v mkdirs files</pre>
+<p>Command <strong>[mkdirs]</strong> created three dot-directories which should be
 <code>foo-1.13/{.build,.inst,.sinst}</code>. Command <strong>[files]</strong> wrote few template
 files of which two must be modified. The other <code>.tmp</code> files are just
 examples they are needed for tricky packages.</p>
@@ -1021,8 +1020,7 @@ extension <code>.tmp</code> from them to make the scripts active.</p>
 packages. It will appear in directory <code>./.sinst</code>:</p>
 <pre>
    $ cd /tmp/build/foo-1.13/
-   $ cygbuild -r 1 -v install strip package
-                         =====================</pre>
+   $ cygbuild -r 1 -v install strip package</pre>
 <p>6. Examine carefully the install phase and double check that the created
 archive looks correct. Run <code>find(1)</code> to check the directory structure:</p>
 <pre>
@@ -1066,8 +1064,7 @@ to guide the process slightly by the shell scripts provided under directory
 <code>package-N.N/CYGWIN-PATCHES/</code>. Try this first:</p>
 <pre>
    &lt;your still at directory package-N.N/&gt;
-   $ cygbuild -r 1 -v source-package
-                         ==============</pre>
+   $ cygbuild -r 1 -v source-package</pre>
 <p>That's it, if all succeeded. At directory up <code>./.sinst</code> you should see two
 complete Cygwin Net release shipments: a binary package and a source
 package. The RELEASE number is the result of the <strong>-r</strong> option.</p>
@@ -1083,11 +1080,15 @@ full description.</p>
 to &lt;<a href="mailto:cygwin-apps@cygwin.com">cygwin-apps@cygwin.com</a>&gt; with following message. The ITP acronym used is
 borrowed from Debian and it means &quot;intent to package&quot;:</p>
 <pre>
-    Subject: [ITP] package-N.N</pre>
+    Subject: ITP: package-N.N</pre>
 <p><strong>Package submittal:</strong> Include contents of <code>setup.hint</code> and the binary
-package listing <code>tar jtvf foo-1.13-RELEASE.tar.bz2</code>. Provide complete to a
-ftp/http server download links to package files where they can be
-downloaded when you submit a contributed package.</p>
+package listing <code>tar jtvf foo-1.13-RELEASE.tar.bz2</code>. Provide
+*complete* clickable ULR links where to download the files. An example:</p>
+<pre>
+    wget \
+        <a href="http://example.com/cygwin/package/package-N.N-1-src.tar.bz2">http://example.com/cygwin/package/package-N.N-1-src.tar.bz2</a> \
+        <a href="http://example.com/cygwin/package/package-N.N-1.tar.bz2">http://example.com/cygwin/package/package-N.N-1.tar.bz2</a> \
+        <a href="http://example.com/cygwin/package/setup.hint">http://example.com/cygwin/package/setup.hint</a></pre>
 <p><strong>Licensing:</strong> As a package maintainer, the licensing responsibility is on
 your shoulders. If the upstream package's license if not OSD compatible
 (see &lt;http://www.opensource.org/docs/definition_plain.html&gt;) there may be
@@ -1157,7 +1158,7 @@ local disk:</p>
 </p>
 <hr />
 <h1><a name="optional_external_directories">OPTIONAL EXTERNAL DIRECTORIES</a></h1>
-<p>All files in <em>CYGWIN-PATCHES/bin</em> are installed as executables into
+<p>All files in <code>CYGWIN-PATCHES/bin</code> are installed as executables into
 directory <code>.inst/usr/bin</code>. The location can be changed if any of the
 files contains tag <strong>cyginstdir:</strong> to point to new location. An example:</p>
 <pre>
@@ -1170,8 +1171,8 @@ files contains tag <strong>cyginstdir:</strong> to point to new location. An exa
 <h1><a name="optional_external_files">OPTIONAL EXTERNAL FILES</a></h1>
 <p>The following list of scripts is alphabetically ordered. The name of
 the script indicates when it is run or which command runs it. All
-files in <code>CYGWIN-PATCHES/</code> that have suffix <code>.tmp</code> are temporary
-templates and not used.</p>
+files in <code>CYGWIN-PATCHES/</code> that have suffix <code>.tmp</code> or <code>.ex</code> are
+temporary files or templates, and not used.</p>
 <dl>
 <dt><strong><a name="build_options" class="item"><strong>build.options</strong></a></strong></dt>
 
@@ -1203,6 +1204,15 @@ commands:</p>
 <pre>
     make ... whatever options are needed ...
     make ... perhaps it need other targets as well ...</pre>
+</dd>
+<dt><strong><a name="clean_sh" class="item"><strong>clean.sh</strong></a></strong></dt>
+
+<dd>
+<p>Perhaps <code>make clean</code> does not handle things gracefully. In that case a custom
+<code>CYGWIN-PATCHES/clean.sh</code> can be used. See also <em>distclean.sh</em>.</p>
+<pre>
+   1. chdir has been done to a source directory package-N.N/
+   2. Script receives one argument: installation directory root.</pre>
 </dd>
 <dt><strong><a name="configure_env_options" class="item"><strong>configure.env.options</strong></a></strong></dt>
 
@@ -1352,6 +1362,56 @@ unconventionally 1 on success and N &gt; 1 on error.</p>
     [ &quot;$?&quot; = &quot;1&quot; ]
     # End of file</pre>
 </dd>
+<dt><strong><a name="distclean_sh" class="item"><strong>distclean.sh</strong></a></strong></dt>
+
+<dd>
+<p>Perhaps <code>make distclean</code> does not handle things gracefully. In that
+case a custom <code>CYGWIN-PATCHES/distclean.sh</code> can be used. See also
+<em>clean.sh</em>.</p>
+<pre>
+   1. chdir has been done to a source directory package-N.N/
+   2. Script receives one argument: installation directory root.</pre>
+</dd>
+<dt><strong><a name="install_lst" class="item"><strong>install.lst</strong></a></strong></dt>
+
+<dd>
+<p>NOTE: if file exists, the <code>make install</code> target is not run.</p>
+<p>List <a href="#install"><code>install(1)</code></a> compatible entries in separate lines. The
+format is:</p>
+<pre>
+    &lt;src&gt;  &lt;destination&gt; [&lt;mode, defaults to 755&gt;]</pre>
+<p>If <em>destination</em> contains a trailing slash, the <em>src</em> is installed
+to that directory. If there is no trailing slash, the last element is
+used for filename. The third parameter is optional <em>mode</em> argument
+passed to <code>install -m MODE</code>.</p>
+<p>Expansion variables that are available are <code>$PKG</code> for package name
+and <code>$VER</code> for version number. Notice that the <em>destination</em> does
+not contains starting slash. Common script suffixes like <code>.sh .pl
+.py</code> from <em>src</em> part are removed when copying the file to
+<em>destination</em>; see example below and line 3.</p>
+<p>A special prefix deletion is also performed for <code>CYGWIN-PATCHES</code>
+directoried. for <em>src</em> part CYGWIN-PATCHES/{doc,conf} all
+components are removed. In addition all components of <em>destination</em>
+is also removed. This allows making suitable &quot;mirrors&quot; of configuration
+directories. Below, first the prefix componen underlined is removed, the
+the matches <em>destination</em> componen fromt he left:</p>
+<pre>
+    CYGWIN-PATCHES/conf/etc/cron.d/program etc/cron.d/ 644
+    ===================+++++++++++         +++++++++++</pre>
+<p>This effectiely produces command:</p>
+<pre>
+    install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/</pre>
+<p>Comments starting with &quot;#&quot; and empty lines are ignored.</p>
+<p>Examples:</p>
+<pre>
+    zip usr/bin/                # install to /usr/bin/zip, mode 755
+    zip usr/bin/new             # install to /usr/bin/new, mode 755
+    d.pl usr/bin/               # install to /usr/bin/d, mode 755
+    util usr/share/lib/$PKG/
+    util/program usr/share/doc/$PKG-VER/contrib/</pre>
+<pre>
+    CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/</pre>
+</dd>
 <dt><strong><a name="install_sh" class="item"><strong>install.sh</strong></a></strong></dt>
 
 <dd>
@@ -1496,7 +1556,7 @@ directories.</p>
 <dt><strong><a name="mandir" class="item"><strong>mandir</strong></a></strong></dt>
 
 <dd>
-<p>If this file exists, it should contain only one line: the dorectory
+<p>If this file exists, it should contain only one line: the directory
 name relative to CYGWIN-PATCHES where the manual pages are stored. An
 example (which is also the default location):</p>
 <pre>
@@ -1766,9 +1826,10 @@ selectively use functions in it. The library feature is enabled by setting
 variable <code>CYGBUILD_LIB</code> before <code>source</code> command. When invoked this way,
 the <em>cygbuild's</em> <code>Main()</code> function in not invoked and options or
 commands are bypassed.</p>
-<p><strong>WARNING:</strong> All the functions are name space clean and contain prefix
-<strong>Cygbuild*</strong>, but many global variables are defined that do not
-include the prefix: <code>$instdir</code>, <code>$builddir</code> etc.</p>
+<p><strong>WARNING:</strong> While the functions are name space clean and contain
+prefix <strong>Cygbuild*</strong>, many global variables are defined that do not
+include this prefix. These variables include <code>$instdir</code>, <code>$builddir</code>
+etc.</p>
 <p>To get access to full power of the functions, these steps are needed:</p>
 <pre>
     #!/bin/sh</pre>

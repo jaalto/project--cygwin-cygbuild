@@ -763,10 +763,9 @@ MAKING CYGWIN NET RELEASES
         build count if you make more releases of the same package.
 
             $ cd /tmp/build/foo-1.13/
-            $ cygbuild -r 1 -v makedirs files
-                                  ==============
+            $ cygbuild -r 1 -v mkdirs files
 
-        Command [makedirs] created three dot-directories which should be
+        Command [mkdirs] created three dot-directories which should be
         "foo-1.13/{.build,.inst,.sinst}". Command [files] wrote few template
         files of which two must be modified. The other ".tmp" files are just
         examples they are needed for tricky packages.
@@ -790,7 +789,6 @@ MAKING CYGWIN NET RELEASES
 
            $ cd /tmp/build/foo-1.13/
            $ cygbuild -r 1 -v install strip package
-                                 =====================
 
         6. Examine carefully the install phase and double check that the
         created archive looks correct. Run find(1) to check the directory
@@ -842,7 +840,6 @@ MAKING CYGWIN NET RELEASES
 
            <your still at directory package-N.N/>
            $ cygbuild -r 1 -v source-package
-                                 ==============
 
         That's it, if all succeeded. At directory up "./.sinst" you should
         see two complete Cygwin Net release shipments: a binary package and
@@ -859,12 +856,16 @@ MAKING CYGWIN NET RELEASES
     message to <cygwin-apps@cygwin.com> with following message. The ITP
     acronym used is borrowed from Debian and it means "intent to package":
 
-        Subject: [ITP] package-N.N
+        Subject: ITP: package-N.N
 
     Package submittal: Include contents of "setup.hint" and the binary
-    package listing "tar jtvf foo-1.13-RELEASE.tar.bz2". Provide complete to
-    a ftp/http server download links to package files where they can be
-    downloaded when you submit a contributed package.
+    package listing "tar jtvf foo-1.13-RELEASE.tar.bz2". Provide *complete*
+    clickable ULR links where to download the files. An example:
+
+        wget \
+            http://example.com/cygwin/package/package-N.N-1-src.tar.bz2 \
+            http://example.com/cygwin/package/package-N.N-1.tar.bz2 \
+            http://example.com/cygwin/package/setup.hint
 
     Licensing: As a package maintainer, the licensing responsibility is on
     your shoulders. If the upstream package's license if not OSD compatible
@@ -940,7 +941,7 @@ GPG EXAMPLES
         $ bb 1 publish
 
 OPTIONAL EXTERNAL DIRECTORIES
-    All files in *CYGWIN-PATCHES/bin* are installed as executables into
+    All files in "CYGWIN-PATCHES/bin" are installed as executables into
     directory ".inst/usr/bin". The location can be changed if any of the
     files contains tag cyginstdir: to point to new location. An example:
 
@@ -951,8 +952,8 @@ OPTIONAL EXTERNAL DIRECTORIES
 OPTIONAL EXTERNAL FILES
     The following list of scripts is alphabetically ordered. The name of the
     script indicates when it is run or which command runs it. All files in
-    "CYGWIN-PATCHES/" that have suffix ".tmp" are temporary templates and
-    not used.
+    "CYGWIN-PATCHES/" that have suffix ".tmp" or ".ex" are temporary files
+    or templates, and not used.
 
     build.options
         If this file exists, it is sourced to read custom flags and other
@@ -981,6 +982,14 @@ OPTIONAL EXTERNAL FILES
 
             make ... whatever options are needed ...
             make ... perhaps it need other targets as well ...
+
+    clean.sh
+        Perhaps "make clean" does not handle things gracefully. In that case
+        a custom "CYGWIN-PATCHES/clean.sh" can be used. See also
+        *distclean.sh*.
+
+           1. chdir has been done to a source directory package-N.N/
+           2. Script receives one argument: installation directory root.
 
     configure.env.options
         If this file exists, it is sourced to read custom environment
@@ -1127,6 +1136,58 @@ OPTIONAL EXTERNAL FILES
 
             [ "$?" = "1" ]
             # End of file
+
+    distclean.sh
+        Perhaps "make distclean" does not handle things gracefully. In that
+        case a custom "CYGWIN-PATCHES/distclean.sh" can be used. See also
+        *clean.sh*.
+
+           1. chdir has been done to a source directory package-N.N/
+           2. Script receives one argument: installation directory root.
+
+    install.lst
+        NOTE: if file exists, the "make install" target is not run.
+
+        List install(1) compatible entries in separate lines. The format is:
+
+            <src>  <destination> [<mode, defaults to 755>]
+
+        If *destination* contains a trailing slash, the *src* is installed
+        to that directory. If there is no trailing slash, the last element
+        is used for filename. The third parameter is optional *mode*
+        argument passed to "install -m MODE".
+
+        Expansion variables that are available are $PKG for package name and
+        $VER for version number. Notice that the *destination* does not
+        contains starting slash. Common script suffixes like ".sh .pl .py"
+        from *src* part are removed when copying the file to *destination*;
+        see example below and line 3.
+
+        A special prefix deletion is also performed for "CYGWIN-PATCHES"
+        directoried. for *src* part CYGWIN-PATCHES/{doc,conf} all components
+        are removed. In addition all components of *destination* is also
+        removed. This allows making suitable "mirrors" of configuration
+        directories. Below, first the prefix componen underlined is removed,
+        the the matches *destination* componen fromt he left:
+
+            CYGWIN-PATCHES/conf/etc/cron.d/program etc/cron.d/ 644
+            ===================+++++++++++         +++++++++++
+
+        This effectiely produces command:
+
+            install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
+
+        Comments starting with "#" and empty lines are ignored.
+
+        Examples:
+
+            zip usr/bin/                # install to /usr/bin/zip, mode 755
+            zip usr/bin/new             # install to /usr/bin/new, mode 755
+            d.pl usr/bin/               # install to /usr/bin/d, mode 755
+            util usr/share/lib/$PKG/
+            util/program usr/share/doc/$PKG-VER/contrib/
+
+            CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/
 
     install.sh
         This script is for binary packaging commands [package] and
@@ -1277,7 +1338,7 @@ OPTIONAL EXTERNAL FILES
             --exclude=cygbuild-no-docdir-install
 
     mandir
-        If this file exists, it should contain only one line: the dorectory
+        If this file exists, it should contain only one line: the directory
         name relative to CYGWIN-PATCHES where the manual pages are stored.
         An example (which is also the default location):
 
@@ -1547,9 +1608,9 @@ LIBRARY USAGE
     this way, the *cygbuild's* "Main()" function in not invoked and options
     or commands are bypassed.
 
-    WARNING: All the functions are name space clean and contain prefix
-    Cygbuild*, but many global variables are defined that do not include the
-    prefix: $instdir, $builddir etc.
+    WARNING: While the functions are name space clean and contain prefix
+    Cygbuild*, many global variables are defined that do not include this
+    prefix. These variables include $instdir, $builddir etc.
 
     To get access to full power of the functions, these steps are needed:
 
