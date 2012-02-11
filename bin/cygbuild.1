@@ -1045,6 +1045,20 @@ OPTIONAL EXTERNAL FILES
                 --libexecdir='${sbindir}'
                 --datadir='${prefix}/share'
 
+    delete.lst
+        List rm(1) compatible entries in separate lines. The format is:
+
+            <file or directory pattern> [<rm(1) option, like -rf>]
+
+        Expansion variables that are available are $PKG for package name,
+        $VER for version number and $DOC for package's documentation
+        directory.
+
+        Examples:
+
+            $DOC/manual -rf         # Duplicate of manual page
+            README.arm              # Not this palatform
+
     diff.options
         By default the "[patch]" command excludes files that it thinks do
         not belong there, but in many case package generate other extra
@@ -1157,11 +1171,12 @@ OPTIONAL EXTERNAL FILES
         is used for filename. The third parameter is optional *mode*
         argument passed to "install -m MODE".
 
-        Expansion variables that are available are $PKG for package name and
-        $VER for version number. Notice that the *destination* does not
-        contains starting slash. Common script suffixes like ".sh .pl .py"
-        from *src* part are removed when copying the file to *destination*;
-        see example below and line 3.
+        Expansion variables that are available are $PKG for package name,
+        $VER for version number and $DOC for package's documentation
+        directory. Notice that the *destination* does not contains starting
+        slash. Common script suffixes like ".sh .pl .py" from *src* part are
+        removed when copying the file to *destination*; see example below
+        and line 3.
 
         A special prefix deletion is also performed for "CYGWIN-PATCHES"
         directoried. for *src* part CYGWIN-PATCHES/{doc,conf} all components

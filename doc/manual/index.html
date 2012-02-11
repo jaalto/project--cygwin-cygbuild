@@ -1271,6 +1271,21 @@ switches, which you can incorporate:</p>
         --libexecdir='${sbindir}'
         --datadir='${prefix}/share'</pre>
 </dd>
+<dt><strong><a name="delete_lst" class="item"><strong>delete.lst</strong></a></strong></dt>
+
+<dd>
+<p>List <code>rm(1)</code> compatible entries in separate lines. The
+format is:</p>
+<pre>
+    &lt;file or directory pattern&gt; [&lt;rm(1) option, like -rf&gt;]</pre>
+<p>Expansion variables that are available are <code>$PKG</code> for package name,
+<code>$VER</code> for version number and <code>$DOC</code> for package's documentation
+directory.</p>
+<p>Examples:</p>
+<pre>
+    $DOC/manual -rf         # Duplicate of manual page
+    README.arm              # Not this palatform</pre>
+</dd>
 <dt><strong><a name="diff_options" class="item"><strong>diff.options</strong></a></strong></dt>
 
 <dd>
@@ -1384,11 +1399,12 @@ format is:</p>
 to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional <em>mode</em> argument
 passed to <code>install -m MODE</code>.</p>
-<p>Expansion variables that are available are <code>$PKG</code> for package name
-and <code>$VER</code> for version number. Notice that the <em>destination</em> does
-not contains starting slash. Common script suffixes like <code>.sh .pl
-.py</code> from <em>src</em> part are removed when copying the file to
-<em>destination</em>; see example below and line 3.</p>
+<p>Expansion variables that are available are <code>$PKG</code> for package name,
+<code>$VER</code> for version number and <code>$DOC</code> for package's documentation
+directory. Notice that the <em>destination</em> does not contains starting
+slash. Common script suffixes like <code>.sh .pl .py</code> from <em>src</em> part are
+removed when copying the file to <em>destination</em>; see example below and
+line 3.</p>
 <p>A special prefix deletion is also performed for <code>CYGWIN-PATCHES</code>
 directoried. for <em>src</em> part CYGWIN-PATCHES/{doc,conf} all
 components are removed. In addition all components of <em>destination</em>
