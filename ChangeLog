@@ -1,3 +1,13 @@
+2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (Help::OPTIONAL EXTERNAL FILES): Document
+	delete.lst file.
+
+	* bin/cygbuild.sh (CygbuildCmdDeleteListExists): New.
+	(CygbuildCmdInstallList): Correct variable name to "retval".
+	(CygbuildCmdDeleteList): New.
+	(CygbuildDefineGlobalMain): New variable set SCRIPT_DELETE_LST_CYGFILE.
+
 2012-02-04 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/clean.sh.ex: New.

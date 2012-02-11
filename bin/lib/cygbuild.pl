@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0204.0847';
+$VERSION = '2012.0211.1125';
 
 # ..................................................................
 
@@ -1280,6 +1280,22 @@ switches, which you can incorporate:
 	--libexecdir='${sbindir}'
 	--datadir='${prefix}/share'
 
+=item B<delete.lst>
+
+List rm(1) compatible entries in separate lines. The
+format is:
+
+    <file or directory pattern> [<rm(1) option, like -rf>]
+
+Expansion variables that are available are C<$PKG> for package name,
+C<$VER> for version number and C<$DOC> for package's documentation
+directory.
+
+Examples:
+
+    $DOC/manual -rf	    # Duplicate of manual page
+    README.arm		    # Not this palatform
+
 =item B<diff.options>
 
 By default the C<[patch]> command excludes files that it thinks do not
@@ -1397,11 +1413,12 @@ to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional I<mode> argument
 passed to C<install -m MODE>.
 
-Expansion variables that are available are C<$PKG> for package name
-and C<$VER> for version number. Notice that the I<destination> does
-not contains starting slash. Common script suffixes like C<.sh .pl
-.py> from I<src> part are removed when copying the file to
-I<destination>; see example below and line 3.
+Expansion variables that are available are C<$PKG> for package name,
+C<$VER> for version number and C<$DOC> for package's documentation
+directory. Notice that the I<destination> does not contains starting
+slash. Common script suffixes like C<.sh .pl .py> from I<src> part are
+removed when copying the file to I<destination>; see example below and
+line 3.
 
 A special prefix deletion is also performed for C<CYGWIN-PATCHES>
 directoried. for I<src> part CYGWIN-PATCHES/{doc,conf} all
@@ -1416,7 +1433,6 @@ the matches I<destination> componen fromt he left:
 This effectiely produces command:
 
     install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
-
 
 Comments starting with "#" and empty lines are ignored.
 

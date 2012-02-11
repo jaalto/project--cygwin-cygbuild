@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0204.0852"
+CYGBUILD_VERSION="2012.0211.1120"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4214,6 +4214,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_DISTCLEAN_CYGFILE=$DIR_CYGPATCH/distclean.sh         # global-def
 
     SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
+    SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
@@ -10662,6 +10663,51 @@ function CygbuildCmdInstallListExists()
     [ -f "$file" ]
 }
 
+function CygbuildCmdDeleteListExists()
+{
+    local file="$SCRIPT_DELETE_LST_CYGFILE"
+
+    [ -f "$file" ]
+}
+
+function CygbuildCmdDeleteList()
+{
+    local file="$SCRIPT_DELETE_LST_CYGFILE"
+
+    [ -f "$file" ] || return 1
+
+    CygbuildEcho "--- Deleting with external:" \
+                 "${file#$srcdir/}"
+
+    local out=$retval.lst
+    local docdir="usr/share/doc/$PKG"
+
+    #  Remove comments and substitute variables
+
+set -x
+    sed -e 's,#.*,,' \
+        -e "s,\$PKG,$instdir/$PKG," \
+        -e "s,\$DOC,$instdir/$docdir," \
+        -e "s,\$VER,$VER," \
+        $file > $out
+
+    local line=0
+    local status=0
+
+    local pattern opt
+
+    while read pattern opt
+    do
+        local dummy="pattern:$pattern opt:$opt"        # for debugging only
+
+        ${test:+echo} rm --force $opt ${verbose+--verbose} $pattern
+
+    done < $out
+
+    return $status
+}
+
+
 function CygbuildCmdInstallList()
 {
     local file="$SCRIPT_INSTALL_LST_CYGFILE"
@@ -10671,7 +10717,7 @@ function CygbuildCmdInstallList()
     CygbuildEcho "--- Installing with external:" \
                  "${file#$srcdir/}"
 
-    local out=$reval.lst
+    local out=$retval.lst
     local docdir="usr/share/doc/$PKG"
 
     #  Remove comments and substitute variables
@@ -10684,6 +10730,8 @@ function CygbuildCmdInstallList()
 
     local line=0
     local status=0
+
+    local from to mode
 
     while read from to mode
     do
@@ -10863,6 +10911,15 @@ function CygbuildCmdInstallMain()
         fi
 
         CygbuildMakefileRunInstallFixMain
+
+        if CygbuildCmdInstallListExists ; then
+            CygbuildCmdDeleteList ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status
+            }
+	fi
 
         if [ -f "$scriptAfter" ]; then
 
