@@ -880,13 +880,13 @@ function CygbuildPerlLibraryDependsCache()
 		$path = $1;
 	    }
 
-	    if ( $module =~ /::.+::/ )
+	    if ( $module =~ /::/ )
             {
 		#  Getopt::Long::Configure => Getopt::Long
 		($lib = $module ) =~ s/::[^:]+$//;
 		$lib =~ s,::,/,g;
 
-		if ( m,^(/usr/lib/perl[\d.]+/.*/$lib\.pm),m )
+		if ( m,^(/usr/lib/perl[\d.]+/[\d.]+/$lib\.pm),m )
                 {
 		    $type = "Std";
 		    $path = $1;
