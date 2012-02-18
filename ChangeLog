@@ -2,6 +2,9 @@
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Set
 	variable str to empty before checking is binary exists.
+	(CygbuildPerlLibraryDependsGuess): Improve Std Module::Name
+	check.
+	(CygbuildPerlLibraryDependsCache): Better Std module detection.
 
 	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call to
 	CygbuildCmdDeleteListExists().

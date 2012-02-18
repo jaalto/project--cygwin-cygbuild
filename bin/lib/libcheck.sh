@@ -853,12 +853,12 @@ function CygbuildPerlLibraryDependsCache()
 	$cache = shift @ARGV;
 
 	-f $cache or
-	    die "Invalid cache file: $cache => @ARGV";
+	    die "No cache file: $cache => @ARGV";
 
 	open my $FILE, "< $cache" or
 	    die "Cannot open cache: $cache $!";
 
-	$CACHE = join "", <$FILE>;
+	$_ = join "", <$FILE>;
 	close $FILE;
 
 	#  Remove duplicates
@@ -867,16 +867,31 @@ function CygbuildPerlLibraryDependsCache()
 
 	for my $module ( sort keys %hash )
 	{
-	    $lib   = $module;
-	    $lib   =~ s,::,/,g;
+	    $lib = $module;
+	    $lib =~ s,::,/,g;
+
 	    $type  = "CPAN";
 	    $path  = "";
 
-	    if ( $CACHE =~ m,^(/usr/lib/perl[\d.]+/.*$lib.*),m )
+
+	    if ( m,^(/usr/lib/perl[\d.]+/.*/$lib\.pm),m )
 	    {
 		$type = "Std";
 		$path = $1;
 	    }
+
+	    if ( $module =~ /::.+::/ )
+            {
+		#  Getopt::Long::Configure => Getopt::Long
+		($lib = $module ) =~ s/::[^:]+$//;
+		$lib =~ s,::,/,g;
+
+		if ( m,^(/usr/lib/perl[\d.]+/.*/$lib\.pm),m )
+                {
+		    $type = "Std";
+		    $path = $1;
+	        }
+            }
 
 	    printf "%-5s %-20s $path\n", $type, $module;
 	}
@@ -902,9 +917,18 @@ function CygbuildPerlLibraryDependsGuess()
 		next if m,/\w+_perl/, ; # exclude site_perl, vendor_perl
 		next unless m,/perl\d/,;
 
+                #  Module::Name::function  => Module::Name
+                ($iball = $lib) =~ s/::.+?$//;
+
+                #  Module::Name::function  => Module.pm
+                ($ibsub = $lib) =~ s/::.+$//;
+
 		$path = "$_/$lib.pm";
+		$pathall = "$_/$liball.pm";
+		$pathsub = "$_/$libsub.pm";
+
 		$type = "Std";
-		$type = "CPAN" unless -f $path;
+		$type = "CPAN" unless -f $path or -f $pathall or -f $pathsub;
 	    }
 
 	    printf "%-5s %-20s $path\n", $type, $module;
