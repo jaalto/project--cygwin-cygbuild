@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0211.1133"
+CYGBUILD_VERSION="2012.0218.1136"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10913,7 +10913,7 @@ function CygbuildCmdInstallMain()
 
         CygbuildMakefileRunInstallFixMain
 
-        if CygbuildCmdInstallListExists ; then
+        if CygbuildCmdDeleteListExists ; then
             CygbuildCmdDeleteList ||
             {
                 status=$?

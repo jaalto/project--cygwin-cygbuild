@@ -1,3 +1,8 @@
+2012-02-18 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call to
+	CygbuildCmdDeleteListExists().
+
 2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (Help::OPTIONAL EXTERNAL FILES): Document
