@@ -5,6 +5,8 @@
 	(CygbuildCmdInstallAfterListExists): New.
 	(CygbuildCmdInstallAfterList): New.
 	(CygbuildCmdInstallMain): Call CygbuildCmdInstallAfterList.
+	(CygbuildCmdDeleteAfterListExists): New.
+	(CygbuildCmdInstallMain): Move CygbuildCmdDeleteListExists call.
 
 2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 

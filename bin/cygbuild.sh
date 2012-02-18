@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0218.1417"
+CYGBUILD_VERSION="2012.0218.1430"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4216,6 +4216,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
     SCRIPT_INSTALL_AFTER_LST_CYGFILE=$DIR_CYGPATCH/install-after.lst # global-def
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
+    SCRIPT_DELETE_AFTER_LST_CYGFILE=$DIR_CYGPATCH/delete-after.lst # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
@@ -10684,6 +10685,13 @@ function CygbuildCmdDeleteListExists()
     [ -f "$file" ]
 }
 
+function CygbuildCmdDeleteAfterListExists()
+{
+    local file="$SCRIPT_DELETE_AFTER_LST_CYGFILE"
+
+    [ -f "$file" ]
+}
+
 function CygbuildCmdDeleteList()
 {
     local file="$SCRIPT_DELETE_LST_CYGFILE"
@@ -10726,7 +10734,10 @@ function CygbuildCmdInstallList()
     local id="$0.$FUNCNAME"
     local file=${1:-$SCRIPT_INSTALL_LST_CYGFILE}
 
-    [ -f "$file" ] || return 1
+    if [ ! -f "$file" ]; then
+	CygbuildWarn "[WARN] $id: No file found $file"
+	return 0
+    fi
 
     CygbuildEcho "--- Installing with external:" \
                  "${file#$srcdir/}"
@@ -10847,7 +10858,7 @@ function CygbuildCmdInstallList()
 function CygbuildCmdInstallAfterList()
 {
     local id="$0.$FUNCNAME"
-    CygbuildCmdInstallList $SCRIPT_INSTALL_LST_CYGFILE
+    CygbuildCmdInstallList $SCRIPT_INSTALL_AFTER_LST_CYGFILE
 }
 
 function CygbuildCmdInstallMain()
@@ -10932,8 +10943,8 @@ function CygbuildCmdInstallMain()
 
         CygbuildMakefileRunInstallFixMain
 
-        if CygbuildCmdDeleteListExists ; then
-            CygbuildCmdDeleteList ||
+        if CygbuildCmdInstallAfterListExists ; then
+            CygbuildCmdInstallAfterList ||
             {
                 status=$?
                 CygbuildPopd
@@ -10941,8 +10952,8 @@ function CygbuildCmdInstallMain()
             }
 	fi
 
-        if CygbuildCmdInstallAfterListExists ; then
-            CygbuildCmdInstallAfterList ||
+        if CygbuildCmdDeleteListExists ; then
+            CygbuildCmdDeleteList ||
             {
                 status=$?
                 CygbuildPopd
