@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2011.1112.1441"
+CYGBUILD_VERSION="2012.0919.0851"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10789,56 +10789,65 @@ function CygbuildCmdInstallMain()
 		${test:+(TEST MODE)}
 
             if CygbuildCmdInstallListExists ; then
-		CygbuildCmdInstallList ||
-		{
-		    status=$?
-		    CygbuildPopd
-		    return $status
-		}
-	    else
-		CygbuildMakefileRunInstallMain ||
-		{
-		    status=$?
-		    CygbuildPopd
-		    return $status
-		}
-	    fi
+                CygbuildCmdInstallList ||
+                {
+                    status=$?
+                    CygbuildPopd
+                    return $status
+                }
+            else
+                CygbuildMakefileRunInstallMain ||
+                {
+                    status=$?
+                    CygbuildPopd
+                    return $status
+                }
+            fi
+        fi
+
+        CygbuildMakefileRunInstallFixMain
+
+        if CygbuildCmdDeleteListExists ; then
+            CygbuildCmdDeleteList ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status
+            }
 	fi
 
-	CygbuildMakefileRunInstallFixMain
+        if [ -f "$scriptAfter" ]; then
 
-	if [ -f "$scriptAfter" ]; then
+            CygbuildEcho "--- Running external:" \
+                 ${scriptAfter#$srcdir/} \
+                 "$dir"         \
+                 "$PKG"         \
+                 "$VER"         \
+                 "$thispath"
 
-	    CygbuildEcho "--- Running external:" \
-		 ${scriptAfter#$srcdir/} \
-		 "$dir"         \
-		 "$PKG"         \
-		 "$VER"         \
-		 "$thispath"
+            local path="$CYGBUILD_PROG_FULLPATH"
 
-	    local path="$CYGBUILD_PROG_FULLPATH"
+            CygbuildChmodExec $scriptAfter
 
-	    CygbuildChmodExec $scriptAfter
+            CygbuildRun ${OPTION_DEBUG:+$BASHX} \
+                $scriptAfter        \
+                    "$dir"          \
+                    "$PKG"          \
+                    "$VER"          \
+                    "$thispath"     |
+                CygbuildMsgFilter   ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status
+            }
+        fi
 
-	    CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-		$scriptAfter        \
-		    "$dir"          \
-		    "$PKG"          \
-		    "$VER"          \
-		    "$thispath"     |
-		CygbuildMsgFilter   ||
-	    {
-		status=$?
-		CygbuildPopd
-		return $status
-	    }
-	fi
+        dummy="$srcdir"             # For debug only
 
-	dummy="$srcdir"             # For debug only
+        CygbuildExitIfNoDir "$srcdir" "$id: [ERROR] srcdir not found"
 
-	CygbuildExitIfNoDir "$srcdir" "$id: [ERROR] srcdir not found"
-
-	dummy="END OF $id"
+        dummy="END OF $id"
 
     CygbuildPopd
 
