@@ -14,6 +14,8 @@
 	(CygbuildCmdDeleteAfterListExists): New.
 	(CygbuildCmdInstallMain): Move CygbuildCmdDeleteListExists call.
 	(CygbuildWhich): Define PATH
+	(CygbuildObjDumpLibraryDepList): Ignore Windows 7 core dll files.
+	(CygbuildCygcheckLibraryDepListFull): Ignore Windows 7 core dll files.
 
 2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 

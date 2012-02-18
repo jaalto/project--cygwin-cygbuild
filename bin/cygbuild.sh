@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0218.1658"
+CYGBUILD_VERSION="2012.0218.1759"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1778,12 +1778,18 @@ CygbuildObjDumpLibraryDepList ()
 
     objdump -p "$file" |
         awk '
-            /KERNEL32|cygwin1.dll|MPR.DLL|GDI32|USER32|ntdll.dll/ {
+            /KERNEL32|system32|cygwin1.dll|MPR.DLL|GDI32|USER32|ntdll.dll/ {
                 next;
             }
+
+            /API-MS-Win-Core/ {
+                next;
+            }
+
             /DLL Name:/ {
                 hash[$(NF)];
             }
+
             END{
                 for (name in hash)
                 {
@@ -1866,7 +1872,7 @@ CygbuildCygcheckLibraryDepListFull ()
 
     $bin -v "$file" |
     awk -F\\ '
-        / +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
+        / +[A-Z]:/ && ! /WINNT|system32/ && ! /already done/ {
             str = $(NF);
             sub(" .*", "", str);
             print str;
