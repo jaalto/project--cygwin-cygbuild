@@ -2,6 +2,9 @@
 
 	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call to
 	CygbuildCmdDeleteListExists().
+	(CygbuildCmdInstallAfterListExists): New.
+	(CygbuildCmdInstallAfterList): New.
+	(CygbuildCmdInstallMain): Call CygbuildCmdInstallAfterList.
 
 2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 

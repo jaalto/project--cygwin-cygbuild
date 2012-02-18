@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0211.1147';
+$VERSION = '2012.0218.1420';
 
 # ..................................................................
 
@@ -1484,11 +1484,17 @@ and modify directly the original C<Makefile>. Even if that meant writing
 the whole installation from scratch. Copy install example from template
 file C<CYGWIN-PATCHES/Makefile.tmp>.
 
+=item B<install-after.lst>
+
+If this file exists, it is called after cygbuild has run its standard
+installation steps. The format of the file is the same as in
+B<install.lst>.
+
 =item B<install-after.sh>
 
 This script is for binary packages commands B<[package]> and
 B<[package-devel]>. If this script exists, it is called after
-cygbuild has run it's standard installation steps.
+cygbuild has run its standard installation steps.
 
 Sometimes there is no need to write full custom C<install.sh>, but only
 combine efforts of packages standard command "make install" with a little

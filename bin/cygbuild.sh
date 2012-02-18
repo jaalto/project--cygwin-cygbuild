@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0218.1136"
+CYGBUILD_VERSION="2012.0218.1417"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4214,6 +4214,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_DISTCLEAN_CYGFILE=$DIR_CYGPATCH/distclean.sh         # global-def
 
     SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
+    SCRIPT_INSTALL_AFTER_LST_CYGFILE=$DIR_CYGPATCH/install-after.lst # global-def
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
@@ -6157,6 +6158,7 @@ function CygbuildPatchApplyQuiltMaybe()
 function CygbuildPatchApplyMaybe()
 {
     local id="$0.$FUNCNAME"
+
     local dir="$DIR_CYGPATCH"
     local statfile="$CYGPATCH_DONE_PATCHES_FILE"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -6167,7 +6169,7 @@ function CygbuildPatchApplyMaybe()
 
     local verb="$verbose"
     local statCheck="statCheck"
-    local force
+    local force dummy
 
     if CygbuildIsGbsCompat ; then
         #   During source package 'all' command turn this on, so that
@@ -6196,6 +6198,7 @@ function CygbuildPatchApplyMaybe()
 
     [ -s $retval ] || return 0
 
+
     local list=$(< $retval)
 
     [ "$msg" ] && CygbuildEcho "$msg"
@@ -6221,7 +6224,8 @@ function CygbuildPatchApplyMaybe()
 
     # FIXME: patch-before.sh
 
-    local file
+
+    local files
 
     for file in $list
     do
@@ -6239,8 +6243,8 @@ function CygbuildPatchApplyMaybe()
                 local basename=${name##*/}
 
                 if $grep "$name" "$statfile" ; then
-                    record="$name"
                     done=done
+                    record="$name"
                 elif [[ "$name" == */* ]] &&
                      $grep "$basename" "$statfile"
                 then
@@ -6290,6 +6294,7 @@ function CygbuildPatchApplyMaybe()
         CygbuildPatchApplyRun "$file" $opt ||
         CygbuildDie "-- [FATAL] Exiting."
 
+
         if [ "$cmd" = "unpatch" ] && [ "$statCheck" ] ; then
 
             if [ -f "$statfile" ]; then
@@ -6302,11 +6307,11 @@ function CygbuildPatchApplyMaybe()
                 rm --force "$statfile"  # Remove empty file
             fi
 
-        else
+        elif [ "$cmd" = "patch" ] && [ "$statCheck" ] ; then
+	    local dummy="Recording patch $name"
             echo $name >> $statfile
         fi
     done
-
 }
 
 function CygbuildCmdMkpatchMain()
@@ -10665,6 +10670,13 @@ function CygbuildCmdInstallListExists()
     [ -f "$file" ]
 }
 
+function CygbuildCmdInstallAfterListExists()
+{
+    local file="$SCRIPT_INSTALL_AFTER_LST_CYGFILE"
+
+    [ -f "$file" ]
+}
+
 function CygbuildCmdDeleteListExists()
 {
     local file="$SCRIPT_DELETE_LST_CYGFILE"
@@ -10711,7 +10723,8 @@ function CygbuildCmdDeleteList()
 
 function CygbuildCmdInstallList()
 {
-    local file="$SCRIPT_INSTALL_LST_CYGFILE"
+    local id="$0.$FUNCNAME"
+    local file=${1:-$SCRIPT_INSTALL_LST_CYGFILE}
 
     [ -f "$file" ] || return 1
 
@@ -10831,6 +10844,12 @@ function CygbuildCmdInstallList()
     return $status
 }
 
+function CygbuildCmdInstallAfterList()
+{
+    local id="$0.$FUNCNAME"
+    CygbuildCmdInstallList $SCRIPT_INSTALL_LST_CYGFILE
+}
+
 function CygbuildCmdInstallMain()
 {
     local id="$0.$FUNCNAME"
@@ -10915,6 +10934,15 @@ function CygbuildCmdInstallMain()
 
         if CygbuildCmdDeleteListExists ; then
             CygbuildCmdDeleteList ||
+            {
+                status=$?
+                CygbuildPopd
+                return $status
+            }
+	fi
+
+        if CygbuildCmdInstallAfterListExists ; then
+            CygbuildCmdInstallAfterList ||
             {
                 status=$?
                 CygbuildPopd
@@ -12166,7 +12194,7 @@ function CygbuildCommandMain()
                 if [ -d "$dir" ]; then
                     install="install"
                     CygbuildCmdMkdirs
-                    CygbuildPatchApplyMaybe
+                    CygbuildPatchApplyMaybe "patch"
                 else
                   CygbuildCmdMkdirs
                   CygbuildCmdFilesMain
