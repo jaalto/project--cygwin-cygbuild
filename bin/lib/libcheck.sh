@@ -1753,7 +1753,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [ ! "$installed" ]; then
 
-	    local str
+	    local str=""
             CygbuildWhich "$name" > $retval
             [ -s "$retval" ] && str=$(< $retval)
 

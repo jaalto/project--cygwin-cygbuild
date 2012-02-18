@@ -1,5 +1,8 @@
 2012-02-18 Sat  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Set
+	variable str to empty before checking is binary exists.
+
 	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call to
 	CygbuildCmdDeleteListExists().
 	(CygbuildCmdInstallAfterListExists): New.
@@ -7,6 +10,7 @@
 	(CygbuildCmdInstallMain): Call CygbuildCmdInstallAfterList.
 	(CygbuildCmdDeleteAfterListExists): New.
 	(CygbuildCmdInstallMain): Move CygbuildCmdDeleteListExists call.
+	(CygbuildWhich): Define PATH
 
 2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 

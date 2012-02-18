@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0218.1430"
+CYGBUILD_VERSION="2012.0218.1658"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -162,7 +162,10 @@ function CygbuildWhich()
     # Do NOT use which(1) under Cygwin. It does not find programs that
     # are symlinks
 
-    [ "$1" ] && type -p "$1" 2> /dev/null
+    if [ "$1" ]; then
+	PATH="/bin:/sbin:/usr/sbin:/usr/bin:/usr/local/bin" \
+	    type -p "$1" 2> /dev/null
+    fi
 }
 
 function CygbuildWhichCheck()
