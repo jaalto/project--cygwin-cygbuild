@@ -5,6 +5,7 @@
 	(CygbuildIndentFilter): New.
 	(CygbuildCmdDeleteList): Use CygbuildIndentFilter.
 	(CygbuildCmdInstallList): Use CygbuildIndentFilter.
+	(CygbuildCmdStripMain): Adjust message
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): Adjust
 	return status codes. Turn WARN into ERROR messages.

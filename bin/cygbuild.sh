@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0219.0817"
+CYGBUILD_VERSION="2012.0219.0826"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -9649,6 +9649,11 @@ function CygbuildInstallPackageDocs()
         fi
     fi
 
+    if [ ! "$dir" ]; then
+        CygbuildVerb "   [NOTE] No documentation directories detected"
+	return 0
+    fi
+
     CygbuildEcho "-- Installing docs from" ${dir#$srcdir/}
 
     CygbuildRun $scriptInstallDir $dest || return $?
@@ -9863,7 +9868,7 @@ function CygbuildInstallExtraManualCompress()
     CygbuildVerb "-- Compressing manual pages" ${test:+(TEST MODE)}
 
     if [ ! -d "$instdocdir" ]; then
-        CygbuildWarn "-- [WARN] Directory not found:" ${instdocdir#$srcdir/}
+        CygbuildWarn "   [WARN] Directory not found:" ${instdocdir#$srcdir/}
     else
 
         find $instdocdir            \
@@ -11110,7 +11115,7 @@ function CygbuildCmdStripMain()
         type=$(< $retval.type)
 
         if [[ "$type" == *Intel* ]]; then
-            CygbuildVerb "-- strip $file"
+            CygbuildVerb "   [NOTE] strip" ${file#$srcdir/}
             strip "$file"
 
         else
