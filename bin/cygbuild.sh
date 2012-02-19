@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0219.0815"
+CYGBUILD_VERSION="2012.0219.0817"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10746,7 +10746,8 @@ function CygbuildCmdDeleteList()
     do
         local dummy="pattern:$pattern opt:$opt"        # for debugging only
 
-        ${test:+echo} rm --force $opt ${verbose+--verbose} $pattern
+        ${test:+echo} rm --force $opt ${verbose+--verbose} $pattern |
+	CygbuildIndentFilter
 
     done < $out
 

@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh (CygbuildInstallFixInterpreterPerl): Use
 	unified diff.
 	(CygbuildIndentFilter): New.
+	(CygbuildCmdDeleteList): Use CygbuildIndentFilter.
+	(CygbuildCmdInstallList): Use CygbuildIndentFilter.
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): Adjust
 	return status codes. Turn WARN into ERROR messages.
