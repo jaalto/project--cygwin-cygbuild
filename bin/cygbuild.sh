@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0219.0813"
+CYGBUILD_VERSION="2012.0219.0815"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2173,7 +2173,7 @@ function CygbuildCygcheckLibraryDepGrepPgkNamesCache()
     ' liblist="$list" $cache > $retval.tmp
 
     if [ -s $retval.tmp ]; then
-        sed 's/^/   /' $retval.tmp >&2
+        CygbuildIndentFilter $retval.tmp >&2
         awk '! /cannot/ {print $2}' $retval.tmp >> $retval.collect
     fi
 
@@ -5813,7 +5813,7 @@ function CygbuildCmdPkgBinaryStandard()
         cd $instdir || exit 1
 
         tar $taropt $pkg *  |  # must be "*", not "." => would cause ./path/..
-	sed 's/^/   /'
+	CygbuildIndentFilter
 
         status=$?
     CygbuildPopd
@@ -8716,7 +8716,7 @@ function CygbuildConfOptionAdjustment()
 
         if [ -s "$retval" ] ; then
             CygbuildWarn "-- [NOTE] Configure supports additional options:"
-            sed 's/^/ /' $retval >&2
+            CygbuildIndentFilter $retval >&2
         fi
     fi
 
@@ -10148,7 +10148,7 @@ function CygbuildInstallFixInterpreterPerl ()
         if [ "$verbose" ]; then
 	    diff --unified "$file" $retval |
 	    $EGREP '^[-+][^+-]' |
-	    sed 's/^/   /'
+	    CygbuildIndentFilter
 	fi
 
         mv --force $retval "$file"
@@ -10669,7 +10669,7 @@ function CygbuildCmdInstallFinishMessage()
     if [ "$verbose" ]; then
         CygbuildEcho "-- Content of: $relative"
         find -L ${instdir#$(pwd)/} -print |
-	sed 's/^/   /'
+	CygbuildIndentFilter
     else
         [ ! "$test" ] &&
         CygbuildEcho "-- See also: find $relative -type f | sort"
@@ -11375,7 +11375,7 @@ function CygbuildCmdFinishMain()
 
             CygbuildPushd
                 #   Display *-src package and binary package
-                cd "$TOPDIR" && ls --all -lt | head --lines=3 | sed 's/^/   /'
+                cd "$TOPDIR" && ls --all -lt | head --lines=3 | CygbuildIndentFilter
             CygbuildPopd
         fi
 
