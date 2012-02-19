@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0219.0746"
+CYGBUILD_VERSION="2012.0219.0813"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -166,6 +166,13 @@ function CygbuildWhich()
 	PATH="/bin:/sbin:/usr/sbin:/usr/bin:/usr/local/bin" \
 	    type -p "$1" 2> /dev/null
     fi
+}
+
+function CygbuildIndentFilter()
+{
+    # Covert all mv --verbose etc. messages into more user friendly
+    # Format. Remove all SMART quotes.
+    sed -e "s,$srcdir/,,g" -e "s/[\`']//g" -e 's/^/   /' ${1+"$@"}
 }
 
 function CygbuildWhichCheck()
@@ -4650,7 +4657,7 @@ function CygbuildFileCleanNow()
         fi
 
         if [ -f "$file" ]; then
-            rm $verbose -f "$file"
+            rm $verbose -f "$file" | CygbuildIndentFilter
         fi
     done
 }
@@ -5804,7 +5811,10 @@ function CygbuildCmdPkgBinaryStandard()
 
     CygbuildPushd
         cd $instdir || exit 1
-        tar $taropt $pkg *    # must be "*", not "." => would cause ./path/..
+
+        tar $taropt $pkg *  |  # must be "*", not "." => would cause ./path/..
+	sed 's/^/   /'
+
         status=$?
     CygbuildPopd
 
@@ -10658,7 +10668,8 @@ function CygbuildCmdInstallFinishMessage()
 
     if [ "$verbose" ]; then
         CygbuildEcho "-- Content of: $relative"
-        find -L ${instdir#$(pwd)/} -print
+        find -L ${instdir#$(pwd)/} -print |
+	sed 's/^/   /'
     else
         [ ! "$test" ] &&
         CygbuildEcho "-- See also: find $relative -type f | sort"
@@ -10833,11 +10844,17 @@ function CygbuildCmdInstallList()
             continue
 
         elif [[ "$to" == */ ]]; then
-            ${test:+echo} install ${verbose+--verbose} -m 755 -d $instdir/$to
+            ${test:+echo} install ${verbose+--verbose} \
+		-m 755 \
+		-d $instdir/$to 2>&1 |
+	    CygbuildIndentFilter
 
         elif [[ "$to" == */* ]]; then
             local dir=${to%/*}
-            ${test:+echo} install ${verbose+--verbose} -m 755 -d $instdir/$dir
+            ${test:+echo} install ${verbose+--verbose} \
+		-m 755 \
+		-d $instdir/$dir 2>&1 |
+	    CygbuildIndentFilter
 
         else
             CygbuildWarn "$id: [WARN] Skipped." \
@@ -10861,8 +10878,11 @@ function CygbuildCmdInstallList()
         to=${to%/}                      # No trailing slash
         local tofile=$instdir/$to
 
-        ${test:+echo} install ${verbose+--verbose} -m $mode $builddir/$from $tofile ||
-        status=$?
+        ${test:+echo} install ${verbose+--verbose} \
+	    -m $mode $builddir/$from $tofile |
+	CygbuildIndentFilter
+
+	[ -e $tofile ] || status=$?
 
     done < $out
 
@@ -11040,7 +11060,7 @@ function CygbuildCmdScriptRunMain()
 
             if [ -d "$dir" ]; then
                 CygbuildEcho "-- [DEBUG] Content of info 'dir'"
-                find "$dir" -print
+                find "$dir" -print | CygbuildIndentFilter
                 cat "$dir/dir"
             fi
         fi
