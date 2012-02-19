@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0219.0711"
+CYGBUILD_VERSION="2012.0219.0746"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2286,8 +2286,7 @@ function CygbuildCygcheckMain()
         file=${file#$srcdir/}           # Make relative path
 
         CygbuildEcho "-- Wait, listing depends"
-        $CYGCHECK "$file" |
-	sed "s,$srcdir/,,"
+        $CYGCHECK "$file"
 
         CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
@@ -10136,7 +10135,12 @@ function CygbuildInstallFixInterpreterPerl ()
        CygbuildFileCmpDiffer "$file" $retval
     then
         CygbuildEcho "-- [NOTE] Fixing Perl call line in $_file"
-        [ "$verbose" ] && diff "$file" $retval
+        if [ "$verbose" ]; then
+	    diff --unified "$file" $retval |
+	    $EGREP '^[-+][^+-]' |
+	    sed 's/^/   /'
+	fi
+
         mv --force $retval "$file"
     fi
 }

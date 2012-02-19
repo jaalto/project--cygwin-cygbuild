@@ -1,5 +1,8 @@
 2012-02-19 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh (CygbuildInstallFixInterpreterPerl): Use
+	unified diff.
+
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): Adjust
 	return status codes. Turn WARN into ERROR messages.
 
