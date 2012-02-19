@@ -47,7 +47,7 @@ function CygbuildCmdInstallCheckMakefiles()
     $EGREP --invert-match '\.dll'  > $retval
 
     if [ -s "$retval" ]; then
-        CygbuildEcho "-- [NOTE] Possibly linked by using static libraries"
+        CygbuildEcho "   [NOTE] Possibly linked by using static libraries"
         cat $retval | sed "s,^$srcdir/,,"
     fi
 }
@@ -69,7 +69,7 @@ function CygbuildCmdInstallCheckTempFiles()
         [[ "$file" == $ignore ]] && continue
 
         [ ! "$done" ] && CygbuildWarn \
-                         "-- [ERROR] Check zero length files or backup files"
+                         "   [ERROR] Check zero length files or backup files"
 
         done="done"
         ret=1
@@ -102,7 +102,7 @@ function CygbuildCmdInstallCheckInfoFiles()
         local file="$SCRIPT_POSTINSTALL_CYGFILE"
 
         if [ ! -f "$file" ]; then
-            CygbuildEcho "-- [ERROR] Info files found" \
+            CygbuildEcho "   [ERROR] Info files found" \
                  "but there is no ${file/$srcdir\//}"
             return 1
         fi
@@ -135,7 +135,7 @@ function CygbuildCmdInstallCheckTexiFiles()
 	    info="$infodir/$name.info"
 
 	    if [ ! -f "$info" ]; then
-		CygbuildEcho "-- [NOTE] Texi, but no info file" \
+		CygbuildEcho "   [NOTE] Texi, but no info file" \
 		    ${info#$srcdir/}
 	    fi
 
@@ -174,7 +174,7 @@ function CygbuildCmdInstallCheckPerlFile ()
 
         #  Cannot locate Time/ParseDate.pm in @INC ...
         CygbuildWarn \
-            "-- [WARN] $name: requires external Perl libraries (CPAN)"
+            "   [WARN] $name: requires external Perl libraries (CPAN)"
 
 	CygbuildWarn "$notes"
 
@@ -183,7 +183,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         #  Example: Unquoted string "imsort" may clash with future
         #           reserved word at foo.pl line 143.
         CygbuildVerb \
-            "-- [NOTE] $name: report compile warnings to upstream author"
+            "   [NOTE] $name: report compile warnings to upstream author"
 
         CygbuildVerb "$notes"
     fi
@@ -192,7 +192,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         # All is fine
         :
     elif [[ "$notes" == *syntax* ]]; then
-        CygbuildWarn "-- [ERROR] $name: cannot be run"
+        CygbuildWarn "   [ERROR] $name: cannot be run"
         return 1
     fi
 
@@ -205,7 +205,7 @@ function CygbuildCmdInstallCheckPerlFile ()
     if ! echo $binpath | $EGREP --quiet '^#![[:space:]]*/' ; then
 
         CygbuildWarn \
-            "-- [NOTE] $name incorrect or missing bang-slash line, fixing it"
+            "   [NOTE] $name incorrect or missing bang-slash line, fixing it"
 
 	cat "$retval"
 
@@ -217,27 +217,27 @@ function CygbuildCmdInstallCheckPerlFile ()
 
     elif [[ ! $binpath == *$plpath* ]]; then
 
-        CygbuildWarn "-- [WARN] $name uses wrong perl path, fixing it."
+        CygbuildWarn "   [WARN] $name uses wrong perl path, fixing it."
         sed -e "s,^#!.*,#!$plpath," "$file" > "$newfile" &&
         CygbuildRun mv "$newfile" "$file"
 
     fi
 
     if $EGREP '^[^#]*\<cp[[:space:]]+-l\>' $file ; then
-        CygbuildEcho "-- [NOTE] cp -l detected;" \
+        CygbuildEcho "   [NOTE] cp -l detected;" \
 	    "only efficient under NTFS: $_file"
     fi
 
     if CygbuildGrepCheck '^=pod' $file ; then
-        CygbuildEcho "-- [INFO] POD section in $file"
+        CygbuildEcho "   [INFO] POD section in $file"
     else
 
         if CygbuildGrepCheck '^=cut' $file ; then
             #  Sometimes developers do not write well formed POD.
-            CygbuildEcho "-- [NOTE] =pod tag is missing, but POD found:" \
+            CygbuildEcho "   [NOTE] =pod tag is missing, but POD found:" \
 		$_file
         else
-            CygbuildEcho "-- [INFO] No embedded POD found from $_file"
+            CygbuildEcho "   [INFO] No embedded POD found from $_file"
         fi
     fi
 }
@@ -259,15 +259,15 @@ function CygbuildCmdInstallCheckPythonFile ()
 
     if [ ! "$binpath" ]; then
         CygbuildWarn \
-            "-- [WARN] $name incorrect/missing bang-slash #!, fixing it."
+            "   [WARN] $name incorrect/missing bang-slash #!, fixing it."
         echo "#!$pypath" > "$newfile" &&
         cat "$file" >> "$newfile"    &&
         CygbuildRun mv "$newfile" "$file"
     fi
 
     if [[ $binpath != *@($pypath|/usr/bin/env python) ]]; then
-        CygbuildWarn "-- [WARN] $name uses wrong python path, fixing it."
-        sed -e "s,^#!.*,#!$pypath," "$file" > "$newfile" &&
+        CygbuildWarn "   [WARN] $name uses wrong python path, fixing it."
+        sed "s,^#!.*,#!$pypath," "$file" > "$newfile" &&
         CygbuildRun cp "$newfile" "$file"
     fi
 }
@@ -303,13 +303,13 @@ function CygbuildCmdInstallCheckShellFiles ()
                 awk '{printf("-> %s\n", $(NF)) }'
             )
 
-            CygbuildEcho "-- [NOTE] symbolic link:" \
+            CygbuildEcho "   [NOTE] symbolic link:" \
                  ${file/$srcdir\/} $link
 
             if CygbuildPathResolveSymlink "$file" > $retval ; then
                 file=$(< $retval)
             else
-                CygbuildWarn "-- [WARN] Couldn't resolve symlink"
+                CygbuildWarn "   [WARN] Couldn't resolve symlink"
             fi
         fi
 
@@ -369,11 +369,14 @@ function CygbuildCmdInstallCheckReadme()
     local readme="$PKG*.README"
     local status=0
 
+    CygbuildEcho "-- README checks"
+
+
     find -L $dir -name "$readme"  > $retval
 
     if [ ! -s $retval ]; then
-        CygbuildWarn "-- [WARN] File is missing: $readme"
-        let "status=status + 10"
+        CygbuildWarn "   [ERROR] File is missing: $readme"
+        status=10
         return $status
     fi
 
@@ -383,8 +386,8 @@ function CygbuildCmdInstallCheckReadme()
     pkg=${pkg%.README}
 
     if [ "$pkg" != "$PKG-$VER" ]; then
-        CygbuildEcho "-- [ERROR] README name mismatch: $pkg != $PKG-$VER"
-        let "status=status + 10"
+        CygbuildEcho "   [ERROR] README name mismatch: $pkg != $PKG-$VER"
+        status=20
     fi
 
     local purename=${path##*/}
@@ -402,10 +405,10 @@ function CygbuildCmdInstallCheckReadme()
     [ -s "$retval" ] && notes=$(< $retval)
 
     if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
-        CygbuildWarn "-- [WARN] Tags found: $tags"
-        CygbuildWarn "-- [WARN] edit" ${origreadme#$srcdir/}
-        CygbuildWarn "$notes"
-        let "status=status + 10"
+        CygbuildWarn "   [ERROR] Template tags found: $tags"
+        CygbuildWarn "   [ERROR] edit" ${origreadme#$srcdir/}
+        sed -e "s,$srcdir/,,"  -e 's/^/   /' $retval
+        status=30
     fi
 
     #   It is easy to mistakenly write:
@@ -421,10 +424,10 @@ function CygbuildCmdInstallCheckReadme()
     [ -s "$retval" ] && notes=$(< $retval)
 
     if [[ "$notes" == *[a-zA-Z0-9]* ]]; then
-        CygbuildWarn "-- [WARN] Tags found: $tags"
-        CygbuildWarn "-- [WARN] edit $origreadme"
-        CygbuildWarn "$notes"
-        let "status=status + 10"
+        CygbuildWarn "   [ERROR] Tags found: $tags"
+        CygbuildWarn "   [ERROR] edit " ${origreadme#$srcdir}
+        sed -e "s,$srcdir/,,"  -e 's/^/   /' $retval
+        status=40
     fi
 
     #   Check that ----- version 4.2.7-1 ----- corresponds
@@ -455,18 +458,18 @@ function CygbuildCmdInstallCheckReadme()
         local version=$VER-${REL:-1}
 
         CygbuildWarn \
-            "-- [WARN] Missing reference $version -" \
-            "Perhaps you didn't run [install] after edit?" \
-            "from" ${path#$srcdir/}
+            "   [ERROR] Missing reference '$version'" \
+            "Perhaps you didn't run [install] after editing" \
+            ${path#$srcdir/}
 
         if [ "$verbose" ]; then
 	    $EGREP --with-filename "$sversion" ${path#$srcdir/}
 	fi
 
         CygbuildWarn \
-            "-- [INFO] Give different -r RELEASE or edit $origreadme"
+            "   [INFO] Give different -r RELEASE or edit" ${origreadme#$srcdir}
 
-        let "status=status + 10"
+        status=50
     fi
 
     return $status
@@ -493,7 +496,7 @@ function CygbuildCmdInstallCheckSetupHintQuotes()
 
 	    if (endquote == 0)
 	    {
-		printf("%s\n-- [ERROR] missing ending quote\n", prev)
+		printf("%s\n   [ERROR] missing ending quote\n", prev)
 	    }
 
 	    endquote = -1
@@ -505,7 +508,7 @@ function CygbuildCmdInstallCheckSetupHintQuotes()
 
 	    if (endquote == 0)
 	    {
-		printf("%s\n-- [ERROR] missing ending quote\n", prev)
+		printf("%s\n   [ERROR] missing ending quote\n", prev)
 	    }
 
 	    prev = $0
@@ -521,7 +524,7 @@ function CygbuildCmdInstallCheckSetupHintQuotes()
 	    next
 	}
         start == 1 {
-            printf( "%s\n-- [ERROR] missing opening quote\n", $0)
+            printf( "%s\n   [ERROR] missing opening quote\n", $0)
             start = 0
             next
         }
@@ -563,7 +566,7 @@ function CygbuildCmdInstallCheckSetupHintFieldNames()
             {
                 if ( ! hash[var] )
                 {
-                    printf("-- [ERROR] missing field %s:\n", var)
+                    printf("   [ERROR] missing field %s:\n", var)
                 }
             }
         }
@@ -583,18 +586,18 @@ function CygbuildCmdInstallCheckSetupHintSdesc()
 
     if $EGREP --quiet "^sdesc:.+\.[[:space:]]*\"" $path
     then
-        CygbuildWarn "-- [ERROR] sdesc: contains extra period(.)"
+        CygbuildWarn "   [ERROR] sdesc: contains extra period(.)"
     fi
 
     if $EGREP "^sdesc:[[:space:]]*\"[[:space:]]*[a-z]" $path > $retval
     then
-        CygbuildWarn "-- [ERROR] sdesc: Starting sentence not capitalized"
+        CygbuildWarn "   [ERROR] sdesc: Starting sentence not capitalized"
         cat $retval
     fi
 
     if ! $EGREP --quiet "^sdesc:.*\"" $path
     then
-        CygbuildWarn "-- [ERROR] sdesc: No starting double quote"
+        CygbuildWarn "   [ERROR] sdesc: No starting double quote"
     fi
 }
 
@@ -650,7 +653,7 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
     fi
 
     if ! $EGREP --ignore-case "^category:" $path > $retval ; then
-	CygbuildWarn "-- [ERROR] setup.hint lacks header Category:"
+	CygbuildWarn "   [ERROR] setup.hint lacks header Category:"
 	return 1
     fi
 
@@ -664,7 +667,7 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
 	item=${item/$cr/}   # remove CR from the last item
 
 	if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
-	    CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"
+	    CygbuildWarn "   [ERROR] setup.hint::Category is unknon: $item"
 	fi
     done
 }
@@ -694,7 +697,7 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
             }
 
             print;
-            print "-- [WARN] ldesc: mentions package name at first line" ;
+            print "   [WARN] ldesc: mentions package name at first line" ;
             exit 0;
         }
 
@@ -710,7 +713,7 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
             if ( match($0, /\"./) > 0 )
             {
                 print;
-                print "-- [ERROR] ldesc: extra quotes: " $0
+                print "   [ERROR] ldesc: extra quotes: " $0
                 exit 1;
             }
         }
@@ -725,7 +728,7 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     local path=${1:-/dev/null}
 
     if [ ! -s "$database" ] ; then
-	CygbuildVerb "-- [NOTE] Not exists: $database"
+	CygbuildVerb "   [NOTE] Not exists: $database"
 	return 0
     fi
 
@@ -743,9 +746,9 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
 
         if $EGREP --quiet --files-with-matches "\<$re\>" "$database"
         then
-            CygbuildEcho "-- OK requires: $lib"
+            CygbuildEcho "   OK, requires: $lib"
         else
-            CygbuildWarn "-- [ERROR] requires: '$lib' package not installed." \
+            CygbuildWarn "   [ERROR] requires: '$lib' package not installed." \
 		         "Close matches, if any, below."
 
 	    ${AWK:-awk} '$1 ~ re {
@@ -760,6 +763,8 @@ function CygbuildCmdInstallCheckSetupHintCategory()
     #  Check category line
     local path=${1:-/dev/null}
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    CygbuildEcho "-- setup.hint 'category:' checks"
 
     head --lines=1 $instdir/usr/bin/* > "$retval" 2> /dev/null
 
@@ -784,7 +789,7 @@ function CygbuildCmdInstallCheckSetupHintCategory()
                 }
 
                 print;
-                print "-- [WARN] category: should include " name
+                print "   [WARN] category: should include " name
                 exit 0;
             }
 
@@ -803,7 +808,7 @@ function CygbuildCmdInstallCheckSetupHintMain()
     CygbuildEcho "-- setup.hint checks"
 
     if [ ! -d "$dir" ]; then
-        CygbuildWarn "-- [WARN] Cannot check $file. No $dir"
+        CygbuildWarn "   [WARN] Cannot check $file. No $dir"
         return 1
     fi
 
@@ -811,7 +816,7 @@ function CygbuildCmdInstallCheckSetupHintMain()
     find -L $dir -name "$file"  > $retval 2> /dev/null
 
     if [ ! -s $retval ]; then
-        CygbuildWarn "-- [ERROR] missing: $file"
+        CygbuildWarn "   [ERROR] missing: $file"
         return 1
     fi
 
@@ -1032,7 +1037,7 @@ function CygbuildCmdInstallCheckLibrariesPerl()
 	    mv $deps.fixed $deps
 	fi
 
-	CygbuildEcho "-- Possible libary deps in" ${file#$srcdir/}
+	CygbuildEcho "   POSSIBLE LIBARY DEPS IN" ${file#$srcdir/}
 	sort -r $deps | sed 's/^/   / ; s/ \+$//'    # CPAN last
     fi
 }
@@ -1288,7 +1293,7 @@ function CygbuildCmdInstallCheckFSFaddress()
     local url="http://savannah.gnu.org/forum/forum.php?forum_id=3766"
     local new="51 Franklin St, Fifth Floor, Boston, MA, 02111-1301 USA"
 
-    CygbuildEcho "-- [NOTE] Old FSF address (new is <$url>: $new)"
+    CygbuildEcho "   [NOTE] Old FSF address (new is <$url>: $new)"
     cat $retval
 }
 
@@ -1318,7 +1323,7 @@ function CygbuildCmdInstallCheckLineEndings()
 	    $EGREP --files-with-matches "\^M"	\
             > /dev/null 2>&1
         then
-            CygbuildEcho "-- [INFO] Converting to Unix line endings in dir" \
+            CygbuildEcho "   [INFO] Converting to Unix line endings in dir" \
 			 ${DIR_CYGPATCH#$srcdir/}
             CygbuildFileConvertToUnix $DIR_CYGPATCH/*
         fi
@@ -1332,6 +1337,8 @@ function CygbuildCmdInstallCheckManualPages()
     local addsect=$CYGBUILD_MAN_SECTION_ADDITIONAL
     local dir="$instdir"
 
+    CygbuildEcho "-- Manual page checks"
+
     #   Every binary files should have corresponding manual page
 
     CygbuildFilesExecutable "$dir" > $retval
@@ -1340,7 +1347,7 @@ function CygbuildCmdInstallCheckManualPages()
 
     if [ ! "$files" ]; then
         #   No executables, this may be a library package
-        CygbuildEcho "-- [INFO] Manual page check: no executables found in" \
+        CygbuildEcho "   [INFO] Manual page check: no executables found in" \
              ${dir/$srcdir\/}
         return 0
     fi
@@ -1374,7 +1381,7 @@ function CygbuildCmdInstallCheckManualPages()
 	fi
 
 	if [ ! "$itest" = "0" ]; then
-	    CygbuildWarn "-- [ERROR] integrity check failed:" ${file#$srcdir/}
+	    CygbuildWarn "   [ERROR] integrity check failed:" ${file#$srcdir/}
 	    cat $retval.test
 	fi
 
@@ -1390,7 +1397,7 @@ function CygbuildCmdInstallCheckManualPages()
     done < $retval
 
     if [ -s $retval.debian ]; then
-        CygbuildEcho "-- [INFO] If manpage is from Debian, it may need editing"
+        CygbuildEcho "   [INFO] If manpage is from Debian, it may need editing"
         cat $retval.debian
     fi
 
@@ -1403,7 +1410,7 @@ function CygbuildCmdInstallCheckManualPages()
     for path in $manPathList
     do
         if [[ $path != *$try* ]]; then
-            CygbuildWarn "-- [ERROR] incorrect manual path; want $try:" \
+            CygbuildWarn "   [ERROR] incorrect manual path; want $try:" \
                          ${path/$srcdir\/}
             status=1
         fi
@@ -1435,7 +1442,7 @@ function CygbuildCmdInstallCheckManualPages()
         #   File start starts with leading dot?
 
         if [[ $file == */bin/* ]] && [[ $nameplain == .* ]]; then
-            CygbuildWarn "-- [WARN] Suspicious file $file"
+            CygbuildWarn "   [WARN] Suspicious file $file"
         fi
 
         #   The LIST is a string containing binary names and they are
@@ -1454,7 +1461,7 @@ function CygbuildCmdInstallCheckManualPages()
             :    # program.sh.1
 
         else
-            CygbuildWarn "-- [WARN] No manual page for $file"
+            CygbuildWarn "   [WARN] No manual page for $file"
         fi
 
     done
@@ -1483,7 +1490,7 @@ function CygbuildCmdInstallCheckPkgDocdir()
     while read item
     do
         status=1
-        CygbuildWarn "-- [ERROR] Wrong location $item"
+        CygbuildWarn "   [ERROR] Wrong location $item"
     done < $retval
 
     for item in contrib
@@ -1491,7 +1498,7 @@ function CygbuildCmdInstallCheckPkgDocdir()
         [ -d "$item" ]          || continue
         [ -d "$cygdoc/$item" ]  && continue
 
-        CygbuildEcho "-- [NOTE] $item/ possibly missing from $cygdoc"
+        CygbuildEcho "   [NOTE] $item/ possibly missing from $cygdoc"
     done
 
     return $status
@@ -1503,8 +1510,10 @@ function CygbuildCmdInstallCheckDocdir()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$DIR_DOC_GENERAL"
 
+    CygbuildEcho "-- DOC directory checks"
+
     if [ ! -d "$dir" ]; then
-        CygbuildWarn "-- [WARN] Hm, not found ${dir#$srcdir/}"
+        CygbuildWarn "   [WARN] Hm, not found ${dir#$srcdir/}"
 	return 0
     fi
 
@@ -1514,7 +1523,7 @@ function CygbuildCmdInstallCheckDocdir()
         > $retval
 
     if [ ! -s "$retval" ] ; then
-        CygbuildWarn "-- [WARN] Empty directory" ${dir/$srcdir\//}
+        CygbuildWarn "   [WARN] Empty directory" ${dir/$srcdir\//}
         return 1
     fi
 
@@ -1535,12 +1544,12 @@ function CygbuildCmdInstallCheckDocdir()
         [ -s "$retval.size" ] && size=$(< $retval.size)
 
         if [ $size = 0 ] ; then
-            CygbuildWarn "-- [WARN] empty file $_file"
+            CygbuildWarn "   [WARN] empty file $_file"
 
         elif [[ ! "$file" == *.@(gif|jpg|png|xpm) ]] &&
 	     (( $size < $minsize ))
 	then
-            CygbuildWarn "-- [WARN] Very small file ($size bytes) $_file"
+            CygbuildWarn "   [WARN] Very small file ($size bytes) $_file"
         fi
     done < $retval
 
@@ -1579,7 +1588,7 @@ CygbuildCygcheckLibraryDepSourceMake()
     # CygbuildDetermineReadmeFile > $retval.me
     # local readme=$(< $retval.me)
 
-    CygbuildWarn "-- [WARN] Possible build dependency"
+    CygbuildWarn "   [WARN] Possible build dependency"
     cat $retval.grep
 }
 
@@ -1622,7 +1631,7 @@ CygbuildCygcheckLibraryDepSourceCpp()
 
     [ -s $retval.grep ] || return 0
 
-    CygbuildWarn "-- [WARN] Possible external system calls"
+    CygbuildWarn "   [WARN] Possible external system calls"
     cat $retval.grep
 }
 
@@ -1654,7 +1663,7 @@ CygbuildCygcheckLibraryDepSourcePython()
 
     [ -s $retval.grep ] || return 0
 
-    CygbuildWarn "-- [WARN] Python::os.rename is" \
+    CygbuildWarn "   [WARN] Python::os.rename is" \
 	"likely to fail on Cygwin"
 
     cat $retval.grep
@@ -1681,6 +1690,8 @@ function CygbuildCmdInstallCheckBinFiles()
     local status=0
     local maxsize=1000000       # 1 Meg *.exe is big
 
+    CygbuildEcho "-- Installed executable checks"
+
     #   If we find binary files, but they are not in $instdir, then
     #   Makefile has serious errors
     #   FIXME: why is here a subshell wrapper?
@@ -1694,7 +1705,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
     if [ ! "$files" ]; then
         #   No executables, this may be a library package
-        CygbuildEcho "-- [INFO] Binaries check: no executables found in $dir"
+        CygbuildEcho "   [INFO] Binaries check: no executables found in $dir"
     fi
 
     #  All exe files must have +x permission
@@ -1713,7 +1724,7 @@ function CygbuildCmdInstallCheckBinFiles()
     > $retval
 
     if [ -s "$retval" ]; then
-        CygbuildWarn "-- [WARN] Some executables may have" \
+        CygbuildWarn "   [WARN] Some executables may have" \
                      "missing permission +x"
         cat "$retval"
         # status=1
@@ -1782,7 +1793,7 @@ function CygbuildCmdInstallCheckBinFiles()
             [ -s "$retval" ] && str=$(< $retval)
 
             if [ "$str" ]; then
-                CygbuildEcho "-- [NOTE] Binary name clash [$name]?" \
+                CygbuildEcho "   [NOTE] Binary name clash [$name]?" \
                              "Already exists ${str/$srcdir\//}"
                 # status=1
             fi
@@ -1799,25 +1810,25 @@ function CygbuildCmdInstallCheckBinFiles()
 	    [ -s "$retval" ] && size=$(< "$retval")
 
 	    if [[ ! "$size" == [0-9]* ]]; then
-		CygbuildWarn "-- [WARNING] Internal error, can't read" \
+		CygbuildWarn "   [WARNING] Internal error, can't read" \
 		    " size: '$file'"
 	    else
 		if [[ $size -gt $maxsize ]]; then
-		    CygbuildEcho "-- [NOTE] Big file, need" \
+		    CygbuildEcho "   [NOTE] Big file, need" \
 			 "dynamic linking? $size $file"
 		fi
             fi
         fi
 
 	if [[ "$file" == *.@(py|pl|rb) ]]; then
-	    CygbuildWarn "-- [WARN] Should not have extension in $_file"
+	    CygbuildWarn "   [WARN] Should not have extension in $_file"
 	fi
 
 	local str
         file "$file" > $retval
         [ -s "$retval" ] && str=$(< $retval)
 
-        local name=${file##*.inst}
+        local name=${file#$srcdir/}
 	local plbin="$PERLBIN"
 	local pybin="$PYTHONBIN"
 	local rbbin="$RUBYBIN"
@@ -1830,9 +1841,8 @@ function CygbuildCmdInstallCheckBinFiles()
         #   stripped
 	#
 
-
         if [[ "$str" == *Linux* ]]; then
-            CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
+            CygbuildEcho "   [ERROR] file(1) reports Linux executable: $name"
             status=1
 
         elif [[ "$str" == *executable*Windows\ \(console\)* ]] &&
@@ -1841,7 +1851,7 @@ function CygbuildCmdInstallCheckBinFiles()
 	    # All binaries must have ".exe" suffix
 	    # PE32 executable for MS Windows (console) Intel 80386 32-bit
 
-            CygbuildEcho "-- [ERROR] No *.exe suffix in $_file"
+            CygbuildEcho "   [ERROR] No *.exe suffix in $_file"
             status=1
 
         elif [[ "$str" == *executable*Windows\ \(DLL\)* ]] &&
@@ -1849,12 +1859,12 @@ function CygbuildCmdInstallCheckBinFiles()
 	then
 	    # *.so:  PE32 executable for MS Windows (DLL) (console) Intel 80386 32-bit
 
-            CygbuildEcho "-- [ERROR] No *.so or *.dll suffix in $_file"
+            CygbuildEcho "   [ERROR] No *.so or *.dll suffix in $_file"
             status=1
 
         elif [[ "$str" == *Bourne-Again* ]] && [[ ! $depends == *bash* ]]
 	then
-            CygbuildEcho "-- [ERROR] setup.hint may need Bash dependency" \
+            CygbuildEcho "   [ERROR] setup.hint may need Bash dependency" \
                  "for $name"
             status=1
 
@@ -1862,22 +1872,22 @@ function CygbuildCmdInstallCheckBinFiles()
 	     awk 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
 	     [[ ! $depends == *gawk* ]]
 	then
-            CygbuildEcho "-- [ERROR] setup.hint may need Gawk dependency" \
+            CygbuildEcho "   [ERROR] setup.hint may need Gawk dependency" \
                  "for $name"
             status=1
 
         elif [[ "$str" == *perl*   ]] && [[ ! $depends == *perl* ]] ; then
-            CygbuildEcho "-- [ERROR] setup.hint may need Perl dependency" \
+            CygbuildEcho "   [ERROR] setup.hint may need Perl dependency" \
                  "for $name"
             status=1
 
         elif [[ "$str" == *python* ]] && [[ ! $depends == *python* ]]  ; then
-            CygbuildEcho "-- [ERROR] setup.hint may need Python dependency" \
+            CygbuildEcho "   [ERROR] setup.hint may need Python dependency" \
                  "for $name"
             status=1
 
         elif [[ "$str" == *ruby* ]] && [[ ! $depends == *ruby* ]]  ; then
-            CygbuildEcho "-- [ERROR] setup.hint may need Ruby dependency" \
+            CygbuildEcho "   [ERROR] setup.hint may need Ruby dependency" \
                  "for $name"
             status=1
 	fi
@@ -1887,7 +1897,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             if ! $EGREP --quiet "$plbin([ \t]|$)" "$retval.1st"
             then
-                CygbuildWarn "-- [WARN] possibly wrong Perl call" \
+                CygbuildWarn "   [WARN] possibly wrong Perl call" \
                      "in $_file:" $(cat "$retval.1st")
             fi
 
@@ -1899,7 +1909,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             if ! $EGREP --quiet "$pybin([ \t]|$)" "$retval.1st"
             then
-                CygbuildWarn "-- [WARN] possibly wrong Python call" \
+                CygbuildWarn "   [WARN] possibly wrong Python call" \
                      "in $_file:" $(cat "$retval.1st")
             fi
 
@@ -1911,7 +1921,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
             if ! $EGREP --quiet "$rbbin([ \t]|$)" "$retval.1st"
             then
-                CygbuildWarn "-- [WARN] possibly wrong Ruby call" \
+                CygbuildWarn "   [WARN] possibly wrong Ruby call" \
                      "in $_file:" $(< "$retval.1st")
             fi
 
@@ -1922,7 +1932,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [ "$verbose"  ]; then
             str=${str##*:}          # Remove path
-            CygbuildEcho "-- $name: $str"
+            CygbuildEcho "   $name: $str"
 
             #   Show library dependencies
             [[ $file == *.exe ]] && CygbuildCygcheckMain "$file"
@@ -1958,7 +1968,7 @@ function CygbuildCmdInstallCheckSymlinks()
         link=${arr[$j]}
 
         if [[ "$link" == /* ]]; then
-            CygbuildWarn "-- [WARN] Absolute symlink $path -> $link"
+            CygbuildWarn "   [WARN] Absolute symlink $path -> $link"
         fi
     done < $retval
 }
@@ -1992,24 +2002,24 @@ function CygbuildCmdInstallCheckLibFiles()
     for file in $files
     do
         file=${file##$srcdir/}
-        CygbuildEcho "-- [INFO] Found lib $file"
+        CygbuildEcho "   [INFO] Found lib $file"
 
         [ "$verbose" ] && CygbuildCygcheckMain $file
 
         if [[ $file == *dll  &&  $file == *usr/lib/*/* ]]; then
 
             #  This is ok case: /usr/lib/foo/input/file.dll
-            # CygbuildEcho "-- [NOTE] Hm, dynamically loaded lib?"
+            # CygbuildEcho "   [NOTE] Hm, dynamically loaded lib?"
             :
 
         elif [[ $file == *.a  &&  ! $file == *usr/lib/* ]]; then
 
-            CygbuildEcho "-- [ERROR] Misplaced, should be in /usr/lib"
+            CygbuildEcho "   [ERROR] Misplaced, should be in /usr/lib"
             status=2
 
         elif [[ $file == *dll  &&  ! $file == *usr/bin/* ]]; then
 
-            CygbuildEcho "-- [ERROR] Misplaced, should be in /usr/bin"
+            CygbuildEcho "   [ERROR] Misplaced, should be in /usr/bin"
             status=2
         fi
 
@@ -2024,12 +2034,12 @@ function CygbuildCmdInstallCheckLibFiles()
 
     if [[ ! "$info"  &&  ! "$man" ]]; then
         CygbuildWarn \
-            "-- [NOTE] Libraries found, but no *.info or /man/ files"
+            "   [NOTE] Libraries found, but no *.info or /man/ files"
         # status=1
     fi
 
     if [[ "$files" != *.dll* ]]; then
-        CygbuildWarn "-- [WARN] Libraries found, but no *.dll files"
+        CygbuildWarn "   [WARN] Libraries found, but no *.dll files"
     fi
 
     return $status
@@ -2059,29 +2069,29 @@ function CygbuildCmdInstallCheckDirStructure()
 
 	if ls -F $tmp | $EGREP --quiet --invert-match '/' ; then
             error=1
-	    CygbuildWarn "-- [ERROR] Files found in toplevel dir" \
+	    CygbuildWarn "   [ERROR] Files found in toplevel dir" \
 			 ${tmp/$srcdir\/}
 	    ls -F $tmp
 	fi
     done
 
     if [ -d $pfx/X11R6 ]; then
-        CygbuildWarn "-- [ERROR] deprecated $pfx/X11R6"
+        CygbuildWarn "   [ERROR] deprecated $pfx/X11R6"
     fi
 
     local dir="$pfx/lib/X11/app-defaults"
 
     if [ -d "$dir" ]; then
-        CygbuildWarn "-- [ERROR] No etc/X11/app-defaults, move $dir"
+        CygbuildWarn "   [ERROR] No etc/X11/app-defaults, move $dir"
     fi
 
     if [ -d $instdir/doc ]; then
-        CygbuildWarn "-- [ERROR] Incorrect /doc should be /usr/doc"
+        CygbuildWarn "   [ERROR] Incorrect /doc should be /usr/doc"
     fi
 
     if [ -d $instdir/bin ]; then
         #  For shells this is valied, but for anything else...
-        CygbuildWarn "-- [WARN] /bin found. Should it be /usr/bin?"
+        CygbuildWarn "   [WARN] /bin found. Should it be /usr/bin?"
     fi
 
     if [ -d $instdir/etc ]; then
@@ -2102,7 +2112,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
                 _file=${file/$srcdir\//}
 
-                CygbuildWarn "-- [ERROR] Instead of $_file," \
+                CygbuildWarn "   [ERROR] Instead of $_file," \
                              "use /etc/defaults/etc and postinstall"
                 error=1
                 break
@@ -2117,17 +2127,17 @@ function CygbuildCmdInstallCheckDirStructure()
         for item in $instdir/user-share/*
         do
             if [ -f "$item" ]; then
-                CygbuildWarn "-- [ERROR] Use subdir for file $item"
+                CygbuildWarn "   [ERROR] Use subdir for file $item"
                 error=1
             elif [ -h $item ]; then
-                CygbuildWarn "-- [NOTE] Symlink found: $item"
+                CygbuildWarn "   [NOTE] Symlink found: $item"
             fi
         done
     fi
 
 
     if [ ! "$error" ]; then
-        CygbuildWarn "-- [ERROR] incorrect directory structure," \
+        CygbuildWarn "   [ERROR] incorrect directory structure," \
              "$instdir contain no bin/ usr/bin usr/games usr/sbin or usr/lib"
         return 1
     fi
@@ -2147,7 +2157,7 @@ function CygbuildCmdInstallCheckDirEmpty()
         [ "$dir" = "$instdir" ] && continue
 
         if ! ls -A "$dir" | $EGREP --quiet '[a-zA-Z0-9]' ; then
-            CygbuildWarn "-- [WARN] empty directory" ${dir/$srcdir\//}
+            CygbuildWarn "   [WARN] empty directory" ${dir/$srcdir\//}
         fi
 
     done < $retval
@@ -2166,7 +2176,7 @@ function CygbuildCmdInstallCheckEtc()
         [[ $file == $CYGBUILD_IGNORE_ETC_FILES ]] && continue
         [ ! -f "$file" ]                          && continue
 
-        CygbuildWarn "-- [WARN] May conflict with user's settings: $file"
+        CygbuildWarn "   [WARN] May conflict with user's settings: $file"
         status=1
     done
 
@@ -2186,7 +2196,7 @@ function CygbuildCmdInstallCheckSymlinkExe()
     find $instdir -type l -name '*.exe' > $retval
 
     if [ -s $retval ]; then
-        CygbuildEcho "-- [ERROR] Symlinks must not end to .exe."
+        CygbuildEcho "   [ERROR] Symlinks must not end to .exe."
             "Recompile with coreutils 6.9 installed."
         return 1
     fi
@@ -2213,7 +2223,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
         if $EGREP --line-number '[[:space:]]$' $file > $retval
         then
-            CygbuildEcho "-- [NOTE] Trailing whitespaces found in $file"
+            CygbuildEcho "   [NOTE] Trailing whitespaces found in $file"
             cat --show-nonprinting --show-tabs --show-ends $retval |
             sed 's/^/     /'
         fi
@@ -2221,7 +2231,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
         if $EGREP --line-number --ignore-case \
            'copyright.*YYYY|your +name|[<]firstname' $file > $retval
         then
-            CygbuildWarn "-- [WARN] Possible unfilled template line in $file"
+            CygbuildWarn "   [WARN] Possible unfilled template line in $file"
             sed 's/^/     /' $retval
         fi
     done < $retval.list

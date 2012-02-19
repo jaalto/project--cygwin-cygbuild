@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0218.1759"
+CYGBUILD_VERSION="2012.0219.0711"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -2286,7 +2286,8 @@ function CygbuildCygcheckMain()
         file=${file#$srcdir/}           # Make relative path
 
         CygbuildEcho "-- Wait, listing depends"
-        $CYGCHECK "$file" # | tee $retval 2> /dev/null
+        $CYGCHECK "$file" |
+	sed "s,$srcdir/,,"
 
         CygbuildCygcheckLibraryDepMain "$file" "$retval"
     done
@@ -10611,8 +10612,8 @@ function CygbuildCmdInstallCheckMain()
         return 0
     fi
 
-    . $lib || return $?
-    CygbuildCmdInstallCheckEverything
+    . $lib || return $?			# Syntax error
+    CygbuildCmdInstallCheckEverything	# Library call
 }
 
 function CygbuildCmdInstallDirClean ()
