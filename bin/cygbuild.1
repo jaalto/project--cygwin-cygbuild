@@ -1168,7 +1168,8 @@ OPTIONAL EXTERNAL FILES
 
         List install(1) compatible entries in separate lines. The format is:
 
-            <src>  <destination> [<mode, defaults to 755>]
+            <src> <destination> [<mode, defaults to 755>]
+            ln <destdir>/<src> <destination>
 
         If *destination* contains a trailing slash, the *src* is installed
         to that directory. If there is no trailing slash, the last element
@@ -1195,6 +1196,14 @@ OPTIONAL EXTERNAL FILES
         This effectiely produces command:
 
             install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
+
+        In case the first word is *ln*, the line is interpreted as a
+        symbolic link instruction effectively interpreted as follows The
+        DESTDIR part is always mandatory in orer to be able to "cd" to
+        correct location.
+
+            cd <destdir>
+            ls --symbolic <src> <destination>
 
         Comments starting with "#" and empty lines are ignored.
 
@@ -1241,10 +1250,15 @@ OPTIONAL EXTERNAL FILES
         meant writing the whole installation from scratch. Copy install
         example from template file "CYGWIN-PATCHES/Makefile.tmp".
 
+    install-after.lst
+        If this file exists, it is called after cygbuild has run its
+        standard installation steps. The format of the file is the same as
+        in install.lst.
+
     install-after.sh
         This script is for binary packages commands [package] and
         [package-devel]. If this script exists, it is called after cygbuild
-        has run it's standard installation steps.
+        has run its standard installation steps.
 
         Sometimes there is no need to write full custom "install.sh", but
         only combine efforts of packages standard command "make install"

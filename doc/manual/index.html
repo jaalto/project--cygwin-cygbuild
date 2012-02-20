@@ -1400,7 +1400,8 @@ case a custom <code>CYGWIN-PATCHES/distclean.sh</code> can be used. See also
 <p>List <a href="#install"><code>install(1)</code></a> compatible entries in separate lines. The
 format is:</p>
 <pre>
-    &lt;src&gt;  &lt;destination&gt; [&lt;mode, defaults to 755&gt;]</pre>
+    &lt;src&gt; &lt;destination&gt; [&lt;mode, defaults to 755&gt;]
+    ln &lt;destdir&gt;/&lt;src&gt; &lt;destination&gt;</pre>
 <p>If <em>destination</em> contains a trailing slash, the <em>src</em> is installed
 to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional <em>mode</em> argument
@@ -1423,6 +1424,12 @@ the matches <em>destination</em> componen fromt he left:</p>
 <p>This effectiely produces command:</p>
 <pre>
     install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/</pre>
+<p>In case the first word is <em>ln</em>, the line is interpreted as a symbolic
+link instruction effectively interpreted as follows The DESTDIR part is
+always mandatory in orer to be able to <code>cd</code> to correct location.</p>
+<pre>
+    cd &lt;destdir&gt;
+    ls --symbolic &lt;src&gt; &lt;destination&gt;</pre>
 <p>Comments starting with &quot;#&quot; and empty lines are ignored.</p>
 <p>Examples:</p>
 <pre>
@@ -1463,12 +1470,19 @@ and modify directly the original <code>Makefile</code>. Even if that meant writi
 the whole installation from scratch. Copy install example from template
 file <code>CYGWIN-PATCHES/Makefile.tmp</code>.</p>
 </dd>
+<dt><strong><a name="install_after_lst" class="item"><strong>install-after.lst</strong></a></strong></dt>
+
+<dd>
+<p>If this file exists, it is called after cygbuild has run its standard
+installation steps. The format of the file is the same as in
+<strong>install.lst</strong>.</p>
+</dd>
 <dt><strong><a name="install_after_sh" class="item"><strong>install-after.sh</strong></a></strong></dt>
 
 <dd>
 <p>This script is for binary packages commands <strong>[package]</strong> and
 <strong>[package-devel]</strong>. If this script exists, it is called after
-cygbuild has run it's standard installation steps.</p>
+cygbuild has run its standard installation steps.</p>
 <p>Sometimes there is no need to write full custom <a href="#install_sh"><code>install.sh</code></a>, but only
 combine efforts of packages standard command &quot;make install&quot; with a little
 cleanup afterward. For example, suppose that after packages &quot;make install&quot;
