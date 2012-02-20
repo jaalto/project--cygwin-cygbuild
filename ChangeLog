@@ -1,3 +1,7 @@
+2012-02-20 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Add symlink support.
+
 2012-02-19 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallFixInterpreterPerl): Use

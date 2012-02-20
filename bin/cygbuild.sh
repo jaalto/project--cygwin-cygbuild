@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0219.0826"
+CYGBUILD_VERSION="2012.0220.0713"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10791,10 +10791,34 @@ function CygbuildCmdInstallList()
 
     while read from to mode
     do
-
-        local dummy="from:$from to:$to"        # for debugging only
+        local dummy="from:$from to:$to mode:$mode"        # for debugging only
 
         [ "$from" ] || continue
+
+
+	if [ "$from" == "ln" ]; then
+
+	    #  "ln DIR/FILE  TOSYMLINK"
+	    #  cd DIR ; ln -s FILE TOSYMLINK
+
+	    local dir=$instdir/usr/bin
+
+	    if [[ "$from" == */* ]]; then
+		dir=$instdir/{from%/*}
+	    else
+                CygbuildWarn "$id: [WARN] skipped invalid entry: $from $to $mode"
+	    fi
+
+	    local name=${from##*/}
+
+	    CygbuildPushd
+	        cd $dir &&
+		ln ${verbose+--verbose} --symbolic $name $to |
+		CygbuildIndentFilter
+            CygbuildPopd
+
+	    continue
+	fi
 
         local ext                               # .sh .pl .1 .5 etc.
 
@@ -10831,7 +10855,7 @@ function CygbuildCmdInstallList()
             esac
         fi
 
-        if [ ! "$mode" ] ; then
+	if [ ! "$mode" ]; then
             case "$to" in
                 */bin/*)
                     mode=755
@@ -10844,22 +10868,29 @@ function CygbuildCmdInstallList()
 
         line=$(( line + 1 ))
 
+	local destdir
+
+
         if [[ "$to" == /* ]] ; then
             CygbuildWarn "$id: [WARN] Skipped." \
                 "Absolute path ($to) in install.lst item line $line"
             continue
 
         elif [[ "$to" == */ ]]; then
+	    destdir=$instdir/$to
+
             ${test:+echo} install ${verbose+--verbose} \
 		-m 755 \
-		-d $instdir/$to 2>&1 |
+		-d $destdir 2>&1 |
 	    CygbuildIndentFilter
 
         elif [[ "$to" == */* ]]; then
             local dir=${to%/*}
+	    destdir=$instdir/$dir
+
             ${test:+echo} install ${verbose+--verbose} \
 		-m 755 \
-		-d $instdir/$dir 2>&1 |
+		-d $destdir 2>&1 |
 	    CygbuildIndentFilter
 
         else
@@ -10885,7 +10916,7 @@ function CygbuildCmdInstallList()
         local tofile=$instdir/$to
 
         ${test:+echo} install ${verbose+--verbose} \
-	    -m $mode $builddir/$from $tofile |
+	    --mode=$mode $builddir/$from $tofile |
 	CygbuildIndentFilter
 
 	[ -e $tofile ] || status=$?
