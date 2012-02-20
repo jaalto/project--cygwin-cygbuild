@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0218.1420';
+$VERSION = '2012.0220.0718';
 
 # ..................................................................
 
@@ -1411,7 +1411,8 @@ NOTE: if file exists, the C<make install> target is not run.
 List install(1) compatible entries in separate lines. The
 format is:
 
-    <src>  <destination> [<mode, defaults to 755>]
+    <src> <destination> [<mode, defaults to 755>]
+    ln <destdir>/<src> <destination>
 
 If I<destination> contains a trailing slash, the I<src> is installed
 to that directory. If there is no trailing slash, the last element is
@@ -1438,6 +1439,13 @@ the matches I<destination> componen fromt he left:
 This effectiely produces command:
 
     install -m 644 CYGWIN-PATCHES/conf/etc/cron.d/program .inst/etc/cron.d/
+
+In case the first word is I<ln>, the line is interpreted as a symbolic
+link instruction effectively interpreted as follows The DESTDIR part is
+always mandatory in orer to be able to C<cd> to correct location.
+
+    cd <destdir>
+    ls --symbolic <src> <destination>
 
 Comments starting with "#" and empty lines are ignored.
 
