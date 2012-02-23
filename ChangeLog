@@ -1,3 +1,8 @@
+2012-02-23 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildPerlLibraryList): Include
+	"use" statements.
+
 2012-02-20 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList): Add symlink support.

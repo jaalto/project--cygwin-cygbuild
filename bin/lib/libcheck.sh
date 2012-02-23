@@ -1,4 +1,4 @@
-#!/bin/bash
+s#!/bin/bash
 #
 #   libcheck.sh -- Library of check functions for cygbuild
 #
@@ -968,10 +968,14 @@ function CygbuildPerlLibraryList()
     #	1. grep: Look into non-comment lines only
     #	2. grep: return only matched portion.
 
-    ${EGREP:-grep -E} --only-matching \
-	'^[^#]*\<[^#$][a-zA-Z]+(::[a-zA-Z]+)+\>' "$@" |
-    ${EGREP:-grep -E} --only-matching \
-	'\<[^$][a-zA-Z]+(::[a-zA-Z]+)+\>' |
+    {
+	awk '/^use[ \t]+[a-zA-Z]/ { sub(/;/, ""); print $2}' "$@"
+
+	${EGREP:-grep -E} --only-matching \
+	    '^[^#]*\<[^#$][a-zA-Z]+(::[a-zA-Z]+)+\>' "$@" |
+	${EGREP:-grep -E} --only-matching \
+	    '\<[^$][a-zA-Z]+(::[a-zA-Z]+)+\>'
+    } |
     sort --unique
 }
 
