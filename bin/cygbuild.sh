@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0220.0713"
+CYGBUILD_VERSION="2012.0226.0952"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -10840,8 +10840,8 @@ function CygbuildCmdInstallList()
                     to="usr/share/man/man$ext/"
                     ;;
 
-                *.sh | *.pl | *.py)
-                    to="usr/bin/$name"
+                *.sh | *.p[ly] | *.rb)
+                    to="usr/bin/${name##*/}"
                     ;;
 
                 *.txt)
@@ -10849,7 +10849,7 @@ function CygbuildCmdInstallList()
                     ;;
 
                 *)
-                    CygbuildWarn "$id: [WARN] skipped entry: $from"
+                    CygbuildWarn "$id: [WARN] skipped entry: $from (no default TO)"
                     continue
                     ;;
             esac
