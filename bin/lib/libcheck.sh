@@ -1,4 +1,4 @@
-s#!/bin/bash
+#!/bin/bash
 #
 #   libcheck.sh -- Library of check functions for cygbuild
 #

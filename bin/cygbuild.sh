@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0226.0952"
+CYGBUILD_VERSION="2012.0325.0713"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -8386,6 +8386,9 @@ CygbuildCmdDownloadCygwinPackage ()
 
     CygbuildEcho "-- Wait, searching package $pkg"
 
+    #  Replace special characters: aewm++ => aewm[+][+]
+    local pkgre=${pkg//[+]/[+]}
+
     awk \
     '
         $0 ~ re {
@@ -8396,7 +8399,7 @@ CygbuildCmdDownloadCygwinPackage ()
             exit
         }
 
-    ' re="^[@] +$pkg *\$" $cache > $retval
+    ' re="^[@] +$pkgre *\$" $cache > $retval
 
     if [ ! -s "$retval" ]; then
         CygbuildWarn "-- [ERROR] Need to refresh cache?" \
