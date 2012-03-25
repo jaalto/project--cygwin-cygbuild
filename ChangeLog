@@ -5,6 +5,8 @@
 
 	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Handle
 	special characters in package name.
+	(CygbuildBootVariablesGlobalMain): Add ".pc" to
+	cygbuild_opt_exclude_dir to exclude quilt(1) patch directories.
 
 2012-02-26 Sun  Jari Aalto  <jari.aalto@cante.net>
 

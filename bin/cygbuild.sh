@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0325.0713"
+CYGBUILD_VERSION="2012.0325.0932"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1184,10 +1184,13 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.zoo \
     "
 
+    # .pc is quilt(1) patch control directory
+
     cygbuild_opt_exclude_dir="\
      --exclude=.build \
      --exclude=.inst \
      --exclude=.sinst \
+     --exclude=.pc \
      --exclude=tmp \
     "
 
