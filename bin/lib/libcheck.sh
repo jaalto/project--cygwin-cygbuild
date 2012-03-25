@@ -448,8 +448,12 @@ function CygbuildCmdInstallCheckReadme()
 
     notes=""
 
+    #  Replace special character, like aewm++
+
+    local pkgre=${PKG//[+]/[+]}
+
     $EGREP --line-number --ignore-case \
-        --regexp="-- +(version +)?($PKG-)?$sversion +--" \
+        --regexp="-- +(version +)?($pkgre[~+-])?$sversion +--" \
         $path /dev/null > $retval
 
     [ -s "$retval" ] && notes=$(< $retval)

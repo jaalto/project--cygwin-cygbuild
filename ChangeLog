@@ -1,5 +1,8 @@
 2012-03-25 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): Handle
+	special characters in package name.
+
 	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Handle
 	special characters in package name.
 
