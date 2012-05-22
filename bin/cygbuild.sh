@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0325.0932"
+CYGBUILD_VERSION="2012.0522.0619"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6120,6 +6120,11 @@ function CygbuildPatchApplyQuiltMaybe()
         cmd=${cmd%-quiet}
     fi
 
+    # DIR_CYGPATCH
+pwd
+ls -la .pc
+ls -la Imakefile
+
     CygbuildPatchFileQuilt "$DIR_CYGPATCH" > $retval
 
     [ -s $retval ] || return 0
@@ -6153,8 +6158,10 @@ function CygbuildPatchApplyQuiltMaybe()
 
         local dummy=$(pwd)              # For debugging
 
-        CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
-            $quilt $verb > $log 2>&1
+            CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
+		$quilt $verb > $log 2>&1
+
+
         local status=$?
 
         [ "$debug" ] && set +x
@@ -6516,7 +6523,15 @@ function CygbuildCmdMkpatchMain()
                 #   this is just a temporary unpatching only for during
                 #   taking the diff.
 
-                cd $cursrcdir &&
+                cd $cursrcdir
+
+		# If Quilt is in use, copy the control directory to
+		# make unpatching work
+
+		if [ -d "$srcdir/.pc" ]; then
+		    cp -r "$srcdir/.pc" .
+		fi
+
                 CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
             ) || exit 1
         fi
@@ -6666,7 +6681,6 @@ function CygbuildCmdPkgSourceStandard()
     CygbuildPackageSourceDirClean
 
     if [ "$makepatch" ]; then
-
         CygbuildCmdMkpatchMain      \
             "$OPTION_SIGN"          \
             "$OPTION_PASSPHRASE"    || return $?
