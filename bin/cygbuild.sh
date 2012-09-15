@@ -6121,9 +6121,6 @@ function CygbuildPatchApplyQuiltMaybe()
     fi
 
     # DIR_CYGPATCH
-pwd
-ls -la .pc
-ls -la Imakefile
 
     CygbuildPatchFileQuilt "$DIR_CYGPATCH" > $retval
 
