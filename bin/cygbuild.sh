@@ -1273,6 +1273,9 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.Tpo \
      --exclude=*.Po \
      --exclude=.pc \
+     --exclude=.gitignore \
+     --exclude=.hgignore \
+     --exclude=.bzrignore \
      $cygbuild_opt_exclude_cache_files \
      $cygbuild_opt_exclude_archive_files \
      $cygbuild_opt_exclude_library_files \
