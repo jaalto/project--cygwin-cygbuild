@@ -2083,7 +2083,7 @@ function CygbuildCmdInstallCheckDirStructure()
 	fi
     done
 
-    if [ -d $pfx/X11R6 ]; then
+    if [ -d "$pfx/X11R6" ]; then
         CygbuildWarn "   [ERROR] deprecated $pfx/X11R6"
     fi
 
@@ -2116,7 +2116,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
         while read file
         do
-            if [ -f $file ]; then
+            if [ -f "$file" ]; then
 
                 _file=${file/$srcdir\//}
 
@@ -2128,11 +2128,11 @@ function CygbuildCmdInstallCheckDirStructure()
         done < $retval
     fi
 
-    if [ -d $instdir/user-share ]; then
+    if [ -d $instdir/usr/share ]; then
 
         local item
 
-        for item in $instdir/user-share/*
+        for item in $instdir/usr/share/*
         do
             if [ -f "$item" ]; then
                 CygbuildWarn "   [ERROR] Use subdir for file $item"
@@ -2145,7 +2145,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
 
     if [ ! "$error" ]; then
-        CygbuildWarn "   [ERROR] incorrect directory structure," \
+        CygbuildWarn "   [ERROR] incorrect directory structure, " \
              "$instdir contain no bin/ usr/bin usr/games usr/sbin or usr/lib"
         return 1
     fi
