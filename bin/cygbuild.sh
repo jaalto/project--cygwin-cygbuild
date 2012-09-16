@@ -1286,12 +1286,14 @@ function CygbuildBootVariablesGlobalMain()
      $cygbuild_opt_exclude_version_control \
     "
 
+    #  --binary   Handle DOS line ending \r\n patches
     #  --forward  Ignore patches that seem to be reversed
     #  --strip=N  Strip the smallest prefix containing num leading slashes
     #             setting 0 gives the entire file name unmodified
     #  --fuzz=N   Set the maximum fuzz factor.(default is 2)
 
     CYGBUILD_PATCH_OPT="\
+     --binary \
      --strip=0 \
      --forward \
      --fuzz=3 \
