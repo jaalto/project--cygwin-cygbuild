@@ -1851,6 +1851,8 @@ CygbuildDllToLibName ()
                 lib=libgcc1 ;;
             libpng1414)
                 lib=libpng14 ;;
+            libpng1115)
+                lib=libpng15 ;;
         esac
 
         echo $lib
