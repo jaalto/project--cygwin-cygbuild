@@ -4,6 +4,7 @@
 	to dest variable in postinstall script.
 	(CygbuildInstallPostinstallPartInfo): Add quotes to file variable
 	in postinstall script.
+	(CygbuildDllToLibName): Handle liblzo2_2.
 
 2012-09-18 Tue  Jari Aalto  <jari.aalto@cante.net>
 

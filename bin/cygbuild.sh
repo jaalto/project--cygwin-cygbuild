@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0919.0525"
+CYGBUILD_VERSION="2012.0919.0540"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1841,6 +1841,8 @@ CygbuildDllToLibName ()
                 lib=zlib0 ;;
             libbz2*1)
                 lib=libbz2_1 ;;
+            liblzo22)
+                lib=liblzo2_2 ;;
             libmhash*)
                 lib=mhash ;;
             lib*python[0-9]*)
