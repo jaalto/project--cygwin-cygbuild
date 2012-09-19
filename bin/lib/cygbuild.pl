@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2011.0409.1802';
+$VERSION = '2012.0919.1227';
 
 # ..................................................................
 
@@ -465,25 +465,25 @@ Make Cygwin build directories
 Install default files into C<package-N.N/CYGWIN-PATCHES/>. You have to edit
 two mandatory files, C<README> and C<setup.hint>, before running building a
 binary package with command B<[package]>. Files that include extension
-C<.tmp> are examples. These files are only needed if package cannot be
+C<.ex> are examples. These files are only needed if package cannot be
 ported directly by using standard C<./configure> or C<make install> calls.
 
     package.README          Mandatory, edit this
     setup.hint              Mandatory, edit this
-    conf.sh.tmp             optional; If there is no ./configure
-    build.sh.tmp            optional; If standard "make all"
-				      doesn't do it
-    install.sh.tmp          optional; If "make install"
-				      doesn't do it
-    install-after.sh.tmp    optional; If "make install"
-				      quite didn't do it right. E.g
-				      moving .inst/etc/* files elsewhere
-    postinstall.sh.tmp      optional; Things to do after system
-				      install for binary packages
+    conf.sh.ex              optional; If there is no ./configure
+    build.sh.ex             optional; If standard "make all"
+                                      doesn't do it
+    install.sh.ex           optional; If "make install"
+                                      doesn't do it
+    install-after.sh.ex     optional; If "make install"
+                                      quite didn't do it right. E.g
+                                      moving .inst/etc/* files elsewhere
+    postinstall.sh.ex       optional; Things to do after system
+                                      install for binary packages
 
-If you remove the extension C<.tmp>, the shell scripts are automatically
+If you remove the extension C<.ex>, the shell scripts are automatically
 noticed and used. You can leave the files alone if you do not use them,
-because all files ending to C<.tmp> are ignored during
+because all files ending to C<.ex> are ignored during
 packaging commands B<[package]> or B<[source-package]>.
 
 =back
