@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1249';
+$VERSION = '2012.0919.1255';
 
 # ..................................................................
 
@@ -1853,7 +1853,7 @@ broken package.
 
 In addition to I<cygbuild> being a builder program, it can be used as a
 library that can be sourced to any bash program. This makes it possible to
-selectively use functions in it. The library feature is enabled by setting
+selectively use functions from it. The library feature is enabled by setting
 variable C<CYGBUILD_LIB> before C<source> command. When invoked this way,
 the I<cygbuild's> C<Main()> function in not invoked and options or
 commands are bypassed.
