@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1258';
+$VERSION = '2012.0919.1300';
 
 # ..................................................................
 
@@ -1951,9 +1951,10 @@ is bound to Red Hat rules.
 
 =head2 Porting and Python os.rename
 
-If python application contains calls to I<os.rename(from, to)> or
-I<osutils.rename(from, to)>, these will cause unlock race
-condition under Cygwin.
+NOTE: This may not be relevant as of 2012 any more. If python application
+contains calls to I<os.rename(from, to)> or I<osutils.rename(from,
+to)>, older Python released have causes unlock race condition under
+Cygwin.
 
   OSError: [Errno 13] Permission denied
 
