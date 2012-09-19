@@ -1,3 +1,15 @@
+2012-09-19 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPostinstallWriteMain): Add quotes
+	to dest variable in postinstall script.
+	(CygbuildInstallPostinstallPartInfo): Add quotes to file variable
+	in postinstall script.
+
+2012-09-18 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildMakeRunInstallFixPerlPostinstall): Correct
+	regexp to detect installed pod: EXE_FILES.
+
 2012-05-22 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdMkpatchMain): Copy quilt .pc

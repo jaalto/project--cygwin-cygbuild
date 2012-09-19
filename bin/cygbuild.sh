@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0915.0619"
+CYGBUILD_VERSION="2012.0919.0525"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -6899,7 +6899,7 @@ set -e
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LC_ALL=C
 
-dest=\$1
+dest=\"\$1\"
 
 "       >  $file || return 1
     fi
@@ -7103,6 +7103,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
 
         #   /usr/share/perl/cygwin-pods/linklint.pod
         #   ...
+	#   =head2 Tue Sep 18 07:14:52 2012: C<Module> L<Linklint|Linklint>
         #   C<EXE_FILES: linklint-2.3.5>
 
         to=${to##*.inst}
@@ -7110,7 +7111,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
         local commands="\
 from='$from'
 to='$to'
-grep -Eq 'EXE_FILES:[[:space:]]+$PKG' \$to || cat \"\$from\" >> \"\$to\"\
+grep -Eq '(EXE_FILES:[[:space:]]+|=head.*)$PKG' \$to || cat \"\$from\" >> \"\$to\"\
 "
 
         CygbuildPostinstallWriteMain "Perl" "$commands" || return $?
@@ -10312,9 +10313,9 @@ function CygbuildInstallPostinstallPartInfo()
     local commands="\
 (
     cd /usr/share/info &&
-    for i in $list
+    for file in $list
     do
-        install-info --dir-file=./dir --info-file=\$i
+        install-info --dir-file=./dir --info-file=\"\$file\"
     done
 )"
 
