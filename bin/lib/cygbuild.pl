@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1245';
+$VERSION = '2012.0919.1249';
 
 # ..................................................................
 
@@ -1184,16 +1184,6 @@ publish area (Apache, Ftp), the last step copies packages elsewhere on
 local disk:
 
     bb 1 publish
-
-=head1 OPTIONAL EXTERNAL DIRECTORIES
-
-All files in C<CYGWIN-PATCHES/bin> are installed as executables into
-directory C<.inst/usr/bin>. The location can be changed if any of the
-files contains tag B<cyginstdir:> to point to new location. An example:
-
-    #!/bin/sh
-    # cyginstdir: /bin
-    ...
 
 =head1 OPTIONAL EXTERNAL FILES
 

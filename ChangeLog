@@ -4,6 +4,9 @@
 	(Help::EVERYTHING): Remove all shell prefix charcters '$'.
 	(Help::Preparation commands::files): Update .tmp to .ex suffix.
 	(Help::OPTIONS): Move -h, -V to the end of options. GNU standard.
+	(Help::OPTIONAL EXTERNAL DIRECTORIES): Remove. The comment tag "#
+	cyginstdir: " is no longer supported in scrips. Use file
+	install.lst instead.
 
 2012-02-18 Sat  Jari Aalto  <jari.aalto@cante.net>
 
