@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1228';
+$VERSION = '2012.0919.1241';
 
 # ..................................................................
 
@@ -152,7 +152,9 @@ package filename formats include:
 
 Like in here:
 
-    foo-1.2.tar.gz, foo-0.0.2.tar.bz2, foo-12.0.2.1.tgz
+    package-1.2.tar.gz
+    package-0.0.2.tar.bz2
+    package-12.0.2.1.tgz
 
 The package name can consist of many words separated by hyphens:
 
@@ -287,10 +289,10 @@ B<CASE B)> If the downloaded Cygwin source release package is
 controlled by cygbuild, then commands B<[all]> and B<[almostall]> can
 be used to check the binary build:
 
-    $ mkdir -p /tmp/package
-    $ cd /tmp/package
-    $ tar -xf /path/to/package-N.N-RELEASE-src.tar.bz2
-    $ ./*.sh --color --verbose all
+    mkdir -p /tmp/package
+    cd /tmp/package
+    tar -xf /path/to/package-N.N-RELEASE-src.tar.bz2
+    ./*.sh --color --verbose all
 
 =head1 OPTIONS
 
@@ -347,7 +349,7 @@ location <./sinst>.
 
 =item B<-f, --file FILE>
 
-Specify package file and version, like C<foo-1.11.tar.gz> from which the
+Specify package file and version, like C<package-1.11.tar.gz> from which the
 VERSION and possible RELEASE numbers can be derived. This option is needed
 only if the current directory is not in format C<package-version>. Problems
 in 99% of the cases are in the source file names. See 'Packages with
@@ -357,19 +359,20 @@ doing porting.
 This option comes handy with command B<[check]> when someone else's
 binary package results are being checked. An example:
 
-  $ ls
-  foo-2.1.tar.gz
-  foo-2.1-1.tar.bz2
-  foo-2.1-1-src.tar.bz2
+  ls
+    ...
+    package-2.1.tar.gz
+    package-2.1-1.tar.bz2
+    package-2.1-1-src.tar.bz2
 
-  ... make a "pseudo" install directory
+  .. make a "pseudo" install directory
 
-  $ mkdir .inst
+  mkdir .inst
 
-  ... examine the binary package
+  .. examine the binary package
 
-  $ (cd .inst ; tar -jxvf ../foo-2.1-1.tar.bz2)
-  $ cygbuild -f foo-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
+  (cd .inst ; tar -jxvf ../package-2.1-1.tar.bz2)
+  cygbuild -f package-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
 
 =item B<--install-prefix PREFIX>
 
@@ -655,14 +658,20 @@ are no executable files in. You should not use the name C<gc> to package
 this. The problem is the initial unpack directory name C<gc-6.2.1.6> which
 is used to generate the package names. The following is not optimal:
 
-    $ cd /usr/src/build
-      ... make sure contains only source file
-    $ tar zxvf gc6.2alpha6.tar.gz
-    $ cd gc6.2alpha6  gc-6.2.1.6
-    $ cygbuild mkdirs files conf make
-      ... edit README and setup.hint
-      ... Now make binary package for this library
-    $ cygbuild package-devel
+    cd /usr/src/build
+
+    .. make sure contains only source file
+
+    tar zxvf gc6.2alpha6.tar.gz
+    cd gc6.2alpha6  gc-6.2.1.6
+
+    cygbuild mkdirs files conf make
+
+    .. edit README and setup.hint
+    .. Now make binary package for this library
+
+    cygbuild package-devel
+
     -- Making packages [devel] from /usr/src/build/gc-6.2.1.6/.inst
     --   [devel-lib] /usr/src/build/libgc-6.2.1.6-1.tar.bz2
     --   [devel-doc] /usr/src/build/gc-doc-6.2.1.6-1.tar.bz2
@@ -671,11 +680,15 @@ is used to generate the package names. The following is not optimal:
 It would be better to use the C<libgc6> name, as it is used in Debian,
 instead of the homepage's name C<gc>, like this:
 
-    ... Unpack as above, but symlink to 'lib' directory
-    $ ln -s gc6.2alpha6  libgc6-6.2.1.6
-    $ cd libgc6-6.2.1.6
-    ... likewise as above for the configure, make etc. and finally ...
-    $ cygbuild package-devel
+    .. Unpack as above, but symlink to 'lib' directory
+
+    ln -s gc6.2alpha6  libgc6-6.2.1.6
+    cd libgc6-6.2.1.6
+
+    .. likewise as above for the configure, make etc. and finally ...
+
+    cygbuild package-devel
+
     -- Making packages [devel] from /usr/src/build/libgc6-6.2.1.6/.inst
     --   [devel-lib] /usr/src/build/libgc6-6.2.1.6-1.tar.bz2
     --   [devel-doc] /usr/src/build/libgc6-doc-6.2.1.6-1.tar.bz2
@@ -813,7 +826,7 @@ the B<--strip=N> option that should be passed to command patch(1):
 
 An example:
 
-    foo-1.2-this-fixes-segfault.strip+2.patch
+    package-1.2-this-fixes-segfault.strip+2.patch
 
 NOTE: The use of I<strip+N> argument is usually unnecessary, because
 the program heuristics can in most cases determine what is the proper
@@ -852,12 +865,12 @@ Run all relevant steps: B<prep, conf, build, install, strip, package,
 source-package, finish>. This command is used to test the integrity of
 Cygwin net release. Like this:
 
-    root@foo:/usr/src/build# tar -xvf package-N.N-1-src.tar.bz2
+    tar -xvf package-N.N-1-src.tar.bz2
 	package-N.N-1.sh
 	package-N.N-1.patch
 	package-N.N-src.tar.gz
 
-    root@foo:/usr/src/build# ./package-N.N-1.sh all
+    ./package-N.N-1.sh all
 
 If the build process breaks, then the fault is in the packaging.
 Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
@@ -933,8 +946,8 @@ and additional parameters how to retrieve newer versions. See
 I<mywebget.pl>'s manual for more information. Here is an example
 configuration file to download and extract new versions of package:
 
-  tag1: foo
-    http://prdownloads.sourceforge.net/foo/foo-0.9.1.tar.bz2 new: x:
+  tag1: package
+    http://example.com/project/package-0.9.1.tar.bz2 new: x:
 
 =item B<vars>
 
@@ -952,12 +965,12 @@ program thinks that it will be using.
 1. Create an empty directory, copy original source package there and unpack
 it
 
-    $ mkdir -p /tmp/build/
-    $ cd /tmp/build                   << go here
+    mkdir -p /tmp/build/
+    cd /tmp/build                   << go here
 
-    $ rm *
-    $ cp /tmp/foo-1.13.tar.gz .
-    $ tar zxvf foo-1.13.tar.gz
+    rm *
+    cp /tmp/package-1.13.tar.gz .
+    tar zxvf package-1.13.tar.gz
 
 2. Test and verify that you can compile package. Run C<./configure>,
 C<./buildconf>, C<./autogen.sh> or C<./autoconf> (if the package includes
@@ -967,9 +980,9 @@ package without errors. Modify the files in place as long as it takes to
 get package to build. B<Do not proceed to other steps until the build
 succeeds>.
 
-    $ cd foo-1.13/                     << go here
-    $ <run ./config or whatever>
-    $ <run make(1). Oops, did not work, edit & fix ...>
+    cd package-1.13/
+    .. run ./config or whatever is needed
+    .. run make(1). Oops, did not work, edit & fix
 
 3. [this step is optional] Take a diff of your current changes and move the
 diff file to safe place. Knowing that you are secured in case something
@@ -977,9 +990,9 @@ goes wrong, greatly reduces your stress when you know you don't have to
 start all from scratch. Alternatively use some source control tool right
 from the start.
 
-    <you're at directory package-N.N/>
-    $ cygbuild mkpatch
-    $ find .sinst/ -name "*patch"    << copy this to safe place
+    .. you're at directory package-N.N/
+    cygbuild mkpatch
+    find .sinst/ -name "*patch"    << copy this to safe place
 
 =back
 
@@ -992,21 +1005,21 @@ additional Cygwin directories and template files. If this is the first
 release, add build release option B<-r 1>. Remember to increase build count
 if you make more releases of the same package.
 
-    $ cd /tmp/build/foo-1.13/
-    $ cygbuild -r 1 -v mkdirs files
+    cd /tmp/build/package-1.13/
+    cygbuild -r 1 -v mkdirs files
 
 Command B<[mkdirs]> created three dot-directories which should be
-C<foo-1.13/{.build,.inst,.sinst}>. Command B<[files]> wrote few template
+C<package-1.13/{.build,.inst,.sinst}>. Command B<[files]> wrote few template
 files of which two must be modified. The other C<.tmp> files are just
 examples they are needed for tricky packages.
 
-    $ cd /tmp/build/foo-1.1/CYGWIN-PATCHES/
+    cd /tmp/build/package-1.1/CYGWIN-PATCHES/
 
 Make sure you README and hint files are edited before preceding to building
 binary and source packages. If any of the extra scripts are needed, remove
 extension C<.tmp> from them to make the scripts active.
 
-    foo.README          Modify this file and fill in the '<Headings>:'
+    package.README      Modify this file and fill in the '<Headings>:'
     setup.hint          Modify this file
 
     install.sh.tmp      optional; if 'make install' does not do it
@@ -1016,15 +1029,15 @@ extension C<.tmp> from them to make the scripts active.
 5. Preparations are now ready. It's time to make Cygwin Net release binary
 packages. It will appear in directory C<./.sinst>:
 
-   $ cd /tmp/build/foo-1.13/
-   $ cygbuild -r 1 -v install strip package
+   cd /tmp/build/package-1.13/
+   cygbuild -r 1 -v install strip package
 
 6. Examine carefully the install phase and double check that the created
 archive looks correct. Run C<find(1)> to check the directory structure:
 
-   $ cd /tmp/build/foo-1.13/
-   $ find .inst/ -print
-   $ cygbuild -r 1 -v check      << Run various checks
+   cd /tmp/build/package-1.13/
+   find .inst/ -print
+   cygbuild -r 1 -v check      << Run various checks
 
 Did the manual pages (*.1, *.5, *.8 etc.) got installed correctly under
 C<usr/share/man/manX/>? How about C<*.info> files at C<usr/share/info>? Are
@@ -1065,15 +1078,15 @@ packaging command B<[source-package]> does not succeed, you probably have
 to guide the process slightly by the shell scripts provided under directory
 C<package-N.N/CYGWIN-PATCHES/>. Try this first:
 
-   <your still at directory package-N.N/>
-   $ cygbuild -r 1 -v source-package
+   .. you are still in directory package-N.N/
+   cygbuild -r 1 -v source-package
 
 That's it, if all succeeded. At directory up C<./.sinst> you should see two
 complete Cygwin Net release shipments: a binary package and a source
 package. The RELEASE number is the result of the B<-r> option.
 
-    foo-1.13-1.tar.bz2
-    foo-1.13-1-src.tar.bz2
+    package-1.13-1.tar.bz2
+    package-1.13-1-src.tar.bz2
 
 =back
 
@@ -1089,7 +1102,7 @@ borrowed from Debian and it means "intent to package":
     Subject: ITP: package-N.N
 
 B<Package submittal:> Include contents of C<setup.hint> and the binary
-package listing C<tar jtvf foo-1.13-RELEASE.tar.bz2>. Provide
+package listing C<tar jtvf package-1.13-RELEASE.tar.bz2>. Provide
 *complete* clickable ULR links where to download the files. An example:
 
     wget \
@@ -1124,13 +1137,14 @@ your C<httpd.conf> and make apache(1) read configuration again with
 I<apachectl restart>. Check that your connection can see the files with
 lynx(1).
 
+    # httpd.conf
     Alias /cygwin /usr/src/cygwin-packages
 
 As a finishing touch, there is command command B<[publish]> which copies
 ready source package, binary package and setup.hint to publish area:
 
-   <you're still at directory package-N.N/>
-   $ cygbuild publish
+   .. you're still at directory package-N.N/
+   cygbuild publish
 
 =head1 GPG EXAMPLES
 
@@ -1143,7 +1157,7 @@ You don't want the second alias presented below to be stored in
 permanent places, because it contains your GPG identification details.
 Copy/paste if to opern terminals as needed.
 
-    $ alias bb="cygbuild -s gpg-key-id -p 'gpg-password'"
+    alias bb="cygbuild -s gpg-key-id -p 'gpg-password'"
 
 Assuming there already unpacked original package, which has been tested to
 build correctly, it's a simple matter of making GPG signed releases.
@@ -1151,25 +1165,25 @@ Perhaps there is something in C<*.README> that needs some correction or
 final words. Maybe it had typos. Or C<setup.hint> needed updating. Okay,
 run this to make new install which replaced older C<*.README> file:
 
-    $ cd foo-1.13/
-    $ cb -r 1 -v install check
+    cd package-1.13/
+    cb -r 1 -v install check
 
 Look closely at the results of check command. If anything needs to be
 edited or corrected, repeat the command after edit. Verify the
 installation:
 
-    $ find .inst/ -print | sort
+    find .inst/ -print | sort
 
 If all looks good, the signed packages can be made. If you don't have gpg
 installed, then substitute plain "b" instead of for "bb" below:
 
-    $ bb -r 1 package source-package
+    bb -r 1 package source-package
 
 In case there is permanent Internet connection where files can be put to a
 publish area (Apache, Ftp), the last step copies packages elsewhere on
 local disk:
 
-    $ bb 1 publish
+    bb 1 publish
 
 =head1 OPTIONAL EXTERNAL DIRECTORIES
 
@@ -1447,8 +1461,8 @@ same steps. When custom script is called:
 Be careful and double check the file locations after your custom install.sh
 has been run:
 
-  $ cd package-N.N/
-  $ find .inst/ -print      << print directory structure
+  cd package-N.N/
+  find .inst/ -print      << print directory structure
 
 When the final binary package is installed by some user, it must not
 unintentionally overwrite anything that is already in the system.
@@ -1469,37 +1483,37 @@ combine efforts of packages standard command "make install" with a little
 cleanup afterward. For example, suppose that after packages "make install"
 the directory structure would look like this (listing has been condensed):
 
-    /tmp/build/foo-1.13$ find .inst/ -print
+    /tmp/build/package-1.13$ find .inst/ -print
     .inst/
     .inst/usr
     .inst/usr/share/doc
-    .inst/usr/share/doc/foo-1.13
-    .inst/usr/share/doc/foo-1.13/AUTHORS
-    .inst/usr/share/doc/foo-1.13/BUGS
-    .inst/usr/share/doc/foo-1.13/INSTALL
-    .inst/usr/share/doc/foo-1.13/NEWS
+    .inst/usr/share/doc/package-1.13
+    .inst/usr/share/doc/package-1.13/AUTHORS
+    .inst/usr/share/doc/package-1.13/BUGS
+    .inst/usr/share/doc/package-1.13/INSTALL
+    .inst/usr/share/doc/package-1.13/NEWS
     .inst/usr/share/doc/Cygwin
-    .inst/usr/share/doc/Cygwin/foo-1.13.README
+    .inst/usr/share/doc/Cygwin/package-1.13.README
     .inst/usr/lib
-    .inst/usr/lib/libfoo.la
-    .inst/usr/lib/libfoo.a
+    .inst/usr/lib/libpackage.la
+    .inst/usr/lib/libpackage.a
     .inst/usr/lib/pkgconfig
-    .inst/usr/lib/pkgconfig/foo.pc
+    .inst/usr/lib/pkgconfig/package.pc
     .inst/usr/include
-    .inst/usr/include/foo
-    .inst/usr/include/foo/ne_request.h
+    .inst/usr/include/package
+    .inst/usr/include/package/ne_request.h
     .inst/usr/bin
-    .inst/usr/bin/foo-config
+    .inst/usr/bin/package-config
     .inst/usr/share
     .inst/usr/share/man/man3
     .inst/usr/share/man/man3/ne_add_request_header.3
     .inst/usr/share/man/man3/ne_addr_destroy.3
     .inst/usr/share/man/man1
-    .inst/usr/share/man/man1/foo-config.1
+    .inst/usr/share/man/man1/package-config.1
     .inst/usr/share/doc
-    .inst/usr/share/doc/foo-1.13
-    .inst/usr/share/doc/foo-1.13/html
-    .inst/usr/share/doc/foo-1.13/html/apas01.html
+    .inst/usr/share/doc/package-1.13
+    .inst/usr/share/doc/package-1.13/html
+    .inst/usr/share/doc/package-1.13/html/apas01.html
 
 Does everything look good? No. Documentation appears to be installed twice.
 In this case it is due to fact that cybuild.sh always runs it's own default
@@ -1518,7 +1532,7 @@ C<install-after.sh> script's work is to remove the extra files:
 =item B<install.env.options>
 
 The B<[install]> csommand runs series of install phases. After all the
-Cygwin documentation is copied to directory C</usr/share/doc/foo-1.12>, the
+Cygwin documentation is copied to directory C</usr/share/doc/package-1.12>, the
 standard C<make install> phase is run. If you need to set any environment
 variables or arrange other things, do it in this file. It will be called
 like
@@ -1539,7 +1553,7 @@ information.
 =item B<install.tar.options>
 
 The B<[install]> command runs series of install phases. In the first, The
-Cygwin documentation for package directory C</usr/share/doc/foo-1.12> is
+Cygwin documentation for package directory C</usr/share/doc/package-1.12> is
 populated from files in the original package. Those of INSTALL, COPYRIGHT
 and README are copied. Then any C<doc/> directory if it is included. The
 default rules exclude most common files MANIFEST, *.bak, *.rej etc. and
@@ -1661,7 +1675,7 @@ prevent 'make' command to do nothing. Doing clean, makes it all pristine.
 
 =item B<preremove.sh>
 
-Copy this file as C<.inst/etc/preremove/foo.sh>. It will be called just
+Copy this file as C<.inst/etc/preremove/package.sh>. It will be called just
 before the package is uninstalled (setup.exe uninstalls the old version
 before installing the upgraded version).
 
@@ -1683,19 +1697,19 @@ C</usr/share/doc/package-version>.
 An example. Content of C<preremove-manifest.lst> lists the target file that
 contains the site wide setup:
 
-    /etc/foo.conf
+    /etc/package.conf
 
-The previous version of package C<foo> has put documentation in directories:
+The previous version of package C<package> has put documentation in directories:
 
     ...
-    /usr/share/doc/foo-1.2
-    /usr/share/doc/foo-1.3
-    /usr/share/doc/foo-1.4
+    /usr/share/doc/package-1.2
+    /usr/share/doc/package-1.3
+    /usr/share/doc/package-1.4
 
 so the site wide configuration file could had come from the last
 directory. Let's suppose upstream has put the example in:
 
-    /usr/share/doc/foo-1.4/examples/foo.conf
+    /usr/share/doc/package-1.4/examples/package.conf
 
 When new version of package is about to be installed by I<setup.exe>, the
 I<preremove.sh> script can examine if the system wide setup file(s) pointed
@@ -1703,11 +1717,11 @@ by C<preremove-manifest.lst> hasn't been changed from the package's
 upstream examples listed in <preremove-manifest-from.lst> which now can
 simply read:
 
-    $PKGDOCDIR/examples/foo.conf
+    $PKGDOCDIR/examples/package.conf
 
 The special tag C<#PKGDOCDIR> is just a shorthand pointer to the latest
 documentation directory. If these two files do not differ, the
-<preremove.sh> can safely delete C</etc/foo.conf> and let the
+<preremove.sh> can safely delete C</etc/package.conf> and let the
 C<postinstall.sh> to install new file from upstream source that is
 mentioned in <preremove-manifest-from.lst>. This effectively means:
 
@@ -1729,23 +1743,23 @@ A custom script to publish package.
 =head2 How to organize Cygwin Net Release builds
 
 If you intend to port many packages to Cygwin, a good directory structure
-helps keeping things organized. Suppose you have 3 packages (foo, bar,
+helps keeping things organized. Suppose you have 3 packages (package, bar,
 quux) of which 2 have been updated twice (there has been two ported
 releases):
 
     ROOT/           ( /usr/src/cygwin-build )
     |
-    +--foo/         ( /usr/src/cygwin-build/foo )
-    |  +--foo-1.3/
-    |  +--foo-1.4/
+    +--package/     ( /usr/src/cygwin-build/package )
+    |  +--package-1.3/
+    |  +--package-1.4/
     |  |
-    |  foo-1.3.tar.gz
-    |  foo-1.3-1.tar.bz2
-    |  foo-1.3-1-src.tar.bz2
+    |  package-1.3.tar.gz
+    |  package-1.3-1.tar.bz2
+    |  package-1.3-1-src.tar.bz2
     |  |
-    |  foo-1.4.tar.gz
-    |  foo-1.4-1.tar.bz2
-    |  foo-1.4-1-src.tar.bz2
+    |  package-1.4.tar.gz
+    |  package-1.4-1.tar.bz2
+    |  package-1.4-1-src.tar.bz2
     |
     +--bar/
     |  +--bar-3.12/
@@ -1768,58 +1782,58 @@ releases):
 
 At first sight this may look complex, but with this structure you can
 manage several packages easily. For each package, reserve a separate
-directory where you do your work: C<foo/>, C<bar/>, C<quux/> etc. Download
+directory where you do your work: C<package/>, C<bar/>, C<quux/> etc. Download
 original packages to these directories and unpack the sources. Let's examine
-package C<foo>
+package C<package>
 
-    $ cd /usr/src/cygwin-build/foo
-    $ wget <URL>/foo-1.4.tar.gz
+    cd /usr/src/cygwin-build/package
+    wget <URL>/package-1.4.tar.gz
 
 After unpack, you should see a clean directory name:
 
-    $ tar zxvf foo-1.4.tar.gz
-
-    foo-1.4/
+    tar zxvf package-1.4.tar.gz
+       ...
+       package-1.4/
 
 Sometimes the packages unpacks to an uncommon directory:
 
-    foo1.4b/
+    package1.4b/
 
 Use previously recommended symlink approach to convert the name into more
 standard form. Here the 'b' is minor release '2':
 
-    $ ln -s foo1.4b/ foo-1.4.2/
+    ln -s package1.4b/ package-1.4.2/
 
 There isn't much to do after that. You do your builds in the unpack
 directories as usual. Supposing this is "standard" looking GNU package
 which includes a C<./configure>, making a Net release should be as simple
 as running:
 
-    $ cd foo-1.4/
-    $ cygbuild files
+    cd package-1.4/
+    cygbuild files
 
-    ...  Now edit files in CYGWIN-PATCHES/
+    ..  Now edit files in CYGWIN-PATCHES/
 
-    $ cygbuild configure make install
+    cygbuild configure make install
 
-    ... Verify install results
+    .. Verify install results
 
-    $ find .inst/
+    find .inst/
 
-    ... If all look okay, make binary and source Net releases
+    .. If all look okay, make binary and source Net releases
 
-    $ cygbuild -r 1 install package readmefix install package source-package
+    cygbuild -r 1 install package readmefix install package source-package
 
 With these commands, Cygwin Net release packages are copied one directory
 up to the same place where the original compresses source kit is:
 
-    /usr/src/cygwin-build/foo/foo-1.4-1.tar.bz2
-    /usr/src/cygwin-build/foo/foo-1.4-1-src.tar.bz2
+    /usr/src/cygwin-build/package/package-1.4-1.tar.bz2
+    /usr/src/cygwin-build/package/package-1.4-1-src.tar.bz2
 
 If you have a web server that can serve the package, copy the files to
 publish area with command:
 
-    foo-1.4$ cygbuild publish
+    package-1.4$ cygbuild publish
 
 =head2 Rebuilding packages
 
@@ -1835,11 +1849,11 @@ automates the task. If you use the standard build layout as described in
 previous topic, you can use rebuild script to do the steps. Is is also a
 good chance to verify that the package build process is repeatable:
 
-    $ cygbuild-rebuild.sh -d /usr/src/cygwin-build -i 1 2>&1 | tee build.log
-			   |                       |
-			   |                       increase releases by 1
-			   |
-			   directory where to start recursive build
+    cygbuild-rebuild.sh -d /usr/src/cygwin-build -i 1 2>&1 | tee build.log
+                         |                       |
+                         |                       increase releases by 1
+                         |
+                         directory where to start recursive build
 
 If something goes wrong, you have to manually fix the package. Do not run
 the rebuild script again until you have fixed the build process for a
@@ -1870,7 +1884,7 @@ To get access to full power of the functions, these steps are needed:
     CYGBUILD_LIB=1 source $CYGBUILD
 
     #   Provided that the current directory's PWD is inside
-    #   some/path/foo-1.13. If not, then please skip this part
+    #   some/path/package-1.13. If not, then please skip this part
     #   completely.
 
     local tdir=$(pwd)
@@ -1901,21 +1915,21 @@ preserve user's modifications. If new version of the package includes new
 features, those are not found from the "old" /etc configuration files.
 
 Let's suppose user has not yet modified system wide configuration file
-C</etc/foo.conf> and package includes newer one in
-C</usr/share/doc/foo-1.2/foo.conf.example>. In this case the installation
-should copy the new example file over C</etc/foo.conf> to reflect possible
+C</etc/package.conf> and package includes newer one in
+C</usr/share/doc/package-1.2/package.conf.example>. In this case the installation
+should copy the new example file over C</etc/package.conf> to reflect possible
 new features in the program.
 
 The trick is to include a I<preremove.sh> script in the Cygwin Net Release
-binary package. A file named C</etc/preremove/foo.sh> will be called just
+binary package. A file named C</etc/preremove/package.sh> will be called just
 before the package is uninstalled (setup.exe uninstalls the old version
 before installing the upgraded version), so in that script, if
-C</etc/foo.conf> exists and is identical to
-C</usr/share/doc/foo.conf.example>, the I<preremove.sh> should delete it
-and let I<postinstall.sh> install new one. If the C</etc/foo.conf> is
+C</etc/package.conf> exists and is identical to
+C</usr/share/doc/package.conf.example>, the I<preremove.sh> should delete it
+and let I<postinstall.sh> install new one. If the C</etc/package.conf> is
 modified, it must be left alone.
 
-Also, it is a good idea to have a file C</etc/preremove/foo-manifest.lst>,
+Also, it is a good idea to have a file C</etc/preremove/package-manifest.lst>,
 which lists every file that was created by the I<postinstall.sh> script,
 and which will be removed on I<preremove.sh> if untouched by the user.
 Someday, C<cygcheck -c> might parse the manifest lists to help diagnose if
@@ -1965,7 +1979,7 @@ solution is to rewrite all calls to:
 =head2 General errors
 
 Make always sure that you work inside well formed source directory
-C<package-VERSION/>, like C<foo-1.13/>. If you issue command anywhere
+C<package-VERSION/>, like C<package-1.13/>. If you issue command anywhere
 else, the program does not know where it is.
 
 =head2 Problem with command [all]
@@ -2035,12 +2049,12 @@ from the difference comparison. There is always a possibility that the
 package you compiled generated binary files that are unknown. In those
 cases, examine the diff output carefully hinted by message:
 
-    [ERROR] Making a patch failed, check /usr/src/foo-N.N/.sinst/foo-*.patch
+    [ERROR] Making a patch failed, check /usr/src/package-N.N/.sinst/package-*.patch
 
 Run following command to determine the problematic files in the
 diff(1) listing:
 
-    $ egrep -n -i 'files.*differ' /usr/src/foo-N.N/.sinst/foo-*.patch
+    egrep -n -i 'files.*differ' /usr/src/package-N.N/.sinst/package-*.patch
 
 Add problematic file patterns file F<CYGWIN-PATCHES/diff.options> or
 in difficult cases write custom C<CYGWIN-PATCHES/diff.sh> script. See
@@ -2121,10 +2135,10 @@ This porting tool only handles C<*.tar.gz>, C<*.tar.bz2>,
 C<*.tar.lzma> archives. To port e.g. a C<*.zip> archive, you need to
 manually convert it to recognized format:
 
-    unzip foo-N.N.zip
-    tar -cvf foo-1.1.tar.gz foo-N.N/
+    unzip package-N.N.zip
+    tar -cvf package-1.1.tar.gz package-N.N/
     ... Now proceed normally
-    cd foo-N.N/
+    cd package-N.N/
     cygbuild -r 1 mkdirs files conf make install
 
 =head2 Reporting bugs
@@ -2133,9 +2147,9 @@ If you ran into a bug, run script in debug mode and send complete
 output listing to the maintainer. Provide also an URL link to the
 source package that you tried to build.
 
-    $ echo http://example.com/source      >  ~/tmp/error.log
-    $ pwd; ls -la . ..                    >> ~/tmp/error.log
-    $ bash -x cygbuild [options] CMD ...  >> ~/tmp/error.log 2>&1
+    echo http://example.com/source      >  ~/tmp/error.log
+    pwd; ls -la . ..                    >> ~/tmp/error.log
+    bash -x cygbuild [options] CMD ...  >> ~/tmp/error.log 2>&1
 
 =head2 Slow program startup
 
@@ -2154,7 +2168,7 @@ To compile libraries for Cygwin, the C<LDFLAGS> should include option
 C<-no-undefined>. If there is C<Makefile(.in|.am)>, after patching
 them manually, you can regenerate the Makefiles with
 
-    $ autoreconf --install --force --verbose
+    autoreconf --install --force --verbose
 
 =head2 yacc or lex file compiling notes
 
@@ -2419,8 +2433,8 @@ sub Release ($)
 #   DESCRIPTION
 #
 #       Read version number from filename. The version number is like
-#       foo-N.N[.N]* or non-numeric version scheme like foo-1.1alpha3
-#       or foo-1.80+dbg-0.61.tar.gz
+#       package-N.N[.N]* or non-numeric version scheme like package-1.1alpha3
+#       or package-1.80+dbg-0.61.tar.gz
 #
 #   INPUT PARAMETERS
 #
@@ -2439,7 +2453,7 @@ sub Version ($)
 
     $debug  and  warn "$id: INPUT [$ARG]\n";
 
-    #   foo-N.N, foo-YYYYMMDD
+    #   package-N.N, package-YYYYMMDD
 
     s/(-src)?(\.orig)?\.t.+$//;         # Remove orig.tar.gz
 
@@ -2464,13 +2478,13 @@ sub Version ($)
     if ( ! $ret  and  /^([a-z_-]*[A-Za-z])([\d.]*\d)/i )
     {
 	$debug > 2  and  warn "$id: exotic 3 [$_]\n";
-	$ret = $2;         # foo4.16.0.70
+	$ret = $2;         # package4.16.0.70
     }
 
     unless ( $ret )
     {
 	$debug > 2  and  warn "$id: else [$_]\n";
-	# Exotic version like foo-R31b
+	# Exotic version like package-R31b
 	my @words = split '[-_][vV]?';
 	$ret = $words[-1];
     }
@@ -2917,7 +2931,7 @@ sub MakefileDestdirSupport ($; $)
 	$debug  and  warn "$id: Processing $file\n";
 
 	#   DESTDIR =
-	#   $(INSTALL_PROGRAM) foo $(DESTDIR)$(bindir)/$(binprefix)foo
+	#   $(INSTALL_PROGRAM) package $(DESTDIR)$(bindir)/$(binprefix)package
 
 	if ( /^[^#]* DESTDIR \s* = \s*$|^[^#]+ [$] [{(] DESTDIR/mx )
 	{
@@ -3745,7 +3759,7 @@ sub ReadMeFilesIncluded ($ $)
 #       Update announcement mail message
 #
 #       To: cygwin-announce@cygwin.com
-#       Subject: Updated: foo 1.7.1-1 -- description
+#       Subject: Updated: package 1.7.1-1 -- description
 #
 #   INPUT PARAMETER HASH
 #
@@ -4261,11 +4275,11 @@ sub CVSinfo ( $ )
 #
 #       Read entry from  setup.ini. Each entry looks like this:
 #
-#       @ foo
+#       @ package
 #       sdesc: ""
 #       ldesc: ""
 #       version: 2003.0730-1
-#       install: foo-2003.0730-1.tar.bz2 51131
+#       install: package-2003.0730-1.tar.bz2 51131
 #       requires: perl bash
 #       Build-Depends: bash (>> 2.04), perl (>> 5.004), make
 #
@@ -4378,19 +4392,19 @@ sub CygwinSetupIniUpdate ( $ $ )
 sub TestDriverCygwinSetupIniEntry ()
 {
     my $str = <<'EOF';
-@ foo1
+@ package1
 sdesc: "1"
 ldesc: "2"
 version: 2003.0730-1
-install: foo1-2003.0730-1.tar.bz2 51131
+install: package1-2003.0730-1.tar.bz2 51131
 requires: perl bash
 Build-Depends: bash (>> 2.04), perl (>> 5.004), make
 
-@ foo2
+@ package2
 sdesc: "2"
 ldesc: "2"
 version: 2003.0730-1
-install: foo2-2003.0730-1.tar.bz2 51131
+install: package2-2003.0730-1.tar.bz2 51131
 requires: perl bash
 Build-Depends: bash (>> 2.04), perl (>> 5.004), make
 
@@ -4624,9 +4638,9 @@ sub Test ()
     $debug = 10;
     my $a;
     # $a = "remake-3.80+dbg-0.61.tar.gz";
-    # $a = "foo_V22.1";
-    # $a = "foo-bar-1.1-rc1";
-    $a = "foo4.16.0.70";
+    # $a = "package_V22.1";
+    # $a = "package-bar-1.1-rc1";
+    $a = "package4.16.0.70";
     print "[Version] ", Version $a, " [Package] ", Package $a, "\n";
 }
 

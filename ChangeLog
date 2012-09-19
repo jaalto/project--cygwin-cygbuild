@@ -1,7 +1,8 @@
 2012-09-19 Wed  Jari Aalto  <jari.aalto@cante.net>
 
-	* bin/lib/cygbuild.pl: (Help::Preparation commands::files):
-	Update .tmp to .ex suffix.
+	* bin/lib/cygbuild.pl:
+	(Help::EVERYTHING): Remove all shell prefix charcters '$'.
+	(Help::Preparation commands::files): Update .tmp to .ex suffix.
 	(Help::OPTIONS): Move -h, -V to the end of options. GNU standard.
 
 2012-02-18 Sat  Jari Aalto  <jari.aalto@cante.net>
