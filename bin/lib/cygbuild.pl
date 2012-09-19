@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1241';
+$VERSION = '2012.0919.1245';
 
 # ..................................................................
 
@@ -1116,7 +1116,7 @@ your shoulders. If the upstream package's license if not OSD compatible
 problems, as the Cygwin glue code (libcygwin.a) is linked in on all
 cygwin-targets, thus rendering the compiled result GPL'd (see
 http://www.cygwin.com/licensing.html ), unless the license is OSD
-approved (see <http://www.opensource.org/licenses/>).
+approved; see http://www.opensource.org/licenses/ for list.
 
 The Cygwin net release is a volunteer effort. If you, the volunteer, do not
 feel comfortable with the licensing, then ask for advice on the cygwin-apps
