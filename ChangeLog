@@ -2,6 +2,7 @@
 
 	* bin/lib/cygbuild.pl: (Help::Preparation commands::files):
 	Update .tmp to .ex suffix.
+	(Help::OPTIONS): Move -h, -V to the end of options. GNU standard.
 
 2012-02-18 Sat  Jari Aalto  <jari.aalto@cante.net>
 

@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1227';
+$VERSION = '2012.0919.1228';
 
 # ..................................................................
 
@@ -371,14 +371,6 @@ binary package results are being checked. An example:
   $ (cd .inst ; tar -jxvf ../foo-2.1-1.tar.bz2)
   $ cygbuild -f foo-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
 
-=item B<-h>
-
-Print program's internal short help.
-
-=item B<--help>
-
-Print long help (this page).
-
 =item B<--install-prefix PREFIX>
 
 Set custom install PREFIX. The value must be path (no leading slash)
@@ -430,10 +422,6 @@ Makefile doesn't mistakenly install to system directories.
 
 Print more informational messages.
 
-=item B<-V, --version|--Version>
-
-Print version number.
-
 =item B<-x, --no-strip>
 
 Do not strip executables or check strip status before command B<[package]>.
@@ -442,6 +430,18 @@ Python or Shell scripts etc.
 
 B<NOTE:> This options should be avoided and it may be removed. Program is
 99% in the cases able to detect if and when strip is needed.
+
+=item B<-h>
+
+Print program's internal short help.
+
+=item B<--help>
+
+Print long help (this page).
+
+=item B<-V, --version|--Version>
+
+Print version number.
 
 =back
 
