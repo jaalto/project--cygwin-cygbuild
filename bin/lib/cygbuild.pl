@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1255';
+$VERSION = '2012.0919.1257';
 
 # ..................................................................
 
@@ -1898,11 +1898,11 @@ To get access to full power of the functions, these steps are needed:
 
 =head2 Using preremove.sh and postinstall.sh for upgrading /etc files
 
-The /etc directory is meant for configuration files for programs. The first
+The C</etc> directory is meant for configuration files for programs. The first
 installation typically copies the package's default setup file there but
 subsequent installations won't overwrite existing files in order to
 preserve user's modifications. If new version of the package includes new
-features, those are not found from the "old" /etc configuration files.
+features, those are not found from the "old" C</etc> configuration files.
 
 Let's suppose user has not yet modified system wide configuration file
 C</etc/package.conf> and package includes newer one in
@@ -1933,8 +1933,8 @@ compiled in (cf.
 
 As long as Cygwin is released on US based server, the general rules
 are that it is permissible to include and not include in Cygwin are
-basically the same as for the Fedora project
-<http://fedoraproject.org/wiki/ForbiddenItems>:
+basically the same as for the Fedora project. See
+http://fedoraproject.org/wiki/ForbiddenItems which reads:
 
   * If it is proprietary, it cannot be included in Cygwin.
   * If it is legally encumbered, it cannot be included in Cygwin.
