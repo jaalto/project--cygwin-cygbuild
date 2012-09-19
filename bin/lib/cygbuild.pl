@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1257';
+$VERSION = '2012.0919.1258';
 
 # ..................................................................
 
@@ -1942,10 +1942,10 @@ http://fedoraproject.org/wiki/ForbiddenItems which reads:
 
 This is different from SUSE and Debian. SUSE is located in another
 country may even pay royalties. Debian has a different legal point of
-view than Red Hat
-(cf. <http://lists.debian.org/debian-legal/2005/07/msg00081.html>). Due to
-Cygwin's presence on a Red Hat server, the project is bound to Red Hat
-rules.
+view than Red Hat See
+http://lists.debian.org/debian-legal/2005/07/msg00081.html for more
+information. Due to Cygwin's presence on a Red Hat server, the project
+is bound to Red Hat rules.
 
 =head1 TROUBLESHOOTING
 
