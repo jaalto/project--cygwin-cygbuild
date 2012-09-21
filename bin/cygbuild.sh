@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0919.0851"
+CYGBUILD_VERSION="2012.0921.1844"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5922,7 +5922,7 @@ function CygbuildPatchFileList()
 	    -a ! -name ".sinst"         \
 	    -a ! -name ".build"         \
 	-o -type f                      \
-	    -name "*patch"              |
+	    -name "*.patch"             |
 	grep -vFf $retval		|
 	sort
 }
@@ -12101,7 +12101,9 @@ function CygbuildCommandMain()
 		;;
 
 	    patch)
+set -x
 		CygbuildPatchApplyMaybe
+set +x
 		status=$?
 		;;
 
