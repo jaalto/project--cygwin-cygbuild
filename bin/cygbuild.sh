@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0921.1844"
+CYGBUILD_VERSION="2012.0921.1916"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -5890,12 +5890,13 @@ function CygbuildPatchFileList()
     local dir=${1:-$(pwd)} # ${DIR_CYGPATCH:?Variable not defined}}
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    [ "$dir" ] || return 0
+    [ "$dir"    ] || return 1
+    [ -d "$dir" ] || return 1
 
     local file=$retval
 
-    #   See if there are any quilt(1) files
-    #   and ignore those directories
+    #   See if there are any quilt(1) files and ignore those
+    #   directories
 
    CygbuildPatchFileQuilt  |
         sed 's,/series$,,' \
@@ -5908,22 +5909,8 @@ function CygbuildPatchFileList()
 
     #   Grep there filters out quilt directories
 
-    CygbuildFindLowlevel "$dir"         \
-	-o -type d                      \
-	    '('                         \
-	        -name ".inst"           \
-	        -o -name ".sinst"       \
-	        -o -name ".build"       \
-		-o -path "*/tmp*"       \
-	    ')'                         \
-	    -prune                      \
-	    -a ! -name "tmp*"		\
-	    -a ! -name ".inst"          \
-	    -a ! -name ".sinst"         \
-	    -a ! -name ".build"         \
-	-o -type f                      \
-	    -name "*.patch"             |
-	grep -vFf $retval		|
+    find "$dir" -type f -name "*.patch" |
+	grep -vFf $retval  |
 	sort
 }
 
@@ -12101,9 +12088,7 @@ function CygbuildCommandMain()
 		;;
 
 	    patch)
-set -x
 		CygbuildPatchApplyMaybe
-set +x
 		status=$?
 		;;
 
