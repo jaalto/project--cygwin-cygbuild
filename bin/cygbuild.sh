@@ -31,7 +31,7 @@
 #           all
 #           almostall
 #
-#   Notes
+#       Notes
 #
 #       o   Option -h for quick help, -c for color, -v for verbose
 #       o   Global variables ARE_LIKE_THIS and local variables are areLikeThis
@@ -46,11 +46,12 @@ CYGBUILD_AUTHOR="Jari Aalto"
 CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
-#  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0922.1322"
+#  Automatically updated by the developer's editor on save
+
+CYGBUILD_VERSION="2012.0922.1332"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
-#  http://cygwin.com/packages
+#  listed at http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
 "http://ftp.heanet.ie/mirrors/cygwin"}
