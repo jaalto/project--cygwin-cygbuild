@@ -1,5 +1,8 @@
 2012-09-22 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Improve
+	verbose message to notice symbolic links.
+
 	* bin/cygbuild.sh (CygbuildFileConvertToUnix): Add missing
 	slash to Perl regexp line.
 

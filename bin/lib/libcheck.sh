@@ -294,8 +294,9 @@ function CygbuildCmdInstallCheckShellFiles ()
 
         [ -f $file ] || continue
 
-        # FIXME: really, do we need to heck symlinks here?
-        if [ -h $file ]; then
+        # FIXME: really, do we need to check symlinks here?
+
+        if [ -h "$file" ]; then
 
             local link=$(
                 cd ${file%/*} &&
@@ -1679,10 +1680,12 @@ function CygbuildCmdInstallCheckBinFiles()
 
     [ -s "$retval.find" ] || return 0
 
-    local file
+    local orig  file
 
     while read file
     do
+        orig=$file
+
         [ -d "$file" ] && continue
 
         if [ -h "$file" ]; then
@@ -1697,13 +1700,14 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [ ! "$installed" ]; then
 
-            local str
+            local str=""
             CygbuildWhich "$name" > $retval
+
             [ -s "$retval" ] && str=$(< $retval)
 
             if [ "$str" ]; then
                 CygbuildEcho "-- [NOTE] Binary name clash [$name]?" \
-                             "Already exists ${str/$srcdir\//}"
+                             "Already exists: $str"
                 # status=1
             fi
         fi
@@ -1733,11 +1737,11 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildWarn "-- [WARN] Should not have extension in $_file"
         fi
 
-        local str
+        local str=""
         file "$file" > $retval
         [ -s "$retval" ] && str=$(< $retval)
 
-        local name=${file##*.inst}
+        local name=.inst/${file##*.inst/}
         local plbin="$PERLBIN"
         local pybin="$PYTHONBIN"
         local rbbin="$RUBYBIN"
@@ -1841,7 +1845,10 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [ "$verbose"  ]; then
             str=${str##*:}          # Remove path
-            CygbuildEcho "-- $name: $str"
+
+            [ -h "$orig" ] && str="symbolic link"
+
+            CygbuildEcho ".inst/${orig##*.inst/}: $str"
 
             #   Show library dependencies
             [[ $file == *.exe ]] && CygbuildCygcheckMain "$file"
