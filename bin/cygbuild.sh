@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0922.1332"
+CYGBUILD_VERSION="2012.0922.1334"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10597,8 +10597,11 @@ function CygbuildCmdInstallPatchVerify()
 
     CygbuildPatchFileList > $retval
 
-    if [ -s $retval ] && [ ! -f "$file" ]; then
+    if [ -s "$retval" ] && [ ! -f "$file" ]; then
 	CygbuildWarn "-- [WARN] Patches are not applied"
+
+	[ "$verbose" ] && cat "$retval"
+
 	return 1
     fi
 }
