@@ -1962,7 +1962,7 @@ setup.hint should list all dependencies
 
                                      AUTHOR
 
-   Copyright (C) 2003-2010 Jari Aalto. This program is free software; you
+   Copyright (C) 2003-2012 Jari Aalto. This program is free software; you
    can redistribute and/or modify program under the terms of Gnu General
    Public license v2 or, at your option, any later version.
 
