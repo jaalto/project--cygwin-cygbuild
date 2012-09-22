@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0922.2039"
+CYGBUILD_VERSION="2012.0922.2103"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3486,7 +3486,7 @@ function CygbuildFileConvertToUnix()
 	{
 	    ! -f $file  and next;
 
-	    /\.(gz|bz2|tgz|zip|rar|rz|ps|pdf|rtf|odt|jpg)  and next;
+	    /\.(gz|bz2|tgz|zip|rar|rz|ps|pdf|rtf|odt|jpg)/  and next;
 
 	    open IN, $file  or  print("$file $!\n"), next;
 	    binmode IN;
