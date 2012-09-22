@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0922.1305"
+CYGBUILD_VERSION="2012.0922.1322"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -1942,7 +1942,7 @@ function CygbuildDetermineReadmeFile()
     do
 	#   install first found file
 	if [ -f "$file" ]; then
-	    ret=$file
+	    ret="$file"
 	    break
 	fi
     done
@@ -1975,7 +1975,8 @@ function CygbuildDetermineDocDir()
     then
 	while read try
 	do
-	    try=$dir/$try           # Absolute path
+	    try="$dir/$try"           # Absolute path
+
 	    if [ -d "$try" ]; then
 		ret=${try%/}        # Delete trailing slash
 		break
@@ -2643,7 +2644,7 @@ function CygbuildPathResolveSymlink()
 	    try=$(< $retval)
 
 	    if [ "$try" ] && [[ ! "$try" == */* ]]; then
-		try=$path/$try
+		try="$path/$try"
 	    fi
 	fi
 
@@ -2749,18 +2750,18 @@ function CygbuildPathAbsolute()
 	local dir=${p%/*}
 
 	if [ -d "$dir" ]; then
-	    dir=$(cd $dir; pwd)
-	    p=$dir/$file
+	    dir="$(cd $dir; pwd)"
+	    p="$dir/$file"
 	fi
 
     else
 	if [ -f "$p" ]; then
-	    p=$(pwd)/$p
+	    p="$(pwd)/$p"
 	fi
     fi
 
     if [ "$p" ]; then
-	echo $p
+	echo "$p"
     else
 	return 1
     fi
@@ -3697,9 +3698,9 @@ function CygbuildDefineGlobalCommands()
 
     local prefix=/bin
 
-    PERLBIN=$prefix/perl                            # global-def
-    PYTHONBIN=$prefix/python                        # global-def
-    RUBYBIN=$prefix/ruby                            # global-def
+    PERLBIN="$prefix/perl"                          # global-def
+    PYTHONBIN="$prefix/python"                      # global-def
+    RUBYBIN="$prefix/ruby"                          # global-def
 
     # ............................................ optional features ...
 
@@ -3969,13 +3970,13 @@ function CygbuildDefineGlobalMain()
     if  [[ "$templatepkg" != *[0-9]*[0-9.]* ]] &&
 	[[ "$templaterel" == *[0-9]*[0-9.]* ]]
     then
-	templatepkg=$templaterel        #   Fix it. This is better
+	templatepkg="$templaterel"      #   Fix it. This is better
     fi
 
     if  [[ "$templatepkg" != *[0-9]*[0-9.]* ]] &&
 	[[ "$argRelease"  == *[0-9]*[0-9.]* ]]
     then
-	templatepkg=$argRelease         #   Fix it. This is better
+	templatepkg="$argRelease"       #   Fix it. This is better
     fi
 
     if [[ "$templatepkg" != *[0-9]*[0-9.]* ]]; then
@@ -4032,11 +4033,11 @@ function CygbuildDefineGlobalMain()
     BUILD_SCRIPT=$(< $retval)                                   # global-def
 
     PKG=$(echo $pkgname | tr 'A-Z' 'a-z')                       # global-def
-    VER=$pkgver                                                 # global-def
-    REL=$relver                                                 # global-def
-    FULLPKG=$PKG-$VER-$REL                                      # global-def
+    VER="$pkgver"                                               # global-def
+    REL="$relver"                                               # global-def
+    FULLPKG="$PKG-$VER-$REL"                                    # global-def
 
-    export prefix=$CYGBUILD_PREFIX
+    export prefix="$CYGBUILD_PREFIX"
 
     # top=${top%/*}
 
@@ -4349,7 +4350,7 @@ function CygbuildSrcDirLocation()
     local dir="$1"
 
     local name=${dir##*/}
-    local src=$dir
+    local src="$dir"
     local top
 
     if [ "$name" = *-$VER       ] ||
@@ -4358,31 +4359,31 @@ function CygbuildSrcDirLocation()
 	 [ -f "$dir/setup.py"   ] ||
 	 [ -d "$dir/$CYGBUILD_DIR_CYGPATCH_RELATIVE" ]
     then
-	top=$(cd $dir/..; pwd)
+	top="$(cd $dir/..; pwd)"
 
     elif [[    "$top" == *-[0-9]*.*[0-9]
 	    || "$top" == *-[0-9][0-9][0-9][0-9]*[0-9]
 	 ]] ; then
 	#   Looks like we are inside package-NN.NN/
-	top=$(cd $dir/..; pwd)
+	top="$(cd $dir/..; pwd)"
 
     elif [[     $dir == */$CYGBUILD_DIR_CYGPATCH_RELATIVE
 	     || $dir == */debian
 	 ]] ; then
-	src=$(cd $dir/..; pwd)
-	top=$(cd $src/..; pwd)
+	src="$(cd $dir/..; pwd)"
+	top="$(cd $src/..; pwd)"
 
     elif [[ $dir == *.orig ]]; then
 	#   Debian uses *.orig directories
-	src=$(cd $src; pwd)
-	top=$(cd $dir/..; pwd)
+	src="$(cd $src; pwd)"
+	top="$(cd $dir/..; pwd)"
 
     else
-	top=$(cd $dir; pwd)
-	src=$top
+	top="$(cd $dir; pwd)"
+	src="$top"
     fi
 
-    echo $top $src
+    echo "$top" "$src"
 }
 
 #######################################################################
@@ -4642,7 +4643,7 @@ function CygbuildFileCleanTemp()
 function CygbuildFileExists()
 {
     local id="$0.$FUNCNAME"
-    local file=$1
+    local file="$1"
 
     shift
     local dest dir
@@ -4650,9 +4651,11 @@ function CygbuildFileExists()
 
     for dir in $*
     do
-	from=$dir/$file
+	from="$dir/$file"
+
 	[ ! -f "$from" ] && continue
-	echo $from
+
+	echo "$from"
 	status=0
 	break
     done
@@ -4820,7 +4823,7 @@ function CygbuildGPGsignFiles()
     do
 	CygbuildEcho "-- Signing with key [$signkey] file ${file#$srcdir/}"
 
-	sigfile=$file$sigext
+	sigfile="$file$sigext"
 
 	[ -f "$sigfile" ] && rm --force "$sigfile" 2> /dev/null
 
@@ -5047,7 +5050,7 @@ function CygbuildCmdGPGVerifyMain()
 	ls $PKG*$sigext > $retval 2> /dev/null
 	list="$(< $retval)"
     else
-	dir=$srcinstdir
+	dir="$srcinstdir"
 	find $dir -name "$PKG*$sigext" > $retval
 	list="$(< $retval)"
     fi
@@ -5255,8 +5258,9 @@ function CygbuildCmdReadmeFixMain()
 function CygbuildCmdPublishSetupFix()
 {
     local id="$0.$FUNCNAME"
-    local dest=$CYGBUILD_PUBLISH_DIR
-    dest=$dest/$PKG
+    local dest="$CYGBUILD_PUBLISH_DIR/$PKG"
+
+    [ "$PKG" ] && dest="$dest/$PKG"
 
     if [ ! "$dest" ] || [ ! -d "$dest" ]; then
 	return
@@ -5271,9 +5275,9 @@ function CygbuildCmdPublishSetupFix()
 	if [ -d "$dir" ]; then
 
 	    suffix=${dir##*/}
-	    base=setup-$suffix.hint
-	    file=$dir/$base
-	    to=$dir/setup.hint
+	    base="setup-$suffix.hint"
+	    file="$dir/$base"
+	    to="$dir/setup.hint"
 
 	    if [ -f "$file" ]; then
 		mv "$file" "$to"
@@ -6412,7 +6416,7 @@ function CygbuildCmdMkpatchMain()
 
 	cd "$srcdir" || exit 1
 
-	cursrcdir=$srcdir
+	cursrcdir="$srcdir"
 
 	# .......................................... Make duplicate? ...
 
@@ -6424,8 +6428,8 @@ function CygbuildCmdMkpatchMain()
 	    #   Copy the current sources elsewhere and then "clean".
 	    #   This preserves current sources + compilation.
 
-	    cursrcdir=$copydir
-	    cleandir=$copydir
+	    cursrcdir="$copydir"
+	    cleandir="$copydir"
 
 	    CygbuildEcho "-- Wait, taking a snapshot (may take a while)..."
 
@@ -6560,7 +6564,8 @@ function CygbuildCmdMkpatchMain()
 		fi
 
 		#   Signature is no longer valid, remove it.
-		sigfile=$out$sigext
+		sigfile="$out$sigext"
+
 		[ -f "$sigfile" ] && rm --force "$sigfile"
 
 		CygbuildGPGsignFiles "$signkey" "$passphrase" "$out"
@@ -7628,12 +7633,12 @@ function CygbuildMakefileRunInstallCygwinOptions()
 	[ "$verbose" ] && set -x
 
 	make -f $makefile $test         \
-	     DESTDIR=$instdir           \
-	     DOCDIR=$docdir             \
+	     DESTDIR="$instdir"         \
+	     DOCDIR="$docdir"           \
 	     $pfx                       \
-	     exec_prefix=${pfx#*=}      \
-	     man_prefix=$docpfx         \
-	     info_prefix=$docpfx        \
+	     exec_prefix="${pfx#*=}"    \
+	     man_prefix="$docpfx"       \
+	     info_prefix="$docpfx"      \
 	     bin_prefix=                \
 	     $rest                      \
 	     $CYGBUILD_MAKEFLAGS        \
@@ -8209,7 +8214,7 @@ function CygbuildPatchFindGeneratedFiles()
 	[[ $file = $origdir* ]] && continue
 
 	name=${file##*$dir/}
-	try=$origdir/$name.in
+	try="$origdir/$name.in"
 
 	if [ -f "$try" ]; then
 	    CygbuildWarn \
@@ -9662,7 +9667,7 @@ function CygbuildInstallExtraManual()
     local try="$DIR_CYGPATCH/man"
 
     if CygbuildIsDirMatch "$try" *.[0-9]* *.pod ; then
-	mandir=$try
+	mandir="$try"
     fi
 
     if [ -f $EXTRA_MANDIR_FILE ]; then
@@ -9670,7 +9675,7 @@ function CygbuildInstallExtraManual()
 
 	if [ -d "$dir" ]; then
 	    CygbuildEcho "-- Reading extra dir info from" ${dir#$srcdir/}
-	    mandir=$dir
+	    mandir="$dir"
 	else
 	    CygbuildWarn "-- [ERROR] Not a directory '$dir', based on " \
 		${dir#$srcdir/}
@@ -9710,9 +9715,9 @@ function CygbuildInstallExtraManual()
 	name=${name%.pod}		# program.1x.pod => program.1x
 	name=${name##*/}		# <dir>/program => program
 
-	manpage=$dir/$name
+	manpage="$dir/$name"
 
-	if [ ! -f $manpage ]; then
+	if [ ! -f "$manpage" ]; then
 	    manpage=$DIR_CYGPATCH/$dir/$name
 	fi
 
@@ -9745,7 +9750,7 @@ function CygbuildInstallExtraManual()
 		> $manpage ||                                       \
 		return $?
 
-	    podcopy=$manpage
+	    podcopy="$manpage"
 	fi
 
 	#  Copy manual pages to installation directory
@@ -10672,7 +10677,7 @@ function CygbuildCmdInstallList()
 		    ;;
 
 	    	*.txt)
-		    to=$docdir
+		    to="$docdir"
 		    ;;
 
 	    	*)
@@ -11249,12 +11254,12 @@ function CygbuildFilePackageGuessFromDirectory()
 
     if CygbuildDefineVersionVariables $dir ; then
 
-	ret=$CYGBUILD_STATIC_VER_PACKAGE-$CYGBUILD_STATIC_VER_VERSION
+	ret="$CYGBUILD_STATIC_VER_PACKAGE-$CYGBUILD_STATIC_VER_VERSION"
 
 	#  Directory looks like package-N.N/ add RELEASE
 
 	if [ "$OPTION_RELEASE" ]; then
-	    ret=$ret-$OPTION_RELEASE
+	    ret="$ret-$OPTION_RELEASE"
 	fi
     fi
 
@@ -11397,7 +11402,7 @@ function CygbuildFilePackageGuessMain()
 
     if [[ "$ret"  &&  $ret != */*  ]]; then
 	#  Make absolute path
-	ret=$pwd/$ret
+	ret="$pwd/$ret"
     fi
 
     #   When doing Source builds, the script is named foo-2.1-1.sh
@@ -11407,8 +11412,8 @@ function CygbuildFilePackageGuessMain()
     local tdir release
 
     if [ "$SCRIPT_PKGVER" ]; then
-	tdir=$pwd/$SCRIPT_PKGVER
-	release=$SCRIPT_RELEASE
+	tdir="$pwd/$SCRIPT_PKGVER"
+	release="$SCRIPT_RELEASE"
     fi
 
     dummy="$id: RETURN $ret $release $tdir"
@@ -11939,8 +11944,8 @@ function CygbuildCommandMain()
     if [ "$srcGuess" ]; then
 	#   This is foo-2.1-1.sh unpack script, so source is not unpackges
 	#   yet.
-	top=$(pwd)
-	src=$srcGuess
+	top="$(pwd)"
+	src="$srcGuess"
 	argDirective=noCheckSrc
     else
 	CygbuildSrcDirLocation $(pwd) > $retval
