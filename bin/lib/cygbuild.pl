@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0921.1956';
+$VERSION = '2012.0922.0804';
 
 # ..................................................................
 
@@ -270,14 +270,6 @@ the fortunate case:
     cygbuild -r 1 package         # Make Net install binary
     cygbuild -r 1 source-package  # Make Net install source
     cygbuild -r 1 publish         # Copy files to publish area (if any)
-
-There is also shortcut 'import', which runs all steps up till 'make'
-
-    cygbuild -r 1 import
-    ...  Package is configured. Did it succeed? Run test install
-
-    cygbuild --release 1 --verbose --test install
-    ...  If ok, continue just like in the example above
 
 To make this easier, an alias (example in Bash) will help.
 
@@ -543,11 +535,6 @@ files to weird places.
 
     cygbuild --release 1 --test install
 
-=item B<import>
-
-Start porting the project. Effectively runs steps B<[makedirs]>,
-B<[files]>, B<[configure]>, B<[make]>.
-
 =item B<check>
 
 Run various checks to ensure that the install to directory .inst/ look
@@ -697,7 +684,7 @@ instead of the homepage's name C<gc>, like this:
 
 Notice how all released files now correctly include prefix C<libgc6>.
 
-=item B<source-package>
+=item B<source-package> or B<spkg>
 
 Make source package C<PACKAGE-VERSION-REL-src.tar.b2> to directory
 C<.sinst/>. This command will first run B<[clean]> followed by
@@ -710,32 +697,6 @@ was called. So, to build binary package after command B<source-package>
 means that the steps have to be started over. Like this:
 
     cygbuild --release 1 configure make install package
-
-=item B<repackage-all> or B<repkg>
-
-Run commands B<[configure]>, B<[make]>, B<[install]>, B<[check]>,
-B<[package]>, B<[readmefix]>, B<[package]>, B<[source-package]> and
-B<[publish]>. In other words, this command remakes complete Cygwin Net
-release. This is the command to start all from the beginning and go to the
-finish. This is needed if files C<package.README> or C<setup.hint> is
-changed.
-
-=item B<repackage-bin> or B<repkgbin>
-
-Same as B<repackage-all> but stop after binary package has been made. This
-command does not proceed to source package or publishing. Handy in
-situations where only binary package needs to be remade after corrective
-actions to problems found in installation structure:
-
-    eyeball C<.inst/> directory, fix whatever is needed and
-    run command [repackage-bin]
-
-    [repeat] eyeball ./inst ... until looks good.
-
-=item B<repackage-devel> or B<repkgdev>
-
-Like above repackage commands, but for libraries. Run all steps
-from beginning to publish.
 
 =item B<readmefix>
 
@@ -758,9 +719,9 @@ internal build process testing command B<[all]>.
 =item B<publish>
 
 If environment variable C<CYGBUILD_PUBLISH_BIN> is set, the external
-program is called with 3 mandatory and 2 optional arguments from options
-B<--sign> and B<--passphrase> if those were available. The shell call
-will be in form:
+program is called with 3 mandatory and 2 optional arguments from
+options B<--sign> and B<--passphrase> if those were supplied. The
+shell call will be in form:
 
     $CYGBUILD_PUBLISH_BIN \
 	/directory/where/package-N.N/.sinst/
@@ -771,11 +732,11 @@ will be in form:
 	[gpg pass phrase]
 
 If no C<CYGBUILD_PUBLISH_BIN> exists, source and binary packages are copied
-under publish directory C<$CYGBUILD_PUBLISH_DIR/package/>.
+to directory C<$CYGBUILD_PUBLISH_DIR/package/>.
 
 It makes sense to run publish command only after commands
 B<[source-package]> and B<[package]>. If command B<[package-devel]>
-was used, then the published files are copied to separate
+was used, then the published files are copied to a separate
 subdirectories below C<$CYGBUILD_PUBLISH_DIR/package/>. See command
 B<[package-devel]> for more information.
 

@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0921.2010"
+CYGBUILD_VERSION="2012.0922.0802"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -12030,30 +12030,6 @@ function CygbuildCommandMain()
 		status=$?
 		;;
 
-	    import)
-
-		local dir=$CYGBUILD_DIR_CYGPATCH_RELATIVE
-		local install
-
-		#   If there is CYGWIN-PATCHES, then this is "upgrade"
-		#   Run also install in that case.
-
-		if [ -d "$dir" ]; then
-		    install="install"
-		    CygbuildCmdMkdirs
-		    CygbuildPatchApplyMaybe
-		else
-		  CygbuildCmdMkdirs
-		  CygbuildCmdFilesMain
-		fi                        &&
-
-		CygbuildCmdReadmeFixMain  &&
-		CygbuildCmdConfMain       &&
-		CygbuildCmdBuildMain      &&
-		[ ! "$install" ] || CygbuildCmdInstallMain
-		status=$?
-		;;
-
 	    make|build)
 		CygbuildCmdBuildMain
 		status=$?
@@ -12145,42 +12121,6 @@ function CygbuildCommandMain()
 
 	    readmefix)
 		CygbuildCmdReadmeFixMain
-		status=$?
-		;;
-
-	    repackage-all|repackage|repkg)
-
-		CygbuildNoticeGPG
-
-		CygbuildCmdConfMain         &&
-		CygbuildCmdBuildMain        &&
-		CygbuildCmdInstallMain      &&
-		CygbuildStripCheck          &&
-		CygbuildCmdPkgBinaryMain    &&
-		{
-		    CygbuildHelpSourcePackage   &&
-		    CygbuildCmdPkgSourceMain ;
-		}
-		status=$?
-		;;
-
-	    repackage-bin|repkgbin)
-		CygbuildNoticeGPG
-
-		CygbuildCmdConfMain         &&
-		CygbuildCmdBuildMain        &&
-		CygbuildCmdInstallMain      &&
-		CygbuildCmdPkgBinaryMain
-		status=$?
-		;;
-
-	    repackage-devel|repkgdev)
-		CygbuildNoticeGPG
-
-		CygbuildCmdConfMain         &&
-		CygbuildCmdBuildMain        &&
-		CygbuildCmdInstallMain      &&
-		CygbuildCmdPkgDevelMain
 		status=$?
 		;;
 

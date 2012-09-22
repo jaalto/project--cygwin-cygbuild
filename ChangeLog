@@ -1,5 +1,11 @@
 2012-09-22 Sat  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl: (HELP::Install commands): Remove all
+	import and repackage commands.
+
+	* bin/cygbuild.sh (CygbuildCommandMain): Remove all import and
+	repackage commands
+
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Do not
 	check */doc/* directories.
 
