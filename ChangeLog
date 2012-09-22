@@ -7,6 +7,10 @@
 	repackage commands
 	(CygbuildDefineGlobalPerlVersion): Correct for Perl 5.14
 	(CygbuildCmdInstallPatchVerify): List patches with --verbose.
+	(CygbuildPatchFileQuilt): Search only under
+	$CYGBUILD_DIR_CYGPATCH_RELATIVE
+	(CygbuildPatchFileList): Search only under
+	$CYGBUILD_DIR_CYGPATCH_RELATIVE
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Do not
 	check */doc/* directories.

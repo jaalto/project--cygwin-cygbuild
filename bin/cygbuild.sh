@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0922.1334"
+CYGBUILD_VERSION="2012.0922.1341"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5889,7 +5889,7 @@ function CygbuildPatchApplyRun()
 function CygbuildPatchFileQuilt()
 {
     local id="$0.$FUNCNAME"
-    local dir=${1:-$(pwd)} #  ${DIR_CYGPATCH:?Variable not defined}}
+    local dir=${1:-"$(pwd)/$CYGBUILD_DIR_CYGPATCH_RELATIVE"}
 
     CygbuildFindLowlevel "$dir"		\
 	-a -type d                      \
@@ -5906,7 +5906,7 @@ function CygbuildPatchFileQuilt()
 function CygbuildPatchFileList()
 {
     local id="$0.$FUNCNAME"
-    local dir=${1:-$(pwd)} # ${DIR_CYGPATCH:?Variable not defined}}
+    local dir=${1:-"$(pwd)/$CYGBUILD_DIR_CYGPATCH_RELATIVE"}
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     [ "$dir"    ] || return 1
