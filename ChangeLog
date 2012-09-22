@@ -1,3 +1,8 @@
+2012-09-22 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Do not
+	check */doc/* directories.
+
 2012-09-21 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/cygwin-announce.mail.ex (License): Use (at) sign.

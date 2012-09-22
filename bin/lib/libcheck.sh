@@ -17,9 +17,9 @@
 #       General Public License for more details.
 #
 #       You should have received a copy of the GNU General Public License
-#	along with program. If not, write to the Free Software
-#	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-#	02110-1301, USA.
+#       along with program. If not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#       02110-1301, USA.
 #
 #       Visit <http://www.gnu.org/copyleft/gpl.html>
 
@@ -27,7 +27,7 @@ shopt -s extglob    # Use extra pattern matching options
 
 #######################################################################
 #
-#	    FILES
+#           FILES
 #
 #######################################################################
 
@@ -123,23 +123,23 @@ function CygbuildCmdInstallCheckTexiFiles()
     local texi
 
     if [ -s $retval ] ; then
-	CygbuildEcho "-- Texi files found"
-	sed 's,^\./,,' $retval
+        CygbuildEcho "-- Texi files found"
+        sed 's,^\./,,' $retval
 
-	local file name info
+        local file name info
 
-	while read file
-	do
-	    name=${file##*/}
-	    name=${name%.texi}
-	    info="$infodir/$name.info"
+        while read file
+        do
+            name=${file##*/}
+            name=${name%.texi}
+            info="$infodir/$name.info"
 
-	    if [ ! -f "$info" ]; then
-		CygbuildEcho "-- [NOTE] Texi, but no info file" \
-		    ${info#$srcdir/}
-	    fi
+            if [ ! -f "$info" ]; then
+                CygbuildEcho "-- [NOTE] Texi, but no info file" \
+                    ${info#$srcdir/}
+            fi
 
-	done < $retval
+        done < $retval
     fi
 }
 
@@ -154,12 +154,12 @@ function CygbuildCmdInstallCheckPerlFile ()
     local _file=${file#$srcdir/}
     local name=${file##*/}
 
-    #	Check that program is well formed
+    #   Check that program is well formed
 
     perl -cw $file > $retval 2>&1
 
-    #	Not interested in warning from Perl base system
-    #	    Constant subroutine main::DEBUG redefined at /usr/lib/perl5/5.8/constant.pm line 103.
+    #   Not interested in warning from Perl base system
+    #       Constant subroutine main::DEBUG redefined at /usr/lib/perl5/5.8/constant.pm line 103.
 
     grep --invert-match 'at /usr/lib/perl[0-9]/' $retval > $retval.tmp &&
     mv --force "$retval.tmp" "$retval"
@@ -176,7 +176,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         CygbuildWarn \
             "-- [WARN] $name: requires external Perl libraries (CPAN)"
 
-	CygbuildWarn "$notes"
+        CygbuildWarn "$notes"
 
     elif [[ "$notes" == *\ line\ * ]]; then
 
@@ -207,9 +207,9 @@ function CygbuildCmdInstallCheckPerlFile ()
         CygbuildWarn \
             "-- [NOTE] $name incorrect or missing bang-slash line, fixing it"
 
-	cat "$retval"
+        cat "$retval"
 
-	#   Replace first line.
+        #   Replace first line.
 
         echo "#!$plpath" > "$newfile" &&
         tail --lines=+2 "$file" >> "$newfile" &&
@@ -225,7 +225,7 @@ function CygbuildCmdInstallCheckPerlFile ()
 
     if $EGREP '^[^#]*\<cp[[:space:]]+-l\>' $file ; then
         CygbuildEcho "-- [NOTE] cp -l detected;" \
-	    "only efficient under NTFS: $_file"
+            "only efficient under NTFS: $_file"
     fi
 
     if CygbuildGrepCheck '^=pod' $file ; then
@@ -235,7 +235,7 @@ function CygbuildCmdInstallCheckPerlFile ()
         if CygbuildGrepCheck '^=cut' $file ; then
             #  Sometimes developers do not write well formed POD.
             CygbuildEcho "-- [NOTE] =pod tag is missing, but POD found:" \
-		$_file
+                $_file
         else
             CygbuildEcho "-- [INFO] No embedded POD found from $_file"
         fi
@@ -290,7 +290,7 @@ function CygbuildCmdInstallCheckShellFiles ()
 
     while read file rest
     do
-        file=${file%:}		    # Remove trailing colon from file(1)
+        file=${file%:}              # Remove trailing colon from file(1)
 
         [ -f $file ] || continue
 
@@ -320,8 +320,8 @@ function CygbuildCmdInstallCheckShellFiles ()
         elif [[ "$rest" = *\ Bourne\ * ]]; then
             CygbuildCmdInstallCheckShFile "$file"
         elif [[ "$rest" = *Bourne-Again* ]]; then
-	    #	We need to enable extglob becaus "-nx" won't execute
-	    #	any commands in the code.
+            #   We need to enable extglob becaus "-nx" won't execute
+            #   any commands in the code.
             CygbuildCmdInstallCheckShFile "$file" "/bin/bash -O extglob"
         fi
 
@@ -336,15 +336,15 @@ function CygbuildCmdInstallCheckShFile ()
 
     [ -f "$file" ] || return 0
 
-    local shell=${sh:-"/bin/sh"}				# set default
+    local shell=${sh:-"/bin/sh"}                                # set default
 
-    if [ ! "$sh" ]; then					# find better
-	#   Bourne shells to use for checks.
-	#   The strictest is the last one
+    if [ ! "$sh" ]; then                                        # find better
+        #   Bourne shells to use for checks.
+        #   The strictest is the last one
 
-	[ -f /bin/ash ]  &&  shell=/bin/ash		    	# Cygwin
-	[ -f /bin/dash ] &&  shell=/bin/dash			# Debian
-	[ -f /bin/posh ] &&  shell=/bin/posh			# Posix
+        [ -f /bin/ash ]  &&  shell=/bin/ash                     # Cygwin
+        [ -f /bin/dash ] &&  shell=/bin/dash                    # Debian
+        [ -f /bin/posh ] &&  shell=/bin/posh                    # Posix
     fi
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -457,8 +457,8 @@ function CygbuildCmdInstallCheckReadme()
             "from" ${path#$srcdir/}
 
         if [ "$verbose" ]; then
-	    $EGREP --with-filename "$sversion" ${path#$srcdir/}
-	fi
+            $EGREP --with-filename "$sversion" ${path#$srcdir/}
+        fi
 
         CygbuildWarn \
             "-- [INFO] Give different -r RELEASE or edit $origreadme"
@@ -471,7 +471,7 @@ function CygbuildCmdInstallCheckReadme()
 
 #######################################################################
 #
-#	    SETUP.HINT
+#           SETUP.HINT
 #
 #######################################################################
 
@@ -480,53 +480,53 @@ function CygbuildCmdInstallCheckSetupHintQuotes()
     local path=${1:-/dev/null}
 
     awk '
-	BEGIN {
-	    endquote = -1;
-	}
+        BEGIN {
+            endquote = -1;
+        }
 
-#	{ print ">> " endquote " " $0 }
+#       { print ">> " endquote " " $0 }
 
-	/^[a-z]+:/ && ! /^(sdesc|ldesc):/ {
+        /^[a-z]+:/ && ! /^(sdesc|ldesc):/ {
 
-	    if (endquote == 0)
-	    {
-		printf("%s\n-- [ERROR] missing ending quote\n", prev)
-	    }
+            if (endquote == 0)
+            {
+                printf("%s\n-- [ERROR] missing ending quote\n", prev)
+            }
 
-	    endquote = -1
-	    next
-	}
+            endquote = -1
+            next
+        }
 
-	/^(sdesc|ldesc):/ {
-	    start = 1
+        /^(sdesc|ldesc):/ {
+            start = 1
 
-	    if (endquote == 0)
-	    {
-		printf("%s\n-- [ERROR] missing ending quote\n", prev)
-	    }
+            if (endquote == 0)
+            {
+                printf("%s\n-- [ERROR] missing ending quote\n", prev)
+            }
 
-	    prev = $0
-	    endquote = 0
-	}
-	start == 1 && /[\"].*[\"]/ {
-	    endquote = 1
-	    start = 0
-	    next
-	}
-	start == 1 && /[\"]/ {
-	    start = 0
-	    next
-	}
+            prev = $0
+            endquote = 0
+        }
+        start == 1 && /[\"].*[\"]/ {
+            endquote = 1
+            start = 0
+            next
+        }
+        start == 1 && /[\"]/ {
+            start = 0
+            next
+        }
         start == 1 {
             printf( "%s\n-- [ERROR] missing opening quote\n", $0)
             start = 0
             next
         }
-	start == 0 && /[\"]/ {
-	    endquote = 1
-	}
+        start == 0 && /[\"]/ {
+            endquote = 1
+        }
 
-	{ prev = $0 }
+        { prev = $0 }
     ' "$path" | CygbuildMsgFilter >&2
 }
 
@@ -536,8 +536,8 @@ function CygbuildCmdInstallCheckSetupHintFieldNames()
     local path="$1"
 
     if [ ! "$path" ]; then
-	CygbuildWarn "$id: Missing argument PATH"
-	return 1
+        CygbuildWarn "$id: Missing argument PATH"
+        return 1
     fi
 
     #   Check required fields
@@ -574,8 +574,8 @@ function CygbuildCmdInstallCheckSetupHintSdesc()
     local path="$1"
 
     if [ ! "$path" ]; then
-	CygbuildWarn "$id: Missing argument PATH"
-	return 1
+        CygbuildWarn "$id: Missing argument PATH"
+        return 1
     fi
 
     if $EGREP --quiet "^sdesc:.+\.[[:space:]]*\"" $path
@@ -642,27 +642,27 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
     X11 "
 
     if [ ! "$path" ]; then
-	CygbuildWarn "$id: Missing argument PATH"
-	return 1
+        CygbuildWarn "$id: Missing argument PATH"
+        return 1
     fi
 
     if ! $EGREP --ignore-case "^category:" $path > $retval ; then
-	CygbuildWarn "-- [ERROR] setup.hint lacks header Category:"
-	return 1
+        CygbuildWarn "-- [ERROR] setup.hint lacks header Category:"
+        return 1
     fi
 
     local cr=$'\r'
 
     for item in $(< $retval) # Break on space to read categoies
     do
-	#  Skip first word, the "Category:" header
-	[[ "$item" == *:* ]] && continue
+        #  Skip first word, the "Category:" header
+        [[ "$item" == *:* ]] && continue
 
-	item=${item/$cr/}   # remove CR from the last item
+        item=${item/$cr/}   # remove CR from the last item
 
-	if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
-	    CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"
-	fi
+        if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
+            CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"
+        fi
     done
 }
 
@@ -678,8 +678,8 @@ function CygbuildCmdInstallCheckSetupHintLdesc()
     CygbuildStrToRegexpSafe "$PKG" > $retval
     [ -s "$retval" ] && re=$(< $retval)
 
-    #	Ignore compression utilities, whose name is same as the compression
-    #	extension.
+    #   Ignore compression utilities, whose name is same as the compression
+    #   extension.
 
     awk '/^ldesc:/ && ! /compress|archive/ {
             line = tolower($0);
@@ -722,8 +722,8 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
     local path=${1:-/dev/null}
 
     if [ ! -s "$database" ] ; then
-	CygbuildVerb "-- [NOTE] Not exists: $database"
-	return 0
+        CygbuildVerb "-- [NOTE] Not exists: $database"
+        return 0
     fi
 
     #  We assume that developer always has every package and library
@@ -733,21 +733,21 @@ function CygbuildCmdInstallCheckSetupHintDependExists()
 
     local lib
 
-    for lib in $(< $retval)	# Break line on space to get LIBs
+    for lib in $(< $retval)     # Break line on space to get LIBs
     do
-	local re=$lib
-	re=${re//\+/\\+}		# libstcc++ =>  libstcc\+\+
+        local re=$lib
+        re=${re//\+/\\+}                # libstcc++ =>  libstcc\+\+
 
         if $EGREP --quiet --files-with-matches "\<$re\>" "$database"
         then
             CygbuildEcho "-- OK requires: $lib"
         else
             CygbuildWarn "-- [ERROR] requires: '$lib' package not installed." \
-		         "Close matches, if any, below."
+                         "Close matches, if any, below."
 
-	    ${AWK:-awk} '$1 ~ re {
-		print "   " $1
-	    }' re="$lib"  "$database"
+            ${AWK:-awk} '$1 ~ re {
+                print "   " $1
+            }' re="$lib"  "$database"
         fi
     done
 }
@@ -832,7 +832,7 @@ function CygbuildCmdInstallCheckSetupHintMain()
 
 #######################################################################
 #
-#	    LIBRARY DEPS: PERL
+#           LIBRARY DEPS: PERL
 #
 #######################################################################
 
@@ -842,70 +842,70 @@ function CygbuildPerlLibraryDependsCache()
 
     [ -f "$cache" ] || return 0
 
-    #	Call arguments are library names, like MIME::Base64.
-    #	Output's first word is 'Std' or 'CPAN' to identify the module.
+    #   Call arguments are library names, like MIME::Base64.
+    #   Output's first word is 'Std' or 'CPAN' to identify the module.
 
     perl -e \
     '
-	$cache = shift @ARGV;
+        $cache = shift @ARGV;
 
-	-f $cache or
-	    die "Invalid cache file: $cache => @ARGV";
+        -f $cache or
+            die "Invalid cache file: $cache => @ARGV";
 
-	open my $FILE, "< $cache" or
-	    die "Cannot open cache: $cache $!";
+        open my $FILE, "< $cache" or
+            die "Cannot open cache: $cache $!";
 
-	$CACHE = join "", <$FILE>;
-	close $FILE;
+        $CACHE = join "", <$FILE>;
+        close $FILE;
 
-	#  Remove duplicates
+        #  Remove duplicates
 
-	@hash{@ARGV} = 1;
+        @hash{@ARGV} = 1;
 
-	for my $module ( sort keys %hash )
-	{
-	    $lib   = $module;
-	    $lib   =~ s,::,/,g;
-	    $type  = "CPAN";
-	    $path  = "";
+        for my $module ( sort keys %hash )
+        {
+            $lib   = $module;
+            $lib   =~ s,::,/,g;
+            $type  = "CPAN";
+            $path  = "";
 
-	    if ( $CACHE =~ m,^(/usr/lib/perl[\d.]+/.*$lib.*),m )
-	    {
-		$type = "Std";
-		$path = $1;
-	    }
+            if ( $CACHE =~ m,^(/usr/lib/perl[\d.]+/.*$lib.*),m )
+            {
+                $type = "Std";
+                $path = $1;
+            }
 
-	    printf "%-5s %-20s $path\n", $type, $module;
-	}
+            printf "%-5s %-20s $path\n", $type, $module;
+        }
     ' "$cache" "$@"
 }
 
 function CygbuildPerlLibraryDependsGuess()
 {
-    #	Call arguments are library names, like MIME::Base64.
-    #	Output's first word is 'Std' or 'CPAN' to identify the module.
+    #   Call arguments are library names, like MIME::Base64.
+    #   Output's first word is 'Std' or 'CPAN' to identify the module.
 
     perl -e \
     '
-	for my $module ( @ARGV )
-	{
-	    $lib = $module;
-	    $lib =~ s,::,/,g;
+        for my $module ( @ARGV )
+        {
+            $lib = $module;
+            $lib =~ s,::,/,g;
 
-	    for (@INC)
-	    {
-		next unless -d ;
+            for (@INC)
+            {
+                next unless -d ;
 
-		next if m,/\w+_perl/, ; # exclude site_perl, vendor_perl
-		next unless m,/perl\d/,;
+                next if m,/\w+_perl/, ; # exclude site_perl, vendor_perl
+                next unless m,/perl\d/,;
 
-		$path = "$_/$lib.pm";
-		$type = "Std";
-		$type = "CPAN" unless -f $path;
-	    }
+                $path = "$_/$lib.pm";
+                $type = "Std";
+                $type = "CPAN" unless -f $path;
+            }
 
-	    printf "%-5s %-20s $path\n", $type, $module;
-	}
+            printf "%-5s %-20s $path\n", $type, $module;
+        }
     ' "$@"
 }
 
@@ -914,17 +914,17 @@ function CygbuildPerlLibraryDependsMain()
     local cache="$CYGBUILD_CACHE_PERL_FILES"
 
     if [ "$cache" ] && [ -s "$cache" ]; then
-	:
+        :
     else
-	# Try to generate cache
-	CygbuildBootVariablesGlobalCachePerlGenerate
+        # Try to generate cache
+        CygbuildBootVariablesGlobalCachePerlGenerate
     fi
 
     if [ "$cache" ] && [ -s "$cache" ]; then
-	CygbuildPerlLibraryDependsCache "$@"
+        CygbuildPerlLibraryDependsCache "$@"
     else
-	CygbuildWarn "-- No perl cache, results are pure guesswork..."
-	CygbuildPerlLibraryDependsGuess "$@"
+        CygbuildWarn "-- No perl cache, results are pure guesswork..."
+        CygbuildPerlLibraryDependsGuess "$@"
     fi
 }
 
@@ -933,13 +933,13 @@ function CygbuildPerlLibraryList()
     [ "$1" ] || return 0
 
     #   Ignore $var::Libx
-    #	1. grep: Look into non-comment lines only
-    #	2. grep: return only matched portion.
+    #   1. grep: Look into non-comment lines only
+    #   2. grep: return only matched portion.
 
     ${EGREP:-grep -E} --only-matching \
-	'^[^#]*\<[^#$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
+        '^[^#]*\<[^#$][a-zA-Z]+::[a-zA-Z]+\>' "$@" |
     ${EGREP:-grep -E} --only-matching \
-	'\<[^$][a-zA-Z]+::[a-zA-Z]+\>' |
+        '\<[^$][a-zA-Z]+::[a-zA-Z]+\>' |
     sort --unique
 }
 
@@ -958,14 +958,14 @@ function CygbuildCmdInstallCheckLibrariesPerl()
     CygbuildPerlLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
-	CygbuildEcho "-- Possible libary deps in" ${file#$srcdir/}
-	sort -r $deps | sed 's/^/   /'    # CPAN last
+        CygbuildEcho "-- Possible libary deps in" ${file#$srcdir/}
+        sort -r $deps | sed 's/^/   /'    # CPAN last
     fi
 }
 
 #######################################################################
 #
-#	    LIBRARY DEPS: PYTHON
+#           LIBRARY DEPS: PYTHON
 #
 #######################################################################
 
@@ -974,53 +974,53 @@ function CygbuildPythonLibraryDependsCache()
     local cache="$CYGBUILD_CACHE_PYTHON_FILES"
 
     if [ "$cache" ] && [ -s "$cache" ]; then
-	:
+        :
     else
-	# Try to generate cache
-	CygbuildBootVariablesGlobalCachePythonGenerate
+        # Try to generate cache
+        CygbuildBootVariablesGlobalCachePythonGenerate
     fi
 
     [ -f "$cache" ] || return 0
 
-    #	Call arguments are library names, like feedparser, html2text
+    #   Call arguments are library names, like feedparser, html2text
 
     perl -e \
     '
-	$cache = shift @ARGV;
+        $cache = shift @ARGV;
 
-	-f $cache or
-	    die "Invalid cache file: $cache => @ARGV";
+        -f $cache or
+            die "Invalid cache file: $cache => @ARGV";
 
-	open my $FILE, "< $cache" or
-	    die "Cannot open cache: $cache $!";
+        open my $FILE, "< $cache" or
+            die "Cannot open cache: $cache $!";
 
-	$CACHE = join "", <$FILE>;
-	close $FILE;
+        $CACHE = join "", <$FILE>;
+        close $FILE;
 
-	#   Remove duplicates
+        #   Remove duplicates
 
-	@hash{@ARGV} = 1;
+        @hash{@ARGV} = 1;
 
-	#   import sys => /usr/include/python2.5/sysmodule.h
-	#   /usr/lib/python2.5/lib-dynload/_socket.dll
-	#   /usr/lib/python2.5/ctypes/macholib/__init__.py
-	#   /usr/lib/python2.5/email/feedparser.py
+        #   import sys => /usr/include/python2.5/sysmodule.h
+        #   /usr/lib/python2.5/lib-dynload/_socket.dll
+        #   /usr/lib/python2.5/ctypes/macholib/__init__.py
+        #   /usr/lib/python2.5/email/feedparser.py
 
-	for my $module ( sort keys %hash )
-	{
-	    $lib   = $module;
-	    $type  = "Ext";
-	    $path  = "";
+        for my $module ( sort keys %hash )
+        {
+            $lib   = $module;
+            $type  = "Ext";
+            $path  = "";
 
-	    if ( $CACHE =~ m,^(.*/lib/python[\d.]+.*/$lib\b.*),m
-		 or $CACHE =~ m,^.*/include/.*${lib}module\.h,m )
-	    {
-		$type = "Std";
-		$path = $1;
-	    }
+            if ( $CACHE =~ m,^(.*/lib/python[\d.]+.*/$lib\b.*),m
+                 or $CACHE =~ m,^.*/include/.*${lib}module\.h,m )
+            {
+                $type = "Std";
+                $path = $1;
+            }
 
-	    printf "%-5s %-20s $path\n", $type, $module;
-	}
+            printf "%-5s %-20s $path\n", $type, $module;
+        }
     ' "$cache" "$@"
 }
 
@@ -1036,53 +1036,53 @@ function CygbuildPythonLibraryList()
 {
     [ "$1" ] || return 0
 
-    #	import sys
-    #	from config import *
+    #   import sys
+    #   from config import *
     #   from email.MIMEText import MIMEText
     #   import cPickle as pickle, md5, time, os, traceback, urllib2, sys, types
-    #	import mimify; from StringIO import StringIO as SIO;
+    #   import mimify; from StringIO import StringIO as SIO;
 
     perl -e '
-	$debug = shift @ARGV;
-	$file  = shift @ARGV;
+        $debug = shift @ARGV;
+        $file  = shift @ARGV;
 
-	open my $FH, "<", $file  or  die "$!";
+        open my $FH, "<", $file  or  die "$!";
 
-	binmode $FH;
-	$_ = join "", <$FH>;
-	close $FH;
+        binmode $FH;
+        $_ = join "", <$FH>;
+        close $FH;
 
-	while ( /(from\s+(\S+)\s+import)/gm )
-	{
-	    $debug  and  warn "A: [$2] => $1\n";
-	    $hash{$2} = 1;
-	}
+        while ( /(from\s+(\S+)\s+import)/gm )
+        {
+            $debug  and  warn "A: [$2] => $1\n";
+            $hash{$2} = 1;
+        }
 
-	while ( /^((?!\s*#)\s*import\s+(\S+[^\s[:punct:]])([^;\r\n]*))/gm )
-	{
-	    $hash{$2} = 1;
-	    $debug  and  warn "B: [$2] => $1\n";
+        while ( /^((?!\s*#)\s*import\s+(\S+[^\s[:punct:]])([^;\r\n]*))/gm )
+        {
+            $hash{$2} = 1;
+            $debug  and  warn "B: [$2] => $1\n";
 
-	    # [Handle cases like]
-	    # import cPickle as pickle, md5, time, os, traceback, urllib2
+            # [Handle cases like]
+            # import cPickle as pickle, md5, time, os, traceback, urllib2
 
-	    $list = $3;
-	    $list =~ s/\s+as\s+\S+\s*//g;
+            $list = $3;
+            $list =~ s/\s+as\s+\S+\s*//g;
 
-	    next unless $list;
+            next unless $list;
 
-	    $list =~ s/\s+//g;
-	    $debug  and  warn "L: [$list]\n";
+            $list =~ s/\s+//g;
+            $debug  and  warn "L: [$list]\n";
 
-	    @libs = split /,/, $list;
+            @libs = split /,/, $list;
 
-	    $debug  and  warn "L: @libs\n";
+            $debug  and  warn "L: @libs\n";
 
-	    @hash{@libs} = (1) x @libs;
-	}
+            @hash{@libs} = (1) x @libs;
+        }
 
-	%hash  and  print join " ", sort keys %hash;
-	exit
+        %hash  and  print join " ", sort keys %hash;
+        exit
     ' "${debug:+1}" "$@"
 }
 
@@ -1101,14 +1101,14 @@ function CygbuildCmdInstallCheckLibrariesPython()
     CygbuildPythonLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
-	CygbuildEcho "-- possible Python library deps in" ${file#$srcdir/}
-	sort -r $deps	    # Extensions last
+        CygbuildEcho "-- possible Python library deps in" ${file#$srcdir/}
+        sort -r $deps       # Extensions last
     fi
 }
 
 #######################################################################
 #
-#	    LIBRARY DEPS: RUBY
+#           LIBRARY DEPS: RUBY
 #
 #######################################################################
 
@@ -1117,22 +1117,22 @@ function CygbuildRubyLibraryList()
     [ "$1" ] || return 0
 
     perl -e '
-	$debug = shift @ARGV;
-	$file  = shift @ARGV;
+        $debug = shift @ARGV;
+        $file  = shift @ARGV;
 
-	open my $FH, "<", $file  or  die "$!";
+        open my $FH, "<", $file  or  die "$!";
 
-	binmode $FH;
-	$_ = join "", <$FH>;
-	close $FH;
+        binmode $FH;
+        $_ = join "", <$FH>;
+        close $FH;
 
-	while ( /^[^#]*\s*(?:require|include)\s+(\S+)/gm )
-	{
-	    $hash{$1} = 1;
-	}
+        while ( /^[^#]*\s*(?:require|include)\s+(\S+)/gm )
+        {
+            $hash{$1} = 1;
+        }
 
-	%hash  and  print join " ", sort keys %hash;
-	exit
+        %hash  and  print join " ", sort keys %hash;
+        exit
     ' "${debug:+1}" "$@"
 }
 
@@ -1142,10 +1142,10 @@ function CygbuildRubyLibraryDependsMain()
     local cache="$CYGBUILD_CACHE_RYBY_FILES"
 
     if [ "$cache" ] && [ -s "$cache" ]; then
-	:
+        :
     else
-	# Try to generate cache
-	CygbuildBootVariablesGlobalCacheRubyGenerate
+        # Try to generate cache
+        CygbuildBootVariablesGlobalCacheRubyGenerate
     fi
 
     : # FIXME: TODO
@@ -1167,14 +1167,14 @@ function CygbuildCmdInstallCheckLibrariesRuby()
     CygbuildRubyLibraryDependsMain $(< $retval) > $deps
 
     if [ -s "$deps" ]; then
-	CygbuildEcho "-- possible Ruby library deps in" ${file#$srcdir/}
-	sort -r $deps	    # Extensions last
+        CygbuildEcho "-- possible Ruby library deps in" ${file#$srcdir/}
+        sort -r $deps       # Extensions last
     fi
 }
 
 #######################################################################
 #
-#	    MISCELLANEOUS
+#           MISCELLANEOUS
 #
 #######################################################################
 
@@ -1190,22 +1190,22 @@ function CygbuildCmdInstallCheckFSFaddress()
 
     while read file
     do
-	cmd="cat"
+        cmd="cat"
 
-	[[ "$file" == *.@(dll|exe|la|[ao#~]) ]] && continue
+        [[ "$file" == *.@(dll|exe|la|[ao#~]) ]] && continue
 
-	[[ "$file" == *.gz   ]] && cmd="gzip  -dc"
-	[[ "$file" == *.bz2  ]] && cmd="bzip2 -dc"
-	[[ "$file" == *.lzma ]] && cmd="lzma  -dc"
+        [[ "$file" == *.gz   ]] && cmd="gzip  -dc"
+        [[ "$file" == *.bz2  ]] && cmd="bzip2 -dc"
+        [[ "$file" == *.lzma ]] && cmd="lzma  -dc"
 
-	_file=${file#$srcdir/}
+        _file=${file#$srcdir/}
 
-	if $cmd "$file" |
-	   $EGREP --line-number '675[[:space:]]+Mass[[:space:]]+Ave' \
-	   > $retval.grep
-	then
-	   echo "$_file:$(< $retval.grep)" >> $retval
-	fi
+        if $cmd "$file" |
+           $EGREP --line-number '675[[:space:]]+Mass[[:space:]]+Ave' \
+           > $retval.grep
+        then
+           echo "$_file:$(< $retval.grep)" >> $retval
+        fi
 
     done < $retval.list
 
@@ -1239,13 +1239,13 @@ function CygbuildCmdInstallCheckLineEndings()
     else
         # --files-with-matches = ... The scanning will stop on the first match.
 
-	if  head $DIR_CYGPATCH/* 2> /dev/null	|
-	    cat --show-nonprinting		|
-	    $EGREP --files-with-matches "\^M"	\
+        if  head $DIR_CYGPATCH/* 2> /dev/null   |
+            cat --show-nonprinting              |
+            $EGREP --files-with-matches "\^M"   \
             > /dev/null 2>&1
         then
             CygbuildEcho "-- [INFO] Converting to Unix line endings in dir" \
-			 ${DIR_CYGPATCH#$srcdir/}
+                         ${DIR_CYGPATCH#$srcdir/}
             CygbuildFileConvertToUnix $DIR_CYGPATCH/*
         fi
     fi
@@ -1289,20 +1289,20 @@ function CygbuildCmdInstallCheckManualPages()
     do
         $EGREP -n 'Debian' $file /dev/null >> $retval.debian
 
-	itest=0
+        itest=0
 
-	if [[ "$file" == *.gz  ]]; then
-	    gzip --test --verbose "$file"  > $retval.test 2>&1
-	    itest=$?
-	elif [[ "$file" == *.bz2 ]]; then
-	    bzip2 --test --verbose "$file"  > $retval.test 2>&1
-	    itest=$?
-	fi
+        if [[ "$file" == *.gz  ]]; then
+            gzip --test --verbose "$file"  > $retval.test 2>&1
+            itest=$?
+        elif [[ "$file" == *.bz2 ]]; then
+            bzip2 --test --verbose "$file"  > $retval.test 2>&1
+            itest=$?
+        fi
 
-	if [ ! "$itest" = "0" ]; then
-	    CygbuildWarn "-- [ERROR] integrity check failed:" ${file#$srcdir/}
-	    cat $retval.test
-	fi
+        if [ ! "$itest" = "0" ]; then
+            CygbuildWarn "-- [ERROR] integrity check failed:" ${file#$srcdir/}
+            cat $retval.test
+        fi
 
         path=${file%/*}
         manPathList="$manPathList $path"
@@ -1431,10 +1431,10 @@ function CygbuildCmdInstallCheckDocdir()
 
     if [ ! -d "$dir" ]; then
         CygbuildWarn "-- [WARN] Hm, not found ${dir#$srcdir/}"
-	return 0
+        return 0
     fi
 
-    find -L "$dir"			\
+    find -L "$dir"                      \
         -type f                         \
         '(' -path   "*$PKG*"   ')'      \
         > $retval
@@ -1452,7 +1452,7 @@ function CygbuildCmdInstallCheckDocdir()
     while read file
     do
         [[ "$file" == $ignore ]] && continue
-	[ -h "$file"	       ] && continue   # Ignore symlinks
+        [ -h "$file"           ] && continue   # Ignore symlinks
 
         local size=0
         local _file=${file/$srcdir\//}
@@ -1464,8 +1464,8 @@ function CygbuildCmdInstallCheckDocdir()
             CygbuildWarn "-- [WARN] empty file $_file"
 
         elif [[ ! "$file" == *.@(gif|jpg|png|xpm) ]] &&
-	     (( $size < $minsize ))
-	then
+             (( $size < $minsize ))
+        then
             CygbuildWarn "-- [WARN] Very small file ($size bytes) $_file"
         fi
     done < $retval
@@ -1478,12 +1478,12 @@ CygbuildCygcheckLibraryDepSourceMake()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    CygbuildFindDo "."		    \
-	-o -type f -iname "*make*"  \
-	-o -name "*.mk"		    \
-	-o -name "*.mak"	    \
-	> $retval		    \
-	2> /dev/null
+    CygbuildFindDo "."              \
+        -o -type f -iname "*make*"  \
+        -o -name "*.mk"             \
+        -o -name "*.mak"            \
+        > $retval                   \
+        2> /dev/null
 
     [ -s $retval ] || return 0
 
@@ -1491,10 +1491,10 @@ CygbuildCygcheckLibraryDepSourceMake()
 
     while read file
     do
-	$EGREP --with-filename --line-number --ignore-case \
-	    '^[^#]*(xmlto|asciidoc)\>'	    \
-	    "$file"			    \
-	    > $retval.grep
+        $EGREP --with-filename --line-number --ignore-case \
+            '^[^#]*(xmlto|asciidoc)\>'      \
+            "$file"                         \
+            > $retval.grep
     done < $retval
 
     [ -s $retval.grep ] || return 0
@@ -1518,12 +1518,12 @@ CygbuildCygcheckLibraryDepSourceCpp()
     #
     #  execvp("/bin/diff")
 
-    CygbuildFindDo "."		\
-	-name "*.c"		\
-	-o -name "*.cc"		\
-	-o -name "*.cpp"	\
-	> $retval		\
-	2> /dev/null
+    CygbuildFindDo "."          \
+        -name "*.c"             \
+        -o -name "*.cc"         \
+        -o -name "*.cpp"        \
+        > $retval               \
+        2> /dev/null
 
     [ -s $retval ] || return 0
 
@@ -1535,14 +1535,14 @@ CygbuildCygcheckLibraryDepSourceCpp()
 
     while read file
     do
-	$EGREP --line-number --with-filename		\
-	    "^[^/]*exec[a-z]* *\(|include .*getopt\>"   \
-	    "$file"					\
-	    >> $retval.grep
+        $EGREP --line-number --with-filename            \
+            "^[^/]*exec[a-z]* *\(|include .*getopt\>"   \
+            "$file"                                     \
+            >> $retval.grep
 
-	$EGREP --with-filename --line-number		\
-	    "$re"					\
-	    >> $retval.grep
+        $EGREP --with-filename --line-number            \
+            "$re"                                       \
+            >> $retval.grep
 
     done < $retval
 
@@ -1557,14 +1557,14 @@ CygbuildCygcheckLibraryDepSourcePython()
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    find "${instdir#$srcdir/}"	    \
-	-type f			    \
-	'('			    \
-	    ! -path "*/doc/*"	    \
-	    -a ! -path "*/man/*"    \
-	')'			    \
-	> $retval		    \
-	2> /dev/null
+    find "${instdir#$srcdir/}"      \
+        -type f                     \
+        '('                         \
+            ! -path "*/doc/*"       \
+            -a ! -path "*/man/*"    \
+        ')'                         \
+        > $retval                   \
+        2> /dev/null
 
     [ -s $retval ] || return 0
 
@@ -1572,16 +1572,16 @@ CygbuildCygcheckLibraryDepSourcePython()
 
     while read file
     do
-	$EGREP --with-filename --line-number	\
-	    '^[^#]*\<os[a-z]*\.rename'		\
-	    "$file"				\
-	    > $retval.grep
+        $EGREP --with-filename --line-number    \
+            '^[^#]*\<os[a-z]*\.rename'          \
+            "$file"                             \
+            > $retval.grep
     done < $retval
 
     [ -s $retval.grep ] || return 0
 
     CygbuildWarn "-- [WARN] Python::os.rename is" \
-	"likely to fail on Cygwin"
+        "likely to fail on Cygwin"
 
     cat $retval.grep
 }
@@ -1595,7 +1595,7 @@ CygbuildCygcheckLibraryDepSourceMain()
 
 #######################################################################
 #
-#	    OTHER
+#           OTHER
 #
 #######################################################################
 
@@ -1659,23 +1659,23 @@ function CygbuildCmdInstallCheckBinFiles()
     #   FIXME: Currently every file in /bin is supposed to be executable
     #   This may not be always true?
 
-    find -L "$dir" -type f	    \
-	'('			    \
-	   -path "*/bin/*"	    \
-	   -o -path "*/sbin/*"	    \
-	   -o -path "*/lib/*"	    \
+    find -L "$dir" -type f          \
+        '('                         \
+           -path "*/bin/*"          \
+           -o -path "*/sbin/*"      \
+           -o -path "*/lib/*"       \
            -o -path "*/share/$PKG*" \
-	   -o -path "*/usr/games/*" \
-	')'			    \
+           -o -path "*/usr/games/*" \
+        ')'                         \
         -a ! -name "*.dll"          \
-	-a ! -name "*.pyc"          \
-	-a ! -name "_*.py"          \
-	-a ! -path "*test*"         \
-	-a ! -path "*benchmark*"    \
-	-a ! -path "*version*"      \
-	-a ! -path "*.egg*"         \
-	-a ! -path "*site-packages*" \
-        > $retval.find
+        -a ! -name "*.pyc"          \
+        -a ! -name "_*.py"          \
+        -a ! -path "*test*"         \
+        -a ! -path "*benchmark*"    \
+        -a ! -path "*version*"      \
+        -a ! -path "*.egg*"         \
+        -a ! -path "*site-packages*" |
+        grep -Evi '/doc/' > $retval.find
 
     [ -s "$retval.find" ] || return 0
 
@@ -1697,7 +1697,7 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [ ! "$installed" ]; then
 
-	    local str
+            local str
             CygbuildWhich "$name" > $retval
             [ -s "$retval" ] && str=$(< $retval)
 
@@ -1713,34 +1713,34 @@ function CygbuildCmdInstallCheckBinFiles()
 
         if [[ "$file" != *X11* ]]; then
 
-	    CygbuildFileSizeRead "$file" > $retval
+            CygbuildFileSizeRead "$file" > $retval
 
             local size
-	    [ -s "$retval" ] && size=$(< "$retval")
+            [ -s "$retval" ] && size=$(< "$retval")
 
-	    if [[ ! "$size" == [0-9]* ]]; then
-		CygbuildWarn "-- [WARNING] Internal error, can't read" \
-		    " size: '$file'"
-	    else
-		if [[ $size -gt $maxsize ]]; then
-		    CygbuildEcho "-- [NOTE] Big file, need" \
-			 "dynamic linking? $size $file"
-		fi
+            if [[ ! "$size" == [0-9]* ]]; then
+                CygbuildWarn "-- [WARNING] Internal error, can't read" \
+                    " size: '$file'"
+            else
+                if [[ $size -gt $maxsize ]]; then
+                    CygbuildEcho "-- [NOTE] Big file, need" \
+                         "dynamic linking? $size $file"
+                fi
             fi
         fi
 
-	if [[ "$file" == *.@(py|pl|rb) ]]; then
-	    CygbuildWarn "-- [WARN] Should not have extension in $_file"
-	fi
+        if [[ "$file" == *.@(py|pl|rb) ]]; then
+            CygbuildWarn "-- [WARN] Should not have extension in $_file"
+        fi
 
-	local str
+        local str
         file "$file" > $retval
         [ -s "$retval" ] && str=$(< $retval)
 
         local name=${file##*.inst}
-	local plbin="$PERLBIN"
-	local pybin="$PYTHONBIN"
-	local rbbin="$RUBYBIN"
+        local plbin="$PERLBIN"
+        local pybin="$PYTHONBIN"
+        local rbbin="$RUBYBIN"
 
         #   Sometimes package includes compiled binaries for Linux.
         #   Warn about those. The file(1) will report:
@@ -1748,7 +1748,7 @@ function CygbuildCmdInstallCheckBinFiles()
         #   ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
         #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
         #   stripped
-	#
+        #
 
 
         if [[ "$str" == *Linux* ]]; then
@@ -1756,32 +1756,32 @@ function CygbuildCmdInstallCheckBinFiles()
             status=1
 
         elif [[ "$str" == *executable*Windows\ \(console\)* ]] &&
-	     [[ ! $file == *.exe ]]
-	then
-	    # All binaries must have ".exe" suffix
-	    # PE32 executable for MS Windows (console) Intel 80386 32-bit
+             [[ ! $file == *.exe ]]
+        then
+            # All binaries must have ".exe" suffix
+            # PE32 executable for MS Windows (console) Intel 80386 32-bit
 
             CygbuildEcho "-- [ERROR] No *.exe suffix in $_file"
             status=1
 
         elif [[ "$str" == *executable*Windows\ \(DLL\)* ]] &&
-	     [[ $file != *.dll || $file != *.so ]]
-	then
-	    # *.so:  PE32 executable for MS Windows (DLL) (console) Intel 80386 32-bit
+             [[ $file != *.dll || $file != *.so ]]
+        then
+            # *.so:  PE32 executable for MS Windows (DLL) (console) Intel 80386 32-bit
 
             CygbuildEcho "-- [ERROR] No *.so or *.dll suffix in $_file"
             status=1
 
         elif [[ "$str" == *Bourne-Again* ]] && [[ ! $depends == *bash* ]]
-	then
+        then
             CygbuildEcho "-- [ERROR] setup.hint may need Bash dependency" \
                  "for $name"
             status=1
 
         elif [[ "$str" == *awk* ]] &&
-	     awk 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
-	     [[ ! $depends == *gawk* ]]
-	then
+             awk 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
+             [[ ! $depends == *gawk* ]]
+        then
             CygbuildEcho "-- [ERROR] setup.hint may need Gawk dependency" \
                  "for $name"
             status=1
@@ -1800,7 +1800,7 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildEcho "-- [ERROR] setup.hint may need Ruby dependency" \
                  "for $name"
             status=1
-	fi
+        fi
 
         if [[ "$str" == *perl*   ]]; then
             head --lines=1 "$file" > $retval.1st
@@ -1811,7 +1811,7 @@ function CygbuildCmdInstallCheckBinFiles()
                      "in $_file:" $(cat "$retval.1st")
             fi
 
-	    CygbuildCmdInstallCheckLibrariesPerl "$file"
+            CygbuildCmdInstallCheckLibrariesPerl "$file"
 
         elif [[ "$str" == *python* ]]; then
 
@@ -1823,7 +1823,7 @@ function CygbuildCmdInstallCheckBinFiles()
                      "in $_file:" $(cat "$retval.1st")
             fi
 
-	    CygbuildCmdInstallCheckLibrariesPython "$file"
+            CygbuildCmdInstallCheckLibrariesPython "$file"
 
         elif [[ "$str" == *ruby* ]]; then
 
@@ -1835,8 +1835,8 @@ function CygbuildCmdInstallCheckBinFiles()
                      "in $_file:" $(< "$retval.1st")
             fi
 
-	    CygbuildCmdInstallCheckLibrariesRuby "$file"
-	fi
+            CygbuildCmdInstallCheckLibrariesRuby "$file"
+        fi
 
         # .................................................... other ...
 
@@ -1973,16 +1973,16 @@ function CygbuildCmdInstallCheckDirStructure()
 
     for try in usr/share usr/lib
     do
-	tmp="$instdir/$try"
+        tmp="$instdir/$try"
 
-	[ -d "$tmp" ] || continue
+        [ -d "$tmp" ] || continue
 
-	if ls -F $tmp | $EGREP --quiet --invert-match '/' ; then
+        if ls -F $tmp | $EGREP --quiet --invert-match '/' ; then
             error=1
-	    CygbuildWarn "-- [ERROR] Files found in toplevel dir" \
-			 ${tmp/$srcdir\/}
-	    ls -F $tmp
-	fi
+            CygbuildWarn "-- [ERROR] Files found in toplevel dir" \
+                         ${tmp/$srcdir\/}
+            ls -F $tmp
+        fi
     done
 
     if [ -d $pfx/X11R6 ]; then
@@ -2120,7 +2120,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
     [ -d "$dir" ] || return 0
 
-    CygbuildFindDo $dir	-o -type f > $retval.list
+    CygbuildFindDo $dir -o -type f > $retval.list
 
     [ -s $retval.list ] || return 0
 
@@ -2149,7 +2149,7 @@ function CygbuildCmdInstallCheckCygpatchDirectory()
 
 #######################################################################
 #
-#	    MAIN
+#           MAIN
 #
 #######################################################################
 
@@ -2158,13 +2158,13 @@ function CygbuildCmdInstallCheckEverything ()
     local stat=0
 
     if [ "$verbose" ] ; then
-	CygbuildCmdInstallCheckFSFaddress
+        CygbuildCmdInstallCheckFSFaddress
     fi
 
     CygbuildCmdInstallCheckLineEndings
 
     if [ "$verbose" ] ; then
-	CygbuildCmdInstallCheckMakefiles
+        CygbuildCmdInstallCheckMakefiles
     fi
 
     CygbuildCmdInstallCheckTempFiles         || stat=$?
@@ -2172,7 +2172,7 @@ function CygbuildCmdInstallCheckEverything ()
     CygbuildCmdInstallCheckInfoFiles         || stat=$?
 
     if [ "$verbose" ] ; then
-	CygbuildCmdInstallCheckTexiFiles     || stat=$?
+        CygbuildCmdInstallCheckTexiFiles     || stat=$?
     fi
 
     CygbuildCmdInstallCheckShellFiles        || stat=$?
@@ -2183,7 +2183,7 @@ function CygbuildCmdInstallCheckEverything ()
     CygbuildCmdInstallCheckDocdir            || stat=$?
 
     if [ "$verbose" ] ; then
-	CygbuildCygcheckLibraryDepSourceMain || stat=$?
+        CygbuildCygcheckLibraryDepSourceMain || stat=$?
     fi
 
     CygbuildCmdInstallCheckBinFiles          || stat=$?
