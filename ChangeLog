@@ -5,6 +5,7 @@
 
 	* bin/cygbuild.sh (CygbuildCommandMain): Remove all import and
 	repackage commands
+	(CygbuildDefineGlobalPerlVersion): Correct for Perl 5.14
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Do not
 	check */doc/* directories.

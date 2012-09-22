@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0922.0802"
+CYGBUILD_VERSION="2012.0922.1305"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -593,18 +593,30 @@ function CygbuildBootVariablesId()
 
 function CygbuildDefineGlobalPerlVersion()
 {
+    # This is perl 5, version 14, subversion 2 (v5.14.2)
+
     PERL_VERSION=$(                                 # global-def
 	perl --version |
 	awk '
-	    /This is perl/ {
-		ver = $4;
-		sub("v", "", ver);
-		print ver;
+	    /This is perl/  &&  $4 ~ /[0-9]\.[0-9]/ {
+		ver = $4
+		sub("v", "", ver)
+		print ver
+		exit 0
+	    }
+	    /This is perl/  &&  $9 ~ /v[0-9]+\.[0-9]/ {
+		ver = $9
+		gsub("[v()]", "", ver)
+		print ver
+		exit 0
 	    }
 	'
     )
 
-    [ "$PERL_VERSION" ]
+    if [ ! "$PERL_VERSION" ]; then
+	CygbuildWarn "[WARN] Internal error, cannot read PERL_VERSION"
+	return 1
+    fi
 }
 
 function CygbuildDefineGlobalPythonVersion()
