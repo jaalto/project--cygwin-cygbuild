@@ -8,6 +8,7 @@
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Do not
 	check */doc/* directories.
+	(CygbuildCmdInstallCheckBinFiles): Ignore Perl *.pm modules.
 
 2012-09-21 Fri  Jari Aalto  <jari.aalto@cante.net>
 

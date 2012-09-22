@@ -1675,7 +1675,7 @@ function CygbuildCmdInstallCheckBinFiles()
         -a ! -path "*version*"      \
         -a ! -path "*.egg*"         \
         -a ! -path "*site-packages*" |
-        grep -Evi '/doc/' > $retval.find
+        grep -Evi '/doc/|\.pm$' > $retval.find
 
     [ -s "$retval.find" ] || return 0
 
@@ -1750,7 +1750,6 @@ function CygbuildCmdInstallCheckBinFiles()
         #   stripped
         #
 
-
         if [[ "$str" == *Linux* ]]; then
             CygbuildEcho "-- [ERROR] file(1) reports Linux executable: $name"
             status=1
@@ -1802,7 +1801,7 @@ function CygbuildCmdInstallCheckBinFiles()
             status=1
         fi
 
-        if [[ "$str" == *perl*   ]]; then
+        if [[ "$str" == *perl* ]]; then
             head --lines=1 "$file" > $retval.1st
 
             if ! $EGREP --quiet "$plbin([ \t]|$)" "$retval.1st"
