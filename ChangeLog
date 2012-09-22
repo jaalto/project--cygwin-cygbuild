@@ -1,8 +1,13 @@
 2012-09-21 Fri  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/template/cygwin-announce.mail.ex (License): Use (at) sign.
+
 	* bin/cygbuild.sh.devel (CygbuildPatchFileList): Replace complex
 	find command with simple *.patch search under
 	$CYGBUILD_DIR_CYGPATCH_RELATIVE
+	(CygbuildDefineGlobalMain): New SCRIPT_DELETE_LST_CYGFILE variable.
+	(CygbuildCmdDeleteListExists): New.
+	(CygbuildCmdDeletellList): New.
 
 	* bin/cygbuild.sh (CygbuildPatchFileList): Correct
 	search from *patch to *.patch.

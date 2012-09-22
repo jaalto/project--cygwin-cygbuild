@@ -47,7 +47,7 @@ CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by developer's Editor on save
-CYGBUILD_VERSION="2012.0921.1916"
+CYGBUILD_VERSION="2012.0921.2010"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  http://cygwin.com/packages
@@ -4185,6 +4185,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
     SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
+
+    SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
 
     SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
@@ -9383,7 +9385,7 @@ function CygbuildInstallTaropt2type ()
 
 	    item=${item/--include=}     # Delete this portion
 
-	    if [[ "$ret"  &&  "$item" ]]; then
+	    if [ "$ret" ] && [ "$item" ]; then
 		ret="$ret $item"
 	    else
 		ret="$item"
@@ -9479,19 +9481,17 @@ function CygbuildInstallPackageDocs()
     local done name file match
 
     for file in $builddir/[A-Z][A-Z][A-Z]* \
-		$builddir/changelog        \
-		$builddir/ChangeLog        \
+		$builddir/[Cc]hange[Ll]Log \
 		$builddir/[Cc]opyright     \
 		$builddir/[Cc]opying       \
 		$builddir/[Ll]icense       \
 		$builddir/*.html           \
 		$builddir/*.pdf            \
 		$builddir/*.txt
-
     do
 
-	[ ! -f "$file" ]          &&  continue
-	[ ! -s "$file" ]          &&  continue  # Zero length
+	[ -f "$file" ] || continue
+	[ -s "$file" ] || continue  # Zero length
 
 	name="${file##*/}"
 	match=""
@@ -9499,7 +9499,7 @@ function CygbuildInstallPackageDocs()
 	CygbuildMatchPatternList \
 	    "$file" "$CYGBUILD_INSTALL_IGNORE" && continue
 
-	if [[ "$matchExclude"  &&  "$name" == $matchExclude ]]; then
+	if [ "$matchExclude" ] && [[ "$name" == $matchExclude ]]; then
 	    continue
 	fi
 
@@ -10583,6 +10583,19 @@ function CygbuildCmdInstallPatchVerify()
 	CygbuildWarn "-- [WARN] Patches are not applied"
 	return 1
     fi
+}
+
+function CygbuildCmdDeleteListExists()
+{
+    local file="$SCRIPT_DELETE_LST_CYGFILE"
+
+    [ -f "$file" ]
+}
+
+function CygbuildCmdDeletellList()
+{
+    # FIXME, TODO: Not implemented. Document also delete.lst
+    :
 }
 
 function CygbuildCmdInstallListExists()
