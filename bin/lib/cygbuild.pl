@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0919.1300';
+$VERSION = '2012.0921.1956';
 
 # ..................................................................
 
@@ -1543,10 +1543,10 @@ information.
 =item B<install.tar.options>
 
 The B<[install]> command runs series of install phases. In the first, The
-Cygwin documentation for package directory C</usr/share/doc/package-1.12> is
+Cygwin documentation for package directory C</usr/share/doc/package> is
 populated from files in the original package. Those of INSTALL, COPYRIGHT
-and README are copied. Then any C<doc/> directory if it is included. The
-default rules exclude most common files MANIFEST, *.bak, *.rej etc. and
+and README are copied. Then any C<doc/> directory if it exists. The
+default rules exclude the most common files MANIFEST, *.bak, *.rej etc. and
 version control subdirectories.
 
 In this file it is possible to supply extra tar options to exclude more
