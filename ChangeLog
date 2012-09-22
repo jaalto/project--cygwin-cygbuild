@@ -2,6 +2,7 @@
 
 	* bin/lib/cygbuild.pl: (HELP::Install commands): Remove all
 	import and repackage commands.
+	(HELP::OPTIONAL EXTERNAL FILES::install.lst): Add ln summport.
 
 	* bin/cygbuild.sh (CygbuildCommandMain): Remove all import and
 	repackage commands
@@ -11,6 +12,7 @@
 	$CYGBUILD_DIR_CYGPATCH_RELATIVE
 	(CygbuildPatchFileList): Search only under
 	$CYGBUILD_DIR_CYGPATCH_RELATIVE
+	(CygbuildCmdInstallList): Add ln command support to install.lst.
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Do not
 	check */doc/* directories.

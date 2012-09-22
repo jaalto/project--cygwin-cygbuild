@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0922.1341"
+CYGBUILD_VERSION="2012.0922.2036"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10703,6 +10703,41 @@ function CygbuildCmdInstallList()
 	fi
 
 	line=$(( line + 1 ))
+
+	if [[ "$from" == ln ]] ; then
+
+	    from="$to"
+	    to="$mode"
+
+	    if [[ ! "$from" == */* ]]; then
+		CygbuildWarn "$id: [WARN] Skipped." \
+		    "from ($from) is not a valid path"
+		continue
+
+	    elif [[ "$from" == */ ]] || [[ "$from" == /* ]]; then
+		CygbuildWarn "$id: [WARN] Skipped." \
+		    "from ($from) is invalid"
+		continue
+
+	    elif [[ "$to" == */* ]]; then
+		CygbuildWarn "$id: [WARN] Skipped." \
+		    "to ($from) is invalid, path not allowed"
+		continue
+
+	    fi
+
+	    local dir=${from%/*}
+	    local name=${from##*/}
+
+	    CygbuildPushd
+
+	        cd $instdir/$dir &&
+		${test:+echo} ln --symbolic $name $to
+
+	    CygbuildPopd
+
+	    continue
+	fi
 
 	if [[ "$to" == /* ]] ; then
 	    CygbuildWarn "$id: [WARN] Skipped." \

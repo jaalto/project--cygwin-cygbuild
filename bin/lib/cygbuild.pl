@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0922.0804';
+$VERSION = '2012.0922.2030';
 
 # ..................................................................
 
@@ -1343,6 +1343,7 @@ List install(1) compatible entries in separate lines. The
 format is:
 
     <src> [<destination> [<mode, defaults to 644>]]
+    ln <destination> <new name>
 
 For the I<src> part CYGWIN-PATCHES/{doc,conf} components are removed.
 In addition all components of I<destination> is also removed. This
@@ -1371,6 +1372,15 @@ removed when copying the file to I<destination>. For commonly known
 files, like C<.sh .pl .py>, text files and manual pages that end to an
 number, the I<destination> is not needed. See exampels below.
 
+If the first word is I<ln>, then the 2nd word is a location of already
+installed <destination> from previous lines. The 3rd word if the name
+where the symlink is drawn. An example:
+
+   # Install program
+   prgram usr/bin/
+   # Draw symbolic link to it
+   ln usr/bin/program aliasname
+
 Comments starting with "#" and empty lines are ignored.
 
 Examples:
@@ -1385,10 +1395,10 @@ Examples:
 
     # For some known files the <dest> is not needed.
 
-    prg.pl			# install to /usr/bin/prg, mode 755
-    manual.txt			# install to /usr/share/doc/<package>/, mode 644
-    man.1			# install under /usr/share/man/man1/, mode 644
-    man.5			# install under /usr/share/man/man5/, mode 644
+    prg.pl			# install *.pl to /usr/bin/prg, mode 755
+    prg.py			# install *.py to /usr/bin/prg, mode 755
+    manual.txt			# install *.txt to /usr/share/doc/<package>/, mode 644
+    man.1			# install *.[1-9] under /usr/share/man/manN/, mode 644
 
 =item B<install.sh>
 
