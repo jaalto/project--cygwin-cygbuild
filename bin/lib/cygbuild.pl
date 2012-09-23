@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0923.0711';
+$VERSION = '2012.0923.1044';
 
 # ..................................................................
 
@@ -1401,7 +1401,7 @@ specific documentation directory. Notice that the I<destination> must
 not be an absolute path but a relative one under I<.inst/> directory.
 Common script suffixes like C<.sh .pl .py> from I<src> part are
 removed when copying the file to I<destination>. For commonly known
-files, like C<.sh .pl .py>, text files and manual pages that end to an
+files, like C<.sh .pl .py>, text files and manual pages that end to a
 number, the I<destination> is not needed. See exampels below.
 
 If the first word is I<ln>, then the 2nd word is a location of already
@@ -1582,15 +1582,37 @@ directories.
 
 =item B<mandir>
 
-If this file exists, it should contain only one line: the directory
-name relative to CYGWIN-PATCHES where the manual pages are stored. An
+If this file exists, it must contain only one line: the directory name
+relative to CYGWIN-PATCHES where the manual pages are stored. An
 example (which is also the default location):
 
    $ cat CYGWIN-PATCHES/mandir
-   manpages
+   man
 
 This instructs to read manual pages from subdirectory
-C<CYGWIN-PATCHES/manpages/> instead of root of C<CYGWIN-PATCHES/>.
+C<CYGWIN-PATCHES/man> instead of root of C<CYGWIN-PATCHES/>.
+
+=item B<manpages>
+
+If this file exists, it lists upstream files that are to be considered
+manual pages. The line syntax is:
+
+    <glob>
+    <filename>  [<section>] [<destination file name>]
+
+The first word is a file name or a glob and second optional argument
+is manual page section. If file name ends to C<*.[1-8]>, it is used
+for manual page section. Empty lines and comments on their own line
+starting with C<#> are ignored.
+
+Examples:
+
+   # With filename glob, other specifications in line are not allowd
+   man/*.1
+   # Install page "program.man" as usr/share/man/man1/program.1
+   doc/program.man 1
+   # Install page "program.man" as usr/share/man/man1/renamed.1
+   doc/program.man 1 renamed.1
 
 =item B<manualpage.1.pod>
 
@@ -1623,7 +1645,7 @@ http://perldoc.perl.org/perlpod.html
   C</some/file/name.here>
 
 The I<*.pod> files can be put to separate directory
-C<CYGWIN-PATCHES/manpages>.
+C<CYGWIN-PATCHES/man>.
 
 =item B<package-bin.sh>
 

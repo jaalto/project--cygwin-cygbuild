@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0923.1004"
+CYGBUILD_VERSION="2012.0923.1104"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4188,6 +4188,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     EXTRA_CONF_ENV_OPTIONS=$DIR_CYGPATCH/configure.env.options  # global-def
 
     EXTRA_MANDIR_FILE=$DIR_CYGPATCH/mandir                      # global-def
+    EXTRA_MANUAL_FILE=$DIR_CYGPATCH/manpages                    # global-def
 
     EXTRA_BUILD_OPTIONS=$DIR_CYGPATCH/build.options             # global-def
     EXTRA_DIFF_OPTIONS_PATCH=$DIR_CYGPATCH/diff.options         # global-def
@@ -9727,6 +9728,68 @@ function CygbuildInstallPackageDocs()
     return $status
 }
 
+function CygbuildInstallExtraManualList()
+{
+    local id="$0.$FUNCNAME"
+    local conf="$EXTRA_MANUAL_FILE"
+    local mandest=$instdir/$CYGBUILD_MANDIR_FULL
+    local scriptInstallFile="$INSTALL_SCRIPT -D $INSTALL_FILE_MODES"
+
+    [ -f "$conf" ] || return 0
+
+    local item section dest
+
+    while read item section dest
+    do
+
+	[ "$item" ] || continue			# Skip empty lines
+	[[ "$item" == [#]* ]] && continue	# Skip comments
+
+	if [[ "$item" == *\** ]]; then		# only glob allowed
+	    section=
+	    dest=
+	fi
+
+	if [ "$dest" ] && [[ ! "$dest" == *.[1-9] ]]; then
+	    dest=
+	    CygbuildWarn "-- [WARN] Invalid DEST spec: $dest"
+	fi
+
+	local file
+
+	for file in $item		# ITEM Might be a glob
+	do
+	    if [ ! -f "$file" ]; then
+		CygbuildWarn "-- [WARN] No such manpage: $file"
+		continue
+	    fi
+
+	    local name=${file##*/}
+	    local nbr=${name##*.}
+	    local plain=${name%.$nbr}
+
+	    [ "$section" ] || section="$nbr"
+
+	    if [[ ! "$section" == [0-9]* ]]; then
+		CygbuildWarn "-- [WARN] Invalid section: $file $section"
+		continue
+	    fi
+
+	    local manpage="$plain.$section"
+
+	    [ "$dest" ] && manpage="$dest"
+
+	    local mandir="$mandest/man$section"
+
+	    CygbuildEcho "-- Copying manual page" \
+		$file "to" ${mandir#$srcdir/}
+
+	    $scriptInstallFile "$file" "$mandir/$manpage"
+
+	done
+    done < $conf
+}
+
 function CygbuildInstallExtraManual()
 {
     local id="$0.$FUNCNAME"
@@ -9743,7 +9806,7 @@ function CygbuildInstallExtraManual()
 	mandir="$try"
     fi
 
-    if [ -f $EXTRA_MANDIR_FILE ]; then
+    if [ -f "$EXTRA_MANDIR_FILE" ]; then
 	local dir=DIR_CYGPATCH/$(< $EXTRA_MANDIR_FILE)
 
 	if [ -d "$dir" ]; then
@@ -9952,6 +10015,7 @@ function CygbuildInstallExtraMain()
 {
     local id="$0.$FUNCNAME"
 
+    CygbuildInstallExtraManualList       &&
     CygbuildInstallExtraManual           &&
     CygbuildMakeRunInstallFixPerlManpage &&
     CygbuildInstallExtraBinFiles
