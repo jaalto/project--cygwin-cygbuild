@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0922.2030';
+$VERSION = '2012.0923.0711';
 
 # ..................................................................
 
@@ -559,6 +559,8 @@ results:
 See also description of option B<--file> how to check other
 developer's binary packaging.
 
+See also command B<[test]>.
+
 =item B<check-deps>
 
 Check that all dependencies are listed in C<package.README> and
@@ -864,6 +866,18 @@ application mailing list.
 See ENVIRONMENT for changing the download URL location to closer
 local Cygwin package mirror site.
 
+=item B<download>
+
+Check upstream site for new versions. External program I<mywebget.pl>
+http://freecode.net/projects/perlwebget is used to do the download. The
+configuration file C<CYGWIN-PATCHES/upstream.perl-webget> must contain URL
+and additional parameters how to retrieve newer versions. See
+I<mywebget.pl>'s manual for more information. Here is an example
+configuration file to download and extract new versions of package:
+
+  tag1: package
+    http://example.com/project/package-0.9.1.tar.bz2 new: x:
+
 =item B<prepare>
 
 This command is not part of the porting commands. It is meant to be used as
@@ -898,17 +912,35 @@ command C<[reshadow]>.
 This command is not usually needed, because the B<[configure]> will notice
 missing shadow directory and make it as needed.
 
-=item B<download>
+=item B<test>
 
-Check upstream site for new versions. External program I<mywebget.pl>
-http://freecode.net/projects/perlwebget is used to do the download. The
-configuration file C<CYGWIN-PATCHES/upstream.perl-webget> must contain URL
-and additional parameters how to retrieve newer versions. See
-I<mywebget.pl>'s manual for more information. Here is an example
-configuration file to download and extract new versions of package:
+Run I<make test> and possibley additional executable files listed in
+C<CYGWIN-PATCHES/test> directory. The PATH is set to include all
+directories found under C<.inst> so that programs in C<test/>
+directory can can assume that package binaries "are installed".
 
-  tag1: package
-    http://example.com/project/package-0.9.1.tar.bz2 new: x:
+Complex packages that need access to their libraries, Perl/Python
+modules or data cannot be tested without live install first. Merely
+setting the PATH wouuld not be enough, but instead:
+
+   tar -C / -xf .sinst/<packge>.tar.bz2    # Install for real; live install
+   cygbuild --verbose test                 # run CYGWIN-PATCHES/test/*
+
+To arrange running tests, I might be good a idea to prefix filenames
+with numbers to have them sort in specific order. Any file that does
+not have the B<-x> flag set is ignored; these files can be used e.g.
+for README to clarify the test suite. Make each test command to output
+a brief test description to stdout.
+
+   $ ls CYGWIN-PATCHES/test
+   README
+   01-read.sh
+   02-write.sh
+   ...
+
+Tests can also be run manually (supposing live install):
+
+   ./CYGWIN-PATCHES/test/01-read.sh
 
 =item B<vars>
 

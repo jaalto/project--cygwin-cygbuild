@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0922.2103"
+CYGBUILD_VERSION="2012.0923.0726"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -615,7 +615,7 @@ function CygbuildDefineGlobalPerlVersion()
     )
 
     if [ ! "$PERL_VERSION" ]; then
-	CygbuildWarn "[WARN] Internal error, cannot read PERL_VERSION"
+	CygbuildWarn "-- [WARN] Internal error, cannot read PERL_VERSION"
 	return 1
     fi
 }
@@ -726,7 +726,7 @@ function CygbuildBootVariablesGlobalCacheGenerate()
     local file="$2"
 
     if [ ! "$CYGCHECK" ]; then
-	CygbuildWarn "[WARN] cygcheck(1) not in PATH." \
+	CygbuildWarn "-- [WARN] cygcheck(1) not in PATH." \
 	             "Cannot make cache: $package"
 	return 1
     fi
@@ -1516,7 +1516,7 @@ CygbuildFileSizeRead ()
     local size=${@:col:1}
 
     if [[ ! "$size" == [0-9]* ]]; then
-        CygbuildWarn "-- [WARNING] Internal error, can't parse: $*"
+        CygbuildWarn "-- [WARN] Internal error, can't parse: $*"
         return 100
     fi
 
@@ -9223,14 +9223,86 @@ function CygbuildCmdDependCheckMain()
 	CygcheckDepsCheckMain( qq($instdir), qq($destdir) );"
 }
 
+function CygbuildCmdTestAdditional()
+{
+    local id="$0.$FUNCNAME"
+    local dir="$builddir/$CYGBUILD_DIR_CYGPATCH_RELATIVE/test"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    [ -d "$dir" ] || return 0    # No additional tests to run
+
+    if [ ! -d "$instdir" ]; then
+	CygbuildEcho \
+	    "-- [INFO] No install dir, skiping additional tests"
+	return 0
+    fi
+
+    local status=0
+    local ret=0
+
+    CygbuildPushd
+	cd "$builddir" || CygbuildDie "$id: [builddir] error"
+
+	# This is a simple: include all directories, but exclude a few obvious ones
+
+	find "$instdir" \
+	    -type d \
+	    -a ! -path "*/.inst" \
+	    -a ! -path "*/usr" \
+	    -a ! -path "*/doc*" \
+	    -a ! -path "*/htdoc*" \
+	    -a ! -path "*/man*" \
+	    -a ! -path "*/Cygwin*" \
+	    -printf "%p:" \
+	    > $retval
+
+	local path=""
+	[ -s $retval ] && path=$(< $retval)
+
+	local test
+
+	for test in $dir/*
+	do
+	    [ -e "$test" ] || continue
+
+	    if [ ! -x "$test" ]; then
+		CygbuildVerb "--   not executable: $test"
+		continue
+	    fi
+
+	    CygbuildEcho "-- [INFO]" ${test/$builddir\//}
+
+	    # Note: printf() left trailing colon(:) to the end of $path
+
+	    PATH="$path$PATH" $test
+	    status=$?
+
+	    if [ $status -ne 0 ]; then
+		ret=1
+		CygbuildWarn "--   [WARN] Fail $status"
+	    fi
+
+	done
+
+    CygbuildPopd
+
+    return $ret
+}
+
 function CygbuildCmdTestMain()
 {
     local id="$0.$FUNCNAME"
 
+    # FIXME Do we have a need to return proper status code?
+
+    CygbuildEcho "== Test"
+
     CygbuildPushd
-	cd $builddir || CygbuildDie "$id: [builddir] error"
+	cd "$builddir" || CygbuildDie "$id: [builddir] error"
 	make test 2>&1 | tee $PKGLOG
     CygbuildPopd
+
+    CygbuildCmdTestAdditional
 }
 
 function CygbuildCleanConfig ()
