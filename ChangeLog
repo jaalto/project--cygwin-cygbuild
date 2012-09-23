@@ -3,6 +3,7 @@
 	* bin/cygbuild.sh (CygbuildInstallExtraManualList): New. Add
 	CYGWIN-PATCHES/manpages support.
 	(CYGBUILD_HOMEPAGE_URL): Correct *.net to *.com URL.
+	(CygbuildCmdInstallMain): Really, run install-after.sh last.
 
 2012-09-22 Sun  Jari Aalto  <jari.aalto@cante.net>
 

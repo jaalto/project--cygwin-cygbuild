@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0923.1112"
+CYGBUILD_VERSION="2012.0923.1129"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10943,7 +10943,7 @@ function CygbuildCmdInstallMain()
 
     CygbuildPushd
 
-	cd $builddir || exit 1
+	cd "$builddir" || exit 1
 
 	CygbuildInstallPackageDocs      &&
 	CygbuildInstallPackageInfo      &&
@@ -11008,32 +11008,6 @@ function CygbuildCmdInstallMain()
             }
 	fi
 
-        if [ -f "$scriptAfter" ]; then
-
-            CygbuildEcho "--- Running external:" \
-                 ${scriptAfter#$srcdir/} \
-                 "$dir"         \
-                 "$PKG"         \
-                 "$VER"         \
-                 "$thispath"
-
-            local path="$CYGBUILD_PROG_FULLPATH"
-
-            CygbuildChmodExec $scriptAfter
-
-            CygbuildRun ${OPTION_DEBUG:+$BASHX} \
-                $scriptAfter        \
-                    "$dir"          \
-                    "$PKG"          \
-                    "$VER"          \
-                    "$thispath"     |
-                CygbuildMsgFilter   ||
-            {
-                status=$?
-                CygbuildPopd
-                return $status
-            }
-        fi
 
         dummy="$srcdir"             # For debug only
 
@@ -11049,6 +11023,34 @@ function CygbuildCmdInstallMain()
     CygbuildInstallCygwinPartPostinstall
 
     CygbuildInstallExtraManualCompress
+
+    if [ -f "$scriptAfter" ]; then
+
+	CygbuildEcho "--- Running external:" \
+	     ${scriptAfter#$srcdir/} \
+	     "$dir"         \
+	     "$PKG"         \
+	     "$VER"         \
+	     "$thispath"
+
+	local path="$CYGBUILD_PROG_FULLPATH"
+
+	CygbuildChmodExec $scriptAfter
+
+	CygbuildRun ${OPTION_DEBUG:+$BASHX} \
+	    $scriptAfter        \
+		"$dir"          \
+		"$PKG"          \
+		"$VER"          \
+		"$thispath"     |
+	    CygbuildMsgFilter   ||
+	{
+	    status=$?
+	    CygbuildPopd
+	    return $status
+	}
+    fi
+
     CygbuildCmdInstallFinishMessage
 }
 
