@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0924.1722"
+CYGBUILD_VERSION="2012.0924.1736"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3768,9 +3768,12 @@ function CygbuildDefineGlobalCommands()
 	PYTHON_LIBDIR=$tmp/config                   # global-def
     fi
 
-    CygbuildWhichCheck make || 	CygbuildDie "[FATAL] $id: make not in PATH"
-    CygbuildWhichCheck gcc  ||  CygbuildDie "[FATAL] $id: gcc not in PATH"
-    CygbuildWhichCheck perl ||  CygbuildDie "[FATAL] $id: perl not in PATH"
+    # ........................................................ other ...
+
+    CygbuildWhichCheck make  || CygbuildDie "[FATAL] $id: make not in PATH"
+    CygbuildWhichCheck gcc   || CygbuildDie "[FATAL] $id: gcc not in PATH"
+    CygbuildWhichCheck perl  || CygbuildDie "[FATAL] $id: perl not in PATH"
+    CygbuildWhichCheck quilt || CygbuildDie "[FATAL] $id: quilt not in PATH"
 
     CygbuildWhichCheck file ||	CygbuildDie "[FATAL] $id: file(1) not in PATH." \
 	"Install package 'file'"
