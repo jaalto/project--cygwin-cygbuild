@@ -1,3 +1,7 @@
+2012-09-24 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPatchApplyMaybe): unpatch quilt last.
+
 2012-09-23 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallExtraManualList): New. Add

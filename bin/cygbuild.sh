@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0923.1129"
+CYGBUILD_VERSION="2012.0924.1722"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6147,19 +6147,23 @@ function CygbuildPatchApplyMaybe()
 	verb="gbs verbose"
     fi
 
-    CygbuildPatchApplyQuiltMaybe $cmd || return $?
+    # NOTE: The quilt must be run last, if we're unpatching (reverse order)
 
-    if [[ "$cmd" == *-force ]]; then
+    if [[ "$cmd" = patch* ]]; then
+	CygbuildPatchApplyQuiltMaybe $cmd || return $?
+    fi
+
+    if [[ "$cmd" == *-force* ]]; then
 	force="force"
 	cmd=${cmd%-force}
     fi
 
-    if [[ "$cmd" == *-quiet ]]; then
+    if [[ "$cmd" == *-quiet* ]]; then
 	verb=
 	cmd=${cmd%-quiet}
     fi
 
-    if [[ "$cmd" == *-nostat ]]; then
+    if [[ "$cmd" == *-nostat* ]]; then
 	statCheck=
 	cmd=${cmd%-nostat}
     fi
@@ -6278,6 +6282,10 @@ function CygbuildPatchApplyMaybe()
 	    echo $name >> $statfile
 	fi
     done
+
+    if [[ "$cmd" = unpatch* ]]; then
+	CygbuildPatchApplyQuiltMaybe $cmd || return $?
+    fi
 
 }
 
