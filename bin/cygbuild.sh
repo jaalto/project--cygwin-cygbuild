@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.1319"
+CYGBUILD_VERSION="2012.0925.1638"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -2281,7 +2281,7 @@ function CygbuildCheckRunDir()
 
     #  Do just a quick sweep, nothing extensive
 
-    if [[ "$(pwd)" == *@($sinstdir_relative|.build|$instdir_relative|CYGWIN-PATCHES)* ]]
+    if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
 	CygbuildWarn "-- [WARN] Current directory is not source ROOT $srcdir"
 	return 1
@@ -4226,8 +4226,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_SOURCE_GET=$srcinstdir/$SCRIPT_SOURCE_GET_BASE       # global-def
 
     INSTALL_SCRIPT=${CYGBUILD_INSTALL:-"/usr/bin/install"}      # global-def
-    INSTALL_FILE_MODES=${INSTALL_DATA:-"-m 644"}                # global-def
-    INSTALL_BIN_MODES=${NSTALL_BIN:-"-m 755"}
+    INSTALL_FILE_MODES=${INSTALL_DATA:-"--mode=644"}            # global-def
+    INSTALL_BIN_MODES=${NSTALL_BIN:-"--mode=755"}               # global-def
 }
 
 function CygbuildCygbuildDefineGlobalSrcOrigGuess()
@@ -10810,10 +10810,13 @@ function CygbuildCmdInstallList()
     local line=0
     local status=0
 
+    local from to mode
+
     while read from to mode
     do
 
 	local dummy="from:$from to:$to"        # for debugging only
+	local origfrom="$from"
 
 	[ "$from" ] || continue
 
@@ -10942,11 +10945,26 @@ function CygbuildCmdInstallList()
 	name=${name#CYGWIN-PATCHES/doc/}
 	name=${name#$to}
 
-        to=${to%/}			# No trailing slash
-	local tofile=$instdir/$to
+	local tofile="$instdir/$to"
 
-	${test:+echo} install ${verbose+--verbose} -m $mode $builddir/$from $tofile ||
-	status=$?
+	if [[ "$to" == */ ]]; then
+            to=${to%/}			# No trailing slash
+	    tofile="$instdir/$to/$name"
+	fi
+
+	local source="$builddir/$from"
+
+	if [ -d "$source" ]; then
+	    # Copy everything under SOURCE inside TO
+	    CygbuildEcho "-- [NOTE] installing whole directory: $origfrom"
+	    ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -d "$to"
+	    ${test:+echo} tar --directory="$source" --create --file=- . |
+	    ${test:+echo} tar --directory="$to" --extract --file=- ||
+	    status=$?
+	else
+	    ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -D "$source" "$tofile" ||
+	    status=$?
+	fi
 
     done < $out
 
