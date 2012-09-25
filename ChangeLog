@@ -11,6 +11,7 @@
 	(CygbuildCmdTestAdditional): Add --debug option support.
 	(CygbuildCmdTestAdditional): adjust path in message.
 	(CygbuildCmdInstallList): Allow install.lst::FROM be directory.
+	(CygbuildCmdInstallList): Use tar --dereference to copy real files.
 
 2012-09-24 Mon  Jari Aalto  <jari.aalto@cante.net>
 

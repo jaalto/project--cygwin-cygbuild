@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.1638"
+CYGBUILD_VERSION="2012.0925.1919"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10955,12 +10955,23 @@ function CygbuildCmdInstallList()
 	local source="$builddir/$from"
 
 	if [ -d "$source" ]; then
+
+	    if [[ ! "$source" == */ ]]; then
+		CygbuildWarn "-- [WARN] Skip, SOURCE directory needs to end in slash: $source"
+		continue
+	    fi
+
 	    # Copy everything under SOURCE inside TO
+
+	    local todir="$instdir/$to"
+
 	    CygbuildEcho "-- [NOTE] installing whole directory: $origfrom"
-	    ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -d "$to"
-	    ${test:+echo} tar --directory="$source" --create --file=- . |
-	    ${test:+echo} tar --directory="$to" --extract --file=- ||
+
+	    ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -d "$todir"
+	    ${test:+echo} tar --dereference --directory="$source" --create --file=- . |
+	    ${test:+echo} tar --dereference --directory="$todir" --extract --file=- ||
 	    status=$?
+
 	else
 	    ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -D "$source" "$tofile" ||
 	    status=$?
