@@ -51,8 +51,9 @@ otherprogram(1)
 
 =head1 AUTHORS
 
-This manual page was written by Firstname Lastname <email>. Released under
-license GNU GPL version 2 or (at your option) any later version. For
-more information about the license, visit <http://www.gnu.org/copyleft/gpl.html>.
+This manual page was written by Firstname Lastname <email>. Released
+under license GNU GPL version 2 or (at your option) any later
+version. For more information about the license, visit
+<http://www.gnu.org/copyleft/gpl.html>.
 
 =cut
