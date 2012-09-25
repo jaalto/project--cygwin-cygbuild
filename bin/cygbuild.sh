@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.1228"
+CYGBUILD_VERSION="2012.0925.1234"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10893,7 +10893,7 @@ function CygbuildCmdInstallList()
 
 	    CygbuildPushd
 
-	        $instdir/$dir &&
+	        cd "$instdir/$dir" &&
 		${test:+echo} ln --symbolic ${verbose+--verbose} "$name" "$to"
 
 	    CygbuildPopd
