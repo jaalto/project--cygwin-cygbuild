@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.1240"
+CYGBUILD_VERSION="2012.0925.1319"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9286,7 +9286,7 @@ function CygbuildCmdTestAdditional()
 	    [ -e "$test" ] || continue
 
 	    if [ ! -x "$test" ]; then
-		CygbuildVerb "--   not executable: $test"
+		CygbuildVerb "--   not executable:" ${test#$builddir/}
 		continue
 	    fi
 

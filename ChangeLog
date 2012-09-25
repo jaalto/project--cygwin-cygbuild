@@ -9,6 +9,7 @@
 	section output.
 	(CygbuildCmdInstallList): Add better ln-case checks.
 	(CygbuildCmdTestAdditional): Add --debug option support.
+	(CygbuildCmdTestAdditional): adjust path in message.
 
 2012-09-24 Mon  Jari Aalto  <jari.aalto@cante.net>
 
