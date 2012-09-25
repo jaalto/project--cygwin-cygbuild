@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0923.1044';
+$VERSION = '2012.0925.1233';
 
 # ..................................................................
 
@@ -1375,7 +1375,7 @@ List install(1) compatible entries in separate lines. The
 format is:
 
     <src> [<destination> [<mode, defaults to 644>]]
-    ln <destination> <new name>
+    ln <source> <destination>
 
 For the I<src> part CYGWIN-PATCHES/{doc,conf} components are removed.
 In addition all components of I<destination> is also removed. This
@@ -1404,24 +1404,20 @@ removed when copying the file to I<destination>. For commonly known
 files, like C<.sh .pl .py>, text files and manual pages that end to a
 number, the I<destination> is not needed. See exampels below.
 
-If the first word is I<ln>, then the 2nd word is a location of already
-installed <destination> from previous lines. The 3rd word if the name
-where the symlink is drawn. An example:
+If the first word is C<ln>, then the 2nd word is the I<source>
+location of already installed program from previous lines. The 3rd
+word is the I<destination> name where the symlink is drawn. An
+example:
 
-   # Install program
-   prgram usr/bin/
-   # Draw symbolic link to it
-   ln usr/bin/program aliasname
-
-Comments starting with "#" and empty lines are ignored.
+Empty lines and comments starting with "#" are ignored.
 
 Examples:
 
-    zip usr/bin/		# install to /usr/bin/zip, mode 755
-    zip usr/bin/new		# install to /usr/bin/new, mode 755
+    program usr/bin/		# install to /usr/bin/program, mode 755
+    program usr/bin/new		# install to /usr/bin/new, mode 755
     prg.pl usr/bin/		# install to /usr/bin/prg, mode 755
-    util usr/share/lib/$PKG/
-    util/program usr/share/doc/$PKG-VER/contrib/
+    util usr/share/lib/$PKG/    # $PKG is the name of package
+    util/program usr/share/doc/$PKG-$VER/contrib/
     this.doc $DOC/		# install under /usr/share/doc/<program>/
     CYGWIN-PATCHES/conf/cron.d/program  etc/cron.d/
 
@@ -1431,6 +1427,11 @@ Examples:
     prg.py			# install *.py to /usr/bin/prg, mode 755
     manual.txt			# install *.txt to /usr/share/doc/<package>/, mode 644
     man.1			# install *.[1-9] under /usr/share/man/manN/, mode 644
+
+    # Install a program
+    program usr/bin/
+    # Draw a symbolic link to it
+    ln usr/bin/program aliasname
 
 =item B<install.sh>
 

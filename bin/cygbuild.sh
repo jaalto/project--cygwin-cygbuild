@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.0518"
+CYGBUILD_VERSION="2012.0925.1228"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1621,8 +1621,9 @@ function WasLibraryInstall ()
 
     WasLibraryInstallMakefile && return 0
 
-    if [ -d .inst ]; then
-	find .inst -type f     \
+    if [ -d "$instdir_relative" ]; then
+	find "$instdir_relative" \
+	    -type f             \
 	    -name "*.a"         \
 	    -o -name "*.la"     \
 	    -o -name "*.dll*"   \
@@ -1716,15 +1717,15 @@ function CygbuildFindDo()
     CygbuildFindLowlevel "$arg"         \
 	-o -type d                      \
 	    '('                         \
-	    -name ".inst"               \
-	    -o -name ".sinst"           \
+	    -name "$instdir_relative"   \
+	    -o -name "$sinstdir_relative" \
 	    -o -name ".build"           \
 	    -o -name "debian"           \
 	    -o -name "CYGWIN-PATCHES"   \
 	    ')'                         \
 	-prune                          \
-	-a ! -name ".inst"              \
-	-a ! -name ".sinst"             \
+	-a ! -name "$instdir_relative"  \
+	-a ! -name "$sinstdir_relative" \
 	-a ! -name ".build"             \
 	-a ! -name "debian"             \
 	-a ! -name "CYGWIN-PATCHES"     \
@@ -2280,7 +2281,7 @@ function CygbuildCheckRunDir()
 
     #  Do just a quick sweep, nothing extensive
 
-    if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
+    if [[ "$(pwd)" == *@($sinstdir_relative|.build|$instdir_relative|CYGWIN-PATCHES)* ]]
     then
 	CygbuildWarn "-- [WARN] Current directory is not source ROOT $srcdir"
 	return 1
@@ -2371,7 +2372,8 @@ function CygbuildDefileInstallVariables()
 
     if [[ "$prefix" == /* ]]; then
 	CygbuildDie "[ERROR] Can't use abosolute prefix value: $prefix" \
-	       "the install will always happen into subdirectory .sinst/"
+	    "the install will always happen into subdirectory" \
+	    $sinstdir_relative/
     fi
 
     #   Do not add trailing slash. The exports are needed because variables
@@ -4079,16 +4081,18 @@ function CygbuildDefineGlobalMain()
     if [ "$OPTION_PREFIX_CYGINST" ]; then
 	export instdir=$OPTION_PREFIX_CYGINST
     else
-	export instdir_relative=.inst
-	export instdir=$srcdir/$instdir_relative
+	export instdir_relative=".inst"
     fi
+
+    export instdir=$srcdir/$instdir_relative
 
     if [ "$OPTION_PREFIX_CYGSINST" ]; then
 	export srcinstdir=$OPTION_PREFIX_CYGSINST
     else
-	export srcinstdir_relative=.sinst
-	export srcinstdir=$srcdir/$srcinstdir_relative
+	export srcinstdir_relative=".sinst"
     fi
+
+    export srcinstdir=$srcdir/$srcinstdir_relative
 
     #   The .build/ directory is used for various purposes:
     #
@@ -4690,7 +4694,7 @@ function CygbuildCygDirCheck()
     # sed command trims the leading part of /path/to/.inst => .inst
 
     $EGREP --line-number --regexp='[<](PKG|VER|REL)[>]' $readme /dev/null |
-    sed 's,^.*\.inst,.inst,'
+    sed "s,^.*\$instdir_relative,$instdir_relative,"
 
     if [ "$?" = "0" ]; then
 	CygbuildWarn \
@@ -5816,7 +5820,7 @@ CygbuildPackageSourceDirClean()
     # Clean previous sourcepacakge install and start from fresh.
     # Make sure it looks like .sinst
 
-    if [[ $srcinstdir == *.sinst* ]]; then
+    if [[ $srcinstdir == *$sinstdir_relative* ]]; then
 	CygbuildPushd
 	    cd "$srcinstdir" && rm --force $PKG*-src*
 	    status=$?
@@ -7025,7 +7029,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
 
 	local dir=${file%/*}
 	local name=${file##*/}
-	local realdir=${dir#*.inst}    # relative .inst/usr => absolute /usr
+	local realdir=${dir#*$instdir_relative}    # relative .inst/usr => absolute /usr
 
 	local from="$poddir/$PKG.pod"
 	local to="$realdir/$name"
@@ -9259,7 +9263,7 @@ function CygbuildCmdTestAdditional()
 
 	find "$instdir" \
 	    -type d \
-	    -a ! -path "*/.inst" \
+	    -a ! -path "*/$instdir_relative" \
 	    -a ! -path "*/usr" \
 	    -a ! -path "*/doc*" \
 	    -a ! -path "*/htdoc*" \
@@ -10592,7 +10596,7 @@ function CygbuildInstallFixPerlPacklist()
 
 	#  Remove the "path/to/.inst" portion
 
-	sed 's/.*.inst//' "$file" > "$retval" &&
+	sed "s/.*$instdir_relative//" "$file" > "$retval" &&
 	mv --force "$retval" "$file"
     done
 }
@@ -10705,7 +10709,7 @@ function CygbuildCmdInstallDirClean ()
 
 	#  rm -rf is too dangerous to run without a check
 
-	if [[ "$dir" == *.inst* ]]; then
+	if [[ "$dir" == *$instdir_relative* ]]; then
 
 	    #   If other terminal is in this directory, this may fail.
 
@@ -10851,35 +10855,46 @@ function CygbuildCmdInstallList()
 
 	line=$(( line + 1 ))
 
-	if [[ "$from" == ln ]] ; then
+	if [[ "$from" == "ln" ]] ; then
 
 	    from="$to"
 	    to="$mode"
 
 	    if [[ ! "$from" == */* ]]; then
-		CygbuildWarn "$id: [WARN] Skipped." \
-		    "from ($from) is not a valid path"
+		CygbuildWarn "-- [WARN] ln skipped," \
+		    "source $from is not a valid path"
 		continue
 
-	    elif [[ "$from" == */ ]] || [[ "$from" == /* ]]; then
-		CygbuildWarn "$id: [WARN] Skipped." \
-		    "from ($from) is invalid"
+	    elif [[ "$from" == /* ]]; then
+		CygbuildWarn "-- [WARN] ln skipped," \
+		    "source $from must not have leading / slash"
 		continue
 
-	    elif [[ "$to" == */* ]]; then
-		CygbuildWarn "$id: [WARN] Skipped." \
-		    "to ($from) is invalid, path not allowed"
+	    elif [[ "$from" == */ ]]; then
+		CygbuildWarn "-- [WARN] ln skipped," \
+		    "source $from must not have trailing / slash"
+		continue
+
+	    elif [[ "$to" == */* ]] ; then
+		CygbuildWarn "-- [WARN] ln skipped," \
+		    "dest $to is not valid, path not allowed"
 		continue
 
 	    fi
 
 	    local dir=${from%/*}
 	    local name=${from##*/}
+	    local path="$instdir/$dir/$name"
+
+	    if [ ! -e "$path" ]; then
+		 CygbuildWarn "-- [WARN] ln skipped," \
+		     "source does not exist: $instdir_relative/$dir/$name"
+	    fi
 
 	    CygbuildPushd
 
-	        cd $instdir/$dir &&
-		${test:+echo} ln --symbolic ${verbose+--verbose} $name $to
+	        $instdir/$dir &&
+		${test:+echo} ln --symbolic ${verbose+--verbose} "$name" "$to"
 
 	    CygbuildPopd
 
@@ -11395,7 +11410,7 @@ function CygbuildCmdFinishMain()
 
 	if CygbuildIsGbsCompat ; then
 	    CygbuildEcho "-- [NOTE] GBS compat mode: results" \
-		"are not in ./.sinst" \
+		"are not in ./$sinstdir_relative" \
 		 "but in $TOPDIR. Please note that possible GPG signatures" \
 		 "are now invalid"
 

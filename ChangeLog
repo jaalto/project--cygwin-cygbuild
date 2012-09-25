@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh (CygbuildHelpShort): Add colons to AUTHOR
 	section output.
+	(CygbuildCmdInstallList): Add better ln-case checks.
 
 2012-09-24 Mon  Jari Aalto  <jari.aalto@cante.net>
 
