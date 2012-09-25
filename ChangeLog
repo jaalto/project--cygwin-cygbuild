@@ -1,3 +1,7 @@
+2012-09-25 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/install.lst.ex: Adjust the syntax comment.
+
 2012-09-25 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/test.sh.ex: New.

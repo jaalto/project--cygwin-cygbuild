@@ -1,4 +1,4 @@
-# Syntax: FROM [TO [MODE; */bin/* defaults to 755]]
+# Syntax: FROM [TO [MODE]]
 #
 # Without trailing slash: rename file TO; TO expansions $PKG $VER DOC
 # Scripts and manpages are automatically installed; no TO is needed:
