@@ -51,9 +51,8 @@ otherprogram(1)
 
 =head1 AUTHORS
 
-This manual page was created by Firstname Lastname for Cygwin (but
-may be used by others) because the original package did not include
-one. Copyright (C) YYYY Firstname Lastname; Licensed under GPL v2 or
-later.
+This manual page was written by Firstname Lastname <email>. Released under
+license GNU GPL version 2 or (at your option) any later version. For
+more information about the license, visit <http://www.gnu.org/copyleft/gpl.html>.
 
 =cut
