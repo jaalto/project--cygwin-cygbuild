@@ -1,5 +1,7 @@
 2012-09-25 Tue  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/template/test.sh.ex: New.
+
 	* bin/template/manualpage.1.redirection.ex: New example how to
 	redirect to another manual page.
 
