@@ -1,5 +1,8 @@
 2012-09-25 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Correct tofile not to include
+	SOURCE path component.
+
 	* bin/template/install.lst.ex: Adjust the syntax comment.
 
 2012-09-25 Tue  Jari Aalto  <jari.aalto@cante.net>

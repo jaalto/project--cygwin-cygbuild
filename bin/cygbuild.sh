@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.1925"
+CYGBUILD_VERSION="2012.0925.2146"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10949,7 +10949,7 @@ function CygbuildCmdInstallList()
 
 	if [[ "$to" == */ ]]; then
             to=${to%/}			# No trailing slash
-	    tofile="$instdir/$to/$name"
+	    tofile="$instdir/$to/${name##*/}"
 	fi
 
 	local source="$builddir/$from"
@@ -10957,7 +10957,7 @@ function CygbuildCmdInstallList()
 	if [ -d "$source" ]; then
 
 	    if [[ ! "$source" == */ ]]; then
-		CygbuildWarn "-- [WARN] Skip, SOURCE directory needs to end in slash: $source"
+		CygbuildWarn "-- [WARN] Skip, install.lst SOURCE dir needs slash: $source"
 		continue
 	    fi
 
