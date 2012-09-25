@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0924.1736"
+CYGBUILD_VERSION="2012.0925.0518"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4505,9 +4505,9 @@ STANDARDS
 
 AUTHOR
     Copyright (C) $CYGBUILD_AUTHOR
-    License: $CYGBUILD_LICENSE
-    Version $CYGBUILD_VERSION
-    Homepage <$CYGBUILD_HOMEPAGE_URL>"
+    License:  $CYGBUILD_LICENSE
+    Version:  $CYGBUILD_VERSION
+    Homepage: $CYGBUILD_HOMEPAGE_URL"
 
     [ "$exit" ] && exit $exit
 }

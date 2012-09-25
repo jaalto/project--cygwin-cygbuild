@@ -1,3 +1,8 @@
+2012-09-25 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildHelpShort): Add colons to AUTHOR
+	section output.
+
 2012-09-24 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildPatchApplyMaybe): unpatch quilt last.
