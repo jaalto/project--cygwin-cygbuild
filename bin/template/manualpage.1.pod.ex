@@ -27,10 +27,6 @@ Program - One line description is inserted here
 This command does that and that. Program does not have an manual page,
 please see more information at [info page, text file, URL ...]
 
-=head1 ENVIRONMENT
-
-None.
-
 =head1 OPTIONS
 
 =over 4
@@ -40,6 +36,10 @@ None.
 Print short help.
 
 =back
+
+=head1 ENVIRONMENT
+
+None.
 
 =head1 FILES
 
