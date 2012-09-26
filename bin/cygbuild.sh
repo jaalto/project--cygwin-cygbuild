@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0926.1004"
+CYGBUILD_VERSION="2012.0926.1007"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10022,7 +10022,11 @@ function CygbuildInstallExtraBinFiles
 
     for item in $extrabindir/*
     do
+	local _file
+
 	_file=${item##*/}
+	_file=${_file%.*}	# Remove extensions
+
 	dest="/usr/bin"         # default location
 	tmp=$( awk '/cyginstdir:/ { print $(NF)}' "$item" )
 

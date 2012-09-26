@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList): Support glob wildcard
 	install in SOURCE.
+	(CygbuildInstallExtraManualCompress): Remove *.sh etc. extensions.
 
 	* bin/template/manualpage.1.pod.ex: Move DESCRIPTION before OPTIONS.
 
