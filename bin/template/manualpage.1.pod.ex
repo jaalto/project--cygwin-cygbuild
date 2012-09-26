@@ -33,7 +33,7 @@ please see more information at [info page, text file, URL ...]
 
 =item B<--help>
 
-Print short help.
+Display short help.
 
 =back
 
