@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0925.2146"
+CYGBUILD_VERSION="2012.0926.0959"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10954,6 +10954,11 @@ function CygbuildCmdInstallList()
 
 	local source="$builddir/$from"
 
+	if [[ "$source" == *\** ]]; then	# Glob: * found
+	    tofile=""
+	    unset tofile
+	fi
+
 	if [ -d "$source" ]; then
 
 	    if [[ ! "$source" == */ ]]; then
@@ -10973,8 +10978,14 @@ function CygbuildCmdInstallList()
 	    status=$?
 
 	else
-	    ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -D "$source" "$tofile" ||
-	    status=$?
+
+	    local cmd="${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose}"
+
+	    for item in $source
+	    do
+		$cmd --mode=755 -d "$to" || status=$?
+		$cmd --mode=$mode "$item" "$to" || status=$?
+	    done
 	fi
 
     done < $out

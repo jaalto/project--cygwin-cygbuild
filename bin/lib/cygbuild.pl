@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0925.1931';
+$VERSION = '2012.0926.1001';
 
 # ..................................................................
 
@@ -1437,6 +1437,8 @@ Examples:
     prg.py			# install *.py to /usr/bin/prg, mode 755
     manual.txt			# install *.txt to /usr/share/doc/<package>/, mode 644
     man.1			# install *.[1-9] under /usr/share/man/manN/, mode 644
+
+    lib/*.jar usr/share/lib/$PKG/ # install all JARs to library directory
 
     # Install a program
     program usr/bin/
