@@ -1,3 +1,7 @@
+2012-09-26 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/manualpage.1.pod.ex: Move DESCRIPTION before OPTIONS.
+
 2012-09-25 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList): Correct tofile not to include

@@ -22,6 +22,15 @@ Program - One line description is inserted here
   program [options] FILES ...
   program --help
 
+=head1 DESCRIPTION
+
+This command does that and that. Program does not have an manual page,
+please see more information at [info page, text file, URL ...]
+
+=head1 ENVIRONMENT
+
+None.
+
 =head1 OPTIONS
 
 =over 4
@@ -31,15 +40,6 @@ Program - One line description is inserted here
 Print short help.
 
 =back
-
-=head1 DESCRIPTION
-
-This command does that and that. Program does not have an manual page,
-please see more information at [info page, text file, URL ...]
-
-=head1 ENVIRONMENT
-
-None.
 
 =head1 FILES
 
