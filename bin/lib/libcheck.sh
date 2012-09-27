@@ -662,7 +662,7 @@ function CygbuildCmdInstallCheckSetupHintFieldCategory()
         item=${item/$cr/}   # remove CR from the last item
 
         if [[ ! "$CYGBUILD_SETUP_HINT_CATEGORY" == *\ $item\ * ]]; then
-            CygbuildWarn "-- [ERROR] setup.hint::Category is unknon: $item"
+            CygbuildWarn "-- [ERROR] setup.hint::Category is unknown: $item"
         fi
     done
 }

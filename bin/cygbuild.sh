@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0926.1007"
+CYGBUILD_VERSION="2012.0927.1849"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9664,6 +9664,8 @@ function CygbuildInstallPackageDocs()
 
 	dir=$(< $retval)
 
+	[ "$dir" ] || return 0
+
 	if CygbuildIsDirEmpty "$dir" && [ ! "$tarOptInclude" ]; then
 	    return 0                    #  Nothing to install
 	fi
@@ -9713,7 +9715,8 @@ function CygbuildInstallPackageDocs()
 		tar $optExclude \
 		    $tarOptExclude \
 		    $verbose \
-		    --create $group --dereference --file=- \
+		    --create $group \
+		    --dereference --file=- \
 		    ${dir:+"."} \
 		    $extradir \
 		    $tarOptInclude \
@@ -9742,7 +9745,7 @@ function CygbuildInstallPackageDocs()
 
     while read item
     do
-	if [ -d "$item" ] || [[ $item == $CYGBUILD_MATCH_FILE_EXE ]]
+	if [ -d "$item" ] || [[ "$item" == $CYGBUILD_MATCH_FILE_EXE ]]
 	then
 	    chmod 755 "$item" || return $?
 	else
