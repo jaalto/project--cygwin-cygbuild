@@ -5,7 +5,7 @@ set -e
 
 proram=$0
 TMPDIR=${TMPDIR:-/tmp}
-TMPBASE=$TMPDIR/tmp.$$
+TMPBASE=${TMPDIR%/}tmp.$$
 CURDIR=.
 
 case "$0" in
