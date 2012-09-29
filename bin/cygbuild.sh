@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0929.0831"
+CYGBUILD_VERSION="2012.0929.0832"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10814,7 +10814,7 @@ function CygbuildCmdInstallList()
 	-e "s,\$DOC,$docdir," \
 	-e "s,\$VER,$VER," \
 	-e '/^[[:space:]]*$/d' \
-	$file # > $out
+	$file > $out
 
     local line=0
     local status=0
