@@ -1,3 +1,7 @@
+2012-09-29 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Optimize sed by removing empty lines.
+
 2012-09-27 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallPackageDocs): Return if no dir found.

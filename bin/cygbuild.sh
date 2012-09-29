@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0927.1849"
+CYGBUILD_VERSION="2012.0929.0831"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10797,13 +10797,14 @@ function CygbuildCmdInstallListExists()
 function CygbuildCmdInstallList()
 {
     local file="$SCRIPT_INSTALL_LST_CYGFILE"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     [ -f "$file" ] || return 1
 
     CygbuildEcho "--- Installing with external:" \
 		 "${file#$srcdir/}"
 
-    local out=$reval.lst
+    local out=$retval.lst
     local docdir="usr/share/doc/$PKG"
 
     #  Remove comments and substitute variables
@@ -10812,7 +10813,8 @@ function CygbuildCmdInstallList()
 	-e "s,\$PKG,$PKG," \
 	-e "s,\$DOC,$docdir," \
 	-e "s,\$VER,$VER," \
-	$file > $out
+	-e '/^[[:space:]]*$/d' \
+	$file # > $out
 
     local line=0
     local status=0
