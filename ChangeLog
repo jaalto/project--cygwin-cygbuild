@@ -1,3 +1,7 @@
+2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildPatchApplyMaybe): Correct quilt unpatch.
+
 2012-09-29 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallList): Optimize sed by removing empty lines.

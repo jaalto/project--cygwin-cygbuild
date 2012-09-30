@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0929.0832"
+CYGBUILD_VERSION="2012.0930.0854"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6144,6 +6144,11 @@ function CygbuildPatchApplyMaybe()
 
     [ ! "$cmd" ] && cmd="patch"
 
+    local patch unpatch
+
+    [[ "$cmd" == patch* ]] && patch="patch"
+    [[ "$cmd" == unpatch* ]] && unpatch="unpatch"
+
     local verb="$verbose"
     local statCheck="statCheck"
     local force
@@ -6156,7 +6161,7 @@ function CygbuildPatchApplyMaybe()
 
     # NOTE: The quilt must be run last, if we're unpatching (reverse order)
 
-    if [[ "$cmd" = patch* ]]; then
+    if [ "$patch" ]; then
 	CygbuildPatchApplyQuiltMaybe $cmd || return $?
     fi
 
@@ -6176,14 +6181,15 @@ function CygbuildPatchApplyMaybe()
     fi
 
     CygbuildPatchFileList > $retval
+    local list
 
-    [ -s $retval ] || return 0
-
-    local list=$(< $retval)
+    if [ -s $retval ]; then
+	list=$(< $retval)
+    fi
 
     [ "$msg" ] && CygbuildEcho "$msg"
 
-    if [ "$cmd" = "unpatch" ]; then
+    if [ "$unpatch" ] && [ "$list" ]; then
 
 	if [ ! -f "$statfile" ]; then
 	    CygbuildEcho "-- [INFO] Nothing to unpatch. No" \
@@ -6232,7 +6238,7 @@ function CygbuildPatchApplyMaybe()
 		    record="$basename"
 		fi
 
-		if [ "$cmd" = patch ] ; then
+		if [ "$patch" ] ; then
 		    if [ "$done" ]; then
 
 			[ "$verb" ] &&
@@ -6261,11 +6267,11 @@ function CygbuildPatchApplyMaybe()
 	    opt="$opt --strip=$count"
 	fi
 
-	[ "$cmd" = "unpatch" ] && opt="$opt --reverse"
+	[ "$unpatch" ] && opt="$opt --reverse"
 
 	if [ ! "$verbose" ]; then
 	    local msg="Unpatching"
-	    [ "$cmd" = "patch" ] && msg="Patching"
+	    [ "$patch" ] && msg="Patching"
 
 	    CygbuildVerb "-- $msg with" $name
 	fi
@@ -6273,7 +6279,7 @@ function CygbuildPatchApplyMaybe()
 	CygbuildPatchApplyRun "$file" $opt ||
 	CygbuildDie "-- [FATAL] Exiting."
 
-	if [ "$cmd" = "unpatch" ] && [ "$statCheck" ] ; then
+	if [ "$unpatch" ] && [ "$statCheck" ] ; then
 
 	    if [ -f "$statfile" ]; then
 		#   Remove name from patch list
@@ -6290,10 +6296,9 @@ function CygbuildPatchApplyMaybe()
 	fi
     done
 
-    if [[ "$cmd" = unpatch* ]]; then
+    if [ "$unpatch" ]; then
 	CygbuildPatchApplyQuiltMaybe $cmd || return $?
     fi
-
 }
 
 function CygbuildCmdMkpatchMain()
@@ -6478,6 +6483,7 @@ function CygbuildCmdMkpatchMain()
 		cd $cursrcdir &&
 		CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
 	    ) || exit 1
+
 	fi
 
 	cd $cursrcdir || exit 1
