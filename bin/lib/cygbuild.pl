@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0930.0903';
+$VERSION = '2012.0930.1057';
 
 # ..................................................................
 
@@ -1608,10 +1608,11 @@ C<CYGWIN-PATCHES/man> instead of root of C<CYGWIN-PATCHES/>.
 =item B<manpages>
 
 If this file exists, it lists upstream files that are to be considered
-manual pages. The line syntax is:
+manual pages. The line syntax is one of:
 
     <glob>
     <filename>  [<section>] [<destination file name>]
+    <filename>  usr/share/man/<locale>/<section>/<destination file name>
 
 The first word is a file name or a glob and second optional argument
 is manual page section. If file name ends to C<*.[1-8]>, it is used
@@ -1626,6 +1627,8 @@ Examples:
    doc/program.man 1
    # Install page "program.man" as usr/share/man/man1/renamed.1
    doc/program.man 1 renamed.1
+   # Install locale based manual page
+   doc/program.1.fr usr/share/man/fr/man1/program.1
 
 I<Note:> this file is different from C<install.lst> which also could
 be used to install manual pages. The C<manpages> file is ran after

@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.0930.0854"
+CYGBUILD_VERSION="2012.0930.1055"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9784,7 +9784,10 @@ function CygbuildInstallExtraManualList()
 	    dest=
 	fi
 
-	if [ "$dest" ] && [[ ! "$dest" == *.[1-9] ]]; then
+	if [[ $section == */* ]]; then		# Full path
+	    dest=$section
+
+	elif [ "$dest" ] && [[ ! "$dest" == *.[1-9] ]]; then
 	    dest=
 	    CygbuildWarn "-- [WARN] Invalid DEST spec: $dest"
 	fi
@@ -9795,6 +9798,17 @@ function CygbuildInstallExtraManualList()
 	do
 	    if [ ! -f "$file" ]; then
 		CygbuildWarn "-- [WARN] No such manpage: $file"
+		continue
+	    fi
+
+	    if [[ "$dest" == */* ]]; then	# direct install
+		dest=${dest#$CYGBUILD_MANDIR_FULL/}
+		dest="$mandest/$dest"
+
+		CygbuildEcho "-- Copying manual page" \
+		    $file "to" ${destr#$srcdir/}
+
+		$scriptInstallFile "$file" "$dest"
 		continue
 	    fi
 
