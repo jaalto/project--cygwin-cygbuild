@@ -5,6 +5,7 @@
 
 	* bin/cygbuild.sh (CygbuildPatchApplyMaybe): Correct quilt unpatch.
 	(CygbuildInstallExtraManualList): Support locale man pages.
+	(CygbuildPatchApplyRun): Always use --binary options for patch(1).
 
 2012-09-29 Sat  Jari Aalto  <jari.aalto@cante.net>
 
