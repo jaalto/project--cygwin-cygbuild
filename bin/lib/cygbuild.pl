@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0926.1001';
+$VERSION = '2012.0930.0903';
 
 # ..................................................................
 
@@ -1626,6 +1626,11 @@ Examples:
    doc/program.man 1
    # Install page "program.man" as usr/share/man/man1/renamed.1
    doc/program.man 1 renamed.1
+
+I<Note:> this file is different from C<install.lst> which also could
+be used to install manual pages. The C<manpages> file is ran after
+the standard 'make install' to accompany it whereas the C<install.lst>
+complaetely replaces the 'make install' call.
 
 =item B<manualpage.1.pod>
 

@@ -1,5 +1,8 @@
 2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl: (Help::OPTIONAL EXTERNAL FILES::manpages): Explain
+	how this is different from install.lst
+
 	* bin/cygbuild.sh (CygbuildPatchApplyMaybe): Correct quilt unpatch.
 
 2012-09-29 Sat  Jari Aalto  <jari.aalto@cante.net>
