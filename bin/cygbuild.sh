@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2041"
+CYGBUILD_VERSION="2012.1003.2043"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -388,7 +388,7 @@ function CygbuildIsSourceProgram ()
 
 function CygbuildIsSourceUnpacked ()
 {
-    [ -f $DIR_CYGPATCH/$PKG.README ]
+    [ -f "$DIR_CYGPATCH/$PKG.README" ]
 }
 
 function CygbuildIsGbsCompat()
