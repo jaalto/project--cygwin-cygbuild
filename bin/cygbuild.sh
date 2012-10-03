@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2026"
+CYGBUILD_VERSION="2012.1003.2028"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -236,10 +236,17 @@ function CygbuildTarOptionCompress()
     # FIXME: lzma
 
     case "$1" in
-        *.tar.gz | *.tgz)  echo "--gzip"  ;;
-        *.bz2    | *.tbz*) echo "--bzip2" ;;
-        *.lzma   | *.tbz*) echo "--use-compress-program=lzma" ;;
-        *)                 return 1 ;;
+        *.tar.gz | *.tgz)
+	    echo "--gzip"
+	    ;;
+        *.bz2 | *.tbz*)
+	    echo "--bzip2"
+	    ;;
+        *.lzma)
+	    echo "--use-compress-program=lzma"
+	    ;;
+        *)  return 1
+	    ;;
     esac
 }
 

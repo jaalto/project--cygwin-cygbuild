@@ -5,6 +5,7 @@
 	(CygbuildDllToLibName): Add cases for libpng15 and libX11.
 	(CygbuildCmdGPGVerifyMain): Do not fail on missing GPG key.
 	(CygbuildPathBinFast): Move /usr/sbin test later.
+	(CygbuildTarOptionCompress): Correct lzma case.
 
 2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
 
