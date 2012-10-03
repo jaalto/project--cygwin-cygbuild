@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1002.1958"
+CYGBUILD_VERSION="2012.1003.0742"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6192,20 +6192,20 @@ function CygbuildPatchApplyMaybe()
     if [ "$unpatch" ] && [ "$list" ]; then
 
         if [ ! -f "$statfile" ]; then
-            CygbuildEcho "-- [INFO] Nothing to unpatch. No" \
-                         ${statfile#$srcdir/}
-            return 0
-        fi
+            CygbuildEcho "-- [INFO] No" ${statfile#$srcdir/}
+	    list=""
+        else
 
-        local file tmp
+	    local file tmp
 
-        #  reverse order
-        for file in $list
-        do
-          tmp="$file $tmp"
-        done
+	    #  reverse order
+	    for file in $list
+	    do
+	      tmp="$file $tmp"
+	    done
 
-        list="$tmp"
+	    list="$tmp"
+	fi
     fi
 
     # FIXME: patch-before.sh
