@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2030"
+CYGBUILD_VERSION="2012.1003.2031"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -296,6 +296,9 @@ function CygbuildMatchRegexp()
 
 function CygbuildMatchPatternRemoveWord()
 {
+    # ARG 1: pattern to match removed words
+    # ARG 2: list of words
+
     local pattern="$1"
     shift
 
