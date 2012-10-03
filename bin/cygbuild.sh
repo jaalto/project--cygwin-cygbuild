@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.0742"
+CYGBUILD_VERSION="2012.1003.0824"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1815,8 +1815,15 @@ CygbuildDllToLibName ()
                 lib=python ;;
             libcrypto* | libssl* )
                 lib=libopenssl098 ;;
+            libpng1515)
+                lib=libpng15 ;;
             libgcc_s1)
                 lib=libgcc1 ;;
+	    libX11[0-9])
+		local nbr=""
+		nbr=${lib#libX11}
+		lib=libX11_$nbr
+		;;
         esac
 
         echo $lib

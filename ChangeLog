@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh (CygbuildPatchApplyMaybe): in mode unpatch, do
 	not immediately return if patch file is empty but check also quilt.
+	(CygbuildDllToLibName): Add cases for libpng15 and libX11.
 
 2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
 
