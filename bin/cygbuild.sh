@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.0824"
+CYGBUILD_VERSION="2012.1003.2026"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -207,14 +207,19 @@ function CygbuildPathBinFast()
 
     if [ -x /usr/bin/$bin ]; then
         echo /usr/bin/$bin
-    elif [ -x /usr/sbin/$bin ]; then
-        echo /usr/sbin/$bin
+
     elif [ -x /bin/$bin ]; then
         echo /bin/$bin
+
+    elif [ -x /usr/sbin/$bin ]; then
+        echo /usr/sbin/$bin
+
     elif [ -x /sbin/$bin ]; then
         echo /sbin/$bin
+
     elif [ "$try" ] && [ -x $try/$bin ]; then
         echo $try/$bin
+
     else
         return 1
     fi
@@ -5072,27 +5077,16 @@ function CygbuildCmdGPGVerifyMain()
     fi
 
     if [ ! "$list" ]; then
-        return
+        return 0
     fi
 
     CygbuildEcho "== Verifying signatures in $dir"
 
     local status=0
 
-    if ! CygbuildGPGsignatureCheck $list && [ ! "$force" ] ; then
-        status=1
-        echo -n "-- [WARN] signature check(s) failed. "
-
-        if [ ! "$interactive" ]; then
-            echo -e "\n"
-        else
-            if CygbuildAskYes "Still continue?" ; then
-                status=0
-            fi
-        fi
+    if ! CygbuildGPGsignatureCheck $list ; then
+        [ "$force" ] || CygbuildWarn "-- [WARN] Problem with checking signature(s)."
     fi
-
-    [ "$force" ] && return 0
 
     return $status
 }
