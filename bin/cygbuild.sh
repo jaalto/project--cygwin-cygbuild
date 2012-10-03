@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2031"
+CYGBUILD_VERSION="2012.1003.2035"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -316,6 +316,9 @@ function CygbuildMatchPatternRemoveWord()
 
 function CygbuildMatchPatternList()
 {
+    # ARG 1: STRING to match
+    # ARG 2: List of glob patterns to match against STRING
+
     local str="$1"
 
     [ ! "$str" ] && return 1
@@ -329,22 +332,22 @@ function CygbuildMatchPatternList()
 
     set -o noglob
 
-        for match in $*
-        do
-            if  [[ "$str" == $match ]]; then
-                ret=0
-                break
-            fi
-        done
+    for match in "$@"
+    do
+        if  [[ "$str" == $match ]]; then
+            ret=0
+            break
+        fi
+    done
 
-   set +o noglob
+    set +o noglob
 
     return $ret
 }
 
 function CygbuildIsEmpty()
 {
-    CygbuildMatchRegexp '^[ \t]*$' "$1"
+    [ ! "$1" ] || CygbuildMatchRegexp '^[ \t]*$' "$1"
 }
 
 function CygbuildIsNumber()
