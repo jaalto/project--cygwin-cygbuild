@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2047"
+CYGBUILD_VERSION="2012.1003.2050"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -485,11 +485,14 @@ function CygbuildVerbWarn()
 
 function CygbuildExit()
 {
+    # ARG 1: optional, exit code
+    # ARG 2: optional, message
+
     local code=${1:-1}
-    [ "$1" ] && shift
+    shift
 
     if [ "$1" ]; then
-        CygbuildWarn "$@"
+        CygbuildWarn "$*"
     fi
 
     exit $code
@@ -503,7 +506,7 @@ function CygbuildDie()
 function CygbuildExitIfNoDir()
 {
     local dir="$1"
-    [ "$1" ] && shift
+    shift
 
     if [ ! "$dir" ] || [ ! -d "$dir" ]; then
         CygbuildDie "$@"
@@ -513,7 +516,7 @@ function CygbuildExitIfNoDir()
 function CygbuildExitIfNoFile()
 {
     local file="$1"
-    [ "$1" ] && shift
+    shift
 
     if [ ! "$file" ] || [ ! -f "$file" ]; then
         CygbuildDie "$@"
