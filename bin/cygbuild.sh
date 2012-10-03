@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2035"
+CYGBUILD_VERSION="2012.1003.2040"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -362,6 +362,9 @@ function CygbuildIsNumberLike()
 
 function CygbuildIsCygwin()
 {
+    # The value of MACHTYPE or ...
+
+    [[ "${BASH_VERSINFO[5]}" == *cygwin* ]] ||
     [ -d /cygdrive/c ]
 }
 

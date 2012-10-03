@@ -9,6 +9,7 @@
 	(CygbuildStrToRegexpSafe): Return value in quotes.
 	(CygbuildMatchPatternRemoveWord): Add function arg comments.
 	(CygbuildIsEmpty): Add fast empty check.
+	(CygbuildIsCygwin): Faster Cygwin arch test.
 
 2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
 
