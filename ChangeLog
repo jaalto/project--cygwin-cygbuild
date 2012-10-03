@@ -10,6 +10,7 @@
 	(CygbuildMatchPatternRemoveWord): Add function arg comments.
 	(CygbuildIsEmpty): Add fast empty check.
 	(CygbuildIsCygwin): Faster Cygwin arch test.
+	(CygbuildIsSourceProgram): require -N, not just N.
 
 2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
 
