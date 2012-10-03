@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2028"
+CYGBUILD_VERSION="2012.1003.2030"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -252,7 +252,7 @@ function CygbuildTarOptionCompress()
 
 function CygbuildStrToRegexpSafe()
 {
-    # Just quick conversion
+    # Just a quick conversion
 
     local str="$1"
 
@@ -269,7 +269,7 @@ function CygbuildStrToRegexpSafe()
     str=${str//\(/[(]}
     str=${str//\)/[)]}
 
-    echo $str
+    echo "$str"
 }
 
 function CygbuildMatchGlob()

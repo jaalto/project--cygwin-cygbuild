@@ -6,6 +6,7 @@
 	(CygbuildCmdGPGVerifyMain): Do not fail on missing GPG key.
 	(CygbuildPathBinFast): Move /usr/sbin test later.
 	(CygbuildTarOptionCompress): Correct lzma case.
+	(CygbuildStrToRegexpSafe): Return value in quotes.
 
 2012-09-30 Sun  Jari Aalto  <jari.aalto@cante.net>
 
