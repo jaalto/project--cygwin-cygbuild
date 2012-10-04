@@ -5,9 +5,15 @@ Install instructions
 
     Standard install
 
-        The /usr/local is the default install location:
+        The /usr/local is the default install location. Change
+	with prefix variable:
 
+	    make help
             make [prefix=/usr] install
+
+	If this is version control checkout, use symlink install:
+
+            make [prefix=/usr] install-symlinks
 
     Running in place
 
@@ -15,8 +21,8 @@ Install instructions
         version control checkout. The program will search needed
         files, provided that a) it is called by absolute name:
 
-	    alias cb="/path/to/cygbuild.sh --color -s $GPGKEY"
-	    cb <command and option ...>
+	    alias cb="/path/to/cygbuild.sh --color"
+	    cb <command ...>
 
 	or b) package's bin/ directory is added to environment
         variable PATH.

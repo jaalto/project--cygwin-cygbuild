@@ -1,5 +1,7 @@
 2012-10-04 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* INSTALL: Add install-symlinks choice.
+
 	* Makefile (doc): Add docstring.
 
 	* bin/cygbuild.sh (CygbuildMakeRunInstallFixPerlPostinstall): Mot used.
