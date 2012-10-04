@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1003.2050"
+CYGBUILD_VERSION="2012.1004.0737"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -550,7 +550,7 @@ function CygbuildBootVariablesId()
     #      each published package before copying files.
 
     CYGBUILD_PUBLISH_BIN=${CYGBUILD_PUBLISH_BIN:-""}        # global-def
-    CYGBUILD_PUBLISH_DIR=${CYGBUILD_PUBLISH_DIR:-"/usr/src/cygwin-packages"}
+    CYGBUILD_PUBLISH_DIR=${CYGBUILD_PUBLISH_DIR:-"/usr/src/cygwin-packages"} # global-def
 
     TEMPDIR=${TEMPDIR:-${TEMP:-${TMP:-/tmp}}}               # global-def
     TEMPDIR=${TEMPDIR%/}  # Remove trailing slash
@@ -578,7 +578,7 @@ function CygbuildBootVariablesId()
     #       FunctionName "param" > $retval
     #       local val=$(< $retval)
 
-    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$"
+    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$" # global-def
     local retval="$CYGBUILD_RETVAL"
 
     CYGBUILD_PROG_NAME=${0##*/}                             # global-def
@@ -7011,8 +7011,13 @@ function CygbuildPerlPodModule()
     fi
 }
 
+# 2012-10-04 No longer used. Concensus is that perllocal.pod is not
+# used in Cygwin
+
 function CygbuildMakeRunInstallFixPerlPostinstall()
 {
+    # Handle perllocal.pod
+
     local id="$0.$FUNCNAME"
     local module="$1"
 
@@ -7187,7 +7192,8 @@ function CygbuildMakeRunInstallFixPerlMain()
 
     [ "$module" ] || return 0
 
-    CygbuildMakeRunInstallFixPerlPostinstall "$module"
+    # No longer used
+    # CygbuildMakeRunInstallFixPerlPostinstall "$module"
 }
 
 function CygbuildMakefilePrefixCheck()
