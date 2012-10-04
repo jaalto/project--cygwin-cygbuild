@@ -34,7 +34,7 @@ install:
 	$(MAKE) -C doc install
 	$(MAKE) -C bin install
 
-# install-symlink: install in place; from version control checkout
+# install-symlink: install in place; like from version control checkout
 install-symlink:
 	$(MAKE) -C bin install-symlink
 
@@ -52,6 +52,7 @@ doc/manual/index.html: bin/lib/cygbuild.pl
 doc/manual/index.txt: doc/manual/index.html
 	lynx -dump $< > $@
 
+# doc: generate documentation and manual pages
 doc: doc/manual/index.html doc/manual/index.txt
 	$(MAKE) -C bin man
 

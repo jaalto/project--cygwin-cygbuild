@@ -1,5 +1,7 @@
 2012-10-04 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* Makefile (doc): Add docstring.
+
 	* bin/cygbuild.sh (CygbuildMakeRunInstallFixPerlPostinstall): Mot used.
 	(CygbuildMakeRunInstallFixPerlMain): Do not use
 	CygbuildMakeRunInstallFixPerlPostinstall(). perllocal.pod handling no
