@@ -19,6 +19,8 @@ BEGIN
         Date::Parse
     );
 
+    my @list;
+
     for ( @need )
     {
         eval "use $_;" ;
@@ -29,7 +31,7 @@ BEGIN
     {
         die q([FATAL] Perl CPAN modules are needed. Please install them with:
 
-              perl -MCPAN -e 'install $_ for @ARGV' ) . qq(@list\n);
+              cpan ) . qq(@list\n);
     }
 }
 

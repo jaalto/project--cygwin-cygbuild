@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1004.0737"
+CYGBUILD_VERSION="2012.1004.0834"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1275,6 +1275,9 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*.Tpo \
      --exclude=*.Po \
      --exclude=.pc \
+     --exclude=.gitignore \
+     --exclude=.hgignore \
+     --exclude=.bzrignore \
      $cygbuild_opt_exclude_cache_files \
      $cygbuild_opt_exclude_archive_files \
      $cygbuild_opt_exclude_library_files \
@@ -1839,8 +1842,10 @@ CygbuildDllToLibName ()
                 lib=python ;;
             libcrypto* | libssl* )
                 lib=libopenssl098 ;;
-            libpng1515)
-                lib=libpng15 ;;
+            libpng[0-9][0-9][0-9][0-9])
+                # libpng1515 => libpng15
+	        lib=${lib%[0-9][0-9]}
+		;;
             libgcc_s1)
                 lib=libgcc1 ;;
 	    libX11[0-9])

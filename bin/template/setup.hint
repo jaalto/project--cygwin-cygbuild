@@ -5,6 +5,6 @@
 sdesc: ""
 ldesc: ""
 category: name [name...]
-requires: cygwin [package...]
+requires: [package...]
 external-source: package
 conflicts:

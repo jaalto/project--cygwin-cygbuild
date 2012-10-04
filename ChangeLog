@@ -130,6 +130,12 @@
 
 2012-09-19 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh (CygbuildPostinstallWriteMain): Add quotes
+	to dest variable in postinstall script.
+	(CygbuildInstallPostinstallPartInfo): Add quotes to file variable
+	in postinstall script.
+	(CygbuildDllToLibName): Handle liblzo2_2.
+
 	* bin/lib/cygbuild.pl:
 	(Help::EVERYTHING): Remove all shell prefix charcters '$'.
 	(Help::Preparation commands::files): Update .tmp to .ex suffix.
@@ -142,6 +148,68 @@
 
 	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call to
 	CygbuildCmdDeleteListExists().
+	(CygbuildMakeRunInstallFixPerlPostinstall): Correct
+	regexp to detect installed pod: EXE_FILES.
+
+2012-05-22 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdMkpatchMain): Copy quilt .pc
+	directory to make unpatching work.
+
+2012-03-25 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): Handle
+	special characters in package name.
+
+	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Handle
+	special characters in package name.
+	(CygbuildBootVariablesGlobalMain): Add ".pc" to
+	cygbuild_opt_exclude_dir to exclude quilt(1) patch directories.
+
+2012-02-26 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Fix default install
+	destination for scripts. Drop all path names.
+
+2012-02-23 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildPerlLibraryList): Include
+	"use" statements.
+
+2012-02-20 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallList): Add symlink support.
+
+2012-02-19 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildInstallFixInterpreterPerl): Use
+	unified diff.
+	(CygbuildIndentFilter): New.
+	(CygbuildCmdDeleteList): Use CygbuildIndentFilter.
+	(CygbuildCmdInstallList): Use CygbuildIndentFilter.
+	(CygbuildCmdStripMain): Adjust message
+
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): Adjust
+	return status codes. Turn WARN into ERROR messages.
+
+2012-02-18 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Set
+	variable str to empty before checking is binary exists.
+	(CygbuildPerlLibraryDependsGuess): Improve Std Module::Name
+	check.
+	(CygbuildPerlLibraryDependsCache): Better Std module detection.
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Fix call to
+	CygbuildCmdDeleteListExists().
+	(CygbuildCmdInstallAfterListExists): New.
+	(CygbuildCmdInstallAfterList): New.
+	(CygbuildCmdInstallMain): Call CygbuildCmdInstallAfterList.
+	(CygbuildCmdDeleteAfterListExists): New.
+	(CygbuildCmdInstallMain): Move CygbuildCmdDeleteListExists call.
+	(CygbuildWhich): Define PATH
+	(CygbuildObjDumpLibraryDepList): Ignore Windows 7 core dll files.
+	(CygbuildCygcheckLibraryDepListFull): Ignore Windows 7 core dll files.
 
 2012-02-11 Sat  Jari Aalto  <jari.aalto@cante.net>
 

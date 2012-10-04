@@ -37,6 +37,7 @@ Main()
     root=$(echo $root | sed 's,/$,,')  # Delete trailing slash
     bindir=$root/usr/bin
     sharedir=$root/usr/share
+    libdir=$root/usr/lib
     emacsdir=$sharedir/emacs/site-lisp
     mandir=$sharedir/man/man1
 
