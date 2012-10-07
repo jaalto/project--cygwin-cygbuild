@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1007.0652"
+CYGBUILD_VERSION="2012.1007.0704"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1854,10 +1854,10 @@ CygbuildDllToLibName ()
 	    libgdk-x11-2.00)
 		lib=libgdk_pixbuf_xlib2.0_0
 		;;
-	    libgdk_pixbuf-2.00 | libgobject-2.00)
+	    libgdk_pixbuf-2.00)
 		lib=libgdk_pixbuf2.0_0
 		;;
-	    libglib-2.00)
+	    libglib-2.00 | libgobject-2.00)
 		lib=libglib2.0_0
 		;;
 	    libpango-1.00)
