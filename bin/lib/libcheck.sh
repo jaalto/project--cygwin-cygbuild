@@ -1362,7 +1362,7 @@ function CygbuildCmdInstallCheckManualPages()
 
     find -L "$dir" \
         '(' -type f  -o -type l ')' \
-         -path    "*/man/*"
+         -path    "*/man/*" \
         > $retval
 
     local file path manlist manPathList
@@ -1373,6 +1373,12 @@ function CygbuildCmdInstallCheckManualPages()
 
     while read file
     do
+	#  Side effect: if link is broken this gives error
+	#  For example in sutuation:
+	#
+	#    original.1.gz
+	#    page.1 -> original.1	# NOTE: *.1.gz, link is broken
+
         $EGREP -n 'Debian' $file /dev/null >> $retval.debian
 
 	itest=0
@@ -1395,7 +1401,7 @@ function CygbuildCmdInstallCheckManualPages()
 
         name=${file##*/}        # Delete path
         name=${name%.gz}        # package.1.gz => package.1
-        name=${name%.bz2}       # package.1.gz => package.1
+        name=${name%.bz2}       #
         name=${name%$addsect}   # package.1x   => package.1
         name=${name%.[0-9]}     # package.1    => package
         manlist="$manlist $name "
