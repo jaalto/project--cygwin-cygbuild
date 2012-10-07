@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1007.0707"
+CYGBUILD_VERSION="2012.1007.1731"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1832,6 +1832,9 @@ CygbuildDllToLibName ()
         # Special cases:
 
         case "$lib" in
+	    libgcc1)
+		continue		# Part of "base", so no need to mention
+		;;
             libz*)
                 lib=zlib0
 		;;
@@ -6208,12 +6211,6 @@ function CygbuildPatchApplyMaybe()
         verb="gbs verbose"
     fi
 
-    # NOTE: The quilt must be run last, if we're unpatching (reverse order)
-
-    if [ "$patch" ]; then
-        CygbuildPatchApplyQuiltMaybe $cmd || return $?
-    fi
-
     if [[ "$cmd" == *-force* ]]; then
         force="force"
         cmd=${cmd%-force}
@@ -6227,6 +6224,12 @@ function CygbuildPatchApplyMaybe()
     if [[ "$cmd" == *-nostat* ]]; then
         statCheck=
         cmd=${cmd%-nostat}
+    fi
+
+    # NOTE: The quilt must be run last, if we're unpatching (reverse order)
+
+    if [ "$patch" ]; then
+        CygbuildPatchApplyQuiltMaybe $cmd || return $?
     fi
 
     CygbuildPatchFileList > $retval
@@ -10128,6 +10131,53 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraBinFiles
 }
 
+
+function CygbuildInstallFixManSymlinks()
+{
+    local id="$0.$FUNCNAME"
+    local mandir="$dir/usr/share/man"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    [ -d "$mandir" ] || return 0
+
+    find -L "$mandir" \
+        -type l \
+        -path "*/man/*" \
+        > $retval
+
+    [ -s $retval ] || return 0
+
+    CygbuildVerb "-- Fixing manual page symlinks"
+
+    CygbuildPushd
+
+        local file
+
+	while read file
+	do
+	    local path=${file%/*}
+
+	    cd "$path" || continue
+
+	    local name=${file##*/}
+	    local dest=$( ls -l $name | awk '{print $(NF) }' )  # Symlink is the last word
+
+	    [ -f "$dest" ] && continue
+
+	    local orig="$dest.gz"
+
+	    if [ -f "$orig" ]; then
+		CygbuildVerb "-- [NOTE] Correcting $name -> $orig"
+		rm "$name"
+		ln --symbolic "$orig" "$name.gz"
+	    else
+		CygbuildVerb "   [WARN] Don't know how to correct: $name"
+	    fi
+	done < $retval
+
+    CygbuildPopd
+}
+
 function CygbuildInstallFixMandir()
 {
     local id="$0.$FUNCNAME"
@@ -11183,6 +11233,7 @@ function CygbuildCmdInstallMain()
     CygbuildInstallCygwinPartPostinstall
 
     CygbuildInstallExtraManualCompress
+    CygbuildInstallFixManSymlinks
 
     if [ -f "$scriptAfter" ]; then
 

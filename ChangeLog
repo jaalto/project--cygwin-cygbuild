@@ -1,6 +1,10 @@
 2012-10-07 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckManualPages): find
+	also symlinked manual pages.
+
 	* bin/cygbuild.sh (CygbuildDllToLibName): Add gnome libs.
+	(CygbuildInstallFixManSymlinks): New.
 
 2012-10-04 Thu  Jari Aalto  <jari.aalto@cante.net>
 
