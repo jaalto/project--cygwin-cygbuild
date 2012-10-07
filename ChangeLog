@@ -1,3 +1,7 @@
+2012-10-07 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildDllToLibName): Add gnome libs.
+
 2012-10-04 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* TODO: Minor udpates.

@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1004.0834"
+CYGBUILD_VERSION="2012.1007.0652"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1833,21 +1833,45 @@ CygbuildDllToLibName ()
 
         case "$lib" in
             libz*)
-                lib=zlib0 ;;
+                lib=zlib0
+		;;
             libbz2*1)
-                lib=libbz2_1 ;;
+                lib=libbz2_1
+		;;
             libmhash*)
-                lib=mhash ;;
+                lib=mhash
+		;;
             lib*python[0-9]*)
-                lib=python ;;
+                lib=python
+		;;
             libcrypto* | libssl* )
-                lib=libopenssl098 ;;
+                lib=libopenssl098
+		;;
             libpng[0-9][0-9][0-9][0-9])
                 # libpng1515 => libpng15
 	        lib=${lib%[0-9][0-9]}
 		;;
+	    libgdk-x11-2.00)
+		lib=libgdk_pixbuf_xlib2.0_0
+		;;
+	    libgdk_pixbuf-2.00 | libgobject-2.00)
+		lib=libgdk_pixbuf2.0_0
+		;;
+	    libglib-2.00)
+		lib=libglib2.0_0
+		;;
+	    libpango-1.00)
+		lib=libpango1.0_0
+		;;
+	    libImlib21)
+		lib=libImlib2_1
+		;;
+	    libmagic1)
+		lib=libMagickCore5
+		;;
             libgcc_s1)
-                lib=libgcc1 ;;
+                lib=libgcc1
+		;;
 	    libX11[0-9])
 		local nbr=""
 		nbr=${lib#libX11}
