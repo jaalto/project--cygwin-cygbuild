@@ -1360,12 +1360,9 @@ function CygbuildCmdInstallCheckManualPages()
         return 0
     fi
 
-    find -L $dir                    \
-        -type f                     \
-        '('                         \
-            -path    "*/man/*"      \
-            -o -path "*/man[0-9]/*" \
-        ')'                         \
+    find -L "$dir" \
+        '(' -type f  -o -type l ')' \
+         -path    "*/man/*"
         > $retval
 
     local file path manlist manPathList
