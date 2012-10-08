@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1008.1234"
+CYGBUILD_VERSION="2012.1008.1247"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -8868,7 +8868,12 @@ function CygbuildConfCC()
                    print '   ', join( qq(\n   ), sort split ',',$_), qq(\n)"
         fi
 
-        CygbuildRunShell $conf $opt 2>&1 | tee $retval.log
+	if [ ! -x "$conf" ]; then
+	    CygbuildEcho "-- [NOTE] Making executable" ${conf#$srcdir}
+	    chmod 755 "$conf"
+	fi
+
+        CygbuildRunShell "$conf" $opt 2>&1 | tee $retval.log
         status=$?
 
         #   The configure log:

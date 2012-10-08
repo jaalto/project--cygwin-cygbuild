@@ -1,6 +1,7 @@
 2012-10-08 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildDllToLibName): Correct libmagic1.
+	(CygbuildConfCC): Make $conf file executable.
 
 2012-10-07 Sun  Jari Aalto  <jari.aalto@cante.net>
 
