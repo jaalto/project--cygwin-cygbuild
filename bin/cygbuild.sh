@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1007.1731"
+CYGBUILD_VERSION="2012.1008.1234"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1870,7 +1870,7 @@ CygbuildDllToLibName ()
 		lib=libImlib2_1
 		;;
 	    libmagic1)
-		lib=libMagickCore5
+		lib=file
 		;;
             libgcc_s1)
                 lib=libgcc1
