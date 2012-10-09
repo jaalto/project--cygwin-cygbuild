@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1009.1343"
+CYGBUILD_VERSION="2012.1009.1347"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -93,7 +93,7 @@ CYGBUILD_INSTALL_INFO="\
     # 'sh PROGRAM' in which case we are not to be found in PATH.
 
     if [ -f "$prg" ]; then
-        [ -x /bin/bash ] && exec /bin/bash "$prg" ${1+"$@"}
+        [ -x /bin/bash ] && exec /bin/bash "$prg" ${1:+"$@"}
     fi
 
     echo "$0 [FATAL] $prg called with wrong shell: needs bash" >&2
@@ -5468,7 +5468,7 @@ function CygbuildCmdPublishExternal()
     local pass="$3"
 
     CygbuildEcho "-- Publishing with external:" \
-        "$prg $TOPDIR $signer ${pass+<pass>}"
+        "$prg $TOPDIR $signer ${pass:+<pass>}"
 
     CygbuildChmodExec "$prg"
     $prg "$TOPDIR" "$PKG" "$VER" "$REL" "$signer" "$pass"
@@ -10333,7 +10333,7 @@ function CygbuildInstallFixInterpreterPerl ()
     #    #!/usr/bin/perl5.8.8
     #    #!/usr/bin/perl -*-
     #
-    #    eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+    #    eval 'exec /usr/bin/perl -w -S $0 ${1:+"$@"}'
     #      if 0; # not running under some shell
     #
     #  Or even like this:
