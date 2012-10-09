@@ -19,7 +19,7 @@ Program - One line description is inserted here
 
 =head1 SYNOPSIS
 
-  program [options] FILES ...
+  program [options] FILE ...
   program --help
 
 =head1 DESCRIPTION
