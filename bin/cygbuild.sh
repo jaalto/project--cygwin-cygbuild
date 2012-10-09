@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1008.1247"
+CYGBUILD_VERSION="2012.1009.1343"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -2691,7 +2691,7 @@ function CygbuildPathResolveSymlink()
 
         try=$(cd $path; pwd)/$name
 
-    elif [[ "" && -x /usr/bin/chase ]]; then
+    elif [ "" ] && [ -x /usr/bin/chase ]]; then
 
         #  DISABLED for now.
 
@@ -2714,7 +2714,7 @@ function CygbuildPathResolveSymlink()
             fi
         fi
 
-    elif [[ "" && -x /usr/bin/namei ]]; then
+    elif [ "" ] && [ -x /usr/bin/namei ]]; then
 
         # DISABLED. The output of name cannot be easily parsed,
         # because it doesn't output single path, but a tree notation.
@@ -4273,7 +4273,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
 
-    SCRIPT_INSTALL_LST_CYGFILE=$DIR_CYGPATCH/install.lst        # global-def
+    FILE_INSTALL_MIME=$DIR_CYGPATCH/mime			# global-def
+    FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst			# global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
@@ -6835,7 +6836,7 @@ function CygbuildCmdDownloadUpstream ()
 
     (
         cd .. &&
-        perl $bin ${OPTION_DEBUG+--debug=3} --verbose \
+        perl $bin ${OPTION_DEBUG:+--debug=3} --verbose \
              --new --config $conf --tag $pkg
     )
 }
@@ -10092,7 +10093,24 @@ function CygbuildInstallExtraManualCompress()
     fi
 }
 
-function CygbuildInstallExtraBinFiles
+function CygbuildInstallExtraMimeFiles()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    local file="$FILE_INSTALL_MIME"
+
+    [ -f "$file" ] || return 0
+
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
+
+    CygbuildEcho "-- Installing mime"
+
+    CygbuildRun $scriptInstallFile ${verbose:+--verbose} \
+	"$file" "$instdir/usr/lib/mime/packages/$PKG"
+}
+
+function CygbuildInstallExtraBinFiles()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -10104,7 +10122,7 @@ function CygbuildInstallExtraBinFiles
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
     local item dest todir tmp _file
 
-    CygbuildEcho "-- Installing external programs from: $extrabindir"
+    CygbuildEcho "-- Installing external programs from:" ${extrabindir#$srcdir}
 
     for item in $extrabindir/*
     do
@@ -10134,6 +10152,7 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraManual           &&
     CygbuildMakeRunInstallFixPerlManpage &&
     CygbuildInstallExtraBinFiles
+    CygbuildInstallExtraMimeFiles
 }
 
 
@@ -10919,14 +10938,14 @@ function CygbuildCmdDeletellList()
 
 function CygbuildCmdInstallListExists()
 {
-    local file="$SCRIPT_INSTALL_LST_CYGFILE"
+    local file="$FILE_INSTALL_LST"
 
     [ -f "$file" ]
 }
 
 function CygbuildCmdInstallList()
 {
-    local file="$SCRIPT_INSTALL_LST_CYGFILE"
+    local file="$FILE_INSTALL_LST"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     [ -f "$file" ] || return 1
@@ -11046,7 +11065,7 @@ function CygbuildCmdInstallList()
             CygbuildPushd
 
                 cd "$instdir/$dir" &&
-                ${test:+echo} ln --symbolic ${verbose+--verbose} "$name" "$to"
+                ${test:+echo} ln --symbolic ${verbose:+--verbose} "$name" "$to"
 
             CygbuildPopd
 

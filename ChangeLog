@@ -1,3 +1,11 @@
+2012-10-09 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/mime.ex: New.
+
+	* bin/cygbuild.sh (CygbuildInstallExtraMimeFiles): New.
+	(CygbuildDefineGlobalMain): Add FILE_INSTALL_MIME, rename
+	FILE_INSTALL_LST.
+
 2012-10-08 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildDllToLibName): Correct libmagic1.
