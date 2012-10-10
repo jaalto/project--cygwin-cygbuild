@@ -1,3 +1,9 @@
+2012-10-10 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdConfMain): Adjust message.
+
+	* bin/template/test.sh.ex: (Run): Accept empty message.
+
 2012-10-09 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/mime.ex: New.

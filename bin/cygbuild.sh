@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1009.1347"
+CYGBUILD_VERSION="2012.1010.0530"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9026,7 +9026,7 @@ function CygbuildCmdConfMain()
 
         if [ -f "$script" ]; then
 
-            CygbuildEcho "--- Running external configure: $script"
+            CygbuildEcho "--- Running external configure:" ${script#$srcdir}
 
             CygbuildChmodExec $script
             $script $instdir | CygbuildMsgFilter
