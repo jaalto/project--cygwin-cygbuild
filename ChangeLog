@@ -4,6 +4,7 @@
 
 	* bin/lib/cygbuild.pl:
 	(Help::OPTIONAL EXTERNAL FILES::mime, dirs): New.
+	(Help::OPTIONAL EXTERNAL FILES::install.lst): Document mkdir.
 
 	* bin/template/install.lst.ex: Add mkdir example.
 

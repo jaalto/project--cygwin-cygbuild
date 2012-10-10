@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.1010.1447';
+$VERSION = '2012.1010.1516';
 
 # ..................................................................
 
@@ -1394,8 +1394,9 @@ NOTE: if file exists, the C<make install> target is not run.
 List install(1) compatible entries in separate lines. The
 format is:
 
-    <src> [<destination> [<mode, defaults to 644>]]
+    <source> [<destination> [<mode, defaults to 644>]]
     ln <source> <destination>
+    mkdir <source>
 
 For the I<src> part CYGWIN-PATCHES/{doc,conf} components are removed.
 In addition all components of I<destination> is also removed. This
@@ -1429,6 +1430,10 @@ location of already installed program from previous lines. The 3rd
 word is the I<destination> name where the symlink is drawn. An
 example:
 
+If the first word is C<mkdir>, then the 2nd word <source> is directory
+name to create. Directories must start without leading slash and end
+to a slash.
+
 Empty lines and comments starting with "#" are ignored.
 
 Examples:
@@ -1449,6 +1454,9 @@ Examples:
     man.1			# install *.[1-9] under /usr/share/man/manN/, mode 644
 
     lib/*.jar usr/share/lib/$PKG/ # install all JARs to library directory
+
+    # Create log directory
+    mkdir var/log/package/
 
     # Install a program
     program usr/bin/
