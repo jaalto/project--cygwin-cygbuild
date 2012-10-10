@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.0930.1057';
+$VERSION = '2012.1010.1443';
 
 # ..................................................................
 
@@ -1667,6 +1667,16 @@ http://perldoc.perl.org/perlpod.html
 
 The I<*.pod> files can be put to separate directory
 C<CYGWIN-PATCHES/man>.
+
+=item B<mime>
+
+If this file exists, it contains definitions according to mailcap(1)
+that make use of the instaled programs. The contents of this file will
+be installed in C</usr/lib/mime/packages/PACKAGE> directory.
+
+An example entry for package catdoc:
+
+  application/msword; catdoc %s; copiousoutput; description=MS Doc Text;
 
 =item B<package-bin.sh>
 

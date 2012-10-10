@@ -1,5 +1,7 @@
 2012-10-10 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl: (Help::OPTIONAL EXTERNAL FILES::mime): New.
+
 	* bin/template/install.lst.ex: Add mkdir example.
 
 	* bin/cygbuild.sh (CygbuildCmdConfMain): Adjust message.
