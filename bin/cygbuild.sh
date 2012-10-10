@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1010.1434"
+CYGBUILD_VERSION="2012.1010.1459"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4274,6 +4274,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
 
     FILE_INSTALL_MIME=$DIR_CYGPATCH/mime			# global-def
+    FILE_INSTALL_DIRS=$DIR_CYGPATCH/dirs			# global-def
     FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst			# global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
@@ -10146,6 +10147,46 @@ function CygbuildInstallExtraBinFiles()
     done
 }
 
+function CygbuildInstallExtraMimeFile()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    local file="$FILE_INSTALL_MIME"
+
+    [ -f "$file" ] || return 0
+
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES -D"
+
+    CygbuildEcho "-- Installing mime"
+
+    CygbuildRun $scriptInstallFile ${verbose:+--verbose} \
+	"$file" "$instdir/usr/lib/mime/packages/$PKG"
+}
+
+function CygbuildInstallExtraDirsFile()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    local file="$FILE_INSTALL_DIRS"
+
+    [ -f "$file" ] || return 0
+
+    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
+
+    CygbuildEcho "-- Installing dirs"
+
+    local list=$(awk '$1 ~ /[a-zA-Z]/  &&  $1 !~ /#/ {print $1}' "$file")
+
+    if [ ! "$list" ]; then
+        CygbuildWarn "-- [WARN] nothing found from:" ${file#$srcdir/}
+	return 1
+    fi
+
+    CygbuildRun $scriptInstallFile ${verbose:+--verbose} $list
+}
+
 function CygbuildInstallExtraMain()
 {
     local id="$0.$FUNCNAME"
@@ -10154,7 +10195,7 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraManual           &&
     CygbuildMakeRunInstallFixPerlManpage &&
     CygbuildInstallExtraBinFiles
-    CygbuildInstallExtraMimeFiles
+    CygbuildInstallExtraMimeFile
 }
 
 
@@ -11199,6 +11240,8 @@ function CygbuildCmdInstallMain()
     CygbuildPushd
 
         cd "$builddir" || exit 1
+
+	CygbuildInstallExtraDirsFile
 
         CygbuildInstallPackageDocs      &&
         CygbuildInstallPackageInfo      &&
