@@ -1,6 +1,10 @@
 2012-10-10 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/template/install.lst.ex: Add mkdir example.
+
 	* bin/cygbuild.sh (CygbuildCmdConfMain): Adjust message.
+	(CygbuildCmdInstallList): Add mkdir support.
+	(CygbuildConfCC): rm config.cache
 
 	* bin/template/test.sh.ex: (Run): Accept empty message.
 

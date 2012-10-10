@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1010.0531"
+CYGBUILD_VERSION="2012.1010.1434"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -8874,6 +8874,8 @@ function CygbuildConfCC()
 	    chmod 755 "$conf"
 	fi
 
+	rm -f config.cache
+
         CygbuildRunShell "$conf" $opt 2>&1 | tee $retval.log
         status=$?
 
@@ -11026,7 +11028,26 @@ function CygbuildCmdInstallList()
 
         line=$(( line + 1 ))
 
-        if [[ "$from" == "ln" ]] ; then
+        if [[ "$from" == "mkdir" ]] ; then
+
+	    if [[ "$from" == /* ]]; then
+		CygbuildWarn "-- [WARN] mkdir skipped," \
+		    "$from has a leading slash"
+		continue
+
+	    elif [[ ! "$from" == */ ]]; then
+		CygbuildWarn "-- [WARN] mkdir skipped," \
+		    "$from is missing trailing slash"
+		continue
+	    fi
+
+            local path="$instdir/$dir"
+
+            ${test:+echo} mkdir ${verbose:+--verbose} "$path"
+
+            continue
+
+        elif [[ "$from" == "ln" ]] ; then
 
             from="$to"
             to="$mode"
@@ -11038,12 +11059,12 @@ function CygbuildCmdInstallList()
 
             elif [[ "$from" == /* ]]; then
                 CygbuildWarn "-- [WARN] ln skipped," \
-                    "source $from must not have leading / slash"
+                    "source $from must not have a leading / slash"
                 continue
 
             elif [[ "$from" == */ ]]; then
                 CygbuildWarn "-- [WARN] ln skipped," \
-                    "source $from must not have trailing / slash"
+                    "source $from must not have a trailing / slash"
                 continue
 
             elif [[ "$to" == */* ]] ; then
