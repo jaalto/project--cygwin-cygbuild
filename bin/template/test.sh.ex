@@ -22,8 +22,13 @@ AtExit ()
 
 Run ()
 {
-    echo "$*"
-    shift
+    if [ "$1" ]; then           # Empty message, just command to run
+        echo "$*"
+    else
+        echo "$*"
+        shift
+    fi
+
     eval "$@"
 }
 
