@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1010.1459"
+CYGBUILD_VERSION="2012.1010.1508"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10177,14 +10177,35 @@ function CygbuildInstallExtraDirsFile()
 
     CygbuildEcho "-- Installing dirs"
 
-    local list=$(awk '$1 ~ /[a-zA-Z]/  &&  $1 !~ /#/ {print $1}' "$file")
+    local list=$(awk '
+
+	$1 ~ /[a-zA-Z]/  &&  $1 !~ /#|^\// {
+	    print $1
+	}
+
+	$1 ~ /^\// {
+	    print "-- [WARN] Skippped, leading slash: " $1
+	}
+
+        ' "$file")
 
     if [ ! "$list" ]; then
         CygbuildWarn "-- [WARN] nothing found from:" ${file#$srcdir/}
 	return 1
     fi
 
-    CygbuildRun $scriptInstallFile ${verbose:+--verbose} $list
+    local status=0
+
+    CygbuildPushd
+
+        cd "$instdir" &&
+        CygbuildRun $scriptInstallFile ${verbose:+--verbose} $list
+
+	status=$?
+
+    CygbuildPopd
+
+    return $status
 }
 
 function CygbuildInstallExtraMain()
