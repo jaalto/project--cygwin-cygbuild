@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.1010.1443';
+$VERSION = '2012.1010.1447';
 
 # ..................................................................
 
@@ -1376,6 +1376,16 @@ unconventionally 1 on success and N > 1 on error.
 
     [ "$?" = "1" ]
     # End of file
+
+=item B<dirs>
+
+If this file exists, directories mentioned in this file will be
+created in C<.inst/> directory prior running any other install
+commands. Entries must not start with a leading slash. Comments are
+ignored. An example:
+
+    # Create empty directory for log files
+    var/log/package
 
 =item B<install.lst>
 
