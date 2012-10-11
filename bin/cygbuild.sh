@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1011.0756"
+CYGBUILD_VERSION="2012.1011.0826"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -237,16 +237,16 @@ function CygbuildTarOptionCompress()
 
     case "$1" in
         *.tar.gz | *.tgz)
-	    echo "--gzip"
-	    ;;
+            echo "--gzip"
+            ;;
         *.bz2 | *.tbz*)
-	    echo "--bzip2"
-	    ;;
+            echo "--bzip2"
+            ;;
         *.lzma)
-	    echo "--use-compress-program=lzma"
-	    ;;
+            echo "--use-compress-program=lzma"
+            ;;
         *)  return 1
-	    ;;
+            ;;
     esac
 }
 
@@ -1832,54 +1832,54 @@ CygbuildDllToLibName ()
         # Special cases:
 
         case "$lib" in
-	    libgcc1)
-		continue		# Part of "base", so no need to mention
-		;;
+            libgcc1)
+                continue                # Part of "base", so no need to mention
+                ;;
             libz*)
                 lib=zlib0
-		;;
+                ;;
             libbz2*1)
                 lib=libbz2_1
-		;;
+                ;;
             libmhash*)
                 lib=mhash
-		;;
+                ;;
             lib*python[0-9]*)
                 lib=python
-		;;
+                ;;
             libcrypto* | libssl* )
                 lib=libopenssl098
-		;;
+                ;;
             libpng[0-9][0-9][0-9][0-9])
                 # libpng1515 => libpng15
-	        lib=${lib%[0-9][0-9]}
-		;;
-	    libgdk-x11-2.00)
-		lib=libgtk2.0_0
-		;;
-	    libgdk_pixbuf-2.00)
-		lib=libgdk_pixbuf2.0_0
-		;;
-	    libglib-2.00 | libgobject-2.00)
-		lib=libglib2.0_0
-		;;
-	    libpango-1.00)
-		lib=libpango1.0_0
-		;;
-	    libImlib21)
-		lib=libImlib2_1
-		;;
-	    libmagic1)
-		lib=file
-		;;
+                lib=${lib%[0-9][0-9]}
+                ;;
+            libgdk-x11-2.00)
+                lib=libgtk2.0_0
+                ;;
+            libgdk_pixbuf-2.00)
+                lib=libgdk_pixbuf2.0_0
+                ;;
+            libglib-2.00 | libgobject-2.00)
+                lib=libglib2.0_0
+                ;;
+            libpango-1.00)
+                lib=libpango1.0_0
+                ;;
+            libImlib21)
+                lib=libImlib2_1
+                ;;
+            libmagic1)
+                lib=file
+                ;;
             libgcc_s1)
                 lib=libgcc1
-		;;
-	    libX11[0-9])
-		local nbr=""
-		nbr=${lib#libX11}
-		lib=libX11_$nbr
-		;;
+                ;;
+            libX11[0-9])
+                local nbr=""
+                nbr=${lib#libX11}
+                lib=libX11_$nbr
+                ;;
         esac
 
         echo $lib
@@ -4273,9 +4273,9 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
 
-    FILE_INSTALL_MIME=$DIR_CYGPATCH/mime			# global-def
-    FILE_INSTALL_DIRS=$DIR_CYGPATCH/dirs			# global-def
-    FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst			# global-def
+    FILE_INSTALL_MIME=$DIR_CYGPATCH/mime                        # global-def
+    FILE_INSTALL_DIRS=$DIR_CYGPATCH/dirs                        # global-def
+    FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst                  # global-def
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
@@ -6247,19 +6247,19 @@ function CygbuildPatchApplyMaybe()
 
         if [ ! -f "$statfile" ]; then
             CygbuildEcho "-- [INFO] No" ${statfile#$srcdir/}
-	    list=""
+            list=""
         else
 
-	    local file tmp
+            local file tmp
 
-	    #  reverse order
-	    for file in $list
-	    do
-	      tmp="$file $tmp"
-	    done
+            #  reverse order
+            for file in $list
+            do
+              tmp="$file $tmp"
+            done
 
-	    list="$tmp"
-	fi
+            list="$tmp"
+        fi
     fi
 
     # FIXME: patch-before.sh
@@ -8870,12 +8870,12 @@ function CygbuildConfCC()
                    print '   ', join( qq(\n   ), sort split ',',$_), qq(\n)"
         fi
 
-	if [ ! -x "$conf" ]; then
-	    CygbuildEcho "-- [NOTE] Making executable" ${conf#$srcdir}
-	    chmod 755 "$conf"
-	fi
+        if [ ! -x "$conf" ]; then
+            CygbuildEcho "-- [NOTE] Making executable" ${conf#$srcdir}
+            chmod 755 "$conf"
+        fi
 
-	rm -f config.cache
+        rm -f config.cache
 
         CygbuildRunShell "$conf" $opt 2>&1 | tee $retval.log
         status=$?
@@ -10110,7 +10110,7 @@ function CygbuildInstallExtraMimeFiles()
     CygbuildEcho "-- Installing mime"
 
     CygbuildRun $scriptInstallFile ${verbose:+--verbose} \
-	"$file" "$instdir/usr/lib/mime/packages/$PKG"
+        "$file" "$instdir/usr/lib/mime/packages/$PKG"
 }
 
 function CygbuildInstallExtraBinFiles()
@@ -10161,7 +10161,7 @@ function CygbuildInstallExtraMimeFile()
     CygbuildEcho "-- Installing mime from" ${file#$srcdir/}
 
     CygbuildRun $scriptInstallFile ${verbose:+--verbose} \
-	"$file" "$instdir/usr/lib/mime/packages/$PKG"
+        "$file" "$instdir/usr/lib/mime/packages/$PKG"
 }
 
 function CygbuildInstallExtraDirsFile()
@@ -10179,19 +10179,19 @@ function CygbuildInstallExtraDirsFile()
 
     awk '
 
-	$1 ~ /[a-zA-Z]/  &&  $1 !~ /#|^\// {
-	    print $1
-	}
+        $1 ~ /[a-zA-Z]/  &&  $1 !~ /#|^\// {
+            print $1
+        }
 
-	$1 ~ /^\// {
-	    print "-- [WARN] Skippped, leading slash: " $1
-	}
+        $1 ~ /^\// {
+            print "-- [WARN] Skippped, leading slash: " $1
+        }
 
     ' "$file" > $retval
 
     if [ ! -s "$retval" ]; then
         CygbuildWarn "-- [WARN] nothing found from:" ${file#$srcdir/}
-	return 1
+        return 1
     fi
 
     local list=$(< $retval)
@@ -10202,7 +10202,7 @@ function CygbuildInstallExtraDirsFile()
         cd "$instdir" &&
         CygbuildRun $scriptInstallFile ${verbose:+--verbose} $list
 
-	status=$?
+        status=$?
 
     CygbuildPopd
 
@@ -10242,27 +10242,27 @@ function CygbuildInstallFixManSymlinks()
 
         local file
 
-	while read file
-	do
-	    local path=${file%/*}
+        while read file
+        do
+            local path=${file%/*}
 
-	    cd "$path" || continue
+            cd "$path" || continue
 
-	    local name=${file##*/}
-	    local dest=$( ls -l $name | awk '{print $(NF) }' )  # Symlink is the last word
+            local name=${file##*/}
+            local dest=$( ls -l $name | awk '{print $(NF) }' )  # Symlink is the last word
 
-	    [ -f "$dest" ] && continue
+            [ -f "$dest" ] && continue
 
-	    local orig="$dest.gz"
+            local orig="$dest.gz"
 
-	    if [ -f "$orig" ]; then
-		CygbuildVerb "-- [NOTE] Correcting $name -> $orig"
-		rm "$name"
-		ln --symbolic "$orig" "$name.gz"
-	    else
-		CygbuildVerb "   [WARN] Don't know how to correct: $name"
-	    fi
-	done < $retval
+            if [ -f "$orig" ]; then
+                CygbuildVerb "-- [NOTE] Correcting $name -> $orig"
+                rm "$name"
+                ln --symbolic "$orig" "$name.gz"
+            else
+                CygbuildVerb "   [WARN] Don't know how to correct: $name"
+            fi
+        done < $retval
 
     CygbuildPopd
 }
@@ -11015,7 +11015,7 @@ function CygbuildCmdInstallList()
 
     [ -f "$file" ] || return 1
 
-    CygbuildEcho "--- Installing with external:" \
+    CygbuildEcho "-- Installing with external:" \
                  "${file#$srcdir/}"
 
     local out=$retval.lst
@@ -11038,25 +11038,26 @@ function CygbuildCmdInstallList()
     while read from to mode
     do
 
-        local dummy="from:$from to:$to"        # for debugging only
+        line=$(( line + 1 ))
+
+        local dummy="from:$from to:$to"         # for debugging only
         local origfrom="$from"
 
-        [ "$from" ] || continue
+        [ "$from" ] || continue                 # Empty line
+        [[ "$from" == [#]* ]] && continue       # Skip comments
 
+        local name="$from"
         local ext                               # .sh .pl .1 .5 etc.
 
         if [[ "$from" == *.* ]]; then
             ext=${from##*.}
+            [ "$ext" ] && name=${from%.$ext}    # Without extension
         fi
 
-        local name=$from
-
-        if [ "$ext" ]; then
-            name=${from%.$ext}                  # Without extension
-        fi
+	################################################ default locations ###
 
         if [ ! "$to" ]; then
-            # location of manual pages need not to be specified
+            # location of manual pages etc. need not to be specified
 
             case "$from" in
                 *.[1-8])
@@ -11072,7 +11073,7 @@ function CygbuildCmdInstallList()
                     ;;
 
                 *)
-                    CygbuildWarn "$id: [WARN] skipped entry: $from"
+                    CygbuildWarn "$id: [WARN] skipped unknown entry: $from"
                     continue
                     ;;
             esac
@@ -11089,22 +11090,22 @@ function CygbuildCmdInstallList()
             esac
         fi
 
-        line=$(( line + 1 ))
+	################################################# special keywords ###
 
         if [[ "$from" == "mkdir" ]] ; then
 
-	    if [[ "$from" == /* ]]; then
-		CygbuildWarn "-- [WARN] mkdir skipped," \
-		    "$from has a leading slash"
-		continue
+            if [[ "$to" == /* ]]; then
+                CygbuildWarn "-- [WARN] mkdir skipped," \
+                    "extra leading slash in line $line: $to"
+                continue
 
-	    elif [[ ! "$from" == */ ]]; then
-		CygbuildWarn "-- [WARN] mkdir skipped," \
-		    "$from is missing trailing slash"
-		continue
-	    fi
+            elif [[ ! "$to" == */ ]]; then
+                CygbuildWarn "-- [WARN] mkdir skipped," \
+                    "missing trailing slash in line $line: $to"
+                continue
+            fi
 
-            local path="$instdir/$dir"
+            local path="$instdir/$to"
 
             ${test:+echo} mkdir ${verbose:+--verbose} "$path"
 
@@ -11117,24 +11118,18 @@ function CygbuildCmdInstallList()
 
             if [[ ! "$from" == */* ]]; then
                 CygbuildWarn "-- [WARN] ln skipped," \
-                    "source $from is not a valid path"
+                    "SOURCE is not a valid path in line $line: $from"
                 continue
 
             elif [[ "$from" == /* ]]; then
                 CygbuildWarn "-- [WARN] ln skipped," \
-                    "source $from must not have a leading / slash"
+                    "SOURCE has extra leading slash in line $line: $from"
                 continue
 
             elif [[ "$from" == */ ]]; then
                 CygbuildWarn "-- [WARN] ln skipped," \
-                    "source $from must not have a trailing / slash"
+                    "SOURCE has extra trailing slash in line $line: $form"
                 continue
-
-            elif [[ "$to" == */* ]] ; then
-                CygbuildWarn "-- [WARN] ln skipped," \
-                    "dest $to is not valid, path not allowed"
-                continue
-
             fi
 
             local dir=${from%/*}
@@ -11143,7 +11138,7 @@ function CygbuildCmdInstallList()
 
             if [ ! -e "$path" ]; then
                  CygbuildWarn "-- [WARN] ln skipped," \
-                     "source does not exist: $instdir_relative/$dir/$name"
+                     "SOURCE does not exist: $instdir_relative/$dir/$name"
             fi
 
             CygbuildPushd
@@ -11156,9 +11151,11 @@ function CygbuildCmdInstallList()
             continue
         fi
 
+	######################################################### validity ###
+
         if [[ "$to" == /* ]] ; then
             CygbuildWarn "$id: [WARN] Skipped." \
-                "Absolute path ($to) in install.lst item line $line"
+                "Leading slash not allowed in DEST, in line $line: $to"
             continue
 
         elif [[ "$to" == */ ]]; then
@@ -11170,9 +11167,11 @@ function CygbuildCmdInstallList()
 
         else
             CygbuildWarn "$id: [WARN] Skipped." \
-                "Invalid install.lst line $line"
+                "Invalid entry in line $line: $from $to $mode"
             continue
         fi
+
+	############################################################ do it ###
 
         # Remove common suffixes
 
@@ -11196,17 +11195,17 @@ function CygbuildCmdInstallList()
 
         local source="$builddir/$from"
 
-        if [[ "$source" == *\** ]]; then        # Glob: * found
-            tofile=""
+        if [[ "$source" == *\** ]]; then        # Check if contains glob "*"
+            tofile=""				# This is no simple install. Reset.
             unset tofile
         fi
 
         local todir="$instdir/$to"
 
-        if [ -d "$source" ]; then
+        if [ -d "$source" ]; then		# Copy whole directory
 
             if [[ ! "$source" == */ ]]; then
-                CygbuildWarn "-- [WARN] Skip, install.lst SOURCE dir needs slash: $source"
+                CygbuildWarn "-- [WARN] Skip, SOURCE dir does not end in slash: $source"
                 continue
             fi
 
@@ -11215,6 +11214,7 @@ function CygbuildCmdInstallList()
             CygbuildEcho "-- [NOTE] installing whole directory: $origfrom"
 
             ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -d "$todir"
+
             ${test:+echo} tar --dereference --directory="$source" --create --file=- . |
             ${test:+echo} tar --dereference --directory="$todir" --extract --file=- ||
             status=$?
@@ -11263,7 +11263,7 @@ function CygbuildCmdInstallMain()
 
         cd "$builddir" || exit 1
 
-	CygbuildInstallExtraDirsFile
+        CygbuildInstallExtraDirsFile
 
         CygbuildInstallPackageDocs      &&
         CygbuildInstallPackageInfo      &&
