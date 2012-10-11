@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1011.0826"
+CYGBUILD_VERSION="2012.1011.0829"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -8985,16 +8985,17 @@ function CygbuildCmdConfAutomake()
     [ ! -f configure ]  ||  return 0
     [ -f makefile.am ]  ||  return 0
 
-    if [ ! -f "bootstrap" ]; then
+    if [ ! -f bootstrap ]; then
         CygbuildEcho "-- [WARN] makefile.am but no 'bootstrap' file"
     else
         CygbuildEcho "-- No ./configure but looks like automake." \
                      "Running ./bootstrap"
 
+	chmod +x bootstrap
         ./bootstrap
 
         if [ -f configure ]; then
-            CygbuildVerb "-- ./configure appeared."
+            CygbuildVerb "-- [OK] ./configure appeared."
         else
             CygbuildEcho "-- [ERROR] No ./configure appeared."
             return 1

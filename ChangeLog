@@ -3,6 +3,7 @@
 	* bin/cygbuild.sh (CygbuildInstallExtraDirsFile): remove
 	sub shell call and use $retval.
 	(CygbuildCmdInstallList): Correct mkdir if-case.
+	(CygbuildCmdConfAutomake): Adjust quotes.
 
 2012-10-10 Wed  Jari Aalto  <jari.aalto@cante.net>
 
