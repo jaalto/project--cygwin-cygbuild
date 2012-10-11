@@ -1,3 +1,8 @@
+2012-10-11 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildInstallExtraDirsFile): remove
+	sub shell call and use $retval.
+
 2012-10-10 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/dirs.ex: New.

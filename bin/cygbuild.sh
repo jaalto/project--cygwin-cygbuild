@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1010.1508"
+CYGBUILD_VERSION="2012.1011.0756"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10158,7 +10158,7 @@ function CygbuildInstallExtraMimeFile()
 
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_FILE_MODES -D"
 
-    CygbuildEcho "-- Installing mime"
+    CygbuildEcho "-- Installing mime from" ${file#$srcdir/}
 
     CygbuildRun $scriptInstallFile ${verbose:+--verbose} \
 	"$file" "$instdir/usr/lib/mime/packages/$PKG"
@@ -10175,9 +10175,9 @@ function CygbuildInstallExtraDirsFile()
 
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -d"
 
-    CygbuildEcho "-- Installing dirs"
+    CygbuildEcho "-- Installing dirs from" ${file#$srcdir/}
 
-    local list=$(awk '
+    awk '
 
 	$1 ~ /[a-zA-Z]/  &&  $1 !~ /#|^\// {
 	    print $1
@@ -10187,13 +10187,14 @@ function CygbuildInstallExtraDirsFile()
 	    print "-- [WARN] Skippped, leading slash: " $1
 	}
 
-        ' "$file")
+    ' "$file" > $retval
 
-    if [ ! "$list" ]; then
+    if [ ! -s "$retval" ]; then
         CygbuildWarn "-- [WARN] nothing found from:" ${file#$srcdir/}
 	return 1
     fi
 
+    local list=$(< $retval)
     local status=0
 
     CygbuildPushd
