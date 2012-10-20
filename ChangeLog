@@ -1,3 +1,8 @@
+2012-10-20 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallFinishMessage): Don't
+	display message in GBS mode.
+
 2012-10-13 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/data/python-2.6.8.lst: New.

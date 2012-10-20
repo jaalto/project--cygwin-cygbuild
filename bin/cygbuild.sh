@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1011.0829"
+CYGBUILD_VERSION="2012.1020.1933"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10968,8 +10968,9 @@ function CygbuildCmdInstallFinishMessage()
         CygbuildEcho "-- Content of: $relative"
         find -L ${instdir#$(pwd)/} -print
     else
-        [ ! "$test" ] &&
-        CygbuildEcho "-- See also: find $relative -type f | sort"
+        [ "$test" ] ||
+        CygbuildIsGbsCompat ||
+	CygbuildEcho "-- See also: find $relative -type f | sort"
     fi
 }
 
