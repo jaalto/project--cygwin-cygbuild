@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1022.0659"
+CYGBUILD_VERSION="2012.1022.0707"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5898,7 +5898,7 @@ function CygbuildPatchApplyRun()
     shift
 
     local dummy="Additional options: $@"    # For debug
-    local dummy=$(pwd)                      # For debug
+    local pwd=$(pwd)                      # For debug
 
     if [ ! "$verbose" ]; then
         patchopt="$patchopt --quiet"
@@ -5934,7 +5934,12 @@ function CygbuildPatchApplyRun()
 
     if [ -f "$patch" ]; then
         if [ "$verbose" ]; then
-            CygbuildEcho "-- cd $dummy && patch $patchopt" "$@" "< $patch"
+            local opt="$patchopt $*"
+            # Remove excess spaces
+            opt=${opt//  / }
+            opt=${opt//  / }
+            opt=${opt//  / }
+            CygbuildEcho "-- cd $pwd && patch $opt < ${patch#$srcdir/}"
         else
             local msg="Patching"
             [[ "$*" == *\ +(--reverse|-R\ )* ]] && msg="Unpatching"
