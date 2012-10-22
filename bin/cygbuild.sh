@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1022.0714"
+CYGBUILD_VERSION="2012.1022.0728"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5908,9 +5908,9 @@ function CygbuildPatchApplyRun()
     #  diffs correctly.
 
     if CygbuildIsCygwin; then
-        # if CygbuildFileIsCRLF "$patch" ; then
+        if CygbuildFileIsCRLF "$patch" ; then
             patchopt="$patchopt --binary"
-        # fi
+        fi
     fi
 
     #  The files to be patched must be writable. Sometimes upstream
@@ -5933,7 +5933,7 @@ function CygbuildPatchApplyRun()
 
     if [ -f "$patch" ]; then
         if [ "$verbose" ]; then
-            dummy="$patchdummy $*"
+            dummy="$patchopt $*"
             # Remove excess spaces
             dummy=${dummy//  / }
             dummy=${dummy//  / }

@@ -5,6 +5,7 @@
 	(CygbuildCheckRunDir): No checking in CygbuildIsGbsCompat mode.
 	(CygbuildCmdGPGVerifyMain): Adjust message.
 	(CygbuildPatchApplyRun): Correct --binary option to use variable patchopt.
+	Enable check CygbuildFileIsCRLF.
 
 2012-10-20 Sat  Jari Aalto  <jari.aalto@cante.net>
 
