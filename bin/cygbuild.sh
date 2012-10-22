@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1022.0635"
+CYGBUILD_VERSION="2012.1022.0652"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -2343,6 +2343,8 @@ function CygbuildCheckRunDir()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     #  Do just a quick sweep, nothing extensive
+
+    CygbuildIsGbsCompat ||
 
     if [[ "$(pwd)" == *@(.sinst|.build|.inst|CYGWIN-PATCHES)* ]]
     then
@@ -6252,7 +6254,7 @@ function CygbuildPatchApplyMaybe()
 
             local file tmp
 
-            #  reverse order
+            #  reverse the order
             for file in $list
             do
               tmp="$file $tmp"
