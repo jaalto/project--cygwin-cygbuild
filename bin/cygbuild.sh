@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1022.0707"
+CYGBUILD_VERSION="2012.1022.0714"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5907,8 +5907,6 @@ function CygbuildPatchApplyRun()
     #  Cygwin's patch(1) needs --binary option to be able to handle CRLF
     #  diffs correctly.
 
-    local opt
-
     if CygbuildIsCygwin; then
         # if CygbuildFileIsCRLF "$patch" ; then
             patchopt="$patchopt --binary"
@@ -5918,11 +5916,12 @@ function CygbuildPatchApplyRun()
     #  The files to be patched must be writable. Sometimes upstream
     #  contains read-only files.
 
-     local dest opt
-     CygbuildPatchLs "$patch" > $retval
+    CygbuildPatchLs "$patch" > $retval
 
-     for dest in $(< $retval)
-     do
+    local dest
+
+    for dest in $(< $retval)
+    do
         [ ! -f "$dest" ] && dest=${dest#*/}     # Strip 1
         [ ! -f "$dest" ] && dest=${dest#*/}     # Strip 2
         [ ! -f "$dest" ] && dest=${dest#*/}     # Strip 3
@@ -5934,12 +5933,13 @@ function CygbuildPatchApplyRun()
 
     if [ -f "$patch" ]; then
         if [ "$verbose" ]; then
-            local opt="$patchopt $*"
+            dummy="$patchdummy $*"
             # Remove excess spaces
-            opt=${opt//  / }
-            opt=${opt//  / }
-            opt=${opt//  / }
-            CygbuildEcho "-- cd $pwd && patch $opt < ${patch#$srcdir/}"
+            dummy=${dummy//  / }
+            dummy=${dummy//  / }
+            dummy=${dummy//  / }
+
+            CygbuildEcho "-- cd $pwd && patch $dummy < ${patch#$srcdir/}"
         else
             local msg="Patching"
             [[ "$*" == *\ +(--reverse|-R\ )* ]] && msg="Unpatching"
@@ -5947,7 +5947,7 @@ function CygbuildPatchApplyRun()
             CygbuildEcho "-- $msg with ${patch#$srcdir/}"
         fi
 
-        ${test:+echo} patch $patchopt $opt "$@" < $patch
+        ${test:+echo} patch $patchopt "$@" < $patch
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
              "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
