@@ -1,3 +1,8 @@
+2012-10-22 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdPrepMain): Use AND to connect
+	cd commadn to CygbuildPatchApplyMaybe.
+
 2012-10-20 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdInstallFinishMessage): Don't

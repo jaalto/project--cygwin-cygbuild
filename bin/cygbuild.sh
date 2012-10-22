@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1020.1933"
+CYGBUILD_VERSION="2012.1022.0635"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -8628,7 +8628,7 @@ function CygbuildCmdPrepMain()
     local status
 
     CygbuildPushd
-        cd "$srcdir" || return $?
+        cd "$srcdir" &&
         CygbuildPatchApplyMaybe \
             "patch" \
             "-- [NOTE] applying included patches to sources (if any)"
