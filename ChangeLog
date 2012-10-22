@@ -6,6 +6,7 @@
 	(CygbuildCmdGPGVerifyMain): Adjust message.
 	(CygbuildPatchApplyRun): Correct --binary option to use variable patchopt.
 	Enable check CygbuildFileIsCRLF.
+	(CygbuildPatchApplyMaybe): Retry with --binary option.
 
 2012-10-20 Sat  Jari Aalto  <jari.aalto@cante.net>
 

@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1022.0728"
+CYGBUILD_VERSION="2012.1022.1025"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6323,10 +6323,24 @@ function CygbuildPatchApplyMaybe()
 
         CygbuildPatchPrefixStripCountMain "$file" > $retval
 
+        local count=0
+
         if [ -s $retval ]; then
-            local count=$(< $retval)
+	    count=$(< $retval)
             opt="$opt --strip=$count"
         fi
+
+# FIXME: Check CRLF file and use --binary for patch
+#	if [ $count -gt 0 ]; then
+#
+#	    local patchfile
+#	    local i=0
+#
+#	    while [ $i -lt $count ]
+#	    do
+#		i=$((i + 1))
+#	    done
+#	fi
 
         [ "$unpatch" ] && opt="$opt --reverse"
 
@@ -6338,6 +6352,10 @@ function CygbuildPatchApplyMaybe()
         fi
 
         CygbuildPatchApplyRun "$file" $opt ||
+        {
+	    CygbuildEcho "-- [NOTE] ...Hm, retrying with option --binary"
+	    CygbuildPatchApplyRun "$file" $opt --binary ;
+	} ||
         CygbuildDie "-- [FATAL] Exiting."
 
         if [ "$unpatch" ] && [ "$statCheck" ] ; then
