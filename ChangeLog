@@ -1,6 +1,7 @@
 2012-10-23 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallExtraBinFiles): Adjust message.
+	(CygbuildCommandMain): In shadow cmmand, call CygbuildCmdMkdirs().
 
 2012-10-22 Mon  Jari Aalto  <jari.aalto@cante.net>
 

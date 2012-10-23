@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1023.2023"
+CYGBUILD_VERSION="2012.1023.2026"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -12673,6 +12673,7 @@ function CygbuildCommandMain()
 
             shadow)
                 CygbuildCmdShadowDelete  &&
+		CygbuildCmdMkdirs $verbose &&
                 CygbuildCmdShadowMain
                 status=$?
                 ;;
