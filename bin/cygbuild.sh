@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1023.2026"
+CYGBUILD_VERSION="2012.1024.0959"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4275,6 +4275,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
 
+    FILE_INSTALL_LIB_ABI=$DIR_CYGPATCH/lib.abi                  # global-def
     FILE_INSTALL_MIME=$DIR_CYGPATCH/mime                        # global-def
     FILE_INSTALL_DIRS=$DIR_CYGPATCH/dirs                        # global-def
     FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst                  # global-def
@@ -5544,8 +5545,13 @@ function CygbuildCmdPkgDevelStandardDoc()
     local ext=$OPTION_COMPRESS
     RETVAL=
 
+    if [ ! -d "$instdir" ]; then
+	CygbuildWarn "-- [ERROR] No files, use command [install] first."
+	return 1
+    fi
+
     CygbuildPushd
-        cd $instdir || exit 1
+        cd "$instdir" || exit $?
 
         #  Exclude README, FAQ, ChangeLog, License etc.
 
@@ -5562,11 +5568,12 @@ function CygbuildCmdPkgDevelStandardDoc()
             NAME_PKG_LIB_DOC=$pkg                               # global-def
             PATH_PKG_LIB_DOC="$srcinstdir/$pkg"                 # global-def
             local tar=$PATH_PKG_LIB_DOC
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
+            local group="--group=$CYGBUILD_TAR_GROUP"
 
             CygbuildEcho "-- devel-doc" ${tar#$srcdir/}
 
-            # FIXME: taropt is not defined !!
-            tar $taropt $tar $(< $retval.doc) ||
+            tar $taropt $group --create --file=$tar $(< $retval.doc) ||
             {
                 status=$?
                 CygbuildPopd
@@ -5584,8 +5591,13 @@ function CygbuildCmdPkgDevelStandardBin()
     local retval="$1"
     RETVAL=
 
+    if [ ! -d "$instdir" ]; then
+	CygbuildWarn "-- [ERROR] No files, use command [install] first."
+	return 1
+    fi
+
     CygbuildPushd
-        cd $instdir || exit 1
+        cd "$instdir" || exit $?
 
         if [ -s $retval.bin ]; then
 
@@ -5593,13 +5605,12 @@ function CygbuildCmdPkgDevelStandardBin()
 
             CygbuildTarOptionCompress $tar > $retval
             local z=$(< $retval)
-
             local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
             local group="--group=$CYGBUILD_TAR_GROUP"
 
             CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
-            tar $taropt --create $group --file=$tar \
+            tar $taropt $group --create --file=$tar \
                 $(< $retval.bin) $(< $retval.man.bin) ||
             {
                 status=$?
@@ -5613,6 +5624,25 @@ function CygbuildCmdPkgDevelStandardBin()
     CygbuildPopd
 }
 
+function CygbuildCmdPkgDevelStandardAbiVersion()
+{
+    local file="$FILE_INSTALL_LIB_ABI"
+
+    if [ ! -f "$file" ]; then
+	CygbuildDie "[FATAL] Library ABI not set in:" ${file#$srcdir/}
+    fi
+
+    local abi=$( awk '{sub(/ +/,"")}   /^[0-9]/{print $1; exit}' $file )
+
+    if [ ! "$abi" ]; then
+	CygbuildDie "[FATAL] No number found in:" ${file#$srcdir/}
+    fi
+
+    CYGBUILD_LIB_ABI_VERSION=$abi		#global-def
+
+    echo $abi
+}
+
 function CygbuildCmdPkgDevelStandardLib()
 {
     local id="$0.$FUNCNAME"
@@ -5620,39 +5650,43 @@ function CygbuildCmdPkgDevelStandardLib()
     local retval="$1"
     RETVAL=
 
-    CygbuildPushd
-        cd $instdir || exit 1
+    if [ ! -d "$instdir" ]; then
+	CygbuildWarn "-- [ERROR] No files, use command [install] first."
+	return 1
+    fi
 
-        find usr               \
-            -name "*.dll"       \
+    local abi=$CYGBUILD_LIB_ABI_VERSION
+    [ "$abi" ] || abi=$(CygbuildCmdPkgDevelStandardAbiVersion)
+
+    CygbuildPushd
+        cd "$instdir" || exit $?
+
+        find usr \
+            -name "*.dll" \
             > $retval.lib
 
         if [ ! -s $retval.lib ]; then
-            CygbuildWarn "-- [devel-lib] [WARN] No *.dll files"
+            CygbuildWarn "-- devel-lib [WARN] No *.dll files"
         else
 
-            # Find out version number
             # usr/bin/cygfontconfig-1.dll => 1
 
             local pkg=$(echo $PKG |sed 's/lib//')
 
-            $EGREP "$pkg.*dll" $retval.lib |
-                $EGREP --only-matching --regexp="-[0-9]+" |
-                cut -d"-" -f2 \
-                > $retval.ver
-
-            local ver
-            [ -s $retval.ver ] && ver=$(< $retval.ver)
-
-            local pkg="$LIBPKG$ver.tar.$ext"
+            local pkg="$LIBPKG$abi.tar.$ext"
             NAME_LIB_PKG_MAIN=$pkg                              # global-def
             PATH_PKG_LIB_DEV="$srcinstdir/$pkg"                 # global-def
+
             local tar=$PATH_PKG_LIB_DEV
+
+            CygbuildTarOptionCompress $tar > $retval
+            local z=$(< $retval)
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
+            local group="--group=$CYGBUILD_TAR_GROUP"
 
             CygbuildEcho "-- devel-lib" ${tar#$srcdir/}
 
-            tar $taropt $tar \
-            $(< $retval.lib) ||
+            tar $taropt $group --create --file=$tar $(< $retval.lib) ||
             {
                 status=$?
                 CygbuildPopd
@@ -5671,8 +5705,16 @@ function CygbuildCmdPkgDevelStandardDev()
     local retval="$1"
     RETVAL=
 
+    if [ ! -d "$instdir" ]; then
+	CygbuildWarn "-- [ERROR] No files, use command [install] first."
+	return 1
+    fi
+
+    local abi=$CYGBUILD_LIB_ABI_VERSION
+    [ "$abi" ] || abi=$(CygbuildCmdPkgDevelStandardAbiVersion)
+
     CygbuildPushd
-        cd $instdir || exit 1
+        cd "$instdir" || exit $?
 
         cat $retval.bin $retval.man.bin $retval.lib $retval.doc \
             > $retval.already.packaged
@@ -5687,15 +5729,20 @@ function CygbuildCmdPkgDevelStandardDev()
                 "for $pkglib"
         else
 
-            local pkg="$LIBPKG-devel.tar.$ext"
+            local pkg="$LIBPKG$abi-devel.tar.$ext"
             NAME_LIB_PKG_MAIN=$pkg                              # global-def
             PATH_PKG_LIB_LIBRARY="$srcinstdir/$pkg"             # global-def
+
             local tar=$PATH_PKG_LIB_LIBRARY
+
+            CygbuildTarOptionCompress $tar > $retval
+            local z=$(< $retval)
+            local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $z"
+            local group="--group=$CYGBUILD_TAR_GROUP"
 
             CygbuildEcho "-- devel-dev" ${tar#$srcdir/}
 
-            tar $taropt $tar \
-            $(< $retval.dev) ||
+            tar $taropt $group --create --file=$tar $(< $retval.dev) ||
             {
                 status=$?
                 CygbuildPopd
@@ -5713,18 +5760,25 @@ function CygbuildCmdPkgDevelStandardMain()
     local status=0
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
+    if [ ! -d "$instdir" ]; then
+	CygbuildWarn "-- [ERROR] No files, use command [install] first."
+	return 1
+    fi
+
     CygbuildPushd
 
         CygbuildEcho "== Making packages [devel] from" \
                      "${instdir#$srcdir/}"
 
-        cd $instdir || exit 1
+        cd "$instdir" || exit $?
 
         #   Prepare all return files
         touch $retval.man.bin $retval.man.others \
               $retval.doc $retval.bin $retval.lib
 
+        # ..................................................... bin ...
         #  Find all executables. Exclude library config like xxx-config
+
         find usr \
              '(' \
                 -path "*/bin/*" \
@@ -5793,14 +5847,14 @@ function CygbuildCmdPkgDevelStandardMain()
                 $retval.bin.tmp > $retval.bin
         fi
 
+        CygbuildCmdPkgDevelStandardDev "$retval"
+        pkgdev=$RETVAL
+
         CygbuildCmdPkgDevelStandardLib "$retval"
         pkglib=$RETVAL
 
         CygbuildCmdPkgDevelStandardBin "$retval"
         pkgbin=$RETVAL
-
-        CygbuildCmdPkgDevelStandardDev "$retval"
-        pkgdev=$RETVAL
 
     CygbuildPopd
 
@@ -11660,6 +11714,7 @@ function CygbuildCmdPackageDevMain()
     local strip="$1"
 
     CygbuildNoticeMaybe
+
     if [ "$strip" ]; then
         CygbuildStripCheck      &&
         CygbuildCmdPkgDevelMain
