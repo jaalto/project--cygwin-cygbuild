@@ -1,3 +1,16 @@
+2012-10-31 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCygcheckLibraryDepMain): Adjust comments.
+
+2012-10-25 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildBootVariablesGlobalMain): Add
+	.sgignores to CYGBUILD_DIFF_OPTIONS.
+	(CygbuildIsCmakePackage): New.
+	(CygbuildCmdBuildStdMakefile): Add CMake support.
+	(CygbuildCmdConfMain): Add CMake support.
+	(CygbuildConfCmakeMain): New.
+
 2012-10-24 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdPkgDevelStandardAbiVersion): New.

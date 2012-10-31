@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1024.0959"
+CYGBUILD_VERSION="2012.1031.0545"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1278,6 +1278,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=.gitignore \
      --exclude=.hgignore \
      --exclude=.bzrignore \
+     --exclude=.sgignores \
      $cygbuild_opt_exclude_cache_files \
      $cygbuild_opt_exclude_archive_files \
      $cygbuild_opt_exclude_library_files \
@@ -2277,20 +2278,15 @@ function CygbuildCygcheckLibraryDepMain()
 
     local setup="$DIR_CYGPATCH/setup.hint"
 
-    #   Do it in three phases:
-    #   1) use awk to get dll name, like 'cygz.dll'
-    #   2) use fgrep to get all lines matchíng the dlls
-    #   3) process the fgrep results to extract package name
-
     CygbuildEcho "-- Trying to resolve depends for" ${file#$srcdir/}
 
-    # old methods
+    # Old method, do not use
     # CygbuildCygcheckLibraryDepList "$datafile" > "$retval"
 
     CygbuildCygcheckLibraryDepListFull "$file" > "$retval"
 
     if [ ! -s $retval ]; then
-        CygbuildEcho "-- No dependencies other than cygwin found"
+        CygbuildEcho "-- No dependencies found"
         return 0
     fi
 
@@ -3312,6 +3308,11 @@ function CygbuildIsPythonPackage()
 function CygbuildIsRubyPackage()
 {
     [ -f "$srcdir/setup.rb" ]
+}
+
+function CygbuildIsCmakePackage()
+{
+    [ -f "$srcdir/CMakeLists.txt" ]
 }
 
 function CygbuildIsAutomakePackage()
@@ -8648,8 +8649,10 @@ function CygbuildCmdShadowMain()
 
             if CygbuildIsPythonPackage ; then
                 CygbuildRunPythonSetupCmd clean
+
             elif CygbuildIsRubyPackage ; then
                 CygbuildRunRubySetupCmd clean
+
             else
                 make clean distclean
             fi
@@ -9016,6 +9019,16 @@ function CygbuildConfRubyMain()
         --bindir=/usr/bin
 }
 
+function CygbuildConfCmakeMain()
+{
+    local root="$instdir"
+
+    local pfx=${1:-$root}
+    [ "$1" ] && shift
+
+    cmake "$srcdir"
+}
+
 function CygbuildConfPerlMain()
 {
     local id="$0.$FUNCNAME"
@@ -9133,6 +9146,10 @@ function CygbuildCmdConfMain()
         elif CygbuildIsRubyPackage ; then
 
             CygbuildConfRubyMain
+
+        elif CygbuildIsCmakePackage ; then
+
+            CygbuildConfCmakeMain
 
         elif CygbuildIsMakefileTarget configure ; then
 
@@ -9306,7 +9323,9 @@ function CygbuildCmdBuildStdMakefile()
 
                 [ "$verbose" ] && set -x
 
-                eval make -f $makefile                 \
+		CygbuildIsCmakePackage && [ "$verbose" ] && env="env VERBOSE=1"
+
+                eval $env make -f $makefile             \
                     AM_LDFLAGS="$CYGBUILD_AM_LDFLAGS"   \
                     $env                                \
                     $CYGBUILD_MAKEFLAGS
