@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1031.0558"
+CYGBUILD_VERSION="2012.1031.1319"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6191,60 +6191,68 @@ function CygbuildPatchApplyQuiltMaybe()
         cmd=${cmd%-quiet}
     fi
 
-   CygbuildPatchFileQuilt > $retval
+    CygbuildPatchFileQuilt > $retval
 
-   [ -s $retval ] || return 0
+    [ -s $retval ] || return 0
 
-   CygbuildWhichCheck quilt ||
-   CygbuildDie "[FATAL] $id: Can't handle patches. quilt not in PATH"
+    CygbuildWhichCheck quilt ||
+    CygbuildDie "[FATAL] $id: Can't handle patches. quilt not in PATH"
 
-   local quilt="quilt push -a"
+    local quilt="quilt push -a"
 
-   if [[ "$cmd" = unpatch* ]]; then
-       msg="unpatch"
-       quilt="quilt pop -a"
-   fi
+    if [[ "$cmd" = unpatch* ]]; then
+	msg="unpatch"
+	quilt="quilt pop -a"
+    fi
 
-   local series
-   local relative=$srcdir/
+    local color
 
-   while read series
-   do
-       CygbuildEcho "-- Wait, quilt $msg" ${series#$relative}
+    if [ "$INSIDE_EMACS" ]; then
+        color="--color=never"
+    elif [ "$OPTION_COLOR" ]; then
+        color="--color=always"      # auto
+    fi
 
-       if [ ! -s "$series" ]; then
-           CygbuildWarn "-- [WARN] empty quilt control file. Ignored for now."
-           continue
-       fi
+    local series
+    local relative=$srcdir/
 
-       local dir=${series%/series}
-       local log=$retval.quilt
+    while read series
+    do
+	CygbuildEcho "-- Wait, quilt $msg" ${series#$relative}
 
-       [ "$debug" ] && set -x
+	if [ ! -s "$series" ]; then
+	    CygbuildWarn "-- [WARN] empty quilt control file. Ignored for now."
+	    continue
+	fi
 
-       local dummy=$(pwd)               # For debugging
+	local dir=${series%/series}
+	local log=$retval.quilt
 
-       CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
-           $quilt $verb > $log 2>&1
-       local status=$?
+	[ "$debug" ] && set -x
 
-       [ "$debug" ] && set +x
+	local dummy=$(pwd)               # For debugging
 
-       cat $log
+	CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
+	    $quilt $verb $color > $log 2>&1
+	local status=$?
 
-       if $EGREP --quiet --ignore-case \
-          "no patch.*removed|series fully applied" \
-          $log
-       then
-           #   File series fully applied => status code 1
-           status=""
-       fi
+	[ "$debug" ] && set +x
 
-       rm -f $log
+	cat $log
 
-       [ "$status" ] && return $status
+	if $EGREP --quiet --ignore-case \
+	   "no patch.*removed|series fully applied" \
+	   $log
+	then
+	    #   File series fully applied => status code 1
+	    status=""
+	fi
 
-   done < $retval
+	rm -f $log
+
+	[ "$status" ] && return $status
+
+    done < $retval
 
    return 0
 }

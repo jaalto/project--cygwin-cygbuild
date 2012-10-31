@@ -4,6 +4,8 @@
 	(top level): Improve all <cd $dir> commands to read <cd "$dir">.
 	(CygbuildCygcheckLibraryDepMain): Adjust comments.
 	(CygbuildPreRemoveWrite): Adjust message.
+	(CygbuildPatchApplyQuiltMaybe): Add color support. Disable in Emacs
+	M-x shell.
 
 2012-10-25 Fri  Jari Aalto  <jari.aalto@cante.net>
 
