@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1031.0545"
+CYGBUILD_VERSION="2012.1031.0554"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -584,7 +584,7 @@ function CygbuildBootVariablesId()
     CYGBUILD_PROG_NAME=${0##*/}                             # global-def
 
     if [[ "$0" == */* ]]; then
-        CYGBUILD_PROG_PATH=$(cd ${0%/*} && pwd)             # global-def
+        CYGBUILD_PROG_PATH=$(cd "${0%/*}" && pwd)             # global-def
     else
         CygbuildWhich "$CYGBUILD_PROG_NAME" > $retval
         CYGBUILD_PROG_PATH=$(< $retval)
@@ -1398,7 +1398,7 @@ function CygbuildIsDirMatch()
 
     CygbuildPushd
 
-        cd $dir 2> /dev/null &&
+        cd "$dir" 2> /dev/null &&
         for element in $*
         do
             if [ -e "$element" ]; then
@@ -1591,8 +1591,8 @@ function CygbuildFileSize ()
     local file=${file%%*/}
 
     (
-        [ "$dir" ]    && { cd $dir    || return 1; }
-        [ "$symdir" ] && { cd $symdir || return 1; }
+        [ "$dir" ]    && { cd "$dir"    || return 1; }
+        [ "$symdir" ] && { cd "$symdir" || return 1; }
 
         CygbuildFileSizeRead "$file"
     )
@@ -2687,7 +2687,7 @@ function CygbuildPathResolveSymlink()
         local path=${bin%/*}
         local name=${bin##*/}
 
-        try=$(cd $path; pwd)/$name
+        try=$(cd "$path"; pwd)/$name
 
     elif [ "" ] && [ -x /usr/bin/chase ]]; then
 
@@ -2799,7 +2799,7 @@ function CygbuildPathAbsolute()
     local p="$1"
 
     if [ "$p" ] && [ -d "$p" ]; then
-        p=$(cd $p && pwd)
+        p=$(cd "$p" && pwd)
 
     elif [[ "$p" == /*  &&  -f "$p" ]]; then
         # Nothing to do, it is absolute already
@@ -2814,7 +2814,7 @@ function CygbuildPathAbsolute()
         local dir=${p%/*}
 
         if [ -d "$dir" ]; then
-            dir="$(cd $dir; pwd)"
+            dir="$(cd "$dir" ; pwd)"
             p="$dir/$file"
         fi
 
@@ -3148,7 +3148,7 @@ function CygbuildMakefileRunTarget()
 
     CygbuildPushd
 
-        cd $dir  || exit 1
+        cd "$dir" || exit 1
 
         if CygbuildIsMakefileTarget $target ; then
             make -f $makefile $target
@@ -3477,7 +3477,7 @@ function CygbuildMoveToTempDir()
     local dir="$1"
     local dest=${2:-"tempdir"}     # optional parameter, if no name given
 
-    dir=$(cd $dir; pwd)
+    dir=$(cd "$dir" ; pwd)
 
     if [ ! "$dir" ]; then
         CygbuildWarn "$id: [ERROR] DIR input parameter is empty"
@@ -3497,7 +3497,7 @@ function CygbuildMoveToTempDir()
     #   package
 
     CygbuildPushd
-        cd $dir &&
+        cd "$dir" &&
         mv $(ls | $EGREP --invert-match "$dest|cygbuild.*sh" ) $dest
     CygbuildPopd
 
@@ -3621,7 +3621,7 @@ function CygbuildTreeSymlinkCopy()
 
     CygbuildPushd
 
-        cd $from || return 1
+        cd "$from" || return 1
 
         #   Remove all *.exe files before shadowing (they should be generated
         #   anyway.
@@ -4437,27 +4437,27 @@ function CygbuildSrcDirLocation()
          [ -f "$dir/setup.py"   ] ||
          [ -d "$dir/$CYGBUILD_DIR_CYGPATCH_RELATIVE" ]
     then
-        top="$(cd $dir/..; pwd)"
+        top="$(cd "$dir/.." ; pwd)"
 
     elif [[    "$top" == *-[0-9]*.*[0-9]
             || "$top" == *-[0-9][0-9][0-9][0-9]*[0-9]
          ]] ; then
         #   Looks like we are inside package-NN.NN/
-        top="$(cd $dir/..; pwd)"
+        top="$(cd "$dir/.." ; pwd)"
 
     elif [[     $dir == */$CYGBUILD_DIR_CYGPATCH_RELATIVE
              || $dir == */debian
          ]] ; then
-        src="$(cd $dir/..; pwd)"
-        top="$(cd $src/..; pwd)"
+        src="$(cd "$dir/.." ; pwd)"
+        top="$(cd "$src/.." ; pwd)"
 
     elif [[ $dir == *.orig ]]; then
         #   Debian uses *.orig directories
-        src="$(cd $src; pwd)"
-        top="$(cd $dir/..; pwd)"
+        src="$(cd "$src" ; pwd)"
+        top="$(cd "$dir/.." ; pwd)"
 
     else
-        top="$(cd $dir; pwd)"
+        top="$(cd "$dir" ; pwd)"
         src="$top"
     fi
 
@@ -5162,10 +5162,10 @@ function CygbuildCmdAutotool()
     # Run this to re-autotool AFTER editing configure.{ac,in}/Makefile.am
 
     CygbuildPushd
-        cd $srcdir &&
+        cd "$srcdir" &&
         /usr/bin/autoreconf --install --force --verbose
 # FIXME: unused code
-#        cd $TOPDIR &&
+#        cd "$TOPDIR" &&
 #        if [ -f "$PV/INSTALL" ] ; then \
 #                unpack ${src_orig_pkg} ${PV}/INSTALL ; \
 #        fi
@@ -5249,7 +5249,7 @@ function CygbuildCmdFixFilesOther()
     #   patches.
 
     CygbuildPushd
-        cd $dir &&
+        cd "$dir" &&
         CygbuildFindDo ". -maxdepth 1"  \
             -o -type f                  \
             '('                         \
@@ -5521,7 +5521,7 @@ function CygbuildCmdPkgExternal()
     local status=0
 
     CygbuildPushd
-        cd $instdir
+        cd "$instdir"
 
         CygbuildEcho "== Making package [binary] with external:" \
              ${prg#$srcdir/} $PKG $VER $REL
@@ -5898,8 +5898,8 @@ function CygbuildCmdPkgBinaryStandard()
     CygbuildFileCleanNow "" $pkg $pkg$sigext
 
     CygbuildPushd
-        cd $instdir || exit 1
-        tar $taropt $pkg *    # must be "*", not "." => would cause ./path/..
+        cd "$instdir" || exit 1
+        tar $taropt "$pkg" *    # must be "*", not "." => would cause ./path/..
         status=$?
     CygbuildPopd
 
@@ -6614,13 +6614,13 @@ function CygbuildCmdMkpatchMain()
                 #   this is just a temporary unpatching only for during
                 #   taking the diff.
 
-                cd $cursrcdir &&
+                cd "$cursrcdir" &&
                 CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
             ) || exit 1
 
         fi
 
-        cd $cursrcdir || exit 1
+        cd "$cursrcdir" || exit 1
 
         CygbuildCmdCleanMain     $cursrcdir nomsg
         CygbuildCmdDistcleanMain $cursrcdir nomsg
@@ -6646,7 +6646,7 @@ function CygbuildCmdMkpatchMain()
 
         topdir=${cursrcdir%/*}               # one directory up
 
-        cd $topdir || exit 1
+        cd "$topdir" || exit 1
 
         difforig=${origpkgdir##$(pwd)/}      # Make relative paths
         diffsrc=${cursrcdir##$(pwd)/}
@@ -6841,7 +6841,7 @@ function CygbuildCmdPkgSourceExternal ()
     local status=0
 
     CygbuildPushd
-        cd $instdir || exit 1
+        cd "$instdir" || exit 1
 
         eCygbuildEcho "== [NOTE] Making package [source] with external:" \
              ${prg#$srcdir/} $PKG $VER $REL
@@ -6902,7 +6902,7 @@ function CygbuildCmdDownloadUpstream ()
 
     local confdir=${DIR_CYGPATCH:-CYGWIN-PATCHES}
     local name="upstream.perl-webget"
-    local conf=$(cd $confdir && ls $(pwd)/$name)
+    local conf=$(cd "$confdir" && ls "$(pwd)"/$name)
 
     if [ ! -f "$conf" ]; then
         CygbuildDie "-- [ERROR] $conf/ subdirectory not found." \
@@ -7713,7 +7713,7 @@ function CygbuildMakefileRunPythonInDir ()
     [ ! "$dir" ] && CygbuildDie "$id: Missing ARG"
 
     CygbuildPushd
-        cd $dir || exit 1
+        cd "$dir" || exit 1
         CygbuildRunPythonSetupCmd "$@"
     CygbuildPopd
 }
@@ -7872,7 +7872,7 @@ function CygbuildMakefileRunInstallMain()
         exit 1
 
         CygbuildPushd
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
             $makeScript "$instdir" "$CYGBUILD_PREFIX" "$exec_prefix"
             status=$?
         CygbuildPopd
@@ -7884,7 +7884,7 @@ function CygbuildMakefileRunInstallMain()
         CygbuildVerb "-- ... Looks like Python package [install]"
 
         CygbuildPushd
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
             CygbuildMakefileRunInstallPythonMain &&
             CygbuildMakefileRunInstallPythonFix
             status=$?
@@ -7897,7 +7897,7 @@ function CygbuildMakefileRunInstallMain()
         CygbuildVerb "-- ... Looks like Ruby package [install]"
 
         CygbuildPushd
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
             CygbuildMakefileRunInstallRubyMain
             status=$?
 
@@ -7916,7 +7916,7 @@ function CygbuildMakefileRunInstallMain()
         CygbuildVerb "-- ... Looks like Perl package"
 
         CygbuildPushd
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
             CygbuildMakefileRunInstallCygwinOptions "$PFX" &&
             CygbuildMakeRunInstallFixPerlMain       &&
             CygbuildInstallCygwinPartPostinstall
@@ -7970,7 +7970,7 @@ function CygbuildMakefileRunInstallMain()
         fi
 
         CygbuildPushd
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
             CygbuildMakefileRunInstallCygwinOptions "$PFX" "$docprefix"
             status=$?
         CygbuildPopd
@@ -8004,7 +8004,7 @@ function CygbuildCmdMkdirs()
 
     CygbuildPushd
 
-        cd $srcdir || exit 1
+        cd "$srcdir" || exit 1
 
         for dir in $builddir $instdir $srcinstdir $DIR_CYGPATCH
         do
@@ -8602,7 +8602,7 @@ function CygbuildCmdPrepPatch()
     CygbuildIsSourceUnpacked && return 0
 
     CygbuildPushd
-        cd $TOPDIR            &&
+        cd "$TOPDIR" &&
         CygbuildPatchApplyRun ${FILE_SRC_PATCH##*/}
         status=$?
     CygbuildPopd
@@ -8677,7 +8677,7 @@ function CygbuildCmdPrepClean()
     #   is a mistake which is fixed by removing files.
 
     CygbuildPushd
-        cd $TOPDIR                  || exit 1
+        cd "$TOPDIR" || exit 1
         CygbuildCmdCleanMain        "$srcdir"
         CygbuildCmdDistcleanMain    "$srcdir"
         CygbuildCleanConfig         "$srcdir"
@@ -9047,7 +9047,7 @@ function CygbuildConfPerlMain()
         local _prefix="/usr"
 
         (
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
 
             #   See http://www.makemaker.org/drafts/prefixification.txt
             #   Do not set: SITEPREFIX  (SITEPREFIX=PREFIX/local)
@@ -9237,7 +9237,7 @@ function CygbuildCmdBuildRuby()
     local status=0
 
     CygbuildPushd
-        cd $builddir                                      &&
+        cd "$builddir"                                    &&
         CygbuildEcho "-- Building: ruby setup.rb setup"   &&
         CygbuildRunRubySetupCmd setup
         status=$?
@@ -9256,7 +9256,7 @@ function CygbuildCmdBuildPython()
 
     CygbuildPushd
         CygbuildSetLDPATHpython
-        cd $builddir                                        &&
+        cd "$builddir"                                      &&
         CygbuildEcho "-- Building: python setup.py build"   &&
         CygbuildRunPythonSetupCmd build
         status=$?
@@ -9275,7 +9275,7 @@ function CygbuildCmdBuildStdMakefile()
 
     CygbuildPushd
 
-        cd $builddir || exit 1
+        cd "$builddir" || exit 1
 
         local retval="$CYGBUILD_RETVAL.$FUNCNAME"
         CygbuildMakefileName "." > $retval
@@ -9356,7 +9356,7 @@ function CygbuildCmdBuildMain()
                  ${script#$srcdir/} $PKG $VER $REL
 
         CygbuildPushd
-            cd $builddir || exit 1
+            cd "$builddir" || exit 1
             CygbuildChmodExec $script
             $script $PKG $VER $REL | CygbuildMsgFilter
             status=$?
@@ -9541,7 +9541,7 @@ function CygbuildCmdCleanMain()
     else
         CygbuildPushd
 
-            cd $dir  || exit 1
+            cd "$dir" || exit 1
 
             make -f $makefile clean ||
             {
@@ -10170,7 +10170,7 @@ function CygbuildInstallExtraManualCompress()
                 #   invalid
 
                 CygbuildPushd
-                    cd ${file%/*} || exit $?
+                    cd "${file%/*}" || exit $?
                     local name=${file##*/}
 
                     CygbuildPathAbsoluteSearch $name > $retval
@@ -10628,7 +10628,7 @@ function CygbuildInstallFixDocdirInstall()
     local re=$(< $retval)
 
     local pdir=$(
-        cd $dir/usr/share/doc &&
+        cd "$dir/usr/share/doc" &&
         { ls | $EGREP --invert-match "$re|Cygwin" ; }
     )
 
