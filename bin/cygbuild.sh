@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1031.0554"
+CYGBUILD_VERSION="2012.1031.0558"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7005,7 +7005,7 @@ function CygbuildPreRemoveWrite()
         return 1
     fi
 
-    CygbuildEcho "-- Writing /etc preremove script (if needed)"
+    CygbuildEcho "-- Writing /etc preremove script"
 
     # if [ -f "$file" ]; then
     #   CygbuildWarn "-- [WARN] Already exists. Won't overwrite" \
