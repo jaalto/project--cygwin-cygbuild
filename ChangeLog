@@ -1,7 +1,9 @@
 2012-11-01 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCommandMainCheckSpecial): Add alias
-	'fetch' for cygport source download compatibility.
+	'fetch' for cygport source download compatibility. Add alias
+	'deps' for cygport compatibility.
+	(CygbuildCmdDependMain): Change from cygcheck to objdmp.
 
 2012-10-31 Wed  Jari Aalto  <jari.aalto@cante.net>
 

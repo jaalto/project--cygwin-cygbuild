@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1101.0616"
+CYGBUILD_VERSION="2012.1101.0636"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -2272,7 +2272,7 @@ function CygbuildCygcheckLibraryDepMain()
     local file="$1"
     local datafile="$2"
 
-    if [ ! -f "$file" ]; then
+    if [ ! "$file" ] || [ ! -f "$file" ]; then
         CygbuildDie "$0: Missing arg1 FILE"
     fi
 
@@ -8746,10 +8746,11 @@ function CygbuildCmdDependMain()
 
     [ "$CYGCHECK" ] || return 0
 
-    CygbuildEcho "-- Reading cygcheck dependencies"
+    CygbuildEcho "-- Reading objdump direct dependencies"
+
+    find $instdir -name "*.exe" -o -name "*.dll" > $retval
 
     local list
-    find $instdir -name "*.exe" -o -name "*.dll" > $retval
     [ -s $retval ] && list=$(< $retval)
 
     if [ ! "$list" ]; then
@@ -8757,38 +8758,21 @@ function CygbuildCmdDependMain()
         return
     fi
 
-    > $retval       # Clear file
+    : > $retval       # Clear file
 
     local file
 
     for file in $list
     do
-        $CYGCHECK "$file" >> $retval
+	echo "--" ${file#$srcdir/} >> $retval
+
+        CygbuildObjDumpLibraryDepList "$file" | tee -a $retval > $retval.dep
+	CygbuildDllToLibName $(< $retval.dep) >> $retval
     done
 
-    cat $retval
-
-    local found
-
-    while read file
-    do
-        #  Do not check Windows files
-        if [[ $file == *WIN*      ]] || \
-           [[ $file == *system32* ]] || \
-           [[ $file == *exe*      ]] || \
-           [[ $file == *cygwin1*  ]]
-        then
-            continue
-        fi
-
-        CygbuildEcho "-- Depend check $file"
-
-        found=1
-        $CYGCHECK -f $file
-
-    done < $retval
-
-    if [ ! "$found" ]; then
+    if [ -s "$retval" ]; then
+	cat $retval
+    else
         CygbuildEcho "-- No other dependencies than 'cygwin'"
     fi
 }
@@ -12627,7 +12611,7 @@ function CygbuildCommandMain()
                 status=$?
                 ;;
 
-            depend*)
+            depend*|deps)
                 CygbuildCmdDependMain
                 status=$?
                 ;;
