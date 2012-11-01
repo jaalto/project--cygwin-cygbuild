@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1031.1319"
+CYGBUILD_VERSION="2012.1101.0616"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -12139,7 +12139,7 @@ function CygbuildCommandMainCheckSpecial()
                 CygbuildPatchFileList CYGWIN-PATCHES
                 exit 0
                 ;;
-            download|dl)
+            download|dl|fetch)
                 CygbuildCmdDownloadUpstream
                 exit 0
                 ;;
