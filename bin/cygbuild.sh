@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1101.0636"
+CYGBUILD_VERSION="2012.1124.1627"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10977,7 +10977,7 @@ function CygbuildInstallCygwinPartMain()
     local item
 
     for item in \
-      "required $file  $DIR_DOC_CYGWIN $PKG-$VER.README" \
+      "required $file  $DIR_DOC_CYGWIN $PKG.README" \
       "optional $SCRIPT_PREREMOVE_CYGFILE   $DIR_PREREMOVE_CYGWIN $PKG.sh" \
       "optional $FILE_PREREMOVE_MANIFEST_TO $DIR_PREREMOVE_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_TO" \
       "optional $FILE_PREREMOVE_MANIFEST_FROM $DIR_PREREMOVE_CYGWIN $PKG-$CYGBUILD_FILE_MANIFEST_FROM" \
