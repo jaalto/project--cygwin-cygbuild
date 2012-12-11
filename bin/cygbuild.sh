@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1124.1627"
+CYGBUILD_VERSION="2012.1211.0535"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -613,7 +613,7 @@ function CygbuildBootVariablesId()
         CYGBUILD_PROG_LIBPATH=/usr/share/cygbuild
     fi
 
-    CYGBUILD_PROG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
+    CYGBUILD_PRG_FULLPATH="$CYGBUILD_PROG_PATH/$CYGBUILD_PROG_NAME"
 }
 
 function CygbuildDefineGlobalPerlVersion()
@@ -11287,8 +11287,8 @@ function CygbuildCmdInstallList()
 
         local source="$builddir/$from"
 
-        if [[ "$source" == *\** ]]; then        # Check if contains glob "*"
-            tofile=""				# This is no simple install. Reset.
+        if [[ "$source" == *\** ]]; then  # Check if contains glob "*"
+            tofile=""			  # This is no simple install. Reset.
             unset tofile
         fi
 
@@ -11297,7 +11297,8 @@ function CygbuildCmdInstallList()
         if [ -d "$source" ]; then		# Copy whole directory
 
             if [[ ! "$source" == */ ]]; then
-                CygbuildWarn "-- [WARN] Skip, SOURCE dir does not end in slash: $source"
+                CygbuildWarn "-- [WARN] Skip, SOURCE dir does not end" \
+		    "in slash: $source"
                 continue
             fi
 
@@ -11305,10 +11306,13 @@ function CygbuildCmdInstallList()
 
             CygbuildEcho "-- [NOTE] installing whole directory: $origfrom"
 
-            ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} --mode=$mode -d "$todir"
+            ${test:+echo} $INSTALL_SCRIPT ${verbose+--verbose} \
+		--mode=$mode -d "$todir"
 
-            ${test:+echo} tar --dereference --directory="$source" --create --file=- . |
-            ${test:+echo} tar --dereference --directory="$todir" --extract --file=- ||
+            ${test:+echo} tar --dereference --directory="$source" \
+		--create --file=- . |
+            ${test:+echo} tar --dereference --directory="$todir" --extract \
+		--file=- ||
             status=$?
 
         else
@@ -11334,19 +11338,17 @@ function CygbuildCmdInstallMain()
 
     local scriptInstall="$SCRIPT_INSTALL_MAIN_CYGFILE"
     local scriptAfter="$SCRIPT_INSTALL_AFTER_CYGFILE"
-    local thispath="$CYGBUILD_PROG_FULLPATH"
+    local thispath="$CYGBUILD_PRG_FULLPATH"
 
     CygbuildEcho "== Install command"
 
-    CygbuildExitIfNoDir $builddir \
+    CygbuildExitIfNoDir "$builddir" \
               "$id: [ERROR] No builddir $builddir." \
               "Did you run [mkdirs] and [shadow]?"
 
-    local dir="$instdir"
-
-    if [ ! "$dir" ]; then
-        CygbuildDie "$id: [ERROR] \$instdir is empty"
-    fi
+    CygbuildExitIfNoDir "$instdir" \
+              "$id: [ERROR] No instdir $instdir." \
+              "Did you run [mkdirs]?"
 
     CygbuildCmdInstallPatchVerify
     CygbuildCmdInstallDirClean
@@ -11370,20 +11372,21 @@ function CygbuildCmdInstallMain()
 
         if [ -f "$scriptInstall" ]; then
 
-            mkdir --parents $verbose "$dir"
+            mkdir --parents $verbose "$instdir"
 
             CygbuildEcho "--- Installing with external:" \
                          "${scriptInstall#$srcdir/}" \
-                         "$dir" \
+                         "$instdir" \
                          "$thispath"
 
-            CygbuildChmodExec $scriptInstall
-            $scriptInstall "$dir" "$thispath" | CygbuildMsgFilter
+            CygbuildChmodExec "$scriptInstall"
+            "$scriptInstall" "$instdir" "$thispath" | CygbuildMsgFilter
             status=$?
 
             if [ "$status" != "0"  ]; then
                 CygbuildExit $status \
-                    "$id: [ERROR] Failed to run $scriptInstall $dir"
+                    "$id: [ERROR] Failed to run $scriptInstall $instdir"
+		exit $status
             fi
 
         else
@@ -11420,7 +11423,6 @@ function CygbuildCmdInstallMain()
             }
         fi
 
-
         dummy="$srcdir"             # For debug only
 
         CygbuildExitIfNoDir "$srcdir" "$id: [ERROR] srcdir not found"
@@ -11441,25 +11443,24 @@ function CygbuildCmdInstallMain()
 
         CygbuildEcho "--- Running external:" \
              ${scriptAfter#$srcdir/} \
-             "$dir"         \
+             "$instdir"     \
              "$PKG"         \
              "$VER"         \
              "$thispath"
 
-        local path="$CYGBUILD_PROG_FULLPATH"
+        # local path="$CYGBUILD_PRG_FULLPATH"
 
         CygbuildChmodExec $scriptAfter
 
         CygbuildRun ${OPTION_DEBUG:+$BASHX} \
             $scriptAfter        \
-                "$dir"          \
+                "$instdir"      \
                 "$PKG"          \
                 "$VER"          \
                 "$thispath"     |
-            CygbuildMsgFilter   ||
+        CygbuildMsgFilter ||
         {
             status=$?
-            CygbuildPopd
             return $status
         }
     fi

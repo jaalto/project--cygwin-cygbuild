@@ -1,3 +1,9 @@
+2012-12-11 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdInstallMain): Remove variable
+	$dir and use $instdir. Check that $instdir exists. Remove extra
+	call to CygbuildPopd() in scriptAfter case.
+
 2012-11-24 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallCygwinPartMain): change
