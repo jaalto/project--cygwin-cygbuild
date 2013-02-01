@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2012.1211.0535"
+CYGBUILD_VERSION="2013.0201.0819"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9502,6 +9502,25 @@ function CygbuildCleanConfig ()
     rm --force config.status config.log
 }
 
+function CygbuildCmdCleanBasic()
+{(
+    dir="$1"
+
+    if [ ! "$builddir" ] || [ ! -d "$dir" ]; then
+	CygbuildWarn "[WARN] CygbuildCmdCleanBasic() DIR arg is empty"
+	return 1
+    fi
+
+    find "$dir" \
+	-type f \
+        -print0 \
+        -name "*.pyc" \
+        -name "*.exe" \
+        -name "*.[oa]" \
+        -name "*.la" \
+	| xargs --null --no-run-if-empty rm -f
+)}
+
 function CygbuildCmdCleanMain()
 {
     local id="$0.$FUNCNAME"
@@ -9528,7 +9547,10 @@ function CygbuildCmdCleanMain()
 
     elif [ ! "$makefile" ]; then
         if [ "$opt" != "nomsg" ]; then
-            CygbuildEcho "-- No Makefile found, nothing to clean in $dir"
+            CygbuildEcho "-- No Makefile found, running basic clean in" \
+		${dir#$srcdir/}
+
+	    CygbuildCmdCleanBasic "$dir"
         fi
     else
         CygbuildPushd
