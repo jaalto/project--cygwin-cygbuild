@@ -2,6 +2,8 @@
 
 	* bin/cygbuild.sh (CygbuildCmdCleanBasic): New.
 	(CygbuildCmdCleanMain): If no Makefile, call CygbuildCmdCleanBasic().
+	(CygbuildInstallFixManSymlinks): Correct variable name from
+	dir to mandir.
 
 2012-12-11 Tue  Jari Aalto  <jari.aalto@cante.net>
 

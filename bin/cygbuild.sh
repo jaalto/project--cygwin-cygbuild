@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0201.0819"
+CYGBUILD_VERSION="2013.0201.0826"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10337,7 +10337,7 @@ function CygbuildInstallExtraMain()
 function CygbuildInstallFixManSymlinks()
 {
     local id="$0.$FUNCNAME"
-    local mandir="$dir/usr/share/man"
+    local mandir="$builddir/usr/share/man"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
     [ -d "$mandir" ] || return 0
