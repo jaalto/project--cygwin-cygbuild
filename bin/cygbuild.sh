@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.1846"
+CYGBUILD_VERSION="2013.0305.1855"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1831,6 +1831,9 @@ CygbuildDllToLibName ()
         # Special cases:
 
         case "$lib" in
+            libargp*)
+                lib=libargp
+                ;;
             libgcc1)
                 continue                # Part of "base", so no need to mention
                 ;;

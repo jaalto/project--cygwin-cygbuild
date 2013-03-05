@@ -16,6 +16,7 @@
 	$CYGBUILD_INSTALL_IGNORE to pass args in $@.
 	(CygbuildBootVariablesGlobalMain): Add backslashes to
 	CYGBUILD_INSTALL_IGNORE to not use newlines.
+	(CygbuildDllToLibName): Add libargp
 
 2013-02-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
