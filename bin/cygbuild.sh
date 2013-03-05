@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0734"
+CYGBUILD_VERSION="2013.0305.0836"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1849,7 +1849,7 @@ CygbuildDllToLibName ()
                 lib=python
                 ;;
             libcrypto* | libssl* )
-                lib=libopenssl098
+                lib=libopenssl100
                 ;;
             libpng[0-9][0-9][0-9][0-9])
                 # libpng1515 => libpng15
