@@ -385,10 +385,10 @@ function CygbuildCmdInstallCheckReadme()
     local pkg=$name
     pkg=${pkg%.README}
 
-    if [ "$pkg" != "$PKG-$VER" ]; then
-        CygbuildEcho "   [ERROR] README name mismatch: $pkg != $PKG-$VER"
-        status=20
-    fi
+#    if [ "$pkg" != "$PKG-$VER" ]; then
+#        CygbuildEcho "   [ERROR] README name mismatch: $pkg != $PKG-$VER"
+#        status=20
+#    fi
 
     local purename=${path##*/}
     local origreadme=$DIR_CYGPATCH/$purename

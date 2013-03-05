@@ -1,5 +1,8 @@
 2013-03-05 Tue  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckReadme): No longer
+	README-N.N but only README.
+
 	* bin/cygbuild.sh (CygbuildTreeSymlinkCopy): Change from
 	grep to bash regexp match for $CYGBUILD_SHADOW_TOPLEVEL_IGNORE.
 	(CygbuildCmdInstallMain): Create .inst directory.
