@@ -1,3 +1,8 @@
+2013-03-05 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildTreeSymlinkCopy): Change from
+	grep to bash regexp match for $CYGBUILD_SHADOW_TOPLEVEL_IGNORE.
+
 2013-02-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdCleanBasic): New.

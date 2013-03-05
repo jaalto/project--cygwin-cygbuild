@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0201.0826"
+CYGBUILD_VERSION="2013.0305.0618"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3655,10 +3655,7 @@ function CygbuildTreeSymlinkCopy()
 
         for item in * .*
         do
-
-            if echo $item |
-               $EGREP --quiet "$CYGBUILD_SHADOW_TOPLEVEL_IGNORE"
-            then
+            if [[ "$item" =~ $CYGBUILD_SHADOW_TOPLEVEL_IGNORE ]]; then
                 CygbuildVerb "-- Ignored $item"
                 continue
             fi
