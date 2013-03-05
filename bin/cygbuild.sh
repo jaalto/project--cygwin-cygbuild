@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0618"
+CYGBUILD_VERSION="2013.0305.0637"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3676,13 +3676,19 @@ function CygbuildTreeSymlinkCopy()
             if [ -f "$item" ]; then
 
                 if  [ ! -f "$dest" ]; then
-                    ln --symbolic "$current/$item"  "$dest" || exit 1
+
+		    # [ "$verbose" ] && echo "   $item"
+
+                    ln "$current/$item"  "$dest" || exit 1
                 fi
 
             elif [ -d "$item" ]; then
 
                 if [ ! -d "$dest" ]; then
                     mkdir --parents "$dest"                 || exit 1
+
+		    # [ "$verbose" ] && echo "   $LNDIR $item"
+
                     $LNDIR "$current/$item" "$dest"
                 fi
 
