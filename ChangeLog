@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh (CygbuildTreeSymlinkCopy): Change from
 	grep to bash regexp match for $CYGBUILD_SHADOW_TOPLEVEL_IGNORE.
 	(CygbuildCmdInstallMain): Create .inst directory.
+	(CygbuildBootVariablesGlobalMain): Move .pc directory to
+	cygbuild_opt_exclude_version_control.
 
 2013-02-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 

@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0714"
+CYGBUILD_VERSION="2013.0305.0730"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1061,6 +1061,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=.hg \
      --exclude=.hgignore \
      --exclude=.mtn \
+     --exclude=.pc \
      --exclude=.quilt \
      --exclude=.svn \
      --exclude=.svnignore \
@@ -1244,7 +1245,6 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=*RISC* \
      --exclude=*bsd* \
      --exclude=*.hp* \
-     --exclude=.pc \
      $cygbuild_opt_exclude_man_files \
      $cygbuild_opt_exclude_info_files \
      $cygbuild_opt_exclude_auto_files \
