@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0730"
+CYGBUILD_VERSION="2013.0305.0734"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6210,10 +6210,12 @@ function CygbuildPatchApplyQuiltMaybe()
 
     local color
 
-    if [ "$INSIDE_EMACS" ]; then
-        color="--color=never"
-    elif [ "$OPTION_COLOR" ]; then
-        color="--color=always"      # auto
+    if [[ "$quilt" == *push* ]]; then     # POP does not support color
+	if [ "$INSIDE_EMACS" ]; then
+	    color="--color=never"
+	elif [ "$OPTION_COLOR" ]; then
+	    color="--color=always"      # auto
+	fi
     fi
 
     local series
