@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0902"
+CYGBUILD_VERSION="2013.0305.1846"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -317,30 +317,31 @@ function CygbuildMatchPatternRemoveWord()
 function CygbuildMatchPatternList()
 {
     # ARG 1: STRING to match
-    # ARG 2: List of glob patterns to match against STRING
+    # ARG 2..: List of glob patterns to match against STRING
 
     local str="$1"
 
     [ ! "$str" ] && return 1
 
     shift
-    local ret=1    # Suppose no match by default
-    local match
 
     #   In for loop, the patterns in $list
     #   would expand to file names without 'noglob'.
 
-    set -o noglob
+#    set -o noglob
+
+    local ret=1    # Suppose no match by default
+    local match
 
     for match in "$@"
     do
-        if  [[ "$str" == $match ]]; then
+        if [[ "$str" == $match ]]; then
             ret=0
             break
         fi
     done
 
-    set +o noglob
+#   set +o noglob
 
     return $ret
 }
@@ -966,39 +967,36 @@ function CygbuildBootVariablesGlobalMain()
     #  files that contain BIG letters. See separate tar exclude
     #  variable for all other files.
 
-    CYGBUILD_INSTALL_IGNORE="
-    *Makefile* *makefile* *MAKEFILE*
-    *CVS
-    *RCS
-    *MT
-    *.bak
-    *.BAK
-    *.ex
-    *.in
-    *.orig
-    *.rej
-    *.tmp
-    *.TMP
-    *.TST
-    *.spec
-    *ABOUT-NLS
-    *CHANGES-*
-    *INSTALL
-    *INSTALL.[Uu]nix
-    *INSTALL.unx
-    *INSTALL.[Ww]indows
-    *MANIFEST
-    *PACKAGE
-    *README.*bsd*
-    *README.OS2
-    *README.hp*
-    *README.mingw32
-    *README.vms
-    *README.DOS
-    *RISC-*
-    *VERSION
-    *VMS*
-    *[~#]
+    CYGBUILD_INSTALL_IGNORE=" \
+    *Makefile* *makefile* *MAKEFILE* \
+    *CVS \
+    *RCS \
+    *MT \
+    *.bak \
+    *.BAK \
+    *.ex \
+    *.in \
+    *.orig \
+    *.rej \
+    *.tmp \
+    *.TMP \
+    *.TST \
+    *.spec \
+    *ABOUT-NLS \
+    *CHANGES-* \
+    *INSTALL* \
+    *MANIFEST \
+    *PACKAGE \
+    *README.*bsd* \
+    *README.OS2 \
+    *README.hp* \
+    *README.mingw32 \
+    *README.vms \
+    *README.DOS \
+    *RISC-* \
+    *VERSION \
+    *VMS* \
+    *[~#] \
     "
 
     #  This variable holds bash match expressions for files to exclude
@@ -4278,12 +4276,12 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
     SCRIPT_CLEAN_CYGFILE=$DIR_CYGPATCH/clean.sh                 # global-def
 
-    SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
-
     FILE_INSTALL_LIB_ABI=$DIR_CYGPATCH/lib.abi                  # global-def
     FILE_INSTALL_MIME=$DIR_CYGPATCH/mime                        # global-def
     FILE_INSTALL_DIRS=$DIR_CYGPATCH/dirs                        # global-def
     FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst                  # global-def
+    FILE_DELETE_LST=$DIR_CYGPATCH/delete.lst                    # global-def
+
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
     SCRIPT_INSTALL_AFTER_CYGFILE=$DIR_CYGPATCH/install-after.sh # global-def
@@ -9818,7 +9816,7 @@ function CygbuildInstallPackageDocs()
         match=""
 
         CygbuildMatchPatternList \
-            "$file" "$CYGBUILD_INSTALL_IGNORE" && continue
+            "$file" $CYGBUILD_INSTALL_IGNORE && continue
 
         if [ "$matchExclude" ] && [[ "$name" == $matchExclude ]]; then
             continue
@@ -11123,15 +11121,47 @@ function CygbuildCmdInstallPatchVerify()
 
 function CygbuildCmdDeleteListExists()
 {
-    local file="$SCRIPT_DELETE_LST_CYGFILE"
+    local file="$FILE_DELETE_LST"
 
     [ -f "$file" ]
 }
 
-function CygbuildCmdDeletellList()
+function CygbuildCmdDeleteList()
 {
-    # FIXME, TODO: Not implemented. Document also delete.lst
-    :
+    local file="$FILE_DELETE_LST"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    [ -f "$file" ] || return 0
+
+    CygbuildEcho "-- Installing with external:" \
+                 "${file#$srcdir/}"
+
+    local out=$retval.lst
+    local docdir="usr/share/doc/$PKG"
+
+    #  Remove comments and substitute variables
+
+    sed -e 's,#.*,,' \
+        -e "s,\$PKG,$PKG," \
+        -e "s,\$DOC,$docdir," \
+        -e "s,\$VER,$VER," \
+        -e '/^[[:space:]]*$/d' \
+        $file > $out
+
+    local status=0
+
+    CygbuildPushd
+
+    cd "$instdir" || return $?
+
+    local item options
+
+	while read item options
+	do
+	    ${test:+echo} rm $verbose $options $item
+	done < $out
+
+    CygbuildPopd
 }
 
 function CygbuildCmdInstallListExists()

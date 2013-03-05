@@ -11,6 +11,11 @@
 	(CygbuildPatchApplyQuiltMaybe): pop does not support color option.
 	(CygbuildDefineGlobalMain): New SCRIPT_CLEAN_CYGFILE.
 	(CygbuildCmdCleanMain): Add support for external clean.sh
+	(CygbuildCmdDeleteList): New.
+	(CygbuildInstallPackageDocs): Remove quoted from
+	$CYGBUILD_INSTALL_IGNORE to pass args in $@.
+	(CygbuildBootVariablesGlobalMain): Add backslashes to
+	CYGBUILD_INSTALL_IGNORE to not use newlines.
 
 2013-02-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
