@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0637"
+CYGBUILD_VERSION="2013.0305.0714"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11371,9 +11371,9 @@ function CygbuildCmdInstallMain()
               "$id: [ERROR] No builddir $builddir." \
               "Did you run [mkdirs] and [shadow]?"
 
-    CygbuildExitIfNoDir "$instdir" \
-              "$id: [ERROR] No instdir $instdir." \
-              "Did you run [mkdirs]?"
+    if [ ! -d "$instdir" ]; then
+	mkdir $verbose "$instdir" || exit $?
+    fi
 
     CygbuildCmdInstallPatchVerify
     CygbuildCmdInstallDirClean
