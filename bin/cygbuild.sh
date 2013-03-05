@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.0836"
+CYGBUILD_VERSION="2013.0305.0902"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4276,6 +4276,7 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
 
     SCRIPT_CONFIGURE_CYGFILE=$DIR_CYGPATCH/configure.sh         # global-def
     SCRIPT_BUILD_CYGFILE=$DIR_CYGPATCH/build.sh                 # global-def
+    SCRIPT_CLEAN_CYGFILE=$DIR_CYGPATCH/clean.sh                 # global-def
 
     SCRIPT_DELETE_LST_CYGFILE=$DIR_CYGPATCH/delete.lst          # global-def
 
@@ -9531,6 +9532,7 @@ function CygbuildCmdCleanMain()
     local id="$0.$FUNCNAME"
     local dir=${1:-$builddir}
     local opt="$2"
+    local script="$SCRIPT_CLEAN_CYGFILE"
 
     CygbuildEcho "-- Running 'make clean' (or equiv.) in" ${dir#$srcdir/}
 
@@ -9542,7 +9544,18 @@ function CygbuildCmdCleanMain()
 
     local status=0
 
-    if CygbuildIsPythonPackage ; then
+    if [ -f "$script" ]; then
+
+        CygbuildEcho "--- Clean with external:" ${script#$srcdir/}
+
+        CygbuildPushd
+            cd "$builddir" || exit $?
+            CygbuildChmodExec $script
+            $script $PKG $VER $REL | CygbuildMsgFilter
+            status=$?
+        CygbuildPopd
+
+    elif CygbuildIsPythonPackage ; then
 
         CygbuildMakefileRunPythonInDir "$srcdir" clean
 
@@ -9551,6 +9564,7 @@ function CygbuildCmdCleanMain()
         CygbuildRunRubySetupCmd clean
 
     elif [ ! "$makefile" ]; then
+
         if [ "$opt" != "nomsg" ]; then
             CygbuildEcho "-- No Makefile found, running basic clean in" \
 		${dir#$srcdir/}

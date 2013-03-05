@@ -9,6 +9,8 @@
 	(CygbuildBootVariablesGlobalMain): Move .pc directory to
 	cygbuild_opt_exclude_version_control.
 	(CygbuildPatchApplyQuiltMaybe): pop does not support color option.
+	(CygbuildDefineGlobalMain): New SCRIPT_CLEAN_CYGFILE.
+	(CygbuildCmdCleanMain): Add support for external clean.sh
 
 2013-02-01 Fri  Jari Aalto  <jari.aalto@cante.net>
 
