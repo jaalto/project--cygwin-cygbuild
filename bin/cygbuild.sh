@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0306.0840"
+CYGBUILD_VERSION="2013.0306.1019"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -141,7 +141,8 @@ unset tmp
 
 function CygbuildAskYes()
 {
-    read "$* (y/N) "
+    echo "$* (y/N) "
+    read
 
     [[ "$REPLY" == [yY]* ]]
 }
@@ -2635,17 +2636,15 @@ function CygbuildIsBuilddirOk()
 
     if [ "$builddir" ] && [ -d "$builddir" ]; then
 
-        #   some package only contain TOP level directories, so we must
-        #   peek inside $builddir/*/* to see if it is symlink, (made by
-        #   shadow)
+        #   Some packages contain only TOP level directories so we must
+        #   peek inside $builddir/*/* to see if it there are symlinks
+	#   (made by shadow)
 
         local item
 
         for item in $builddir/* $builddir/*/*
         do
-            [ ! -f "$item" ] && continue
-
-            if [ -h $item ]; then       # First symbolic link means OK
+            if [ -h "$item" ]; then       # First symbolic link means OK
                 return 0
             fi
         done
@@ -4686,7 +4685,7 @@ function CygbuildNoticeBuilddirMaybe()
 {
     if ! CygbuildIsBuilddirOk ; then
         CygbuildWarn "-- [ERROR] Builddir not ready." \
-            "Try running command 'shadow'."
+            "Run command 'shadow'."
         return 1
     fi
 }
@@ -8111,7 +8110,6 @@ function CygbuildExtractTar()
         }
 
     else
-
         if [ -d "$dir" ] ; then
             CygbuildDie \
                 "-- [ERROR] Cannot unpack, existing directory found: $dir"
@@ -8699,7 +8697,7 @@ function CygbuildCmdPrepClean()
     #   is a mistake which is fixed by removing files.
 
     CygbuildPushd
-        cd "$TOPDIR" || exit 1
+        cd "$TOPDIR" || exit $?
         CygbuildCmdCleanMain        "$srcdir"
         CygbuildCmdDistcleanMain    "$srcdir"
         CygbuildCleanConfig         "$srcdir"
@@ -9517,8 +9515,8 @@ function CygbuildCleanConfig ()
 }
 
 function CygbuildCmdCleanBasic()
-{(
-    dir="$1"
+{
+    local dir="$1"
 
     if [ ! "$builddir" ] || [ ! -d "$dir" ]; then
 	CygbuildWarn "[WARN] CygbuildCmdCleanBasic() DIR arg is empty"
@@ -9527,13 +9525,15 @@ function CygbuildCmdCleanBasic()
 
     find "$dir" \
 	-type f \
-        -print0 \
-        -name "*.pyc" \
-        -name "*.exe" \
-        -name "*.[oa]" \
-        -name "*.la" \
-	| xargs --null --no-run-if-empty rm -f
-)}
+        \( \
+	    -name "*.pyc" \
+	    -o -name "*.exe" \
+	    -o -name "*.[oa]" \
+	    -o -name "*.la" \
+	\) \
+	-print0 \
+	| xargs --null --no-run-if-empty echo rm -f
+}
 
 function CygbuildCmdCleanMain()
 {
@@ -9579,6 +9579,7 @@ function CygbuildCmdCleanMain()
 
 	    CygbuildCmdCleanBasic "$dir"
         fi
+
     else
         CygbuildPushd
 
@@ -12343,8 +12344,8 @@ function CygbuildCommandMain()
         isgetopt=""
 
         CygbuildIsGbsCompat ||
-        CygbuildDie "$id: [FATAL] 'getopt' (from package util-linux) not in PATH." \
-            "Cannot parse options."
+        CygbuildDie "$id: [FATAL] 'getopt' (from package util-linux)" \
+	    "not in PATH. Cannot parse options."
     fi
 
     if [ "$isgetopt" ]; then

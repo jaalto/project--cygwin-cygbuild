@@ -7,6 +7,8 @@
 	messages better.
 	(CygbuildCmdMkpatchMain): Copy also quilt .pc/ directory. Otherwise
 	unpatching does not work and patch reports modified files.
+	(CygbuildCmdCleanBasic): Add -o options. Serious error caused
+	deleting almost all source files.
 
 2013-03-05 Tue  Jari Aalto  <jari.aalto@cante.net>
 
