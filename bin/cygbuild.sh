@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0306.0558"
+CYGBUILD_VERSION="2013.0306.0608"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -8237,6 +8237,7 @@ function CygbuildPatchDiffstat()
     local check="$file"
 
     #  We're not interested in CYGWIN-PATCHES/
+    #  Excldue "diff" commands embedded in patch
 
     if CygbuildWhichCheck filterdiff ; then
         $EGREP -v "^diff " $file |
@@ -8245,7 +8246,10 @@ function CygbuildPatchDiffstat()
         check="$retval.diff"
     fi
 
-    [ -s "$check" ] && diffstat "$check"
+    if [ -s "$check" ]; then
+        CygbuildEcho "-- Patches touch files"
+	diffstat "$check"
+    fi
 }
 
 function CygbuildPatchCheck()
@@ -8260,7 +8264,7 @@ function CygbuildPatchCheck()
 
         if [ "$verbose" ]; then
             CygbuildEcho "-- content of $_file"
-            awk '/^\+\+\+ / { print "   " $2}' $file > $retval
+            awk '/^\+\+\+ / {print "   " $2}' $file > $retval
 
             #  Arrange listing a little. Subdirectories last.
             #    foo-2.5/CYGWIN-PATCHES/foo.README

@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh (CygbuildCmdMkpatchMain): undo and restore
 	patched in srcdir.
+	(CygbuildPatchDiffstat): Add message: Patches touch files.
 
 2013-03-05 Tue  Jari Aalto  <jari.aalto@cante.net>
 
