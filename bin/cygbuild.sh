@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0306.0608"
+CYGBUILD_VERSION="2013.0306.0712"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5958,7 +5958,7 @@ function CygbuildPatchApplyRun()
     shift
 
     local dummy="Additional options: $@"    # For debug
-    local pwd=$(pwd)                      # For debug
+    local pwd=$(pwd)                        # For debug
 
     if [ ! "$verbose" ]; then
         patchopt="$patchopt --quiet"
@@ -6187,14 +6187,8 @@ function CygbuildPatchApplyQuiltMaybe()
 
     # FIXME: De we need to handle *-force option?
 
-    if [ "$verbose" ]; then
-        verb="-v"
-    fi
-
-    if [[ "$cmd" == *-quiet ]]; then
-        verb=
-        cmd=${cmd%-quiet}
-    fi
+    [ "$verbose"           ] && verb="-v"
+    [[ "$cmd" == *-quiet* ]] && verb="-q"
 
     CygbuildPatchFileQuilt > $retval
 
@@ -6239,13 +6233,16 @@ function CygbuildPatchApplyQuiltMaybe()
 
 	local dummy=$(pwd)               # For debugging
 
-	CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C \
-	    $quilt $verb $color > $log 2>&1
+	CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C $quilt $verb $color \
+	2> $log 1>&2
+
 	local status=$?
 
 	[ "$debug" ] && set +x
 
-	cat $log
+	if [ "$verbose" ] || [ "$status" != "0" ]; then
+	    grep -Ev "No patches applied|Now at patch" $log
+	fi
 
 	if $EGREP --quiet --ignore-case \
 	   "no patch.*removed|series fully applied" \
@@ -6290,20 +6287,9 @@ function CygbuildPatchApplyMaybe()
         verb="gbs verbose"
     fi
 
-    if [[ "$cmd" == *-force* ]]; then
-        force="force"
-        cmd=${cmd%-force}
-    fi
-
-    if [[ "$cmd" == *-quiet* ]]; then
-        verb=
-        cmd=${cmd%-quiet}
-    fi
-
-    if [[ "$cmd" == *-nostat* ]]; then
-        statCheck=
-        cmd=${cmd%-nostat}
-    fi
+    [[ "$cmd" == *-force*  ]] && force="force"
+    [[ "$cmd" == *-quiet*  ]] && unset verb
+    [[ "$cmd" == *-nostat* ]] && statCheck=
 
     # NOTE: The quilt must be run last, if we're unpatching (reverse order)
 
@@ -6617,7 +6603,10 @@ function CygbuildCmdMkpatchMain()
                 --create $group --file=- . \
                 | (
                     cd "$cursrcdir" &&
-                    tar --extract --no-same-owner --no-same-permissions --file=-
+                    tar --extract \
+			--no-same-owner \
+			--no-same-permissions \
+			--file=-
                   ) \
                 || exit 1
 
@@ -6633,6 +6622,7 @@ function CygbuildCmdMkpatchMain()
 
 #               cd "$cursrcdir" &&
                 CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
+
             ) || exit 1
 
         fi
@@ -6702,7 +6692,11 @@ function CygbuildCmdMkpatchMain()
             status=$?
 
             CygbuildEcho "-- Wait, restoring local patches (if any)"
-	    (cd "$srcdir" && CygbuildPatchApplyMaybe patch-nostat-quiet-force)
+
+	    CygbuildPushd
+	        cd "$srcdir" &&
+		CygbuildPatchApplyMaybe patch-nostat-quiet-force
+	    CygbuildPopd
 
             #   GNU diff(1) return codes are strange.
             #   Number 1 is OK and value > 1 indicates an error
@@ -8247,7 +8241,7 @@ function CygbuildPatchDiffstat()
     fi
 
     if [ -s "$check" ]; then
-        CygbuildEcho "-- Patches touch files"
+        CygbuildEcho "-- Patch touches source files"
 	diffstat "$check"
     fi
 }

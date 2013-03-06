@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh (CygbuildCmdMkpatchMain): undo and restore
 	patched in srcdir.
 	(CygbuildPatchDiffstat): Add message: Patches touch files.
+	(CygbuildPatchApplyQuiltMaybe): Respect verbose option in quilt
+	messages better.
 
 2013-03-05 Tue  Jari Aalto  <jari.aalto@cante.net>
 
