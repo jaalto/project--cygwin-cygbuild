@@ -5,6 +5,8 @@
 	(CygbuildPatchDiffstat): Add message: Patches touch files.
 	(CygbuildPatchApplyQuiltMaybe): Respect verbose option in quilt
 	messages better.
+	(CygbuildCmdMkpatchMain): Copy also quilt .pc/ directory. Otherwise
+	unpatching does not work and patch reports modified files.
 
 2013-03-05 Tue  Jari Aalto  <jari.aalto@cante.net>
 

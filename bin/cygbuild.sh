@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0306.0712"
+CYGBUILD_VERSION="2013.0306.0840"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6241,7 +6241,10 @@ function CygbuildPatchApplyQuiltMaybe()
 	[ "$debug" ] && set +x
 
 	if [ "$verbose" ] || [ "$status" != "0" ]; then
-	    grep -Ev "No patches applied|Now at patch" $log
+	    cat $log
+	else
+	    grep -Ev "No patches applied|Now at patch" $log |
+	    sed "s,$srcdir/,,"
 	fi
 
 	if $EGREP --quiet --ignore-case \
@@ -6571,7 +6574,7 @@ function CygbuildCmdMkpatchMain()
         #   Rename by moving to: foo-1.12-orig
         mv "$dir" "$origpkgdir" || return $?
 
-        cd "$srcdir" || exit 1
+        cd "$srcdir" || exit $?
 
         cursrcdir="$srcdir"
 
@@ -6591,10 +6594,10 @@ function CygbuildCmdMkpatchMain()
             CygbuildEcho "-- Wait, taking a snapshot (may take a while)..."
 
             if [ -d "$cursrcdir" ]; then
-                rm -rf "$cursrcdir" || exit 1
+                rm -rf "$cursrcdir" || exit $?
             fi
 
-            mkdir --parents "$cursrcdir" || exit 1
+            mkdir --parents "$cursrcdir" || exit $?
 
             dummy="PWD is $(pwd)"           # Used for debugging
             local group="--group=$CYGBUILD_TAR_GROUP"
@@ -6610,6 +6613,12 @@ function CygbuildCmdMkpatchMain()
                   ) \
                 || exit 1
 
+	    # Copy quilt directory manually; excluded by CYGBUILD_TAR_EXCLUDE
+
+	    if [ -d "$srcdir/.pc" ]; then
+		cp -r --dereference "$srcdir/.pc" "$cursrcdir"
+	    fi
+
             CygbuildEcho "-- Wait, undoing local patches (if any)"
 
             (
@@ -6620,7 +6629,7 @@ function CygbuildCmdMkpatchMain()
 		#  Quilt cannot cope with symlinks, so we must
 		#  run in srcdir
 
-#               cd "$cursrcdir" &&
+                cd "$cursrcdir" &&
                 CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
 
             ) || exit 1
@@ -6691,12 +6700,7 @@ function CygbuildCmdMkpatchMain()
 
             status=$?
 
-            CygbuildEcho "-- Wait, restoring local patches (if any)"
-
-	    CygbuildPushd
-	        cd "$srcdir" &&
-		CygbuildPatchApplyMaybe patch-nostat-quiet-force
-	    CygbuildPopd
+	    echo "-- Patch file " ${out#$srcdir/}
 
             #   GNU diff(1) return codes are strange.
             #   Number 1 is OK and value > 1 indicates an error
@@ -8241,7 +8245,7 @@ function CygbuildPatchDiffstat()
     fi
 
     if [ -s "$check" ]; then
-        CygbuildEcho "-- Patch touches source files"
+        CygbuildEcho "-- Patched local changes"
 	diffstat "$check"
     fi
 }
