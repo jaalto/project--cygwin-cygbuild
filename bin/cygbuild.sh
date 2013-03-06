@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0305.1855"
+CYGBUILD_VERSION="2013.0306.0558"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6621,15 +6621,17 @@ function CygbuildCmdMkpatchMain()
                   ) \
                 || exit 1
 
-            CygbuildEcho "-- Wait, undoing local patches" \
-                         "(if any; in snapshot dir)"
+            CygbuildEcho "-- Wait, undoing local patches (if any)"
 
             (
                 #   We must not touch the patch status file, because
                 #   this is just a temporary unpatching only for during
                 #   taking the diff.
 
-                cd "$cursrcdir" &&
+		#  Quilt cannot cope with symlinks, so we must
+		#  run in srcdir
+
+#               cd "$cursrcdir" &&
                 CygbuildPatchApplyMaybe unpatch-nostat-quiet-force
             ) || exit 1
 
@@ -6698,6 +6700,9 @@ function CygbuildCmdMkpatchMain()
                 > $out
 
             status=$?
+
+            CygbuildEcho "-- Wait, restoring local patches (if any)"
+	    (cd "$srcdir" && CygbuildPatchApplyMaybe patch-nostat-quiet-force)
 
             #   GNU diff(1) return codes are strange.
             #   Number 1 is OK and value > 1 indicates an error
