@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0306.1019"
+CYGBUILD_VERSION="2013.0307.0632"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -986,7 +986,7 @@ function CygbuildBootVariablesGlobalMain()
     *ABOUT-NLS \
     *CHANGES-* \
     *INSTALL* \
-    *MANIFEST \
+    *MANIFEST* \
     *PACKAGE \
     *README.*bsd* \
     *README.OS2 \

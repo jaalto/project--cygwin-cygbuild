@@ -1,3 +1,8 @@
+2013-03-07 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildBootVariablesGlobalMain):
+	CYGBUILD_INSTALL_IGNORE add *MANIFEST* (with all globs).
+
 2013-03-06 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdMkpatchMain): undo and restore
