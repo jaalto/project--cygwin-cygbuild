@@ -1674,10 +1674,13 @@ CygbuildCygcheckLibraryDepSourcePython()
 
     [ -s $retval.grep ] || return 0
 
-    CygbuildWarn "   [WARN] Python::os.rename is" \
-	"likely to fail on Cygwin"
+    # 2007 http://mail.python.org/pipermail/python-dev/2007-May/072905.html
+    # Not relevant any more
+    # CygbuildWarn "   [WARN] Python::os.rename is" \
+    #	"likely to fail on Cygwin"
 
-    cat $retval.grep
+    # cat $retval.grep
+    :
 }
 
 CygbuildCygcheckLibraryDepSourceMain()
