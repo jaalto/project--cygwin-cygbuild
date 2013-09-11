@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0911.1327"
+CYGBUILD_VERSION="2013.0911.1459"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6940,6 +6940,10 @@ function CygbuildCmdDownloadUpstream ()
     fi
 
     (
+        [[ "$*" == *@(--debug|-d\ )* ]] && OPTION_DEBUG=debug
+
+        [ "$OPTION_DEBUG" ] && set -x
+
         cd .. &&
         perl $bin ${OPTION_DEBUG:+--debug=3} --verbose \
              --new --config $conf --tag $pkg
@@ -12241,7 +12245,7 @@ function CygbuildCommandMainCheckSpecial()
                 exit 0
                 ;;
             download|dl|fetch)
-                CygbuildCmdDownloadUpstream
+                CygbuildCmdDownloadUpstream "$@"
                 exit 0
                 ;;
         esac

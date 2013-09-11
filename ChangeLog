@@ -12,6 +12,7 @@
 	(CygbuildCmdConfMain): Call CygbuildCmdConfConfigFilesCopy().
 	(CygbuildWasLibraryInstall): old WasLibraryInstall
 	(CygbuildWasLibraryInstallMakefile): old WasLibraryInstallMakefile
+	(CygbuildCmdScriptRunMain): Support -d flag.
 
 2013-03-08 Fri  Jari Aalto  <jari.aalto@cante.net>
 
