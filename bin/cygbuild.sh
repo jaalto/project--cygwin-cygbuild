@@ -9256,7 +9256,7 @@ function CygbuildCmdBuildPython()
     local status=0
 
     #  Python *.dll libraries must also have this.
-    CYGBUILD_LDFLAGS="-no-undefined"
+    CYGBUILD_LDFLAGS="-Wl,--no-undefined"
 
     CygbuildPushd
         CygbuildSetLDPATHpython

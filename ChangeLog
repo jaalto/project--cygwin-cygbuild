@@ -1,3 +1,8 @@
+2013-09-11 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdBuildPython): Change
+	CYGBUILD_LDFLAGS from -no-undefined to -Wl,--no-undefined.
+
 2013-03-08 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/libcheck.sh (CygbuildCygcheckLibraryDepSourcePython):
