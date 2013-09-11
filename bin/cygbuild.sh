@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0911.1126"
+CYGBUILD_VERSION="2013.0911.1134"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9151,9 +9151,7 @@ function CygbuildCmdConfMain()
 
         cd "$builddir" || exit 1
 
-set -x
         CygbuildCmdConfConfigFilesCopy
-exit 777
         CygbuildCmdConfAutomake || return 1
 
         CygbuildVerb "-- Configuring in" ${builddir#$srcdir/}
