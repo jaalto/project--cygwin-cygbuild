@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0911.1134"
+CYGBUILD_VERSION="2013.0911.1142"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9120,7 +9120,7 @@ function CygbuildCmdConfConfigFilesCopy()
             done=done
             destdir=$(CygbuildFindConfigFileDir)
 
-            CygbuildVerb "-- Copying custom config.* files"
+            CygbuildVerb "-- Copying custom config.{sub,guess} files"
 
             if [ ! "$destdir" ]; then
                 CygbuildWarn "-- [ERROR] Can't locate configu.guess directory"
