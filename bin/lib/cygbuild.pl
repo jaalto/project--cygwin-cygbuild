@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2012.1010.1516';
+$VERSION = '2013.0911.1132';
 
 # ..................................................................
 
@@ -1226,6 +1226,17 @@ commands:
 
     make ... whatever options are needed ...
     make ... perhaps it need other targets as well ...
+
+=item B<configure.guess> B<configure.sub>
+
+If these files exists, they are copied to the sources directories
+overwriting the previous definitions.
+
+Use case: with old packages the files C<config.{guess,sub}> may be
+very old and not suitable for detecting the build environmnet. It may
+be possible to build with newer copies of these files. The latest
+versions are avilable in Debian package I<autotools-dev> Git repository
+at http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.git;a=tree
 
 =item B<configure.env.options>
 

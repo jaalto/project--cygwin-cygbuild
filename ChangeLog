@@ -1,7 +1,17 @@
 2013-09-11 Wed  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl: (Help::OPTIONAL EXTERNAL FILES):
+	Document config.{sub,guess} files ussage.
+
 	* bin/cygbuild.sh (CygbuildCmdBuildPython): Change
 	CYGBUILD_LDFLAGS from -no-undefined to -Wl,--no-undefined.
+	(CygbuildFindConfigFileDir): New.
+	(CygbuildDefineGlobalMain): New FILE_CONFIG_GUESS,
+	FILE_CONFIG_SUB.
+	(CygbuildCmdConfConfigFilesCopy): New.
+	(CygbuildCmdConfMain): Call CygbuildCmdConfConfigFilesCopy().
+	(CygbuildWasLibraryInstall): old WasLibraryInstall
+	(CygbuildWasLibraryInstallMakefile): old WasLibraryInstallMakefile
 
 2013-03-08 Fri  Jari Aalto  <jari.aalto@cante.net>
 

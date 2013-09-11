@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0307.0632"
+CYGBUILD_VERSION="2013.0911.1126"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1625,7 +1625,7 @@ Check(sys.argv[2:])
     ' "${debug:+1}" "$@"
 }
 
-function WasLibraryInstallMakefile ()
+function CygbuildWasLibraryInstallMakefile ()
 {
     local file
 
@@ -1642,11 +1642,11 @@ function WasLibraryInstallMakefile ()
     return 1
 }
 
-function WasLibraryInstall ()
+function CygbuildWasLibraryInstall ()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    WasLibraryInstallMakefile && return 0
+    CygbuildWasLibraryInstallMakefile && return 0
 
     if [ -d "$instdir_relative" ]; then
         find "$instdir_relative" \
@@ -1757,6 +1757,11 @@ function CygbuildFindDo()
         -a ! -name "debian"             \
         -a ! -name "CYGWIN-PATCHES"     \
         "$@"
+}
+
+function CygbuildFindConfigFileDir()
+{
+    CygbuildFindDo "$builddir" -o -name "config.guess" | sed 's,/[^/]*$,,'
 }
 
 function CygbuildChmodDo()
@@ -4283,6 +4288,8 @@ $DIR_CYGPATCH/postinstall-$CYGBUILD_FILE_MANIFEST_DATA
     FILE_INSTALL_DIRS=$DIR_CYGPATCH/dirs                        # global-def
     FILE_INSTALL_LST=$DIR_CYGPATCH/install.lst                  # global-def
     FILE_DELETE_LST=$DIR_CYGPATCH/delete.lst                    # global-def
+    FILE_CONFIG_SUB=$DIR_CYGPATCH/config.sub                    # global-def
+    FILE_CONFIG_GUESS=$DIR_CYGPATCH/config.guess                # global-def
 
     SCRIPT_INSTALL_MAIN_CYGFILE=$DIR_CYGPATCH/install.sh        # global-def
     SCRIPT_INSTALL_MAKE_CYGFILE=$DIR_CYGPATCH/install-make.sh   # global-def
@@ -7865,7 +7872,7 @@ function CygbuildMakefileRunInstallMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local makeScript=$SCRIPT_INSTALL_MAKE_CYGFILE
+   local makeScript=$SCRIPT_INSTALL_MAKE_CYGFILE
     local status=0
 
     CygbuildMakefileName > $retval
@@ -9099,6 +9106,32 @@ function CygbuildCmdConfAutomake()
     fi
 }
 
+function CygbuildCmdConfConfigFilesCopy()
+{
+    local id="$0.$FUNCNAME"
+    local install="$INSTALL_SCRIPT $INSTALL_FILE_MODES"
+    local file done destdir
+
+    for file in $FILE_CONFIG_GUESS $FILE_CONFIG_SUB
+    do
+        [ -f $file ] || continue
+
+        if [ ! "$done" ]; then
+            done=done
+            destdir=$(CygbuildFindConfigFileDir)
+
+            CygbuildVerb "-- Copying custom config.* files"
+
+            if [ ! "$destdir" ]; then
+                CygbuildWarn "-- [ERROR] Can't locate configu.guess directory"
+                return 1
+            fi
+        fi
+
+        $install "$file" "$destdir"
+    done
+}
+
 function CygbuildCmdConfMain()
 {
     local id="$0.$FUNCNAME"
@@ -9118,6 +9151,9 @@ function CygbuildCmdConfMain()
 
         cd "$builddir" || exit 1
 
+set -x
+        CygbuildCmdConfConfigFilesCopy
+exit 777
         CygbuildCmdConfAutomake || return 1
 
         CygbuildVerb "-- Configuring in" ${builddir#$srcdir/}
@@ -11838,7 +11874,7 @@ function CygbuildCmdAllMain()
     CygbuildCmdInstallMain          &&
     CygbuildCmdStripMain            &&
 
-    if WasLibraryInstall ; then
+    if CygbuildWasLibraryInstall ; then
         CygbuildCmdPackageDevMain
 
     else
@@ -12750,7 +12786,7 @@ function CygbuildCommandMain()
                 ;;
 
             package-sign|pkg-sign|sign|sign-package)
-                if WasLibraryInstall ; then
+                if CygbuildWasLibraryInstall ; then
                     CygbuildWarn "-- [WARN] Libs found." \
                         "Did you mean [package-devel]?"
                 fi
