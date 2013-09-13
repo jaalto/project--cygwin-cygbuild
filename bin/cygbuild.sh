@@ -54,7 +54,7 @@ CYGBUILD_VERSION="2013.0911.1459"
 #  listed at http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
-"http://ftp.heanet.ie/mirrors/cygwin"}
+"http://ftp.inf.tu-dresden.de/software/windows/cygwin"}
 
 CYGBUILD_INSTALL_INFO="\
     git clone git://git.savannah.nongnu.org/cygbuild.git
@@ -8472,6 +8472,7 @@ CygbuildCmdDownloadCygwinPackage ()
 
     url=${url%/}        # Remove trailing slash
 
+    local arch="x86"
     local file="setup.ini"
     local cachedir="$CYGBUILD_CACHE_DIR"
     local cache="$cachedir/$file"
@@ -8499,7 +8500,7 @@ CygbuildCmdDownloadCygwinPackage ()
 
     if [ ! -f "$cache" ]; then
         CygbuildEcho "-- Wait, downloading Cygwin package information."
-        $wget --quiet --output-document=$cache "$url/$file" || return $?
+        $wget --quiet --output-document=$cache "$url/$arch/$file" || return $?
     fi
 
     # @ xfig

@@ -1,3 +1,9 @@
+2013-09-13 Fri  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Add ARCH
+	support. By default download 32bit repository packages.
+	(CYGBUILD_SRCPKG_URL): Update to ftp.inf.tu-dresden.de
+
 2013-09-11 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (Help::OPTIONAL EXTERNAL FILES):
