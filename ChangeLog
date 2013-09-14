@@ -5,6 +5,7 @@
 
 	* bin/cygbuild.sh: (CygbuildInstallExtraChmodMain): New.
 	(CygbuildInstallExtraChmodBin): New.
+	(CygbuildConfCC): Correct log output.
 
 2013-09-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 

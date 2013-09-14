@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0914.1008"
+CYGBUILD_VERSION="2013.0914.1604"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -8982,10 +8982,10 @@ function CygbuildConfCC()
         #     checking how to link with libfoo... /usr/lib/libfoo.a
 
         if $EGREP "checking how to link.*\<lib[a-z0-9]+\.a\>" \
-           $retval.log > $retval.log
+           $retval.log > $retval.log.out
         then
             CygbuildWarn "-- [WARN] configure uses static libraries"
-            cat $retval.log
+            cat $retval.log.out
         fi
 
     fi
