@@ -1,3 +1,8 @@
+2013-09-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallExtraChmodMain): New.
+	(CygbuildInstallExtraChmodBin): New.
+
 2013-09-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Add ARCH

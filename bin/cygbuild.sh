@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0911.1459"
+CYGBUILD_VERSION="2013.0914.0936"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7876,7 +7876,7 @@ function CygbuildMakefileRunInstallMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-   local makeScript=$SCRIPT_INSTALL_MAKE_CYGFILE
+    local makeScript="$SCRIPT_INSTALL_MAKE_CYGFILE"
     local status=0
 
     CygbuildMakefileName > $retval
@@ -10293,6 +10293,45 @@ function CygbuildInstallExtraMimeFiles()
         "$file" "$instdir/usr/lib/mime/packages/$PKG"
 }
 
+function CygbuildInstallExtraChmodBin()
+{
+    local id="$0.$FUNCNAME"
+    local retval="$CYGBUILD_RETVAL.$FUNCNAME"
+
+    [ -d "$instdir" ] || return 1
+
+    CygbuildPushd
+
+    cd "$srcdir"
+    local dir=${instdir#$srcdir/}
+
+    # Sometimes Makefiles use cp(1), and not install(1) with
+    # proper permissions.
+
+    find "$dir" \
+        -type f \
+        -name "*.exe" \
+        -o -name "*.sh" \
+        -o -name "*.p[yl]" \
+        -o -path "*/bin/*" \
+        -o -path "*/sbin/*" \
+        > "$retval"
+
+    [ -s "$retval" ] || return 0
+
+    CygbuildVerb "-- [INFO] ensuring file permission 755"
+    [ "$verbose" ] && cat "$retval"
+
+    cat "$retval" | xargs --no-run-if-empty chmod 755
+
+    CygbuildPopd
+}
+
+function CygbuildInstallExtraChmodMain()
+{
+    CygbuildInstallExtraChmodBin
+}
+
 function CygbuildInstallExtraBinFiles()
 {
     local id="$0.$FUNCNAME"
@@ -10305,7 +10344,8 @@ function CygbuildInstallExtraBinFiles()
     local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
     local item dest todir tmp _file
 
-    CygbuildEcho "-- Installing external programs from:" ${extrabindir#$srcdir/}
+    CygbuildEcho "-- Installing external programs from:" \
+        ${extrabindir#$srcdir/}
 
     for item in $extrabindir/*
     do
@@ -10397,6 +10437,7 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraManual           &&
     CygbuildMakeRunInstallFixPerlManpage &&
     CygbuildInstallExtraBinFiles
+    CygbuildInstallExtraChmodMain
     CygbuildInstallExtraMimeFile
 }
 
