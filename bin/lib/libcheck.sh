@@ -1630,7 +1630,7 @@ CygbuildCygcheckLibraryDepSourceCpp()
     while read file
     do
 	$EGREP --line-number --with-filename		\
-	    "^[^/]*exec[a-z]* *\(|include .*getopt\>"   \
+	    "^[^/]*exec[a-z]* *\("   \
 	    "$file"					\
 	    >> $retval.grep
 

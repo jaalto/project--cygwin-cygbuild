@@ -1,5 +1,8 @@
 2013-09-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh: (CygbuildCygcheckLibraryDepSourceCpp):
+	Remove "include.*getopt" check.
+
 	* bin/cygbuild.sh: (CygbuildInstallExtraChmodMain): New.
 	(CygbuildInstallExtraChmodBin): New.
 
