@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0914.0936"
+CYGBUILD_VERSION="2013.0914.1008"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10311,6 +10311,7 @@ function CygbuildInstallExtraChmodBin()
     find "$dir" \
         -type f \
         -name "*.exe" \
+        -o -name "*.dll" \
         -o -name "*.sh" \
         -o -name "*.p[yl]" \
         -o -path "*/bin/*" \
