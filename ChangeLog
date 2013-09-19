@@ -1,3 +1,10 @@
+2013-09-19 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildConfPerlMain): check DESTDIR
+	support and adjust PREFIX.
+
+	* bin/lib/cygbuild.pl (MakefileDestdirSupport): Check Makefile.PL
+
 2013-09-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/libcheck.sh: (CygbuildCygcheckLibraryDepSourceCpp):

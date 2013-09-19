@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0915.1939"
+CYGBUILD_VERSION="2013.0919.0354"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7801,13 +7801,13 @@ function CygbuildMakefileRunInstallCygwinOptions()
     [ -s $retval ] && makefile=$(< $retval)
 
     CygbuildExitIfEmpty "$makefile" \
-        "$id: [FATAL] Disk read error?. \$makefile variable is empty"
+        "$id: [FATAL] Disk full? File is empty: $makefile"
 
     if [ "$CYGBUILD_MAKEFLAGS" ]; then
         CygbuildEcho "-- Extra make flags: $CYGBUILD_MAKEFLAGS"
     fi
 
-    #   Use subshell. The 'source' command does not pollute
+    #   Use subshell. This way 'source' command won't affect
     #   current environment.
 
     (
@@ -7935,12 +7935,18 @@ function CygbuildMakefileRunInstallMain()
 
     elif CygbuildIsPerlPackage ; then
 
-        #  - Perl creates Makefile from Makefile.PL
-        #  - Set the PREFIX, so DESTDIR.
+        # Perl creates Makefile from Makefile.PL
+        #
+        # Most Perl program don't use $DESTDIR unless they are hand
+        # crafter. Plain MakeMaker only uses PREFIX.
 
         local pfx="$instdir$CYGBUILD_PREFIX"
         local PFX="PREFIX=$pfx"
-
+set -x
+        if CygbuildIsDestdirSupported ; then
+            PFX="$CYGBUILD_PREFIX"
+        fi
+set +x
         CygbuildVerb "-- ... Looks like Perl package"
 
         CygbuildPushd

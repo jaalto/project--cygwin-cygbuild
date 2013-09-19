@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2013.0916.1511';
+$VERSION = '2013.0919.0355';
 
 # ..................................................................
 
@@ -2994,7 +2994,7 @@ sub MakefileDestdirSupport ($; $)
 
     $debug  and  warn "$id: dir [$dir] exit [$exit]\n";
 
-    my @files = FileScanMain '(?i)Makefile$|configure(?:\.in)?$', $dir;
+    my @files = FileScanMain '(?i)Makefile(\.PL)$|configure(?:\.in)?$', $dir;
 
     my    $ret = '';
     my    $found = 0;
