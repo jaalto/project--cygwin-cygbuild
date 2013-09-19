@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0919.0354"
+CYGBUILD_VERSION="2013.0919.0406"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7942,11 +7942,11 @@ function CygbuildMakefileRunInstallMain()
 
         local pfx="$instdir$CYGBUILD_PREFIX"
         local PFX="PREFIX=$pfx"
-set -x
+
         if CygbuildIsDestdirSupported ; then
             PFX="$CYGBUILD_PREFIX"
         fi
-set +x
+
         CygbuildVerb "-- ... Looks like Perl package"
 
         CygbuildPushd
