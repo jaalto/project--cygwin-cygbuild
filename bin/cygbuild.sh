@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2013.0919.0406"
+CYGBUILD_VERSION="2013.1012.0536"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1871,6 +1871,9 @@ CygbuildDllToLibName ()
             libglib-2.00 | libgobject-2.00)
                 lib=libglib2.0_0
                 ;;
+            libgsf-1114)
+                lib=libgsf1_114
+                ;;
             libpango-1.00)
                 lib=libpango1.0_0
                 ;;
@@ -1880,7 +1883,7 @@ CygbuildDllToLibName ()
             libmagic1)
                 lib=file
                 ;;
-            libgcc_s1 | cyggcc_s-seh*)
+            libgcc_s1 | libgcc_s-seh*)
                 lib=libgcc1
                 ;;
             libX11[0-9])
@@ -11467,7 +11470,7 @@ function CygbuildCmdInstallList()
 
             if [[ ! "$source" == */ ]]; then
                 CygbuildWarn "-- [WARN] Skip, SOURCE dir does not end" \
-		    "in slash: $source"
+		    "in a slash: $source"
                 continue
             fi
 
