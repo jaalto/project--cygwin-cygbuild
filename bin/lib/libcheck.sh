@@ -1734,7 +1734,8 @@ function CygbuildCmdInstallCheckBinFiles()
         -o -name "*.rb"     \
     ')'                     \
     -a ! -path "*python*site-pacages*" \
-    -a ! -perm +111 -ls     \
+    -a ! -executable \
+    -ls \
     > $retval
 
     if [ -s "$retval" ]; then
