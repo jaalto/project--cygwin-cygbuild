@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2013.0919.0355';
+$VERSION = '2014.0410.0451';
 
 # ..................................................................
 
@@ -388,7 +388,7 @@ program knows about the special port:
 =item B<-l, --lzma>
 
 Use lzma compression instead of default package compression. This
-affects the manual pages and the usr/share/doc/*/ content.
+affects also the usr/share/doc/*/ content.
 
 =item B<-p, --passphrase "PASS PHRASE">
 
@@ -425,6 +425,11 @@ Python or Shell scripts etc.
 
 B<NOTE:> This options should be avoided and it may be removed. Program is
 99% in the cases able to detect if and when strip is needed.
+
+=item B<--xz>
+
+Use xz compression instead of default package compression. This
+affects also the usr/share/doc/*/ content.
 
 =item B<-h>
 

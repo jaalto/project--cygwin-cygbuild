@@ -1,3 +1,17 @@
+2014-04-10 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (Help::OPTIONS): Document --xz option.
+
+	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain): Add
+	.xz to cygbuild_opt_exclude_archive_files.
+	(CygbuildTarOptionCompress): Add *.xz
+	(CygbuildVersionInfo): Add *.xz
+	(CygbuildStrRemoveExt): Add *.xz
+	(CygbuildCygbuildDefineGlobalSrcOrigGuess): Add .tar.xz check.
+	(CygbuildCompress): Add xz check.
+	(CygbuildFilePackageGuessMain): Add .xz check.
+	(CygbuildCommandMain): Add option --xz.
+
 2013-09-19 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildConfPerlMain): check DESTDIR
