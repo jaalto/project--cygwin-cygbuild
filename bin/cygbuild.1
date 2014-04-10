@@ -248,7 +248,7 @@ OPTIONS
 
     -l, --lzma
         Use lzma compression instead of default package compression. This
-        affects the manual pages and the usr/share/doc/*/ content.
+        affects also the usr/share/doc/*/ content.
 
     -p, --passphrase "PASS PHRASE"
         Signing pass phrase. In multiuser environment, consider security
@@ -280,6 +280,10 @@ OPTIONS
 
         NOTE: This options should be avoided and it may be removed. Program
         is 99% in the cases able to detect if and when strip is needed.
+
+    --xz
+        Use xz compression instead of default package compression. This
+        affects also the usr/share/doc/*/ content.
 
     -h  Print program's internal short help.
 
@@ -998,6 +1002,18 @@ OPTIONAL EXTERNAL FILES
             make ... whatever options are needed ...
             make ... perhaps it need other targets as well ...
 
+    configure.guess configure.sub
+        If these files exists, they are copied to the sources directories
+        overwriting the previous definitions.
+
+        Use case: with old packages the files "config.{guess,sub}" may be
+        very old and not suitable for detecting the build environmnet. It
+        may be possible to build with newer copies of these files. The
+        latest versions are avilable in Debian package *autotools-dev* Git
+        repository at
+        http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.git;a=tr
+        ee
+
     configure.env.options
         If this file exists, it is sourced to read custom environment
         settings just before "./configure" is being run.
@@ -1144,13 +1160,23 @@ OPTIONAL EXTERNAL FILES
             [ "$?" = "1" ]
             # End of file
 
+    dirs
+        If this file exists, directories mentioned in this file will be
+        created in ".inst/" directory prior running any other install
+        commands. Entries must not start with a leading slash. Comments are
+        ignored. An example:
+
+            # Create empty directory for log files
+            var/log/package
+
     install.lst
         NOTE: if file exists, the "make install" target is not run.
 
         List install(1) compatible entries in separate lines. The format is:
 
-            <src> [<destination> [<mode, defaults to 644>]]
+            <source> [<destination> [<mode, defaults to 644>]]
             ln <source> <destination>
+            mkdir <source>
 
         For the *src* part CYGWIN-PATCHES/{doc,conf} components are removed.
         In addition all components of *destination* is also removed. This
@@ -1184,6 +1210,10 @@ OPTIONAL EXTERNAL FILES
         word is the *destination* name where the symlink is drawn. An
         example:
 
+        If the first word is "mkdir", then the 2nd word <source> is
+        directory name to create. Directories must start without leading
+        slash and end to a slash.
+
         Empty lines and comments starting with "#" are ignored.
 
         Examples:
@@ -1204,6 +1234,9 @@ OPTIONAL EXTERNAL FILES
             man.1                       # install *.[1-9] under /usr/share/man/manN/, mode 644
 
             lib/*.jar usr/share/lib/$PKG/ # install all JARs to library directory
+
+            # Create log directory
+            mkdir var/log/package/
 
             # Install a program
             program usr/bin/
@@ -1429,6 +1462,15 @@ OPTIONAL EXTERNAL FILES
 
         The **.pod* files can be put to separate directory
         "CYGWIN-PATCHES/man".
+
+    mime
+        If this file exists, it contains definitions according to mailcap(1)
+        that make use of the instaled programs. The contents of this file
+        will be installed in "/usr/lib/mime/packages/PACKAGE" directory.
+
+        An example entry for package catdoc:
+
+          application/msword; catdoc %s; copiousoutput; description=MS Doc Text;
 
     package-bin.sh
         If a single standard binary packaging command [package] or library
@@ -1985,7 +2027,7 @@ SEE ALSO
     cygport(1) gpg(1)
 
 AUTHOR
-    Copyright (C) 2003-2012 Jari Aalto. This program is free software; you
+    Copyright (C) 2003-2014 Jari Aalto. This program is free software; you
     can redistribute and/or modify program under the terms of Gnu General
     Public license v2 or, at your option, any later version.
 
