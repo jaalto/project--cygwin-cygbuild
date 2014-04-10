@@ -1,5 +1,8 @@
 2014-04-10 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/libcheck.sh: (CygbuildCmdInstallCheckDirStructure):
+	Adjust /bin directory message.
+
 	* bin/lib/cygbuild.pl: (Help::OPTIONS): Document --xz option.
 
 	* bin/cygbuild.sh: (CygbuildBootVariablesGlobalMain): Add

@@ -2106,7 +2106,7 @@ function CygbuildCmdInstallCheckDirStructure()
 
     if [ -d $instdir/bin ]; then
         #  For shells this is valied, but for anything else...
-        CygbuildWarn "   [WARN] /bin found. Should it be /usr/bin?"
+        CygbuildWarn "   [WARN] directory /bin found. Should it be /usr/bin?"
     fi
 
     if [ -d $instdir/etc ]; then
