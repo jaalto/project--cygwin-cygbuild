@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0410.0517"
+CYGBUILD_VERSION="2014.0410.0720"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6227,7 +6227,7 @@ function CygbuildPatchApplyQuiltMaybe()
         if [ "$INSIDE_EMACS" ]; then
             color="--color=never"
         elif [ "$OPTION_COLOR" ]; then
-            color="--color=always"      # auto
+            color="--color=always"        # auto
         fi
     fi
 
