@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0410.0450"
+CYGBUILD_VERSION="2014.0410.0517"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1802,6 +1802,9 @@ CygbuildObjDumpLibraryDepList ()
     objdump -p "$file" |
         awk '
             /KERNEL32|cygwin1.dll|MPR.DLL|GDI32|USER32|ntdll.dll/ {
+                next;
+            }
+            /(ADVAPI32|SHELL32).dll/ {
                 next;
             }
             /DLL Name:/ {

@@ -11,6 +11,8 @@
 	(CygbuildCompress): Add xz check.
 	(CygbuildFilePackageGuessMain): Add .xz check.
 	(CygbuildCommandMain): Add option --xz.
+	(CygbuildObjDumpLibraryDepList): Ignore ADVAPI32.dll and
+	SHELL32.dll.
 
 2013-09-19 Thu  Jari Aalto  <jari.aalto@cante.net>
 
