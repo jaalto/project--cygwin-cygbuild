@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0410.0720"
+CYGBUILD_VERSION="2014.0610.1602"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3529,7 +3529,6 @@ function CygbuildFilesExecutable()
 
     #   Find all files that look like executables from DIR
     #   The extra options for FIND are sent in OPT.
-    #   +111 finds all executables
 
 #    set -o noglob
 
@@ -3540,7 +3539,7 @@ function CygbuildFilesExecutable()
             -o -name "*.sh"     \
             -o -name "*.pl"     \
             -o -name "*.py"     \
-            -o -perm +111       \
+            -o -perm /u+x,g+x,o+x \
         ')'                     \
         -o  -path "*/bin/*"     \
         -o  -path "*/sbin/*"    \
@@ -3568,7 +3567,8 @@ function CygbuildFileConvertToUnix()
         {
             ! -f $file  and next;
 
-            /\.(gz|bz2|tgz|zip|rar|rz|ps|pdf|rtf|odt|jpg)/  and next;
+            /\.(gz|bz2|tgz|zip|rar|rz|xz|ps|pdf|rtf|odt|ods)/  and next;
+            /\.(png|jpg|gif|xpm)/  and next;
 
             open IN, $file  or  print("$file $!\n"), next;
             binmode IN;
@@ -4130,10 +4130,12 @@ function CygbuildDefineGlobalMain()
 
     # top=${top%/*}
 
+    NAME_PKG_EXT=xz                                             # global-def
+
     SCRIPT_SRC_PKG_BUILD=$FULLPKG.sh                            # global-def
-    NAME_SRC_PKG=$FULLPKG-src.tar.bz2                           # global-def
+    NAME_SRC_PKG=$FULLPKG-src.tar.$NAME_PKG_EXT                 # global-def
     NAME_SRC_PATCH=$FULLPKG-cygwin.patch                        # global-def
-    NAME_BIN_PKG=$FULLPKG.tar.bz2                               # global-def
+    NAME_BIN_PKG=$FULLPKG.tar.$NAME_PKG_EXT                     # global-def
 
     LIBPKG=$PKG                                                 # global-def
 
@@ -4141,11 +4143,11 @@ function CygbuildDefineGlobalMain()
         LIBPKG=lib$PKG
     fi
 
-    NAME_LIB_PKG_MAIN=$LIBPKG.tar.bz2                           # global-def
+    NAME_LIB_PKG_MAIN=$LIBPKG.tar.$NAME_PKG_EXT                 # global-def
 
-    NAME_PKG_LIB_DEV=$LIBPKG-devel-$VER-$REL.tar.bz2            # global-def
-    NAME_PKG_LIB_DOC=$LIBPKG-doc-$VER-$REL.tar.bz2              # global-def
-    NAME_PKG_LIB_BIN=$LIBPKG-bin-$VER-$REL.tar.bz2              # global-def
+    NAME_PKG_LIB_DEV=$LIBPKG-devel-$VER-$REL.tar.$NAME_PKG_EXT  # global-def
+    NAME_PKG_LIB_DOC=$LIBPKG-doc-$VER-$REL.tar.$NAME_PKG_EXT    # global-def
+    NAME_PKG_LIB_BIN=$LIBPKG-bin-$VER-$REL.tar.$NAME_PKG_EXT    # global-def
 
     TOPDIR=$argTop                                              # global-def
     export srcdir=$argSrc
@@ -4531,9 +4533,9 @@ DESCRIPTION
     ------------------------
 
     If you have downloaded a Cygwin source package, like
-    package-N.N-RELEASE-src.tar.gz, it might contain at these files:
+    package-N.N-RELEASE-src.tar.xz, it might contain at these files:
 
-        foo-N.N-RELEASE-src.tar.bz2
+        foo-N.N-RELEASE-src.tar.xz
         foo-N.N-RELEASE*.patch
         foo-N.N-RELEASE.sh
 
@@ -4648,6 +4650,19 @@ function CygbuildHelpSourcePackage()
 #
 #######################################################################
 
+
+function CygbuildCompressTarOpt()
+{
+    if [ "$OPTION_COMPRESS" = "bzip2" ]; then
+        echo "--bzip2"
+    elif [ "$OPTION_COMPRESS" = "lzma" ]; then
+        echo "--lzma"
+    elif [ "$OPTION_COMPRESS" = "xz" ]; then
+        echo "--xz"
+    else
+        echo "--gzip"
+    fi
+}
 
 function CygbuildCompress()
 {
@@ -5908,7 +5923,8 @@ function CygbuildCmdPkgBinaryStandard()
 {
     local id="$0.$FUNCNAME"
     local status=0
-    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose -jcf"
+    local tarz=$(CygbuildCompressTarOpt)
+    local taropt="$CYGBUILD_TAR_EXCLUDE $verbose $tarz --create --file"
     local sigext=$CYGBUILD_GPG_SIGN_EXT
     local pkg=$FILE_BIN_PKG
 
@@ -6812,7 +6828,8 @@ function CygbuildCmdPkgSourceStandard()
     # .......................................... make source package ...
 
     local name="$SCRIPT_SRC_PKG_BUILD"    # script-VERSION-RELEASE.sh
-    local taropt="$verbose -jcf"
+    local tarz=$(CygbuildCompressTarOpt)
+    local taropt="$verbose $tarz --create --file"
 
     CygbuildEcho "== Making package [source]" ${FILE_SRC_PKG#$srcdir/}
 
@@ -6832,7 +6849,7 @@ function CygbuildCmdPkgSourceStandard()
         cd "$srcinstdir" || exit $?
 
         #   Sometimes the directory contains previous releases, like
-        #   *-1.tar.bz2, *-2.tar.bz2  when the current release source
+        #   *-1.tar.*, *-2.tar.*  when the current release source
         #   is -3.
 
         local pkg="$PKG-$VER-$REL"
@@ -6904,7 +6921,7 @@ function CygbuildCmdPkgSourceMain()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
-    local dummy="pwd $(pwd)"                # For debugger
+    local dummy="pwd $(pwd)"                # For debug only
 
     local type
     CygbuildVersionControlType > $retval
@@ -12060,7 +12077,7 @@ function CygbuildFilePackageGuessMain()
     #   DESCRIPTION
     #
     #       1) This function searches *current* directory for Cygwin Net
-    #       release source file (*.tar.bz2). It is assumed, that this
+    #       release source file (*.tar.xz). It is assumed, that this
     #       script (cygbuild) came from there and is used for building
     #       binaries from sources.
     #
@@ -12082,7 +12099,7 @@ function CygbuildFilePackageGuessMain()
     #   guess and use that if user did not supply option -f
     #   We expect to see files like:
     #
-    #       package-N.N.tar.bz2
+    #       package-N.N.tar.xz
     #       package-N.N.tar.gz
     #
     #   Finally, if there is a separate script that gets sources from external
@@ -12128,6 +12145,12 @@ function CygbuildFilePackageGuessMain()
         CygbuildFilePackageGuessArchive \
             "[0-9.]+-[0-9].*(tar.bz2)" \
             >  $retval
+
+        if [ ! -s $retval ]; then
+            CygbuildFilePackageGuessArchive \
+                "[0-9.]+-[0-9].*(tar.xz)" \
+                >  $retval
+        fi
 
         arr=( $(< $retval) )
         len=${#arr[*]}
@@ -12221,8 +12244,8 @@ function CygbuildFileReleaseGuess()
     elif [ "$count" = "2" ]; then
 
         #  Found exactly two, source and binary package. Pick source
-        #  package-N.N-RELEASE-src.tar.bz2
-        #  package-N.N-RELEASE.tar.bz2
+        #  package-N.N-RELEASE-src.tar.xz
+        #  package-N.N-RELEASE.tar.xz
 
         echo "${arr[*]}"                      \
              | tr ' ' '\n'                   \
@@ -12425,7 +12448,7 @@ function CygbuildCommandMain()
     unset test                      # global-def
 
     OPTION_SPACE="yes"              # global-def
-    OPTION_COMPRESS="bz2"           # global-def
+    OPTION_COMPRESS="xz"            # global-def
 
     local arg args dir quiet release package
     local stripflag="yes"
