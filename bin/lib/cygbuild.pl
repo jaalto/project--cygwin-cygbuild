@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0410.0451';
+$VERSION = '2014.0416.0602';
 
 # ..................................................................
 
@@ -142,15 +142,16 @@ cryptographically signed. See options B<--sign> and B<--passphrase>.
 =head2 Packages with no version number
 
 To port a package which does not have a version number, one has to be
-generated out of the blue. Program relies on the fact that the VERSION is
-available both in the original package name and in the unpack directory.
-The package extensions can be C<.gz>, C<*.bz2> or C<*.tgz>. The recognized
-package filename formats include:
+generated out of the blue. Program relies on the fact that the VERSION
+number is included in the original package name and in the unpack
+directory. The package extensions can be C<*.tar.gz>, C<*.tar.bz2>
+C<*.tar.xz> or C<*.tgz>. The recognized package file name formats
+include:
 
     package-N[.N]+.tar.gz                Universal packaging format
     package_N[.N]+.orig.tar.gz           Debian source packages
 
-Like in here:
+Examples:
 
     package-1.2.tar.gz
     package-0.0.2.tar.bz2
@@ -158,14 +159,15 @@ Like in here:
 
 The package name can consist of many words separated by hyphens:
 
-    package-name-long-N[.N]+.tar.gz         Uses hyphens only
+    package-name-long-N[.N]+.tar.gz         hyphens
     package_name_invalid-N[.N]+.tar.gz      Underscores not allowed
 
-In case file uses some other naming and numbering scheme, it's a problem.
-Similarly if the unpack directory structure does not use universal scheme
-C<package-N.N>, it's a problem. Suppose a package unpacks like this:
+In case file uses some other naming or numbering scheme, it's a
+problem. Similarly if the unpack directory structure does not use
+universal format C<package-N.N>, it's a problem. Suppose a package
+unpacks like this:
 
-    tar zxvf package-beta-latest.tar.gz
+    tar -zxvf package-beta-latest.tar.gz
 	...
 	package-latest
 	package-latest/src
@@ -183,8 +185,6 @@ number, not in directory C<package-latest/>.
 
     cd package-YYYYMMDD/
     ... now proceed with the porting
-
-=head2 Packages with non-standard versioning schemes
 
 =head2 Packaging directly from version control repositories
 
@@ -283,7 +283,7 @@ be used to check the binary build:
 
     mkdir -p /tmp/package
     cd /tmp/package
-    tar -xf /path/to/package-N.N-RELEASE-src.tar.bz2
+    tar -xf /path/to/package-N.N-RELEASE-src.tar.xz
     ./*.sh --color --verbose all
 
 =head1 OPTIONS
@@ -333,8 +333,8 @@ Script. This changes behavior and command in the following manner:
 
 =item commands: B<[all]>, B<[binary-package]> and B<[source-package]>
 
-Move the generated source package C<package-N.N.tar.bz2> and binary package
-C<package-N.N-src.tar.bz2> to one directory up C<../> instead the default
+Move the generated source package C<package-N.N.tar.xz> and binary package
+C<package-N.N-src.tar.xz> to one directory up C<../> instead the default
 location <./sinst>.
 
 =back
@@ -354,8 +354,8 @@ binary package results are being checked. An example:
   ls
     ...
     package-2.1.tar.gz
-    package-2.1-1.tar.bz2
-    package-2.1-1-src.tar.bz2
+    package-2.1-1.tar.xz
+    package-2.1-1-src.tar.xz
 
   .. make a "pseudo" install directory
 
@@ -363,8 +363,8 @@ binary package results are being checked. An example:
 
   .. examine the binary package
 
-  (cd .inst ; tar -jxvf ../package-2.1-1.tar.bz2)
-  cygbuild -f package-2.1-1.tar.bz2 --cyginstdir .inst --verbose check
+  (cd .inst ; tar -jxvf ../package-2.1-1.tar.xz)
+  cygbuild -f package-2.1-1.tar.xz --cyginstdir .inst --verbose check
 
 =item B<--install-prefix PREFIX>
 
@@ -604,16 +604,16 @@ run diff between original package and current modifications. You must:
 
 =item B<package>
 
-Make binary package C<PACKAGE-VERSION-REL.tar.bz2> to directory C<.sinst/>.
+Make binary package C<PACKAGE-VERSION-REL.tar.xz> to directory C<.sinst/>.
 
 =item B<package-devel> or B<pkgdev>
 
 For library distributions, this command splits the binary distribution into
 three categories:
 
-    libPACKAGE-N.N-REL.tar.bz2       *.dll from  usr/
-    libPACKAGE-devel-N.N-REL.tar.bz2 all   from  usr/include  usr/lib
-    libPACKAGE-doc-N.N-REL.tar.bz2   all   from  usr/doc      usr/man
+    libPACKAGE-N.N-REL.tar.xz       *.dll from  usr/
+    libPACKAGE-devel-N.N-REL.tar.xz all   from  usr/include  usr/lib
+    libPACKAGE-doc-N.N-REL.tar.xz   all   from  usr/doc      usr/man
 
 The prefix 'lib' is not added in front of PACKAGE if PACKAGE name already
 starts with string 'lib'. In order to make a library release, there must be
@@ -625,25 +625,25 @@ Program will warn if any of these are missing
      setup-bin.hint         Client files from usr/bin/
      setup-doc.hint         for the documentation
 
-When command B<[publish]> is run, these setup files and the generated bz2
+When command B<[publish]> is run, these setup files and the generated xz
 files are copied to appropriate release directories like this:
 
     ROOT   ( $CYGBUILD_PUBLISH_DIR/libpackage/ )
     |
     | setup.hint
-    | libPACKAGE-N.N-REL.tar.bz2
-    | libPACKAGE-N.N-REL-src.tar.bz2
+    | libPACKAGE-N.N-REL.tar.xz
+    | libPACKAGE-N.N-REL-src.tar.xz
     |
     +-devel
-    | libPACKAGE-devel-N.N-REL.tar.bz2
+    | libPACKAGE-devel-N.N-REL.tar.xz
     | setup.hint (was setup-devel.hint)
     |
     +-bin
-    | libPACKAGE-bin-N.N-REL.tar.bz2
+    | libPACKAGE-bin-N.N-REL.tar.xz
     | setup.hint (was setup-bin.hint)
     |
     +-doc
-      libPACKAGE-doc-N.N-REL.tar.bz2
+      libPACKAGE-doc-N.N-REL.tar.xz
       setup.hint (was setup-doc.hint)
 
 Take for example a sample garbage collection library, whose name is simply
@@ -667,9 +667,9 @@ is used to generate the package names. The following is not optimal:
     cygbuild package-devel
 
     -- Making packages [devel] from /usr/src/build/gc-6.2.1.6/.inst
-    --   [devel-lib] /usr/src/build/libgc-6.2.1.6-1.tar.bz2
-    --   [devel-doc] /usr/src/build/gc-doc-6.2.1.6-1.tar.bz2
-    --   [devel-dev] /usr/src/build/gc-devel-6.2.1.6-1.tar.bz2
+    --   [devel-lib] /usr/src/build/libgc-6.2.1.6-1.tar.xz
+    --   [devel-doc] /usr/src/build/gc-doc-6.2.1.6-1.tar.xz
+    --   [devel-dev] /usr/src/build/gc-devel-6.2.1.6-1.tar.xz
 
 It would be better to use the C<libgc6> name, as it is used in Debian,
 instead of the homepage's name C<gc>, like this:
@@ -684,9 +684,9 @@ instead of the homepage's name C<gc>, like this:
     cygbuild package-devel
 
     -- Making packages [devel] from /usr/src/build/libgc6-6.2.1.6/.inst
-    --   [devel-lib] /usr/src/build/libgc6-6.2.1.6-1.tar.bz2
-    --   [devel-doc] /usr/src/build/libgc6-doc-6.2.1.6-1.tar.bz2
-    --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.bz2
+    --   [devel-lib] /usr/src/build/libgc6-6.2.1.6-1.tar.xz
+    --   [devel-doc] /usr/src/build/libgc6-doc-6.2.1.6-1.tar.xz
+    --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.xz
 				    ======
 
 Notice how all released files now correctly include prefix C<libgc6>.
@@ -833,7 +833,7 @@ Run all relevant steps: B<prep, conf, build, install, strip, package,
 source-package, finish>. This command is used to test the integrity of
 Cygwin net release. Like this:
 
-    tar -xvf package-N.N-1-src.tar.bz2
+    tar -xvf package-N.N-1-src.tar.xz
 	package-N.N-1.sh
 	package-N.N-1.patch
 	package-N.N-src.tar.gz
@@ -841,7 +841,7 @@ Cygwin net release. Like this:
     ./package-N.N-1.sh all
 
 If the build process breaks, then the fault is in the packaging.
-Contact maintainer of C<package-N.N-1-src.tar.bz2> for details.
+Contact maintainer of C<package-N.N-1-src.tar.xz> for details.
 
 =item B<almostall>
 
@@ -862,8 +862,8 @@ This command is primarily used for downloading sources of orphaned
 package in order to prepare ITA (intent to adopt) to Cygwin
 application mailing list.
 
-  1. The content of *-src.tar.bz2 and setup.hint are store
-  2. the *.bz2 is unpacked
+  1. The content of *-src.tar.xz and setup.hint are store
+  2. the *.xz is unpacked
   3. the CYGWIN-PATCHES is extracted from *.patch
   4. the rest of the patches (excluding CYGWIN-PATCHES) is stored
      to *-rest.patch
@@ -881,7 +881,7 @@ I<mywebget.pl>'s manual for more information. Here is an example
 configuration file to download and extract new versions of package:
 
   tag1: package
-    http://example.com/project/package-0.9.1.tar.bz2 new: x:
+    http://example.com/project/package-0.9.1.tar.xz new: x:
 
 =item B<prepare>
 
@@ -890,7 +890,7 @@ a preparation to build Cygwin Net release source package from scratch.
 Something like -b option in "source build" commands in C<.deb> and C<.rpm>
 packaging managers.
 
-Extract C<package-VERSION-REL-src.tar.bz2> to current directory and apply
+Extract C<package-VERSION-REL-src.tar.xz> to current directory and apply
 patch C<package-VERSION-REL*.patch> and run build command B<[makedirs]>.
 
 =item B<reshadow>
@@ -928,8 +928,8 @@ Complex packages that need access to their libraries, Perl/Python
 modules or data cannot be tested without live install first. Merely
 setting the PATH wouuld not be enough, but instead:
 
-   tar -C / -xf .sinst/<packge>.tar.bz2    # Install for real; live install
-   cygbuild --verbose test                 # run CYGWIN-PATCHES/test/*
+   tar -C / -xf .sinst/<packge>.tar.xz    # Install for real; live install
+   cygbuild --verbose test                # run CYGWIN-PATCHES/test/*
 
 To arrange running tests, I might be good a idea to prefix filenames
 with numbers to have them sort in specific order. Any file that does
@@ -1083,8 +1083,8 @@ That's it, if all succeeded. At directory up C<./.sinst> you should see two
 complete Cygwin Net release shipments: a binary package and a source
 package. The RELEASE number is the result of the B<-r> option.
 
-    package-1.13-1.tar.bz2
-    package-1.13-1-src.tar.bz2
+    package-1.13-1.tar.xz
+    package-1.13-1-src.tar.xz
 
 =back
 
@@ -1100,12 +1100,12 @@ borrowed from Debian and it means "intent to package":
     Subject: ITP: package-N.N
 
 B<Package submittal:> Include contents of C<setup.hint> and the binary
-package listing C<tar jtvf package-1.13-RELEASE.tar.bz2>. Provide
+package listing C<tar jtvf package-1.13-RELEASE.tar.xz>. Provide
 *complete* clickable ULR links where to download the files. An example:
 
     wget \
-        http://example.com/cygwin/package/package-N.N-1-src.tar.bz2 \
-        http://example.com/cygwin/package/package-N.N-1.tar.bz2 \
+        http://example.com/cygwin/package/package-N.N-1-src.tar.xz \
+        http://example.com/cygwin/package/package-N.N-1.tar.xz \
         http://example.com/cygwin/package/setup.hint
 
 B<Licensing:> As a package maintainer, the licensing responsibility is on
@@ -1717,7 +1717,7 @@ An example entry for package catdoc:
 If a single standard binary packaging command B<[package]> or library
 packaging command B<[package-devel]> methods are not suitable, it is
 possible to write a custom script. There may be need for separating files
-into different tar.bz2 files etc. When custom script is called:
+into different tar.xz files etc. When custom script is called:
 
   1. chdir has been done to installation directory
      CYGWIN-PATCHES/.inst/
@@ -1725,7 +1725,7 @@ into different tar.bz2 files etc. When custom script is called:
   2. script receives 4 arguments:
      PACKAGE VERSION RELEASE TOPDIR
 
-The C<TOPDIR> is the location where the script should place the I<tar.bz2>
+The C<TOPDIR> is the location where the script should place the I<tar.xz>
 files. It is typically directory above the sources: package-N.N/..
 
 =item B<package-source.sh>
@@ -1834,31 +1834,31 @@ releases):
     |  +--package-1.4/
     |  |
     |  package-1.3.tar.gz
-    |  package-1.3-1.tar.bz2
-    |  package-1.3-1-src.tar.bz2
+    |  package-1.3-1.tar.xz
+    |  package-1.3-1-src.tar.xz
     |  |
     |  package-1.4.tar.gz
-    |  package-1.4-1.tar.bz2
-    |  package-1.4-1-src.tar.bz2
+    |  package-1.4-1.tar.xz
+    |  package-1.4-1-src.tar.xz
     |
     +--bar/
     |  +--bar-3.12/
     |  +--bar-3.17/
     |  |
     |  bar-3.12.tar.gz
-    |  bar-3.12-1.tar.bz2
-    |  bar-3.12-1-src.tar.bz2
+    |  bar-3.12-1.tar.xz
+    |  bar-3.12-1-src.tar.xz
     |  |
     |  bar-3.17.tar.gz
-    |  bar-3.17-1.tar.bz2
-    |  bar-3.17-1-src.tar.bz2
+    |  bar-3.17-1.tar.xz
+    |  bar-3.17-1-src.tar.xz
     |
     +--quux/
        +--quux-2.2/
        |
        quux-2.2.tar.gz
-       quux-2.2-1.tar.bz2
-       quux-2.2-1-src.tar.bz2
+       quux-2.2-1.tar.xz
+       quux-2.2-1-src.tar.xz
 
 At first sight this may look complex, but with this structure you can
 manage several packages easily. For each package, reserve a separate
@@ -1907,8 +1907,8 @@ as running:
 With these commands, Cygwin Net release packages are copied one directory
 up to the same place where the original compresses source kit is:
 
-    /usr/src/cygwin-build/package/package-1.4-1.tar.bz2
-    /usr/src/cygwin-build/package/package-1.4-1-src.tar.bz2
+    /usr/src/cygwin-build/package/package-1.4-1.tar.xz
+    /usr/src/cygwin-build/package/package-1.4-1-src.tar.xz
 
 If you have a web server that can serve the package, copy the files to
 publish area with command:
@@ -2116,7 +2116,7 @@ Following warning while making a binary package is displayed:
     -- Wait, reading and preparing variables based on current directory
     -- Hm, no *.exe or *.dll files, skipping strip.
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:1:<PKG>
-    /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack <PKG>-VER-REL-src.tar.bz2
+    /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack <PKG>-VER-REL-src.tar.xz
 
 The warning means, that file C<CYGWIN-PATCHES/package.README> looked
 like a template. Edit C<package.README> file and leave all <PKG>, <VER>
@@ -2213,10 +2213,11 @@ The commands are always executed in listed order.
 =head2 Other archive formats like *.zip are not recognized
 
 This porting tool only handles C<*.tar.gz>, C<*.tar.bz2>,
-C<*.tar.lzma> archives. To port e.g. a C<*.zip> archive, you need to
-manually convert it to recognized format:
+C<*.tar.lzma> and C<*.tar.xz> archives. To port e.g. a C<*.zip>
+archive, you need to manually convert it to a recognized format:
 
     unzip package-N.N.zip
+    ... convert source archive to *.tar.gz
     tar -cvf package-1.1.tar.gz package-N.N/
     ... Now proceed normally
     cd package-N.N/
@@ -2224,9 +2225,9 @@ manually convert it to recognized format:
 
 =head2 Reporting bugs
 
-If you ran into a bug, run script in debug mode and send complete
-output listing to the maintainer. Provide also an URL link to the
-source package that you tried to build.
+If you run into a bug, activate debug mode and send complete output
+listing to the maintainer. Provide also an URL link to the source
+package that you tried to build.
 
     echo http://example.com/source      >  ~/tmp/error.log
     pwd; ls -la . ..                    >> ~/tmp/error.log
@@ -3065,11 +3066,12 @@ sub BinPkgListing ($)
 
     return unless -f $file;
 
-    my $optz = "j";
+    my $optz = "--xz";
 
-    $optz = "z" if $file =~ /gz$/;
+    $optz = "--gzip"  if $file =~ /gz$/;
+    $optz = "--bzip2" if $file =~ /bz2$/;
 
-    local $ARG = qx(tar -${optz}tvf $file);
+    local $ARG = qx(tar $optz --list --verbose --file $file);
 
     s/^.*:\d\d\s+//mg;
 
@@ -3371,7 +3373,7 @@ sub CygcheckDependencies ($)
 #       Read central Cywin installation archive list if it exists.
 #
 #       In order to use central database, all downloaded
-#       package-N.N-N.tar.bz2 files must be scanned through and the content
+#       package-N.N-N.tar.xz files must be scanned through and the content
 #       listings must be in one file.. Generating the list of contents of
 #       each file will take LOT of time in the first time. If you're unsure
 #       what this directory should be searched, start setup.exe and see
@@ -4010,7 +4012,7 @@ sub UpdatePackageTags (%)
 
     $debug  and  warn "$id: pkg [$pkg] ver [$ver] rel [$rel]\n";
 
-    #     unpack <PKG>-VER-REL-src.tar.bz2
+    #     unpack <PKG>-VER-REL-src.tar.xz
 
     my $fullpkg = "$pkg-$ver-$rel";
 
@@ -4022,7 +4024,7 @@ sub UpdatePackageTags (%)
     s,(unpack\s*).*[\d.-]+\d,$1$pkg-$ver-$rel,;
 
     s<(This +will +create:)\s+(^ +\S+\s+){2}>
-     <$1\n  $pkg-$ver-$rel.tar.bz2\n  $pkg-$ver-$rel-src.tar.bz2\n\n>smi;
+     <$1\n  $pkg-$ver-$rel.tar.xz\n  $pkg-$ver-$rel-src.tar.xz\n\n>smi;
 
     s,\Q<PKG>\E,$pkg,g;
     s,\Q<VER>\E,$ver,g;
@@ -4398,7 +4400,7 @@ sub CygwinSetupIniEntry ( $ )
 #   INPUT PARAMETERS
 #
 #       $file       location of setup.ini
-#       $release    location of the tar.bz2 file
+#       $release    location of the tar.xz file
 #
 #   RETURN VALUES
 #
@@ -4439,7 +4441,6 @@ sub CygwinSetupIniUpdate ( $ $ )
     {
 	die "$id: Cannot read version number from [$release]";
     }
-
 
     #   Only these lines need to be changed
     #   version: 2003.0919-1
