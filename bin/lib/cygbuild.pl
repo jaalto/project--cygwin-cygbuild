@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0416.0602';
+$VERSION = '2014.0612.0803';
 
 # ..................................................................
 
@@ -1299,6 +1299,29 @@ switches, which you can incorporate:
 	--libexecdir='${sbindir}'
 	--datadir='${prefix}/share'
 
+=item B<delete.lst>
+
+See also C<install.lst>.
+
+List rm(1) compatible entries in separate lines. The
+format is:
+
+  # comment
+  <file or directory or a glob pattern> [rm option]
+
+Expansion variables available are: C<$PKG> for package name, C<$VER>
+for version number and C<$DOC> for package specific documentation
+directory. Notice that the I<destination> must not be an absolute path
+but a relative one under I<.inst/> directory.
+
+Examples:
+
+  # The file and directory PATTERN can use variables $PKG $VER $DOC.
+  # Examples:
+
+  $DOC/example -rf
+  *.uml
+
 =item B<diff.options>
 
 By default the C<[patch]> command excludes files that it thinks do not
@@ -1405,7 +1428,8 @@ ignored. An example:
 
 =item B<install.lst>
 
-NOTE: if file exists, the C<make install> target is not run.
+NOTE: if file exists, the C<make install> target is not run. See
+also C<delete.lst>.
 
 List install(1) compatible entries in separate lines. The
 format is:
@@ -1432,7 +1456,7 @@ to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional I<mode> argument
 passed to C<install -m MODE>.
 
-In I<destination> part, expansion variables provided are: C<$PKG> for
+In I<destination> part, expansion variables available are: C<$PKG> for
 package name, C<$VER> for version number and C<$DOC> for package
 specific documentation directory. Notice that the I<destination> must
 not be an absolute path but a relative one under I<.inst/> directory.

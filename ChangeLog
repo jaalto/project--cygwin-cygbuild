@@ -1,3 +1,8 @@
+2014-06-12 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (HELP::OPTIONAL EXTERNAL FILES):
+	Document delete.lst
+
 2014-06-10 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: Update find option -perm +111 to newer
