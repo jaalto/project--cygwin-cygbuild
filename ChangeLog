@@ -1,6 +1,7 @@
 2014-06-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildObjDumpLibraryDepList): Ignore MPR.dll.
+	(CygbuildPreRemoveWrite): chmod 755.
 
 2014-06-12 Thu  Jari Aalto  <jari.aalto@cante.net>
 
