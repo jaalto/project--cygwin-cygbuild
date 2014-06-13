@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0613.0428"
+CYGBUILD_VERSION="2014.0613.0436"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7131,6 +7131,10 @@ done
 # End of file
 " > $file
 
+    local stat=$?
+
+    CygbuildChmodExec "$file"
+    return $stat
 }
 
 function CygbuildMakefileCheck()
