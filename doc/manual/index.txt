@@ -1043,12 +1043,27 @@ Contributing packages
 
 bin/ directory
 
-   All files in CYGWIN-PATCHES/bin are installed as executables into
-   directory .inst/usr/bin. The location of each installd file can be by
-   adding tag cyginstdir:. An example:
+   All files in CYGWIN-PATCHES/bin are installed as executables (with
+   permissions 755) into directory .inst/usr/bin. Files with extension
+   *.tmp are ignored.
+
+   The location of each installd file can be by adding tag cyginstdir:. An
+   example:
     #!/bin/sh
     # cyginstdir: /bin
     ...
+
+   If it is not practical to insert cyginstdir: stanza to a file that may
+   be original copy from somewhere else (updated each time new version
+   comes), the directory can be also be set in a separate file:
+   <file>.cyginstdir
+
+   The file must contain one line with full path name for install
+   location. An optional install(1) permission expression can specified in
+   the end of path line. Any comment lines starting with "#" are ignored.
+   An example:
+   # comment
+   /bin/program 755
 
 man/ directory
 

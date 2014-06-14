@@ -960,13 +960,29 @@ GPG EXAMPLES
 
 OPTIONAL EXTERNAL DIRECTORIES
   bin/ directory
-    All files in "CYGWIN-PATCHES/bin" are installed as executables into
-    directory ".inst/usr/bin". The location of each installd file can be by
-    adding tag cyginstdir:. An example:
+    All files in "CYGWIN-PATCHES/bin" are installed as executables (with
+    permissions 755) into directory ".inst/usr/bin". Files with extension
+    "*.tmp" are ignored.
+
+    The location of each installd file can be by adding tag *cyginstdir:*.
+    An example:
 
         #!/bin/sh
         # cyginstdir: /bin
         ...
+
+    If it is not practical to insert *cyginstdir:* stanza to a file that may
+    be original copy from somewhere else (updated each time new version
+    comes), the directory can be also be set in a separate file:
+
+       <file>.cyginstdir
+
+    The file must contain one line with full path name for install location.
+    An optional install(1) permission expression can specified in the end of
+    path line. Any comment lines starting with "#" are ignored. An example:
+
+       # comment
+       /bin/program 755
 
   man/ directory
     All files in "CYGWIN-PATCHES/man" are installed as manual pages. The
@@ -986,7 +1002,7 @@ OPTIONAL EXTERNAL DIRECTORIES
     be a single "series" file. This is because quilt keeps status
     information in toplevel ".pc/" directory and it does not chnage it even
     though a different source directory for "series" file had been given by
-    setting environment variable "QUILT_PATCHES". In short: managing
+    setting environment variable *QUILT_PATCHES*. In short: managing
     multiple quilt instances in separate directories is not possible.
 
     An example: files in 00debian/ directory are applied before files in
@@ -2089,14 +2105,4 @@ AUTHOR
     Copyright (C) 2003-2012 Jari Aalto. This program is free software; you
     can redistribute and/or modify program under the terms of Gnu General
     Public license v2 or, at your option, any later version.
-
-POD ERRORS
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 1190:
-        You forgot a '=back' before '=head2'
-
-    Around line 1241:
-        =back without =over
 

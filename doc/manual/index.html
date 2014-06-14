@@ -1177,13 +1177,27 @@ local disk:</p>
 <p>
 </p>
 <h2><a name="bin__directory">bin/ directory</a></h2>
-<p>All files in <code>CYGWIN-PATCHES/bin</code> are installed as executables into
-directory <code>.inst/usr/bin</code>. The location of each installd file can be
-by adding tag <strong>cyginstdir:</strong>. An example:</p>
+<p>All files in <code>CYGWIN-PATCHES/bin</code> are installed as executables (with
+permissions 755) into directory <code>.inst/usr/bin</code>. Files with extension
+<code>*.tmp</code> are ignored.</p>
+<p>The location of each installd file can be by adding tag
+<em>cyginstdir:</em>. An example:</p>
 <pre>
     #!/bin/sh
     # cyginstdir: /bin
     ...</pre>
+<p>If it is not practical to insert <em>cyginstdir:</em> stanza to a file that
+may be original copy from somewhere else (updated each time new
+version comes), the directory can be also be set in a separate file:</p>
+<pre>
+   &lt;file&gt;.cyginstdir</pre>
+<p>The file must contain one line with full path name for install
+location. An optional <strong>install(1)</strong> permission expression can
+specified in the end of path line. Any comment lines starting with &quot;#&quot;
+are ignored. An example:</p>
+<pre>
+   # comment
+   /bin/program 755</pre>
 <p>
 </p>
 <h2><a name="man__directory">man/ directory</a></h2>
@@ -1200,12 +1214,12 @@ the <strong>patch</strong> and <strong>unpatch</strong> commands. The order of f
 determined by sorting them alphabetically. To ensure correct patch
 order, please add numeric prefix for each file and add patches to
 their respective subdirectories.</p>
-<p>If there is a <code>series</code> file in a directory, <code>quilt(1)</code> is invoked to
+<p>If there is a <code>series</code> file in a directory, <strong>quilt(1)</strong> is invoked to
 handle the patches. NOTE: Due to implementation of quilt, there can
 only be a single <code>series</code> file. This is because quilt keeps status
 information in toplevel <code>.pc/</code> directory and it does not chnage it
 even though a different source directory for <code>series</code> file had been
-given by setting environment variable <code>QUILT_PATCHES</code>. In short:
+given by setting environment variable <em>QUILT_PATCHES</em>. In short:
 managing multiple quilt instances in separate directories is not
 possible.</p>
 <p>An example: files in 00debian/ directory are applied before files in
