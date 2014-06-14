@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0613.0436"
+CYGBUILD_VERSION="2014.0614.1147"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1377,8 +1377,8 @@ function CygbuildLibInstallEnvironment()
     export infobin="/usr/bin/install-info"
 
     export INSTALL=${CYGWIN_BUILD_INSTALL:-"/usr/bin/install"}
-    export INSTALL_DATA=${CYGWIN_BUILD_F_MODES:-"-m 644"}
-    export INSTALL_BIN=${CYGWIN_BUILD_X_MODES:-"-m 755"}
+    export INSTALL_DATA=${CYGWIN_BUILD_F_MODES:-"--mode 644"}
+    export INSTALL_BIN=${CYGWIN_BUILD_X_MODES:-"--mode 755"}
 }
 
 #######################################################################
@@ -10380,29 +10380,60 @@ function CygbuildInstallExtraBinFiles()
 
     [ -d "$extrabindir" ] || return 0
 
-    local scriptInstallFile="$INSTALL_SCRIPT $INSTALL_BIN_MODES -D"
+    local scriptInstallFile="$INSTALL_SCRIPT -D"
     local item dest todir tmp _file
 
     CygbuildEcho "-- Installing external programs from:" \
         ${extrabindir#$srcdir/}
 
+    local item
+
     for item in $extrabindir/*
     do
-        local _file
+        # Ignore these files
 
-        _file=${item##*/}
-        _file=${_file%.*}       # Remove extensions
+        case "$item" in
+            *.tmp | *.cyginstdir | *[#~])
+                continue
+                ;;
+        esac
 
-        dest="/usr/bin"         # default location
-        tmp=$( awk '/cyginstdir:/ { print $(NF)}' "$item" )
+        local _file=${item##*/}
+        local _dest=$item.cyginstdir
+        local dest="/usr/bin"         # default location
+        local perm="$INSTALL_BIN_MODES"
 
-        [ "$tmp" ] && dest=${tmp%/} # Change destination
+        if [ -f "$_dest" ]; then
+            local line _perm found
+            while read line _perm
+            do
+                # Search for first line with path name
+                case "$line" in
+                    /* )
+                        dest=${line%/*}
+                        _file=${line##*/}
+                        [ "$_perm" ] && perm="--mode=$_perm"
+                        found=$line
+                        break
+                        ;;
+                esac
+            done < "$_dest"
+
+            if [ ! "$found" ]; then
+                CygbuildWarn "-- [WARN] Directory missing in ${_dest#$srcdir/}"
+            fi
+        else
+            tmp=$( awk '/cyginstdir:/ { print $(NF)}' "$item" )
+
+            [ "$tmp" ] && dest=${tmp%/} # Change destination
+        fi
 
         todir="$instdir$dest"
 
         CygbuildVerb "-- install ${todir#$srcdir/}/$_file"
 
-        CygbuildRun $scriptInstallFile $item $todir/$_file || return $?
+        CygbuildRun $scriptInstallFile $perm "$item" "$todir/$_file" ||
+           return $?
     done
 }
 

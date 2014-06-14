@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0614.1055';
+$VERSION = '2014.0614.1144';
 
 # ..................................................................
 
@@ -1189,13 +1189,30 @@ local disk:
 
 =head2 bin/ directory
 
-All files in C<CYGWIN-PATCHES/bin> are installed as executables into
-directory C<.inst/usr/bin>. The location of each installd file can be
-by adding tag B<cyginstdir:>. An example:
+All files in C<CYGWIN-PATCHES/bin> are installed as executables (with
+permissions 755) into directory C<.inst/usr/bin>. Files with extension
+C<*.tmp> are ignored.
+
+The location of each installd file can be by adding tag
+I<cyginstdir:>. An example:
 
     #!/bin/sh
     # cyginstdir: /bin
     ...
+
+If it is not practical to insert I<cyginstdir:> stanza to a file that
+may be original copy from somewhere else (updated each time new
+version comes), the directory can be also be set in a separate file:
+
+   <file>.cyginstdir
+
+The file must contain one line with full path name for install
+location. An optional B<install(1)> permission expression can
+specified in the end of path line. Any comment lines starting with "#"
+are ignored. An example:
+
+   # comment
+   /bin/program 755
 
 =head2 man/ directory
 
@@ -1213,12 +1230,12 @@ determined by sorting them alphabetically. To ensure correct patch
 order, please add numeric prefix for each file and add patches to
 their respective subdirectories.
 
-If there is a C<series> file in a directory, quilt(1) is invoked to
+If there is a C<series> file in a directory, B<quilt(1)> is invoked to
 handle the patches. NOTE: Due to implementation of quilt, there can
 only be a single C<series> file. This is because quilt keeps status
 information in toplevel C<.pc/> directory and it does not chnage it
 even though a different source directory for C<series> file had been
-given by setting environment variable C<QUILT_PATCHES>. In short:
+given by setting environment variable I<QUILT_PATCHES>. In short:
 managing multiple quilt instances in separate directories is not
 possible.
 
