@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0614.1144';
+$VERSION = '2014.0614.1149';
 
 # ..................................................................
 
@@ -1185,8 +1185,6 @@ local disk:
 
 =head1 OPTIONAL EXTERNAL DIRECTORIES
 
-=over 4
-
 =head2 bin/ directory
 
 All files in C<CYGWIN-PATCHES/bin> are installed as executables (with
@@ -1254,8 +1252,6 @@ specific to Cygwin:
       |
       +- cygwin/
          10-fix-makefile.patch
-
-=back
 
 =head1 OPTIONAL EXTERNAL FILES
 
