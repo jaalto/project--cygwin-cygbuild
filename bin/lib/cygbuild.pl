@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0612.0803';
+$VERSION = '2014.0614.1055';
 
 # ..................................................................
 
@@ -1185,6 +1185,10 @@ local disk:
 
 =head1 OPTIONAL EXTERNAL DIRECTORIES
 
+=over 4
+
+=head2 bin/ directory
+
 All files in C<CYGWIN-PATCHES/bin> are installed as executables into
 directory C<.inst/usr/bin>. The location of each installd file can be
 by adding tag B<cyginstdir:>. An example:
@@ -1192,6 +1196,49 @@ by adding tag B<cyginstdir:>. An example:
     #!/bin/sh
     # cyginstdir: /bin
     ...
+
+=head2 man/ directory
+
+All files in C<CYGWIN-PATCHES/man> are installed as manual pages. The
+file must end to a number indicating the manual page section. Examples:
+
+   manpage.1
+   manpage.conf.5
+
+=head2 patches/ directory
+
+Files in C<CYGWIN-PATCHES/patches> with extensin *.path are used with
+the B<patch> and B<unpatch> commands. The order of files are
+determined by sorting them alphabetically. To ensure correct patch
+order, please add numeric prefix for each file and add patches to
+their respective subdirectories.
+
+If there is a C<series> file in a directory, quilt(1) is invoked to
+handle the patches. NOTE: Due to implementation of quilt, there can
+only be a single C<series> file. This is because quilt keeps status
+information in toplevel C<.pc/> directory and it does not chnage it
+even though a different source directory for C<series> file had been
+given by setting environment variable C<QUILT_PATCHES>. In short:
+managing multiple quilt instances in separate directories is not
+possible.
+
+An example: files in 00debian/ directory are applied before files in
+cygwin/ directory due to alphabetical order. In this example the
+patches from Debian (managed by quilt) are combined with those
+specific to Cygwin:
+
+   CYGWIN-PATCHES/
+   |
+   +- patches/
+      |
+      +- 00debian-0.15-1/
+      |  ...
+      |  series  (quilt patch series file)
+      |
+      +- cygwin/
+         10-fix-makefile.patch
+
+=back
 
 =head1 OPTIONAL EXTERNAL FILES
 

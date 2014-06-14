@@ -1,3 +1,8 @@
+2014-06-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (HELP::OPTIONAL EXTERNAL DIRECTORIES):
+	Document bin/ and patches/ directories.
+
 2014-06-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildObjDumpLibraryDepList): Ignore MPR.dll.
