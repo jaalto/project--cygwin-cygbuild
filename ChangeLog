@@ -1,5 +1,8 @@
 2014-06-15 Sun  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/lib/cygbuild.pl: (HELP::Patch management commands):
+	Document */tmp/* or /*.tmp/* directories in "patch" command.
+
 	* bin/cygbuild.sh: (CygbuildPatchFileList): Disregard
 	files in */tmp/* or /*.tmp/* directories
 

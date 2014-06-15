@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0614.1149';
+$VERSION = '2014.0615.1151';
 
 # ..................................................................
 
@@ -777,9 +777,10 @@ in C<.sinst/>.
 =item B<patch>
 
 Apply all I<*.patch> files found recursively under C<CYGWIN-PATCHES/>
-to original sources (see command B<patch-list>). The applied patches
-are recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't
-be applied multiple times.
+to original sources (see command B<patch-list>). files in direcories
+C</tmp/> or C</*.tmp/> are disregarded. The applied patches are
+recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't be
+applied multiple times.
 
 The directories and filenames are best to be prefixed with a
 sequential number, like:
