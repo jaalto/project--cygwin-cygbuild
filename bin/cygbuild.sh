@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0615.1209"
+CYGBUILD_VERSION="2014.0615.1313"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11364,6 +11364,11 @@ function CygbuildCmdInstallList()
         -e "s,\$VER,$VER," \
         -e '/^[[:space:]]*$/d' \
         $file > $out
+
+    if $EGREP "[$]" $out > $retval; then
+        CygbuildWarn "-- [WARN] Unknown substitution variable"
+        sed -e "s,$srcdir/,," -e 's/^/   /;' $retval
+    fi
 
     local line=0
     local status=0
