@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0615.1148"
+CYGBUILD_VERSION="2014.0615.1209"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6283,10 +6283,18 @@ function CygbuildPatchApplyQuiltMaybe()
         fi
 
         if $EGREP --quiet --ignore-case \
-           "no patch.*removed|series fully applied" \
+           "no patch.*removed|series fully applied|No patches applied" \
            $log
         then
             #   File series fully applied => status code 1
+            status=""
+        fi
+
+        if tail -1 $log | $EGREP --quiet --ignore-case \
+           "Applying patch"
+        then
+            # Even though patches apply, it still reports ERROR status(1).
+            # Perhaps due to "Hunk #1 succeeded" messages?
             status=""
         fi
 
@@ -6296,11 +6304,12 @@ function CygbuildPatchApplyQuiltMaybe()
 
     done < $retval
 
-   return 0
+    return 0
 }
 
 function CygbuildPatchApplyMaybe()
 {
+
     local id="$0.$FUNCNAME"
     local dir="$DIR_CYGPATCH"
     local statfile="$CYGPATCH_DONE_PATCHES_FILE"
@@ -13016,7 +13025,7 @@ function CygbuildCommandMain()
                 return
                 ;;
 
-          verify)
+            verify)
                 CygbuildCmdGPGVerifyMain
                 status=$?
                 ;;
