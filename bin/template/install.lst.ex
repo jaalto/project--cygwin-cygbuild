@@ -8,7 +8,7 @@
 #    program usr/bin/
 #    program usr/bin/newname
 #    ln usr/bin/program aliasname
-#    mkdir var/log/program
+#    mkdir var/log/program/
 #    README  $DOC/ 644
 #    man.1
 #    program.pl
