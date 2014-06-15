@@ -22,7 +22,6 @@
 	<ul>
 
 		<li><a href="#packages_with_no_version_number">Packages with no version number</a></li>
-		<li><a href="#packages_with_non_standard_versioning_schemes">Packages with non-standard versioning schemes</a></li>
 		<li><a href="#packaging_directly_from_version_control_repositories">Packaging directly from version control repositories</a></li>
 	</ul>
 
@@ -50,6 +49,13 @@
 
 	<li><a href="#gpg_examples">GPG EXAMPLES</a></li>
 	<li><a href="#optional_external_directories">OPTIONAL EXTERNAL DIRECTORIES</a></li>
+	<ul>
+
+		<li><a href="#bin__directory">bin/ directory</a></li>
+		<li><a href="#man__directory">man/ directory</a></li>
+		<li><a href="#patches__directory">patches/ directory</a></li>
+	</ul>
+
 	<li><a href="#optional_external_files">OPTIONAL EXTERNAL FILES</a></li>
 	<li><a href="#managing_a_build_tree">MANAGING A BUILD TREE</a></li>
 	<ul>
@@ -142,27 +148,29 @@ cryptographically signed. See options <strong>--sign</strong> and <strong>--pass
 </p>
 <h2><a name="packages_with_no_version_number">Packages with no version number</a></h2>
 <p>To port a package which does not have a version number, one has to be
-generated out of the blue. Program relies on the fact that the VERSION is
-available both in the original package name and in the unpack directory.
-The package extensions can be <code>.gz</code>, <code>*.bz2</code> or <code>*.tgz</code>. The recognized
-package filename formats include:</p>
+generated out of the blue. Program relies on the fact that the VERSION
+number is included in the original package name and in the unpack
+directory. The package extensions can be <code>*.tar.gz</code>, <code>*.tar.bz2</code>
+<code>*.tar.xz</code> or <code>*.tgz</code>. The recognized package file name formats
+include:</p>
 <pre>
     package-N[.N]+.tar.gz                Universal packaging format
     package_N[.N]+.orig.tar.gz           Debian source packages</pre>
-<p>Like in here:</p>
+<p>Examples:</p>
 <pre>
     package-1.2.tar.gz
     package-0.0.2.tar.bz2
     package-12.0.2.1.tgz</pre>
 <p>The package name can consist of many words separated by hyphens:</p>
 <pre>
-    package-name-long-N[.N]+.tar.gz         Uses hyphens only
+    package-name-long-N[.N]+.tar.gz         hyphens
     package_name_invalid-N[.N]+.tar.gz      Underscores not allowed</pre>
-<p>In case file uses some other naming and numbering scheme, it's a problem.
-Similarly if the unpack directory structure does not use universal scheme
-<code>package-N.N</code>, it's a problem. Suppose a package unpacks like this:</p>
+<p>In case file uses some other naming or numbering scheme, it's a
+problem. Similarly if the unpack directory structure does not use
+universal format <code>package-N.N</code>, it's a problem. Suppose a package
+unpacks like this:</p>
 <pre>
-    tar zxvf package-beta-latest.tar.gz
+    tar -zxvf package-beta-latest.tar.gz
         ...
         package-latest
         package-latest/src
@@ -178,9 +186,6 @@ number, not in directory <code>package-latest/</code>.</p>
 <pre>
     cd package-YYYYMMDD/
     ... now proceed with the porting</pre>
-<p>
-</p>
-<h2><a name="packages_with_non_standard_versioning_schemes">Packages with non-standard versioning schemes</a></h2>
 <p>
 </p>
 <h2><a name="packaging_directly_from_version_control_repositories">Packaging directly from version control repositories</a></h2>
@@ -277,7 +282,7 @@ be used to check the binary build:</p>
 <pre>
     mkdir -p /tmp/package
     cd /tmp/package
-    tar -xf /path/to/package-N.N-RELEASE-src.tar.bz2
+    tar -xf /path/to/package-N.N-RELEASE-src.tar.xz
     ./*.sh --color --verbose all</pre>
 <p>
 </p>
@@ -334,8 +339,8 @@ Script. This changes behavior and command in the following manner:</p>
 <dt><strong><a name="commands_all_binary_package_and_source_package" class="item">commands: <strong>[all]</strong>, <strong>[binary-package]</strong> and <strong>[source-package]</strong></a></strong></dt>
 
 <dd>
-<p>Move the generated source package <code>package-N.N.tar.bz2</code> and binary package
-<code>package-N.N-src.tar.bz2</code> to one directory up <code>../</code> instead the default
+<p>Move the generated source package <code>package-N.N.tar.xz</code> and binary package
+<code>package-N.N-src.tar.xz</code> to one directory up <code>../</code> instead the default
 location &lt;./sinst&gt;.</p>
 </dd>
 </dl>
@@ -355,8 +360,8 @@ binary package results are being checked. An example:</p>
   ls
     ...
     package-2.1.tar.gz
-    package-2.1-1.tar.bz2
-    package-2.1-1-src.tar.bz2</pre>
+    package-2.1-1.tar.xz
+    package-2.1-1-src.tar.xz</pre>
 <pre>
   .. make a &quot;pseudo&quot; install directory</pre>
 <pre>
@@ -364,8 +369,8 @@ binary package results are being checked. An example:</p>
 <pre>
   .. examine the binary package</pre>
 <pre>
-  (cd .inst ; tar -jxvf ../package-2.1-1.tar.bz2)
-  cygbuild -f package-2.1-1.tar.bz2 --cyginstdir .inst --verbose check</pre>
+  (cd .inst ; tar -jxvf ../package-2.1-1.tar.xz)
+  cygbuild -f package-2.1-1.tar.xz --cyginstdir .inst --verbose check</pre>
 </dd>
 <dt><strong><a name="install_prefix_prefix" class="item"><strong>--install-prefix PREFIX</strong></a></strong></dt>
 
@@ -622,7 +627,7 @@ run diff between original package and current modifications. You must:</p>
 <dt><strong><a name="package" class="item"><strong>package</strong></a></strong></dt>
 
 <dd>
-<p>Make binary package <code>PACKAGE-VERSION-REL.tar.bz2</code> to directory <code>.sinst/</code>.</p>
+<p>Make binary package <code>PACKAGE-VERSION-REL.tar.xz</code> to directory <code>.sinst/</code>.</p>
 </dd>
 <dt><strong><a name="package_devel_or_pkgdev" class="item"><strong>package-devel</strong> or <strong>pkgdev</strong></a></strong></dt>
 
@@ -630,9 +635,9 @@ run diff between original package and current modifications. You must:</p>
 <p>For library distributions, this command splits the binary distribution into
 three categories:</p>
 <pre>
-    libPACKAGE-N.N-REL.tar.bz2       *.dll from  usr/
-    libPACKAGE-devel-N.N-REL.tar.bz2 all   from  usr/include  usr/lib
-    libPACKAGE-doc-N.N-REL.tar.bz2   all   from  usr/doc      usr/man</pre>
+    libPACKAGE-N.N-REL.tar.xz       *.dll from  usr/
+    libPACKAGE-devel-N.N-REL.tar.xz all   from  usr/include  usr/lib
+    libPACKAGE-doc-N.N-REL.tar.xz   all   from  usr/doc      usr/man</pre>
 <p>The prefix 'lib' is not added in front of PACKAGE if PACKAGE name already
 starts with string 'lib'. In order to make a library release, there must be
 separate setup hint files for each in directory <code>CYGWIN-PATCHES/</code>.
@@ -642,25 +647,25 @@ Program will warn if any of these are missing</p>
      setup-devel.hint       for the development libraries *.a *.la
      setup-bin.hint         Client files from usr/bin/
      setup-doc.hint         for the documentation</pre>
-<p>When command <strong>[publish]</strong> is run, these setup files and the generated bz2
+<p>When command <strong>[publish]</strong> is run, these setup files and the generated xz
 files are copied to appropriate release directories like this:</p>
 <pre>
     ROOT   ( $CYGBUILD_PUBLISH_DIR/libpackage/ )
     |
     | setup.hint
-    | libPACKAGE-N.N-REL.tar.bz2
-    | libPACKAGE-N.N-REL-src.tar.bz2
+    | libPACKAGE-N.N-REL.tar.xz
+    | libPACKAGE-N.N-REL-src.tar.xz
     |
     +-devel
-    | libPACKAGE-devel-N.N-REL.tar.bz2
+    | libPACKAGE-devel-N.N-REL.tar.xz
     | setup.hint (was setup-devel.hint)
     |
     +-bin
-    | libPACKAGE-bin-N.N-REL.tar.bz2
+    | libPACKAGE-bin-N.N-REL.tar.xz
     | setup.hint (was setup-bin.hint)
     |
     +-doc
-      libPACKAGE-doc-N.N-REL.tar.bz2
+      libPACKAGE-doc-N.N-REL.tar.xz
       setup.hint (was setup-doc.hint)</pre>
 <p>Take for example a sample garbage collection library, whose name is simply
 'gc' available at &lt;http://www.hpl.hp.com/personal/Hans_Boehm&gt;. There
@@ -683,9 +688,9 @@ is used to generate the package names. The following is not optimal:</p>
     cygbuild package-devel</pre>
 <pre>
     -- Making packages [devel] from /usr/src/build/gc-6.2.1.6/.inst
-    --   [devel-lib] /usr/src/build/libgc-6.2.1.6-1.tar.bz2
-    --   [devel-doc] /usr/src/build/gc-doc-6.2.1.6-1.tar.bz2
-    --   [devel-dev] /usr/src/build/gc-devel-6.2.1.6-1.tar.bz2</pre>
+    --   [devel-lib] /usr/src/build/libgc-6.2.1.6-1.tar.xz
+    --   [devel-doc] /usr/src/build/gc-doc-6.2.1.6-1.tar.xz
+    --   [devel-dev] /usr/src/build/gc-devel-6.2.1.6-1.tar.xz</pre>
 <p>It would be better to use the <code>libgc6</code> name, as it is used in Debian,
 instead of the homepage's name <code>gc</code>, like this:</p>
 <pre>
@@ -699,9 +704,9 @@ instead of the homepage's name <code>gc</code>, like this:</p>
     cygbuild package-devel</pre>
 <pre>
     -- Making packages [devel] from /usr/src/build/libgc6-6.2.1.6/.inst
-    --   [devel-lib] /usr/src/build/libgc6-6.2.1.6-1.tar.bz2
-    --   [devel-doc] /usr/src/build/libgc6-doc-6.2.1.6-1.tar.bz2
-    --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.bz2
+    --   [devel-lib] /usr/src/build/libgc6-6.2.1.6-1.tar.xz
+    --   [devel-doc] /usr/src/build/libgc6-doc-6.2.1.6-1.tar.xz
+    --   [devel-dev] /usr/src/build/libgc6-devel-6.2.1.6-1.tar.xz
                                     ======</pre>
 <p>Notice how all released files now correctly include prefix <code>libgc6</code>.</p>
 </dd>
@@ -790,9 +795,10 @@ in <code>.sinst/</code>.</p>
 
 <dd>
 <p>Apply all <em>*.patch</em> files found recursively under <code>CYGWIN-PATCHES/</code>
-to original sources (see command <strong>patch-list</strong>). The applied patches
-are recorded in <code>CYGWIN-PATCHES/done-patches.tmp</code> so that they won't
-be applied multiple times.</p>
+to original sources (see command <strong>patch-list</strong>). files in direcories
+<code>/tmp/</code> or <code>/*.tmp/</code> are disregarded. The applied patches are
+recorded in <code>CYGWIN-PATCHES/done-patches.tmp</code> so that they won't be
+applied multiple times.</p>
 <p>The directories and filenames are best to be prefixed with a
 sequential number, like:</p>
 <pre>
@@ -844,14 +850,14 @@ under <code>CYGWIN-PATCHES</code>. On success, the record keeping file
 source-package, finish</strong>. This command is used to test the integrity of
 Cygwin net release. Like this:</p>
 <pre>
-    tar -xvf package-N.N-1-src.tar.bz2
+    tar -xvf package-N.N-1-src.tar.xz
         package-N.N-1.sh
         package-N.N-1.patch
         package-N.N-src.tar.gz</pre>
 <pre>
     ./package-N.N-1.sh all</pre>
 <p>If the build process breaks, then the fault is in the packaging.
-Contact maintainer of <code>package-N.N-1-src.tar.bz2</code> for details.</p>
+Contact maintainer of <code>package-N.N-1-src.tar.xz</code> for details.</p>
 </dd>
 <dt><strong><a name="almostall" class="item"><strong>almostall</strong></a></strong></dt>
 
@@ -872,8 +878,8 @@ binary package.</p>
 package in order to prepare ITA (intent to adopt) to Cygwin
 application mailing list.</p>
 <pre>
-  1. The content of *-src.tar.bz2 and setup.hint are store
-  2. the *.bz2 is unpacked
+  1. The content of *-src.tar.xz and setup.hint are store
+  2. the *.xz is unpacked
   3. the CYGWIN-PATCHES is extracted from *.patch
   4. the rest of the patches (excluding CYGWIN-PATCHES) is stored
      to *-rest.patch</pre>
@@ -891,7 +897,7 @@ and additional parameters how to retrieve newer versions. See
 configuration file to download and extract new versions of package:</p>
 <pre>
   tag1: package
-    <a href="http://example.com/project/package-0.9.1.tar.bz2">http://example.com/project/package-0.9.1.tar.bz2</a> new: x:</pre>
+    <a href="http://example.com/project/package-0.9.1.tar.xz">http://example.com/project/package-0.9.1.tar.xz</a> new: x:</pre>
 </dd>
 <dt><strong><a name="prepare" class="item"><strong>prepare</strong></a></strong></dt>
 
@@ -900,7 +906,7 @@ configuration file to download and extract new versions of package:</p>
 a preparation to build Cygwin Net release source package from scratch.
 Something like -b option in &quot;source build&quot; commands in <code>.deb</code> and <code>.rpm</code>
 packaging managers.</p>
-<p>Extract <code>package-VERSION-REL-src.tar.bz2</code> to current directory and apply
+<p>Extract <code>package-VERSION-REL-src.tar.xz</code> to current directory and apply
 patch <code>package-VERSION-REL*.patch</code> and run build command <strong>[makedirs]</strong>.</p>
 </dd>
 <dt><strong><a name="reshadow" class="item"><strong>reshadow</strong></a></strong></dt>
@@ -940,8 +946,8 @@ directory can can assume that package binaries &quot;are installed&quot;.</p>
 modules or data cannot be tested without live install first. Merely
 setting the PATH wouuld not be enough, but instead:</p>
 <pre>
-   tar -C / -xf .sinst/&lt;packge&gt;.tar.bz2    # Install for real; live install
-   cygbuild --verbose test                 # run CYGWIN-PATCHES/test/*</pre>
+   tar -C / -xf .sinst/&lt;packge&gt;.tar.xz    # Install for real; live install
+   cygbuild --verbose test                # run CYGWIN-PATCHES/test/*</pre>
 <p>To arrange running tests, I might be good a idea to prefix filenames
 with numbers to have them sort in specific order. Any file that does
 not have the <strong>-x</strong> flag set is ignored; these files can be used e.g.
@@ -1079,8 +1085,8 @@ to guide the process slightly by the shell scripts provided under directory
 complete Cygwin Net release shipments: a binary package and a source
 package. The RELEASE number is the result of the <strong>-r</strong> option.</p>
 <pre>
-    package-1.13-1.tar.bz2
-    package-1.13-1-src.tar.bz2</pre>
+    package-1.13-1.tar.xz
+    package-1.13-1-src.tar.xz</pre>
 <p>
 </p>
 <h2><a name="contributing_packages">Contributing packages</a></h2>
@@ -1092,12 +1098,12 @@ borrowed from Debian and it means &quot;intent to package&quot;:</p>
 <pre>
     Subject: ITP: package-N.N</pre>
 <p><strong>Package submittal:</strong> Include contents of <code>setup.hint</code> and the binary
-package listing <code>tar jtvf package-1.13-RELEASE.tar.bz2</code>. Provide
+package listing <code>tar jtvf package-1.13-RELEASE.tar.xz</code>. Provide
 *complete* clickable ULR links where to download the files. An example:</p>
 <pre>
     wget \
-        <a href="http://example.com/cygwin/package/package-N.N-1-src.tar.bz2">http://example.com/cygwin/package/package-N.N-1-src.tar.bz2</a> \
-        <a href="http://example.com/cygwin/package/package-N.N-1.tar.bz2">http://example.com/cygwin/package/package-N.N-1.tar.bz2</a> \
+        <a href="http://example.com/cygwin/package/package-N.N-1-src.tar.xz">http://example.com/cygwin/package/package-N.N-1-src.tar.xz</a> \
+        <a href="http://example.com/cygwin/package/package-N.N-1.tar.xz">http://example.com/cygwin/package/package-N.N-1.tar.xz</a> \
         <a href="http://example.com/cygwin/package/setup.hint">http://example.com/cygwin/package/setup.hint</a></pre>
 <p><strong>Licensing:</strong> As a package maintainer, the licensing responsibility is on
 your shoulders. If the upstream package's license if not OSD compatible
@@ -1169,13 +1175,69 @@ local disk:</p>
 </p>
 <hr />
 <h1><a name="optional_external_directories">OPTIONAL EXTERNAL DIRECTORIES</a></h1>
-<p>All files in <code>CYGWIN-PATCHES/bin</code> are installed as executables into
-directory <code>.inst/usr/bin</code>. The location of each installd file can be
-by adding tag <strong>cyginstdir:</strong>. An example:</p>
+<p>
+</p>
+<h2><a name="bin__directory">bin/ directory</a></h2>
+<p>All files in <code>CYGWIN-PATCHES/bin</code> are installed as executables (with
+permissions 755) into directory <code>.inst/usr/bin</code>. Files with extension
+<code>*.tmp</code> are ignored.</p>
+<p>The location of each installd file can be by adding tag
+<em>cyginstdir:</em>. An example:</p>
 <pre>
     #!/bin/sh
     # cyginstdir: /bin
     ...</pre>
+<p>If it is not practical to insert <em>cyginstdir:</em> stanza to a file that
+may be original copy from somewhere else (updated each time new
+version comes), the directory can be also be set in a separate file:</p>
+<pre>
+   &lt;file&gt;.cyginstdir</pre>
+<p>The file must contain one line with full path name for install
+location. An optional <strong>install(1)</strong> permission expression can
+specified in the end of path line. Any comment lines starting with &quot;#&quot;
+are ignored. An example:</p>
+<pre>
+   # comment
+   /bin/program 755</pre>
+<p>
+</p>
+<h2><a name="man__directory">man/ directory</a></h2>
+<p>All files in <code>CYGWIN-PATCHES/man</code> are installed as manual pages. The
+file must end to a number indicating the manual page section. Examples:</p>
+<pre>
+   manpage.1
+   manpage.conf.5</pre>
+<p>
+</p>
+<h2><a name="patches__directory">patches/ directory</a></h2>
+<p>Files in <code>CYGWIN-PATCHES/patches</code> with extensin *.path are used with
+the <strong>patch</strong> and <strong>unpatch</strong> commands. The order of files are
+determined by sorting them alphabetically. To ensure correct patch
+order, please add numeric prefix for each file and add patches to
+their respective subdirectories.</p>
+<p>If there is a <code>series</code> file in a directory, <strong>quilt(1)</strong> is invoked to
+handle the patches. NOTE: Due to implementation of quilt, there can
+only be a single <code>series</code> file. This is because quilt keeps status
+information in toplevel <code>.pc/</code> directory and it does not chnage it
+even though a different source directory for <code>series</code> file had been
+given by setting environment variable <em>QUILT_PATCHES</em>. In short:
+managing multiple quilt instances in separate directories is not
+possible.</p>
+<p>An example: files in 00debian/ directory are applied before files in
+cygwin/ directory due to alphabetical order. In this example the
+patches from Debian (managed by quilt) are combined with those
+specific to Cygwin:</p>
+<pre>
+   CYGWIN-PATCHES/
+   |
+   +- patches/
+      |
+      +- 00debian-0.15-1/
+      |  ...
+      |  series  (quilt patch series file)
+      |
+      +- cygwin/
+         10-fix-makefile.patch</pre>
 <p>
 </p>
 <hr />
@@ -1284,6 +1346,27 @@ switches, which you can incorporate:</p>
         --libexecdir='${sbindir}'
         --datadir='${prefix}/share'</pre>
 </dd>
+<dt><strong><a name="delete_lst" class="item"><strong>delete.lst</strong></a></strong></dt>
+
+<dd>
+<p>See also <a href="#install_lst"><code>install.lst</code></a>.</p>
+<p>List <code>rm(1)</code> compatible entries in separate lines. The
+format is:</p>
+<pre>
+  # comment
+  &lt;file or directory or a glob pattern&gt; [rm option]</pre>
+<p>Expansion variables available are: <code>$PKG</code> for package name, <code>$VER</code>
+for version number and <code>$DOC</code> for package specific documentation
+directory. Notice that the <em>destination</em> must not be an absolute path
+but a relative one under <em>.inst/</em> directory.</p>
+<p>Examples:</p>
+<pre>
+  # The file and directory PATTERN can use variables $PKG $VER $DOC.
+  # Examples:</pre>
+<pre>
+  $DOC/example -rf
+  *.uml</pre>
+</dd>
 <dt><strong><a name="diff_options" class="item"><strong>diff.options</strong></a></strong></dt>
 
 <dd>
@@ -1389,7 +1472,8 @@ ignored. An example:</p>
 <dt><strong><a name="install_lst" class="item"><strong>install.lst</strong></a></strong></dt>
 
 <dd>
-<p>NOTE: if file exists, the <code>make install</code> target is not run.</p>
+<p>NOTE: if file exists, the <code>make install</code> target is not run. See
+also <a href="#delete_lst"><code>delete.lst</code></a>.</p>
 <p>List <a href="#install"><code>install(1)</code></a> compatible entries in separate lines. The
 format is:</p>
 <pre>
@@ -1411,7 +1495,7 @@ removed, then the matchinf <em>destination</em> component from the left:</p>
 to that directory. If there is no trailing slash, the last element is
 used for filename. The third parameter is optional <em>mode</em> argument
 passed to <code>install -m MODE</code>.</p>
-<p>In <em>destination</em> part, expansion variables provided are: <code>$PKG</code> for
+<p>In <em>destination</em> part, expansion variables available are: <code>$PKG</code> for
 package name, <code>$VER</code> for version number and <code>$DOC</code> for package
 specific documentation directory. Notice that the <em>destination</em> must
 not be an absolute path but a relative one under <em>.inst/</em> directory.
@@ -1682,14 +1766,14 @@ be installed in <code>/usr/lib/mime/packages/PACKAGE</code> directory.</p>
 <p>If a single standard binary packaging command <strong>[package]</strong> or library
 packaging command <strong>[package-devel]</strong> methods are not suitable, it is
 possible to write a custom script. There may be need for separating files
-into different tar.bz2 files etc. When custom script is called:</p>
+into different tar.xz files etc. When custom script is called:</p>
 <pre>
   1. chdir has been done to installation directory
      CYGWIN-PATCHES/.inst/</pre>
 <pre>
   2. script receives 4 arguments:
      PACKAGE VERSION RELEASE TOPDIR</pre>
-<p>The <code>TOPDIR</code> is the location where the script should place the <em>tar.bz2</em>
+<p>The <code>TOPDIR</code> is the location where the script should place the <em>tar.xz</em>
 files. It is typically directory above the sources: package-N.N/..</p>
 </dd>
 <dt><strong><a name="package_source_sh" class="item"><strong>package-source.sh</strong></a></strong></dt>
@@ -1801,31 +1885,31 @@ releases):</p>
     |  +--package-1.4/
     |  |
     |  package-1.3.tar.gz
-    |  package-1.3-1.tar.bz2
-    |  package-1.3-1-src.tar.bz2
+    |  package-1.3-1.tar.xz
+    |  package-1.3-1-src.tar.xz
     |  |
     |  package-1.4.tar.gz
-    |  package-1.4-1.tar.bz2
-    |  package-1.4-1-src.tar.bz2
+    |  package-1.4-1.tar.xz
+    |  package-1.4-1-src.tar.xz
     |
     +--bar/
     |  +--bar-3.12/
     |  +--bar-3.17/
     |  |
     |  bar-3.12.tar.gz
-    |  bar-3.12-1.tar.bz2
-    |  bar-3.12-1-src.tar.bz2
+    |  bar-3.12-1.tar.xz
+    |  bar-3.12-1-src.tar.xz
     |  |
     |  bar-3.17.tar.gz
-    |  bar-3.17-1.tar.bz2
-    |  bar-3.17-1-src.tar.bz2
+    |  bar-3.17-1.tar.xz
+    |  bar-3.17-1-src.tar.xz
     |
     +--quux/
        +--quux-2.2/
        |
        quux-2.2.tar.gz
-       quux-2.2-1.tar.bz2
-       quux-2.2-1-src.tar.bz2</pre>
+       quux-2.2-1.tar.xz
+       quux-2.2-1-src.tar.xz</pre>
 <p>At first sight this may look complex, but with this structure you can
 manage several packages easily. For each package, reserve a separate
 directory where you do your work: <a href="#package"><code>package/</code></a>, <code>bar/</code>, <code>quux/</code> etc. Download
@@ -1868,8 +1952,8 @@ as running:</p>
 <p>With these commands, Cygwin Net release packages are copied one directory
 up to the same place where the original compresses source kit is:</p>
 <pre>
-    /usr/src/cygwin-build/package/package-1.4-1.tar.bz2
-    /usr/src/cygwin-build/package/package-1.4-1-src.tar.bz2</pre>
+    /usr/src/cygwin-build/package/package-1.4-1.tar.xz
+    /usr/src/cygwin-build/package/package-1.4-1-src.tar.xz</pre>
 <p>If you have a web server that can serve the package, copy the files to
 publish area with command:</p>
 <pre>
@@ -2067,7 +2151,7 @@ initially created with command <strong>[files]</strong>.</p>
     -- Wait, reading and preparing variables based on current directory
     -- Hm, no *.exe or *.dll files, skipping strip.
     /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:1:&lt;PKG&gt;
-    /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack &lt;PKG&gt;-VER-REL-src.tar.bz2</pre>
+    /usr/src/build/ask/package-1.1/.inst/usr/share/doc/Cygwin/package.README:24:  unpack &lt;PKG&gt;-VER-REL-src.tar.xz</pre>
 <p>The warning means, that file <code>CYGWIN-PATCHES/package.README</code> looked
 like a template. Edit <code>package.README</code> file and leave all &lt;PKG&gt;, &lt;VER&gt;
 and &lt;REL&gt; tags alone. Then run command <strong>[readmefix]</strong> which will substitute
@@ -2157,10 +2241,11 @@ built or installed.</p>
 </p>
 <h2><a name="other_archive_formats_like___zip_are_not_recognized">Other archive formats like *.zip are not recognized</a></h2>
 <p>This porting tool only handles <code>*.tar.gz</code>, <code>*.tar.bz2</code>,
-<code>*.tar.lzma</code> archives. To port e.g. a <code>*.zip</code> archive, you need to
-manually convert it to recognized format:</p>
+<code>*.tar.lzma</code> and <code>*.tar.xz</code> archives. To port e.g. a <code>*.zip</code>
+archive, you need to manually convert it to a recognized format:</p>
 <pre>
     unzip package-N.N.zip
+    ... convert source archive to *.tar.gz
     tar -cvf package-1.1.tar.gz package-N.N/
     ... Now proceed normally
     cd package-N.N/
@@ -2168,9 +2253,9 @@ manually convert it to recognized format:</p>
 <p>
 </p>
 <h2><a name="reporting_bugs">Reporting bugs</a></h2>
-<p>If you ran into a bug, run script in debug mode and send complete
-output listing to the maintainer. Provide also an URL link to the
-source package that you tried to build.</p>
+<p>If you run into a bug, activate debug mode and send complete output
+listing to the maintainer. Provide also an URL link to the source
+package that you tried to build.</p>
 <pre>
     echo <a href="http://example.com/source">http://example.com/source</a>      &gt;  ~/tmp/error.log
     pwd; ls -la . ..                    &gt;&gt; ~/tmp/error.log

@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0612.0803';
+$VERSION = '2014.0615.1151';
 
 # ..................................................................
 
@@ -777,9 +777,10 @@ in C<.sinst/>.
 =item B<patch>
 
 Apply all I<*.patch> files found recursively under C<CYGWIN-PATCHES/>
-to original sources (see command B<patch-list>). The applied patches
-are recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't
-be applied multiple times.
+to original sources (see command B<patch-list>). files in direcories
+C</tmp/> or C</*.tmp/> are disregarded. The applied patches are
+recorded in C<CYGWIN-PATCHES/done-patches.tmp> so that they won't be
+applied multiple times.
 
 The directories and filenames are best to be prefixed with a
 sequential number, like:
@@ -1185,13 +1186,73 @@ local disk:
 
 =head1 OPTIONAL EXTERNAL DIRECTORIES
 
-All files in C<CYGWIN-PATCHES/bin> are installed as executables into
-directory C<.inst/usr/bin>. The location of each installd file can be
-by adding tag B<cyginstdir:>. An example:
+=head2 bin/ directory
+
+All files in C<CYGWIN-PATCHES/bin> are installed as executables (with
+permissions 755) into directory C<.inst/usr/bin>. Files with extension
+C<*.tmp> are ignored.
+
+The location of each installd file can be by adding tag
+I<cyginstdir:>. An example:
 
     #!/bin/sh
     # cyginstdir: /bin
     ...
+
+If it is not practical to insert I<cyginstdir:> stanza to a file that
+may be original copy from somewhere else (updated each time new
+version comes), the directory can be also be set in a separate file:
+
+   <file>.cyginstdir
+
+The file must contain one line with full path name for install
+location. An optional B<install(1)> permission expression can
+specified in the end of path line. Any comment lines starting with "#"
+are ignored. An example:
+
+   # comment
+   /bin/program 755
+
+=head2 man/ directory
+
+All files in C<CYGWIN-PATCHES/man> are installed as manual pages. The
+file must end to a number indicating the manual page section. Examples:
+
+   manpage.1
+   manpage.conf.5
+
+=head2 patches/ directory
+
+Files in C<CYGWIN-PATCHES/patches> with extensin *.path are used with
+the B<patch> and B<unpatch> commands. The order of files are
+determined by sorting them alphabetically. To ensure correct patch
+order, please add numeric prefix for each file and add patches to
+their respective subdirectories.
+
+If there is a C<series> file in a directory, B<quilt(1)> is invoked to
+handle the patches. NOTE: Due to implementation of quilt, there can
+only be a single C<series> file. This is because quilt keeps status
+information in toplevel C<.pc/> directory and it does not chnage it
+even though a different source directory for C<series> file had been
+given by setting environment variable I<QUILT_PATCHES>. In short:
+managing multiple quilt instances in separate directories is not
+possible.
+
+An example: files in 00debian/ directory are applied before files in
+cygwin/ directory due to alphabetical order. In this example the
+patches from Debian (managed by quilt) are combined with those
+specific to Cygwin:
+
+   CYGWIN-PATCHES/
+   |
+   +- patches/
+      |
+      +- 00debian-0.15-1/
+      |  ...
+      |  series  (quilt patch series file)
+      |
+      +- cygwin/
+         10-fix-makefile.patch
 
 =head1 OPTIONAL EXTERNAL FILES
 

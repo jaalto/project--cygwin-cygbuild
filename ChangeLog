@@ -1,3 +1,21 @@
+2014-06-15 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (HELP::Patch management commands):
+	Document */tmp/* or /*.tmp/* directories in "patch" command.
+
+	* bin/cygbuild.sh: (CygbuildPatchFileList): Disregard
+	files in */tmp/* or /*.tmp/* directories
+
+2014-06-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildInstallExtraBinFiles): Ignore
+	*.tmp files. Do not remote extension. Add support for
+	bin/FILE.cyginstdir install instructions for FILE. See
+	HELP::OPTIONAL EXTERNAL DIRECTORIES::bin/ for more information.
+
+	* bin/lib/cygbuild.pl: (HELP::OPTIONAL EXTERNAL DIRECTORIES):
+	Document bin/ and patches/ directories.
+
 2014-06-13 Fri  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildObjDumpLibraryDepList): Ignore MPR.dll.
