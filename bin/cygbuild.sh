@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0614.1147"
+CYGBUILD_VERSION="2014.0615.1148"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6089,8 +6089,10 @@ function CygbuildPatchFileList()
     fi
 
     #   Grep there filters out quilt directories
+    #   Disregard files in */tmp/* or /*.tmp/* directories
 
     find "$dir" -type f -name "*.patch" |
+        grep -Ev "/tmp/|/[^/]+\.tmp/" |
         grep -vFf $retval  |
         sort
 }

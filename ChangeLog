@@ -1,3 +1,8 @@
+2014-06-15 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildPatchFileList): Disregard
+	files in */tmp/* or /*.tmp/* directories
+
 2014-06-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildInstallExtraBinFiles): Ignore
