@@ -795,9 +795,10 @@ in <code>.sinst/</code>.</p>
 
 <dd>
 <p>Apply all <em>*.patch</em> files found recursively under <code>CYGWIN-PATCHES/</code>
-to original sources (see command <strong>patch-list</strong>). The applied patches
-are recorded in <code>CYGWIN-PATCHES/done-patches.tmp</code> so that they won't
-be applied multiple times.</p>
+to original sources (see command <strong>patch-list</strong>). files in direcories
+<code>/tmp/</code> or <code>/*.tmp/</code> are disregarded. The applied patches are
+recorded in <code>CYGWIN-PATCHES/done-patches.tmp</code> so that they won't be
+applied multiple times.</p>
 <p>The directories and filenames are best to be prefixed with a
 sequential number, like:</p>
 <pre>

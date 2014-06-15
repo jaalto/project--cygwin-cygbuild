@@ -675,9 +675,10 @@ Patch management commands
 
    patch
           Apply all *.patch files found recursively under CYGWIN-PATCHES/
-          to original sources (see command patch-list). The applied
-          patches are recorded in CYGWIN-PATCHES/done-patches.tmp so that
-          they won't be applied multiple times.
+          to original sources (see command patch-list). files in
+          direcories /tmp/ or /*.tmp/ are disregarded. The applied patches
+          are recorded in CYGWIN-PATCHES/done-patches.tmp so that they
+          won't be applied multiple times.
 
           The directories and filenames are best to be prefixed with a
           sequential number, like:
