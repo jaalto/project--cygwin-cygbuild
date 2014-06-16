@@ -2,6 +2,7 @@
 
 	* bin/cygbuild.sh: (CygbuildMakefileRunTarget): Return 0
 	if no makefile.
+	(CygbuildCmdBuildStdMakefile): Adjust message.
 
 	* bin/lib/cygbuild.pl: (GLOBAL::$systemName): Read NAME
 	before DEBFULLNAME.
