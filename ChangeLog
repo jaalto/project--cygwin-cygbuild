@@ -3,6 +3,7 @@
 	* bin/cygbuild.sh: (CygbuildMakefileRunTarget): Return 0
 	if no makefile.
 	(CygbuildCmdBuildStdMakefile): Adjust message.
+	(CygbuildInstallFixEtcdirInstall): No action if etc/ is empty
 
 	* bin/lib/cygbuild.pl: (GLOBAL::$systemName): Read NAME
 	before DEBFULLNAME.
