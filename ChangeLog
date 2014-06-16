@@ -1,5 +1,8 @@
 2014-06-16 Mon  Jari Aalto  <jari.aalto@cante.net>
 
+	* bin/cygbuild.sh: (CygbuildMakefileRunTarget): Return 0
+	if no makefile.
+
 	* bin/lib/cygbuild.pl: (GLOBAL::$systemName): Read NAME
 	before DEBFULLNAME.
 

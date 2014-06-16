@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0615.1315"
+CYGBUILD_VERSION="2014.0616.0810"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3157,7 +3157,7 @@ function CygbuildMakefileRunTarget()
         if [ "$opt" != "nomsg" ]; then
             CygbuildEcho "-- No Makefile found, nothing to [$target] in $dir"
         fi
-        return
+        return 0
     fi
 
     CygbuildPushd
