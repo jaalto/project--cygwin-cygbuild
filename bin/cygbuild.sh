@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0615.1148"
+CYGBUILD_VERSION="2014.0616.0853"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3157,7 +3157,7 @@ function CygbuildMakefileRunTarget()
         if [ "$opt" != "nomsg" ]; then
             CygbuildEcho "-- No Makefile found, nothing to [$target] in $dir"
         fi
-        return
+        return 0
     fi
 
     CygbuildPushd
@@ -6283,10 +6283,18 @@ function CygbuildPatchApplyQuiltMaybe()
         fi
 
         if $EGREP --quiet --ignore-case \
-           "no patch.*removed|series fully applied" \
+           "no patch.*removed|series fully applied|No patches applied" \
            $log
         then
             #   File series fully applied => status code 1
+            status=""
+        fi
+
+        if tail -1 $log | $EGREP --quiet --ignore-case \
+           "Applying patch"
+        then
+            # Even though patches apply, it still reports ERROR status(1).
+            # Perhaps due to "Hunk #1 succeeded" messages?
             status=""
         fi
 
@@ -6296,11 +6304,12 @@ function CygbuildPatchApplyQuiltMaybe()
 
     done < $retval
 
-   return 0
+    return 0
 }
 
 function CygbuildPatchApplyMaybe()
 {
+
     local id="$0.$FUNCNAME"
     local dir="$DIR_CYGPATCH"
     local statfile="$CYGPATCH_DONE_PATCHES_FILE"
@@ -9370,7 +9379,7 @@ function CygbuildCmdBuildStdMakefile()
 
             CygbuildWarn "-- [WARN] No Makefile." \
                  "If you already tried [configure]" \
-                 "You may need to write custom script" \
+                 "You need to write custom script" \
                  "CYGWIN-PATCHES/build.sh" \
                  "(remember to run [shadow] after changes)"
 
@@ -10960,7 +10969,7 @@ function CygbuildInstallFixEtcdirInstall()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local dir="$instdir"
 
-    #   The Makefile may install in:
+    #   The Makefile may install files in:
     #
     #       .inst/etc/<package>/
     #
@@ -10972,13 +10981,31 @@ function CygbuildInstallFixEtcdirInstall()
 
     local pkgetcdir=$(
         cd "$dir/etc" 2> /dev/null &&
-        ls | $EGREP --invert-match --quiet 'defaults|(post|pre)install' &&
-        pwd
+        ls | head -1
     )
 
     [ "$pkgetcdir" ] || return 0
 
+    #    Check if there are any files, or non-zero length files
+    #    excluging (.keep) and some such.
+    #
+    #    If it's just a directory structure to be ready for
+    #    user to populate, there no need for postinstall etc.
+
+    local item found
+
+    for item in $(find $dir/etc/$pkgetcdir -type f)
+    do
+        if [ -s "$item" ]; then
+            found="live etc files"
+            break
+        fi
+    done
+
+    [ "$found" ] || return 0
+
     #   Preserve these:
+    #
     #       .inst/etc/preremove
     #       .inst/etc/postinstall
     #
@@ -10986,11 +11013,11 @@ function CygbuildInstallFixEtcdirInstall()
     #
     #       .inst/etc/defaults/etc
 
-    local dir list
+    local directory list
 
-    for dir in preremove postinstall
+    for directory in preremove postinstall
     do
-        if [ -d "$pkgetcdir/$dir" ] ; then
+        if [ -d "$dir/etc/$directory" ] ; then
             list="$list $dir"
         fi
     done
@@ -11000,7 +11027,7 @@ function CygbuildInstallFixEtcdirInstall()
 
     if [ "$list" ]; then
         ${test:+echo} tar               \
-        --directory "$pkgetcdir"        \
+        --directory "$dir/etc"          \
         --create                        \
         $group                          \
         --file=$ptar                    \
@@ -11011,7 +11038,7 @@ function CygbuildInstallFixEtcdirInstall()
 
     #   All the rest files
     ${test:+echo} tar                   \
-        --directory "$pkgetcdir"        \
+        --directory "$dir/etc"          \
         --create                        \
         $group                          \
         --file=$tar                     \
@@ -11020,14 +11047,14 @@ function CygbuildInstallFixEtcdirInstall()
         .
 
     #   Now recreate the directory structure for Cygwin
-    ${test:+echo} rm -rf "$pkgetcdir"/*
+    ${test:+echo} rm -rf "$dir/etc"/*
 
-    if [ -f $ptar ]; then
-        ${test:+echo} tar --directory "$pkgetcdir" --extract \
+    if [ -f "$ptar" ]; then
+        ${test:+echo} tar --directory "$dir/etc" --extract \
                       --no-same-owner --no-same-permissions --file=$ptar
     fi
 
-    if [ -s $tar ]; then
+    if [ -s "$tar" ]; then
 
         local dest="$DIR_DEFAULTS_GENERAL/etc"
 
@@ -11356,6 +11383,11 @@ function CygbuildCmdInstallList()
         -e '/^[[:space:]]*$/d' \
         $file > $out
 
+    if $EGREP "[$]" $out > $retval; then
+        CygbuildWarn "-- [WARN] Unknown substitution variable"
+        sed -e "s,$srcdir/,," -e 's/^/   /;' $retval
+    fi
+
     local line=0
     local status=0
 
@@ -11433,7 +11465,7 @@ function CygbuildCmdInstallList()
 
             local path="$instdir/$to"
 
-            ${test:+echo} mkdir ${verbose:+--verbose} "$path"
+            ${test:+echo} mkdir ${verbose:+--verbose} -p "$path"
 
             continue
 
@@ -13016,7 +13048,7 @@ function CygbuildCommandMain()
                 return
                 ;;
 
-          verify)
+            verify)
                 CygbuildCmdGPGVerifyMain
                 status=$?
                 ;;

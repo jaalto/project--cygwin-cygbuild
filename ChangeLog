@@ -1,3 +1,13 @@
+2014-06-16 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh: (CygbuildMakefileRunTarget): Return 0
+	if no makefile.
+	(CygbuildCmdBuildStdMakefile): Adjust message.
+	(CygbuildInstallFixEtcdirInstall): No action if etc/ is empty
+
+	* bin/lib/cygbuild.pl: (GLOBAL::$systemName): Read NAME
+	before DEBFULLNAME.
+
 2014-06-15 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (HELP::Patch management commands):
@@ -5,6 +15,9 @@
 
 	* bin/cygbuild.sh: (CygbuildPatchFileList): Disregard
 	files in */tmp/* or /*.tmp/* directories
+	(CygbuildPatchApplyQuiltMaybe): Improve checking of
+	quilt status code.
+	(CygbuildCmdInstallList): Warn about unknown variables.
 
 2014-06-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 

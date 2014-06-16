@@ -73,7 +73,7 @@ IMPORT:
     );
 }
 
-my $systemName  = $CYGBUILD_FULLNAME || $DEBFULLNAME || $NAME;
+my $systemName  = $CYGBUILD_FULLNAME || $NAME || $DEBFULLNAME;
 my $systemEmail = $CYGBUILD_EMAIL    || $EMAIL;
 
 my $CYGWIN_PACKAGE_LIST_DIR = "/var/lib/cygbuild/list";
@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0615.1151';
+$VERSION = '2014.0616.0801';
 
 # ..................................................................
 
