@@ -1,3 +1,8 @@
+2014-06-16 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (GLOBAL::$systemName): Read NAME
+	before DEBFULLNAME.
+
 2014-06-15 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/cygbuild.pl: (HELP::Patch management commands):
