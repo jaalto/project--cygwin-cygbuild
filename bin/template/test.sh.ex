@@ -7,12 +7,12 @@ proram=$0
 TMPDIR=${TMPDIR:-/tmp}
 BASE=tmp.$$
 TMPBASE=${TMPDIR%/}/$BASE
-CURDIR=.
 
 case "$0" in
   */*)
         CURDIR=$(cd "${0%/*}" && pwd)
         ;;
+    *)  CURDIR=$(pwd)
 esac
 
 AtExit ()
@@ -22,12 +22,12 @@ AtExit ()
 
 Run ()
 {
-    if [ "$1" ]; then           # Empty message, just command to run
+    if [ ! "$1" ]; then   # Run '' CMD...
+        shift             # Empty message, just command to run
         echo "$*"
-        shift
     else
-        shift
         echo "$*"
+        shift
     fi
 
     eval "$@"
