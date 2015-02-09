@@ -807,8 +807,8 @@ Other commands
           notice missing shadow directory and make it as needed.
 
    test
-          Run make test and possibley additional executable files listed
-          in CYGWIN-PATCHES/test directory. The PATH is set to include all
+          Run make test and possibly additional executable files listed in
+          CYGWIN-PATCHES/test directory. The PATH is set to include all
           directories found under .inst so that programs in [70]test/
           directory can can assume that package binaries "are installed".
 
