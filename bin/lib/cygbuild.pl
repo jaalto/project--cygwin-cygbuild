@@ -920,7 +920,7 @@ missing shadow directory and make it as needed.
 
 =item B<test>
 
-Run I<make test> and possibley additional executable files listed in
+Run I<make test> and possibly additional executable files listed in
 C<CYGWIN-PATCHES/test> directory. The PATH is set to include all
 directories found under C<.inst> so that programs in C<test/>
 directory can can assume that package binaries "are installed".
