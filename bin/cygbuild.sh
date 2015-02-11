@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0211.1915"
+CYGBUILD_VERSION="2015.0211.1950"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1847,6 +1847,9 @@ CygbuildDllToLibName ()
                 ;;
             libz*)
                 lib=zlib0
+                ;;
+            libpanelw*)
+                lib=libncursesw${lib/*[a-z]/}
                 ;;
             libbz2*1)
                 lib=libbz2_1
