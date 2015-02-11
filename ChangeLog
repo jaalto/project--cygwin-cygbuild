@@ -1,3 +1,10 @@
+2015-02-11 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildInstallFixEtcdirInstall):
+	Correct for loop which checks preremove postinstall.
+	Incorectly added absolute paths to LIST which cause tar
+	to use full path names.
+
 2014-06-16 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildMakefileRunTarget): Return 0

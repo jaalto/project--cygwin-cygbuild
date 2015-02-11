@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2014.0616.0853"
+CYGBUILD_VERSION="2015.0211.1214"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11014,8 +11014,8 @@ function CygbuildInstallFixEtcdirInstall()
 
     for directory in preremove postinstall
     do
-        if [ -d "$dir/etc/$directory" ] ; then
-            list="$list $dir"
+        if [ -d "$dir/etc/$directory" ]; then
+            list="$list $directory"
         fi
     done
 
@@ -11675,8 +11675,6 @@ function CygbuildCmdInstallMain()
             fi
         fi
 
-        CygbuildMakefileRunInstallFixMain
-
         if CygbuildCmdDeleteListExists ; then
             CygbuildCmdDeleteList ||
             {
@@ -11696,9 +11694,7 @@ function CygbuildCmdInstallMain()
 
     CygbuildInstallExtraMain
     CygbuildInstallFixMain
-
     CygbuildInstallCygwinPartPostinstall
-
     CygbuildInstallExtraManualCompress
     CygbuildInstallFixManSymlinks
 
