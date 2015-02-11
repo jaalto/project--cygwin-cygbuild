@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0211.1214"
+CYGBUILD_VERSION="2015.0211.1256"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1854,8 +1854,8 @@ CygbuildDllToLibName ()
             libsqlite30)
                 lib=libsqlite3_0
                 ;;
-            libmhash*)
-                lib=mhash
+            libmhash-*)
+                lib=${lib/-//}
                 ;;
             lib*python[0-9]*)
                 lib=python
