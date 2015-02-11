@@ -1801,10 +1801,7 @@ CygbuildObjDumpLibraryDepList ()
 
     objdump -p "$file" |
         awk '
-            /KERNEL32|cygwin1.dll|MPR.(DLL|dll)|GDI32|USER32|ntdll.dll/ {
-                next;
-            }
-            /(ADVAPI32|SHELL32).dll/ {
+            /KERNEL32|cygwin1|(MPR|32|ntdll).(DLL|dll)/ {
                 next;
             }
             /DLL Name:/ {
@@ -1845,7 +1842,7 @@ CygbuildDllToLibName ()
             libargp*)
                 lib=libargp
                 ;;
-            libgcc1)
+            libgcc*)
                 continue                # Part of "base", so no need to mention
                 ;;
             libz*)
@@ -1853,6 +1850,9 @@ CygbuildDllToLibName ()
                 ;;
             libbz2*1)
                 lib=libbz2_1
+                ;;
+            libsqlite30)
+                lib=libsqlite3_0
                 ;;
             libmhash*)
                 lib=mhash
@@ -1887,9 +1887,6 @@ CygbuildDllToLibName ()
                 ;;
             libmagic1)
                 lib=file
-                ;;
-            libgcc_s1 | libgcc_s-seh*)
-                lib=libgcc1
                 ;;
             libX11[0-9])
                 local nbr=""
