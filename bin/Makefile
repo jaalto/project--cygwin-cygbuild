@@ -42,12 +42,16 @@ INSTALL_SUID	= $(INSTALL) -m 4755
 all: doc
 
 cygbuild-rebuild.1: cygbuild-rebuild.pod
-	pod2text $? > $@
+	pod2man $? > $@
 
 cygbuild.1: lib/cygbuild.pl
+	pod2man $? > $@
+
+cygbuild.txt: lib/cygbuild.pl
 	pod2text $? > $@
 
 doc: man
+	make -C doc doc
 
 # man: generate manual page
 man: cygbuild.1 cygbuild-rebuild.1
@@ -125,6 +129,6 @@ install-symlink:
 help:
 	@egrep "^# [-a-z]+:" Makefile | sort | sed 's/# //'
 
-.PHONY: clean distclean realclean install help
+.PHONY: all doc clean distclean realclean install help
 
 # End of file
