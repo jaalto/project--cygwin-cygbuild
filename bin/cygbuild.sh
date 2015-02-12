@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0212.0656"
+CYGBUILD_VERSION="2015.0212.0827"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1388,6 +1388,13 @@ function CygbuildLibInstallEnvironment()
 #       Utility functions
 #
 #######################################################################
+
+
+function CygbuildConfigGuessDownload()
+{
+    local url="http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree"
+    ${test:+echo} wget -q $url/config.sub $url/config.guess
+}
 
 function CygbuildArch()
 {
@@ -11961,6 +11968,25 @@ function CygbuildCmdFilesWrite()
     done
 }
 
+function CygbuildCmdFileUpdateConfigs()
+{
+    local id="$0.$FUNCNAME"
+
+    local destdir="$DIR_CYGPATCH"
+
+    [ -d "$destdir" ] || return 0
+
+    [ -f "$destdir/config.guess" ] || return 0
+
+    CygbuildEcho "-- [NOTE] Updating latest config.{guess,sub} files"
+
+    CygbuildPushd
+        cd "$destdir"
+        ${test:+echo} rm -f config.sub config.guess
+        CygbuildConfigGuessDownload
+    CygbuildPopd
+}
+
 function CygbuildCmdFilesMain()
 {
     local id="$0.$FUNCNAME"
@@ -11985,6 +12011,7 @@ function CygbuildCmdFilesMain()
     fi
 
     CygbuildCmdFilesWrite "$destdir" "$userdir" "$templatedir"
+    CygbuildCmdFileUpdateConfigs
 }
 
 function CygbuildCmdPackageBinMain()

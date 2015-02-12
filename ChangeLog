@@ -10,6 +10,8 @@
 	-c|--clean to remove cache. Lower cache update time from 30 days
 	to 7 days. Add new option -a|--arch to download package by
 	architecture.
+	(CygbuildConfigGuessDownload): New.
+	(CygbuildCmdFileUpdateConfigs): New.
 
 2015-02-11 Wed  Jari Aalto  <jari.aalto@cante.net>
 
