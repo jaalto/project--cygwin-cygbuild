@@ -32,21 +32,21 @@ all: doc
 # realclean: clean files that can be generated
 realclean:
 	# Remove generated files
-	rm index.txt index.html
+	rm -f manual/index.txt manual/index.html
 
 clean:
 	# clean
 	-rm -f *.tmp *[#~] */*[#~]
 
-index.html: $(PL)
+manual/index.html: $(PL)
 	pod2html $? > $@
 	rm -f *.tmp
 
-index.txt: $(PL)
+manual/index.txt: $(PL)
 	pod2text $? > $@
 
 # doc: [maintenence] generate documentation from source files
-doc: index.txt index.html
+doc: manual/index.txt manual/index.html
 
 install-index:
 	# install-doc
