@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0616.0801';
+$VERSION = '2015.0212.0658';
 
 # ..................................................................
 
@@ -848,16 +848,22 @@ Contact maintainer of C<package-N.N-1-src.tar.xz> for details.
 
 Same as command B<[all]> but without the B<[finish]> step.
 
-=item B<cygsrc [-b|--binary] [--dir|-d] PACKAGE>
+=item B<cygsrc [-a|--arch {x86,x86_64}] [-b|--binary] [-c|--clean] [--dir|-d] PACKAGE>
 
 NOTES: 1) This command must be run at an empty directory and 2) No
 other command line options are interpreted. This is a stand alone
 command.
 
-Download both Cygwin source net release package. If option B<--dir> is
-given, create directory with name I<PACKAGE>, cd to it and start
-downloading I<PACKAGE>. If option B<--binary> is given, download only
-binary package.
+Download Cygwin package. By default according to the current
+architecture unless options B<--arch> is used; this options must
+appear at the beginning. If option B<--dir> is given, create directory
+with name I<PACKAGE>, cd to it and start downloading I<PACKAGE>. If
+option B<--binary> is given, download only binary package.
+
+When run for the first time, the list of packages listed in
+I<setup.ini> is cached under directory C</var/cache/cygbuild>. Use option
+B<--clean> to immediately remove cache to notice new updates. The cache
+file is updated automatically if it's more than 7 days.
 
 This command is primarily used for downloading sources of orphaned
 package in order to prepare ITA (intent to adopt) to Cygwin

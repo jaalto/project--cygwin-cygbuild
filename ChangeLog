@@ -1,3 +1,16 @@
+2015-02-12 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/cygbuild.pl: (PACKAGE MAINTENANCE COMMANDS::HELP::other
+	commands::download): Add new option -c|--clean to remove cache.
+	Document location of cache file and its automatic update time of 7
+	days. Add new option -a|--arch to download package by
+	architecture.
+
+	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Add option
+	-c|--clean to remove cache. Lower cache update time from 30 days
+	to 7 days. Add new option -a|--arch to download package by
+	architecture.
+
 2015-02-11 Wed  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildInstallFixEtcdirInstall):

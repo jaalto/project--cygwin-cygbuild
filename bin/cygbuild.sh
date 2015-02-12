@@ -48,13 +48,15 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0211.1950"
+CYGBUILD_VERSION="2015.0212.0656"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
-"http://ftp.inf.tu-dresden.de/software/windows/cygwin"}
+"http://gd.tuwien.ac.at/gnu/cygwin"}
+# {x86,x86_64}/setup.ini
+# "http://ftp.inf.tu-dresden.de/software/windows/cygwin"}
 
 CYGBUILD_INSTALL_INFO="\
     git clone git://git.savannah.nongnu.org/cygbuild.git
@@ -1386,6 +1388,11 @@ function CygbuildLibInstallEnvironment()
 #       Utility functions
 #
 #######################################################################
+
+function CygbuildArch()
+{
+    uname --all | awk '{print $(NF -1) }'
+}
 
 function CygbuildIsDirMatch()
 {
@@ -8502,12 +8509,19 @@ function CygbuildPatchFindGeneratedFiles()
 
 CygbuildCmdDownloadCygwinPackage ()
 {
+    local pkg="$1"
+    local mode=${2:-"source-binary"}            # Download both
+    local rm_cache="$3"
+    local arch="$4"
+
+    if [ ! "$arch" ]; then
+        arch=$(CygbuildArch)
+    fi
+
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local url="$CYGBUILD_SRCPKG_URL"
     local wget="$WGET"
-    local pkg="$1"
-    local mode=${2:-"source-binary"}            # Download both
 
     if [ ! "$pkg" ]; then
         CygbuildDie "$id: [FATAL] command needs PACKAGE name"
@@ -8524,7 +8538,6 @@ CygbuildCmdDownloadCygwinPackage ()
 
     url=${url%/}        # Remove trailing slash
 
-    local arch="x86"
     local file="setup.ini"
     local cachedir="$CYGBUILD_CACHE_DIR"
     local cache="$cachedir/$file"
@@ -8540,13 +8553,17 @@ CygbuildCmdDownloadCygwinPackage ()
     fi
 
     CygbuildFileDaysOld "$cache" > $retval &&
-    local days=$(< $retval)
 
-    if [ -f "$cache" ] && [ ! -s "$cache" ]; then
+    local days=$(< $retval)
+    days=${days%.*}             # remove decimals from N.NNNN days
+
+    if [ "$rm_cache" ]; then
+        CygbuildEcho "-- [NOTE] removing cache: $cache"
+    elif [ -f "$cache" ] && [ ! -s "$cache" ]; then
         #  If file exists, but is empty, remove it
         rm --force "$cache"
-    elif [[ "$days" > "30" ]]; then
-        CygbuildVerb "-- [NOTE] Refreshing $days days old cache file."
+    elif [ "$days" ]  && [[ $days -gt 7 ]]; then
+        CygbuildEcho "-- [NOTE] Refreshing $days days old cache file"
         rm --force "$cache"
     fi
 
@@ -12402,9 +12419,15 @@ function CygbuildCommandMainCheckSpecial()
         esac
     done
 
-    local opt1="(-b|--binary)"
-    local opt2="(-d|--dir)"
-    local opts="( +$opt1)?( +$opt2 +)?|( +$opt2)?( +$opt1 +)?"
+    local opta="(-a|--arch)"
+    local optb="(-b|--binary)"
+    local optd="(-d|--dir)"
+    local optc="(-c|--clean)"
+    local opts
+    opts="( +$opta +)?( +$optb)?( +$optc +)?( +$optd +)?"
+    opts="$opts|( +$opta +)?( +$optc +)?( +$optb)?( +$optd +)?"
+    opts="$opts|( +$opta +)?( +$optb +)?( +$optd)?( +$optc +)?"
+    opts="$opts|( +$opta +)?( +$optd +)?( +$optc)?( +$optb +)?"
 
     local cmd=$(
         echo $* |
@@ -12418,14 +12441,25 @@ function CygbuildCommandMainCheckSpecial()
         shift
 
         local mode="source-binary"
-        local mkdir
+        local mkdir clean
 
         while :
         do
             case "$1" in
+                -a|--arch)
+                    arch="$2"
+                    if [[ ! "$arch" == x86* ]]; then
+                        CygbuildExit 1 "Incorrect --arch {x86, x86_64}: $arch"
+                    fi
+                    shift 2
+                    ;;
                 -b|--binary)
                     shift
                     mode="binary"
+                    ;;
+                -c|--clean)
+                    shift
+                    clean="clean"
                     ;;
                 -d|--dir*)
                     shift
@@ -12452,7 +12486,9 @@ function CygbuildCommandMainCheckSpecial()
 
             local rmdir=""
 
-            if ! CygbuildCmdDownloadCygwinPackage "$pkg" "$mode" ; then
+            if ! CygbuildCmdDownloadCygwinPackage \
+                   "$pkg" "$mode" "$clean" "$arch"
+            then
                 rmdir="rmdir"
             fi
 
