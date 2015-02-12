@@ -1,5 +1,8 @@
 2015-02-12 Thu  Jari Aalto  <jari.aalto@cante.net>
 
+	* doc/Makefile (realclean): New.
+	(index.html, index.txt): rework targets.
+
 	* bin/lib/cygbuild.pl: (PACKAGE MAINTENANCE COMMANDS::HELP::other
 	commands::download): Add new option -c|--clean to remove cache.
 	Document location of cache file and its automatic update time of 7
