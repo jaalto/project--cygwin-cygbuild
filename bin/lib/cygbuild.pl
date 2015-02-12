@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2015.0212.0815';
+$VERSION = '2015.0212.0832';
 
 # ..................................................................
 
@@ -1309,9 +1309,6 @@ very old and not suitable for detecting the build environmnet. It may
 be possible to build with newer copies of these files. The latest
 versions are available in Debian package I<autotools-dev> Git repository
 at http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/
-
-  wget http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/config.guess
-  wget http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/config.sub
 
 =item B<configure.env.options>
 
