@@ -41,14 +41,14 @@
 #
 #       o   cygcheck is a MingW applications outputs have CRLF line endings
 
-CYGBUILD_HOMEPAGE_URL="http://freecode.com/projects/cygbuild"
+CYGBUILD_HOMEPAGE_URL="https://github.com/jaalto/project--cygwin-cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
 CYGBUILD_LICENSE="GPL-2+"
 CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0212.0838"
+CYGBUILD_VERSION="2015.0212.1102"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
