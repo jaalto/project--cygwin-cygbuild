@@ -738,15 +738,24 @@ Other commands
    almostall
           Same as command [all] but without the [finish] step.
 
-   cygsrc [-b|--binary] [--dir|-d] PACKAGE
+   cygsrc [-a|--arch {x86,x86_64}] [-b|--binary] [-c|--clean] [--dir|-d]
+          PACKAGE
           NOTES: 1) This command must be run at an empty directory and 2)
           No other command line options are interpreted. This is a stand
           alone command.
 
-          Download both Cygwin source net release package. If option --dir
-          is given, create directory with name PACKAGE, cd to it and start
-          downloading PACKAGE. If option --binary is given, download only
-          binary package.
+          Download Cygwin package. By default according to the current
+          architecture unless options --arch is used; this options must
+          appear at the beginning. If option --dir is given, create
+          directory with name PACKAGE, cd to it and start downloading
+          PACKAGE. If option --binary is given, download only binary
+          package.
+
+          When run for the first time, the list of packages listed in
+          setup.ini is cached under directory /var/cache/cygbuild. Use
+          option --clean to immediately remove cache to notice new
+          updates. The cache file is updated automatically if it's more
+          than 7 days.
 
           This command is primarily used for downloading sources of
           orphaned package in order to prepare ITA (intent to adopt) to
@@ -1147,10 +1156,10 @@ patches/ directory
           Use case: with old packages the files config.{guess,sub} may be
           very old and not suitable for detecting the build environmnet.
           It may be possible to build with newer copies of these files.
-          The latest versions are avilable in Debian package autotools-dev
-          Git repository at
-          [80]http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.
-          git;a=tree
+          The latest versions are available in Debian package
+          autotools-dev Git repository at
+          [80]http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/t
+          ree/
 
    configure.env.options
           If this file exists, it is sourced to read custom environment
@@ -2290,7 +2299,7 @@ References
   77. http://www.cygwin.com/licensing.html
   78. http://www.opensource.org/licenses/
   79. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#make
-  80. http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.git;a=tree
+  80. http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/
   81. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#configure
   82. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#configure
   83. file://localhost/home/jaalto/vc/project/sforge/cygbuild/doc/manual/index.html#configure
