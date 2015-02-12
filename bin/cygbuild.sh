@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0212.0832"
+CYGBUILD_VERSION="2015.0212.0838"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1389,7 +1389,8 @@ function CygbuildLibInstallEnvironment()
 #
 #######################################################################
 
-
+# http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
+# http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
 function CygbuildConfigGuessDownload()
 {
     local url="http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/plain"
