@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0214.1422"
+CYGBUILD_VERSION="2015.0214.1442"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9302,12 +9302,16 @@ function CygbuildCmdConfMain()
 
         elif [ -f configure.in ] || [ -f configure.ac ]; then
 
-           CygbuildEcho "-- Running: autoconf -i because of" \
+           CygbuildEcho "-- Running: autoreconf -fi because of" \
                         "./configure.{in,ac}"
 
-           libtoolize --force &&
-               autoconf --initialization  &&
+           # aclocal
+           # automake --add-missing &&
+           # autoconf
+
+           autoreconf --force --install &&
                CygbuildConfCC
+
            status=$?
 
         else
