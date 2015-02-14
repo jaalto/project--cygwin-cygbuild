@@ -1,3 +1,8 @@
+2015-02-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdConfMain): Add missing command
+	continuation backslash while testing configure.in
+
 2015-02-12 Thu  Jari Aalto  <jari.aalto@cante.net>
 
 	* doc/Makefile (realclean): New.
