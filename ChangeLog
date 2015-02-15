@@ -2,6 +2,8 @@
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Skip
 	symlinks.
+	(CygbuildCmdInstallCheckSetupHintFieldNames): Change ERROR
+	to WARN on requires field check.
 
 2015-02-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 

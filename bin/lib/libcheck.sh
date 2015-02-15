@@ -570,7 +570,15 @@ function CygbuildCmdInstallCheckSetupHintFieldNames()
             {
                 if ( ! hash[var] )
                 {
-                    printf("   [ERROR] missing field %s:\n", var)
+                    type = "ERROR"
+
+                    if (var == "requires" || var == "Requires")
+                    {
+                        # If only depends on "cygwin", this is not needed
+                        type = "WARN"
+                    }
+
+                    printf("   [%s] missing field %s:\n", type, var)
                 }
             }
         }
