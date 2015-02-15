@@ -1,3 +1,8 @@
+2015-02-15 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Skip
+	symlinks.
+
 2015-02-14 Sat  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdConfMain): Add missing command

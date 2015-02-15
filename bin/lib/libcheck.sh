@@ -1792,9 +1792,14 @@ function CygbuildCmdInstallCheckBinFiles()
         [ -d "$file" ] && continue
 
         if [ -h "$file" ]; then
-            CygbuildPathResolveSymlink "$file" > $retval &&
-            file=$(< $retval)
+            CygbuildEcho "   [NOTE] Skip, symlink:" ${file/$srcdir\/}
+            continue
         fi
+
+        # if [ -h "$file" ]; then
+        #     CygbuildPathResolveSymlink "$file" > $retval &&
+        #     file=$(< $retval)
+        # fi
 
         local name=${file##*/}              # remove path
         local _file=${file/$srcdir\/}       # relative path
@@ -1825,7 +1830,7 @@ function CygbuildCmdInstallCheckBinFiles()
 	    [ -s "$retval" ] && size=$(< "$retval")
 
 	    if [[ ! "$size" == [0-9]* ]]; then
-		CygbuildWarn "   [WARNING] Internal error, can't read" \
+		CygbuildWarn "   [WARN] Internal error, can't read" \
 		    " size: '$file'"
 	    else
 		if [[ $size -gt $maxsize ]]; then
@@ -1854,11 +1859,11 @@ function CygbuildCmdInstallCheckBinFiles()
         #   ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for
         #   GNU/Linux 2.0.0, dynamically linked (uses shared libs),
         #   stripped
-	#
 
         if [[ "$str" == *Linux* ]]; then
             CygbuildEcho "   [ERROR] file(1) reports Linux executable: $name"
             status=1
+            continue
 
         elif [[ "$str" == *executable*Windows\ \(console\)* ]] &&
 	     [[ ! $file == *.exe ]]
@@ -1872,7 +1877,8 @@ function CygbuildCmdInstallCheckBinFiles()
         elif [[ "$str" == *executable*Windows\ \(DLL\)* ]] &&
 	     [[ $file != *.dll || $file != *.so ]]
 	then
-	    # *.so:  PE32 executable for MS Windows (DLL) (console) Intel 80386 32-bit
+	    # *.so:  PE32 executable for MS Windows (DLL)
+            # (console) Intel 80386 32-bit
 
             CygbuildEcho "   [ERROR] No *.so or *.dll suffix in $_file"
             status=1
@@ -1882,6 +1888,7 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildEcho "   [ERROR] setup.hint may need Bash dependency" \
                  "for $name"
             status=1
+            continue
 
         elif [[ "$str" == *awk* ]] &&
 	     awk 'NR == 1 && /gawk/ {exit 0}{exit 1}' "$file" &&
@@ -1890,6 +1897,7 @@ function CygbuildCmdInstallCheckBinFiles()
             CygbuildEcho "   [ERROR] setup.hint may need Gawk dependency" \
                  "for $name"
             status=1
+            continue
 
         elif [[ "$str" == *perl*   ]] && [[ ! $depends == *perl* ]] ; then
             CygbuildEcho "   [ERROR] setup.hint may need Perl dependency" \
@@ -1917,6 +1925,7 @@ function CygbuildCmdInstallCheckBinFiles()
             fi
 
 	    CygbuildCmdInstallCheckLibrariesPerl "$file" "$perl_locallibs"
+            continue
 
         elif [[ "$str" == *python* ]]; then
 
@@ -1929,6 +1938,7 @@ function CygbuildCmdInstallCheckBinFiles()
             fi
 
 	    CygbuildCmdInstallCheckLibrariesPython "$file"
+            continue
 
         elif [[ "$str" == *ruby* ]]; then
 
@@ -1941,6 +1951,8 @@ function CygbuildCmdInstallCheckBinFiles()
             fi
 
 	    CygbuildCmdInstallCheckLibrariesRuby "$file"
+            continue
+
 	fi
 
         # .................................................... other ...
@@ -1949,7 +1961,7 @@ function CygbuildCmdInstallCheckBinFiles()
             str=${str##*:}          # Remove path
             CygbuildEcho "   $name: $str"
 
-            #   Show library dependencies
+            # Display library dependencies
             [[ $file == *.exe ]] && CygbuildCygcheckMain "$file"
         fi
 
