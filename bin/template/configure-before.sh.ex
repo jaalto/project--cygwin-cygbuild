@@ -8,4 +8,7 @@
 PATH="/sbin:/usr/sbin/:/bin:/usr/bin"
 LC_ALL="C"
 
+# If sources are old, before ./configure, you may need to call:
+# libtoolize --force --copy --install
+
 # End of file
