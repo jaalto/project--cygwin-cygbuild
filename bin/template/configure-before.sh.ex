@@ -3,7 +3,7 @@
 #
 # configure-before.sh -- Custom configure script
 #
-#   Called as: CYGWIN-PATCHES/configure-before.sh <absolute-install-dir>
+#   Called as: CYGWIN-PATCHES/configure-before.sh <build directory>
 
 PATH="/sbin:/usr/sbin/:/bin:/usr/bin"
 LC_ALL="C"

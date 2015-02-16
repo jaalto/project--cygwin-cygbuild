@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0216.2222"
+CYGBUILD_VERSION="2015.0216.2252"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9243,7 +9243,7 @@ function CygbuildCmdConfBefore()
     CygbuildEcho "--- Running external:" ${file#$srcdir/}
 
     CygbuildChmodExec $file
-    ${debug:+$BASHX} $file
+    ${debug:+$BASHX} $file "$builddir"
 }
 
 function CygbuildCmdConfMain()
