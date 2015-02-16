@@ -1,3 +1,12 @@
+2015-02-16 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/configure-before.sh.ex: New file.
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Add
+	SCRIPT_CONFIGURE_BEFORE_CYGFILE.
+	(CygbuildCmdConfBefore): New.
+	(CygbuildCmdConfMain): Call CygbuildCmdConfBefore.
+
 2015-02-16 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildCmdConfAutomake): Check multiple

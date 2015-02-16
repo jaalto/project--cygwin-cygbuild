@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2015.0212.0832';
+$VERSION = '2015.0216.2227';
 
 # ..................................................................
 
@@ -494,9 +494,11 @@ packaging commands B<[package]> or B<[source-package]>.
 
 =item B<configure>
 
-Run user supplied C<package-N.N/CYGWIN-PATCHES/configure.sh>. If not found,
-try C<package-N.N/configure> or C<package-N.N/buildconf> with
-predefined Cygwin switches
+Run user supplied files
+C<package-N.N/CYGWIN-PATCHES/configure-before.sh> and
+C<package-N.N/CYGWIN-PATCHES/configure.sh>. If not found, try
+C<package-N.N/configure> or C<package-N.N/buildconf> with predefined
+Cygwin switches.
 
 Before this command, the source files should have been prepared with
 command B<[shadow]> (which see).
