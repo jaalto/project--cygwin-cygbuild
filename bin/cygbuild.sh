@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0214.1442"
+CYGBUILD_VERSION="2015.0216.0549"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9169,23 +9169,29 @@ function CygbuildCmdConfAutomake()
 {
     [ ! -f configure ]  ||  return 0
     [ -f makefile.am ]  ||  return 0
+    [ -f Makefile.am ]  ||  return 0
 
-    if [ ! -f bootstrap ]; then
-        CygbuildEcho "-- [WARN] makefile.am but no 'bootstrap' file"
-    else
-        CygbuildEcho "-- No ./configure but looks like automake." \
-                     "Running ./bootstrap"
+    local file
 
-        chmod +x bootstrap
-        ./bootstrap
-
-        if [ -f configure ]; then
-            CygbuildVerb "-- [OK] ./configure appeared."
+    for file in bootstrap autogen.sh
+    do
+        if [ ! -f $file ]; then
+            CygbuildEcho "-- [WARN] [Mm]akefile.am but no file: $file"
         else
-            CygbuildEcho "-- [ERROR] No ./configure appeared."
-            return 1
+            CygbuildEcho "-- No ./configure but looks like automake." \
+                         "Running ./$file"
+
+            chmod +x $file
+            ./$file
+
+            if [ -f configure ]; then
+                CygbuildVerb "-- [OK] ./configure appeared."
+            else
+                CygbuildEcho "-- [ERROR] No ./configure appeared."
+                return 1
+            fi
         fi
-    fi
+    done
 }
 
 function CygbuildCmdConfConfigFilesCopy()

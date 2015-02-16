@@ -1,3 +1,8 @@
+2015-02-16 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdConfAutomake): Check multiple
+	files, including autogen.sh
+
 2015-02-15 Sun  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Skip
