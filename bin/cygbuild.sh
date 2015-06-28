@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0216.2252"
+CYGBUILD_VERSION="2015.0302.1637"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9278,7 +9278,7 @@ function CygbuildCmdConfMain()
             CygbuildEcho "--- Running external configure:" ${script#$srcdir/}
 
             CygbuildChmodExec $script
-            $script $instdir | CygbuildMsgFilter
+            ${debug:+$BASHX} $script $instdir | CygbuildMsgFilter
             status=$?
 
         elif CygbuildIsPerlPackage ; then
@@ -11044,6 +11044,10 @@ function CygbuildInstallFixEtcdirInstall()
     #       .inst/etc/default/<package/
     #
     #   Check if there is anything to install
+
+    if [ -d "$dir/usr/etc" ]; then
+        CygbuildWarn "   [ERROR] Wrong etc location ${dir#$srcdir}usr/etc"
+    fi
 
     local pkgetcdir=$(
         cd "$dir/etc" 2> /dev/null &&
