@@ -1413,6 +1413,18 @@ function CygbuildArch()
     uname --all | awk '{print $(NF -1) }'
 }
 
+function CygbuildArchId()
+{
+    local type=x86_64
+    local arch=$(CygbuildArch)
+
+    case $arch in
+	[0-9]86) type=x86 ;;
+    esac
+
+    echo $type
+}
+
 function CygbuildIsDirMatch()
 {
     local dir="$1"  # ARG 1   = directory
@@ -8535,7 +8547,7 @@ CygbuildCmdDownloadCygwinPackage ()
     local arch="$4"
 
     if [ ! "$arch" ]; then
-        arch=$(CygbuildArch)
+        arch=$(CygbuildArchId)
     fi
 
     local id="$0.$FUNCNAME"
@@ -8587,9 +8599,16 @@ CygbuildCmdDownloadCygwinPackage ()
         rm --force "$cache"
     fi
 
-    if [ ! -f "$cache" ]; then
+    if [ ! -f "$cache" ] || [ ! -s "$cache" ]; then
         CygbuildEcho "-- Wait, downloading Cygwin package information."
-        $wget --quiet --output-document=$cache "$url/$arch/$file" || return $?
+
+	local URL="$url/$arch/$file"
+	
+	if ! $wget --quiet --output-document=$cache "$URL" ; then
+	    CygbuildWarn "[ERROR] Failed to download $URL"
+	    CygbuildWarn "[ERROR] Set environment variable CYGBUILD_SRCPKG_URL"
+	    return $?
+	fi
     fi
 
     # @ xfig
