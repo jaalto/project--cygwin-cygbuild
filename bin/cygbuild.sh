@@ -9276,9 +9276,8 @@ function CygbuildCmdConfMain()
         if [ -f "$script" ]; then
 
             CygbuildEcho "--- Running external configure:" ${script#$srcdir/}
-
             CygbuildChmodExec $script
-            $script $instdir | CygbuildMsgFilter
+            ${OPTION_DEBUG:+$BASHX} $script $instdir | CygbuildMsgFilter
             status=$?
 
         elif CygbuildIsPerlPackage ; then
