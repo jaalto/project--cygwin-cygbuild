@@ -1419,7 +1419,7 @@ function CygbuildArchId()
     local arch=$(CygbuildArch)
 
     case $arch in
-	[0-9]86) type=x86 ;;
+	i[0-9]86) type=x86 ;;
     esac
 
     echo $type
