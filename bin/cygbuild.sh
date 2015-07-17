@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0216.2252"
+CYGBUILD_VERSION="2015.0622.1207"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1650,7 +1650,7 @@ def Check(list):
 
 Check(sys.argv[2:])
 
-    ' "${debug:+1}" "$@"
+    ' "${OPTION_DEBUG:+1}" "$@"
 }
 
 function CygbuildWasLibraryInstallMakefile ()
@@ -6724,7 +6724,7 @@ function CygbuildCmdMkpatchMain()
                  "$prescript $difforig $diffsrc"
 
             CygbuildChmodExec $prescript
-            ${debug:+$BASHX} $prescript "$difforig" "$diffsrc"
+            ${OPTION_DEBUG:+$BASHX} $prescript "$difforig" "$diffsrc"
         fi
 
         if [[ "$extraDiffOpt" != *cygbuild-ignore-autocheck* ]]; then
@@ -6759,7 +6759,7 @@ function CygbuildCmdMkpatchMain()
                  "$difforig $diffsrc $out"
 
             CygbuildChmodExec $difforig
-            ${debug:+$BASHX} $diffscript "$difforig" "$diffsrc" "$out"
+            ${OPTION_DEBUG:+$BASHX} $diffscript "$difforig" "$diffsrc" "$out"
         else
 
             local dummy="pwd: $(pwd)"    # For debugging
@@ -8845,7 +8845,7 @@ function CygbuildCmdPrepMain()
     if [ -f "$script" ]; then
         CygbuildEcho "--- External prepare script: $script $TOPDIR"
         CygbuildChmodExec $script
-        ${debug:+$BASHX} $script "$TOPDIR" || return $?
+        ${OPTION_DEBUG:+$BASHX} $script "$TOPDIR" || return $?
     else
         CygbuildCmdPrepClean || return $?
     fi
@@ -9243,7 +9243,7 @@ function CygbuildCmdConfBefore()
     CygbuildEcho "--- Running external:" ${file#$srcdir/}
 
     CygbuildChmodExec $file
-    ${debug:+$BASHX} $file "$builddir"
+    ${OPTION_DEBUG:+$BASHX} $file "$builddir"
 }
 
 function CygbuildCmdConfMain()
@@ -11043,6 +11043,10 @@ function CygbuildInstallFixEtcdirInstall()
     #       .inst/etc/default/<package/
     #
     #   Check if there is anything to install
+
+    if [ -d "$dir/usr/etc" ]; then
+        CygbuildWarn "   [ERROR] Wrong etc location ${dir#$srcdir}usr/etc"
+    fi
 
     local pkgetcdir=$(
         cd "$dir/etc" 2> /dev/null &&
