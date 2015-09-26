@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0622.1207"
+CYGBUILD_VERSION="2015.0926.1608"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1117,6 +1117,7 @@ function CygbuildBootVariablesGlobalMain()
      --exclude=[~#]* \
      --exclude=a.out \
      --exclude=core \
+     --exclude=.*DS_Store \
      --exclude=DEADJOE \
      --exclude=VERSION \
     "
