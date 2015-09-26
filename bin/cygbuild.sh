@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2015.0926.1617"
+CYGBUILD_VERSION="2015.0926.1623"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1905,9 +1905,9 @@ CygbuildDllToLibName ()
             libcrypto* | libssl*)
                 lib=libopenssl100
                 ;;
-            libxml*)
-                ;; libxml2_2 => libxml2
-                lib=${lib%_[0-9]}
+            libxml2[0-9])
+                # libxml2_2 => libxml2
+                lib=libxml2
                 ;;
             libpng[0-9][0-9][0-9][0-9])
                 # libpng1515 => libpng15
