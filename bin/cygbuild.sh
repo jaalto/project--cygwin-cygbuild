@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0416.1038"
+CYGBUILD_VERSION="2016.0416.1045"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5697,6 +5697,7 @@ function CygbuildCmdPkgDevelStandardBin()
 
             CygbuildEcho "-- devel-bin" ${tar#$srcdir/}
 
+            GZIP="" BZIP2="" BZIP="" XZ_OPT="" \
             tar $taropt $group --create --file=$tar \
                 $(< $retval.bin) $(< $retval.man.bin) ||
             {
@@ -5773,6 +5774,7 @@ function CygbuildCmdPkgDevelStandardLib()
 
             CygbuildEcho "-- devel-lib" ${tar#$srcdir/}
 
+            GZIP="" BZIP2="" BZIP="" XZ_OPT="" \
             tar $taropt $group --create --file=$tar $(< $retval.lib) ||
             {
                 status=$?
@@ -5829,6 +5831,7 @@ function CygbuildCmdPkgDevelStandardDev()
 
             CygbuildEcho "-- devel-dev" ${tar#$srcdir/}
 
+            GZIP="" BZIP2="" BZIP="" XZ_OPT="" \
             tar $taropt $group --create --file=$tar $(< $retval.dev) ||
             {
                 status=$?
@@ -8211,6 +8214,7 @@ function CygbuildExtractTar()
 
         local status=0
 
+        GZIP="" BZIP2="" BZIP="" XZ_OPT="" \
         tar --directory "$expectdir" $opt "$file"  ||
         {
             status=$?
