@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0416.1045"
+CYGBUILD_VERSION="2016.0609.0347"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11026,7 +11026,6 @@ do
     to=\"\$dest/\$i\"
 
     [ -e \"\$from\" ] || continue
-    [ -e \"\$to\"   ] && continue
 
     case \"\$i\" in
         */) # Directory
