@@ -80,6 +80,13 @@ function Release ()
 
 function Main ()
 {
+    # NEWER USED, NOT TESTED
+    echo "$0: This script has never been user, nor tested"
+    echo "$0: call 'RUNIT=1 $0 ...' to use it and help in development"
+    
+    if [ ! "$RUNIT" ]; then
+        return 1    
+    fi
 
     local root=""
     local increase=0
