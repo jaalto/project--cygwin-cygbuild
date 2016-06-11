@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0609.0347"
+CYGBUILD_VERSION="2016.0611.0700"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11197,10 +11197,19 @@ function CygbuildInstallFixInterpreterMain()
 
         local _file=${file#$srcdir/}       # relative path
 
+        case "$file" in
+            */__init__.py*) continue ;;
+        esac
+
         head --lines=1 "$file" > $retval 2> /dev/null
 
-        if $EGREP --quiet "#.*perl" $retval &&
-         ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
+        if $EGREP --quiet "# *-[*]-" $retval
+        then
+            # Emacs mode setup line: -*- coding: utf-8; mode: ...
+            continue
+
+        elif $EGREP --quiet "#.*perl" $retval &&
+           ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
         then
             CygbuildVerb "-- [NOTE] Possibly suspicious Perl call" \
                 "in $_file: $(cat $retval)"
