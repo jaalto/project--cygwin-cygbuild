@@ -1,7 +1,7 @@
 #
 #   Copyright information
 #
-#	Copyright (C) 2003-2012 Jari Aalto
+#	Copyright (C) 2003-2015 Jari Aalto
 #
 #   License
 #
@@ -25,25 +25,28 @@ ifneq (,)
 endif
 
 include ../mk/common.mk
+PL = ../bin/lib/cygbuild.pl
 
 all: doc
+
+# realclean: clean files that can be generated
+realclean:
+	# Remove generated files
+	rm -f manual/index.txt manual/index.html
 
 clean:
 	# clean
 	-rm -f *.tmp *[#~] */*[#~]
 
 manual/index.html: $(PL)
-	perl $? --Help-html > $@
+	pod2html $? > $@
 	rm -f *.tmp
 
 manual/index.txt: $(PL)
 	pod2text $? > $@
 
-index.txt: index.html
-	lynx -dump $? > $@
-
 # doc: [maintenence] generate documentation from source files
-doc: index.txt manual/index.html manual/index.txt
+doc: manual/index.txt manual/index.html
 
 install-index:
 	# install-doc
@@ -65,7 +68,7 @@ install-license:
 	$(INSTALL_BIN) -d $(DOCDIR)/license
 	$(INSTALL_BIN) license/* $(DOCDIR)/license
 
-# install: install idex, manual, devel, license
+# install: install index, manual, devel, license
 install: all install-index	\
 	install-manual		\
 	install-devel		\
@@ -88,5 +91,7 @@ www: doc
 
 help:
 	@egrep "^# [-a-z]+:" Makefile | sort | sed 's/# //'
+
+.PHONY: all doc clean realclean
 
 # End of file

@@ -864,16 +864,21 @@ Contact maintainer of <code>package-N.N-1-src.tar.xz</code> for details.</p>
 <dd>
 <p>Same as command <strong>[all]</strong> but without the <strong>[finish]</strong> step.</p>
 </dd>
-<dt><strong><a name="cygsrc_b_binary_dir_d_package" class="item"><strong>cygsrc [-b|--binary] [--dir|-d] PACKAGE</strong></a></strong></dt>
+<dt><strong><a name="cygsrc_a_arch_x86_x86_64_b_binary_c_clean_dir_d_package" class="item"><strong>cygsrc [-a|--arch {x86,x86_64}] [-b|--binary] [-c|--clean] [--dir|-d] PACKAGE</strong></a></strong></dt>
 
 <dd>
 <p>NOTES: 1) This command must be run at an empty directory and 2) No
 other command line options are interpreted. This is a stand alone
 command.</p>
-<p>Download both Cygwin source net release package. If option <strong>--dir</strong> is
-given, create directory with name <em>PACKAGE</em>, cd to it and start
-downloading <em>PACKAGE</em>. If option <strong>--binary</strong> is given, download only
-binary package.</p>
+<p>Download Cygwin package. By default according to the current
+architecture unless options <strong>--arch</strong> is used; this options must
+appear at the beginning. If option <strong>--dir</strong> is given, create directory
+with name <em>PACKAGE</em>, cd to it and start downloading <em>PACKAGE</em>. If
+option <strong>--binary</strong> is given, download only binary package.</p>
+<p>When run for the first time, the list of packages listed in
+<em>setup.ini</em> is cached under directory <code>/var/cache/cygbuild</code>. Use option
+<strong>--clean</strong> to immediately remove cache to notice new updates. The cache
+file is updated automatically if it's more than 7 days.</p>
 <p>This command is primarily used for downloading sources of orphaned
 package in order to prepare ITA (intent to adopt) to Cygwin
 application mailing list.</p>
@@ -938,7 +943,7 @@ missing shadow directory and make it as needed.</p>
 <dt><strong><a name="test" class="item"><strong>test</strong></a></strong></dt>
 
 <dd>
-<p>Run <em>make test</em> and possibley additional executable files listed in
+<p>Run <em>make test</em> and possibly additional executable files listed in
 <code>CYGWIN-PATCHES/test</code> directory. The PATH is set to include all
 directories found under <code>.inst</code> so that programs in <a href="#test"><code>test/</code></a>
 directory can can assume that package binaries &quot;are installed&quot;.</p>
@@ -1286,8 +1291,8 @@ overwriting the previous definitions.</p>
 <p>Use case: with old packages the files <code>config.{guess,sub}</code> may be
 very old and not suitable for detecting the build environmnet. It may
 be possible to build with newer copies of these files. The latest
-versions are avilable in Debian package <em>autotools-dev</em> Git repository
-at <a href="http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.git;a=tree">http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.git;a=tree</a></p>
+versions are available in Debian package <em>autotools-dev</em> Git repository
+at <a href="http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/">http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/</a></p>
 </dd>
 <dt><strong><a name="configure_env_options" class="item"><strong>configure.env.options</strong></a></strong></dt>
 
@@ -2342,7 +2347,7 @@ direct dependences in the <em>requires:</em> line, even if they are in
 </p>
 <hr />
 <h1><a name="author">AUTHOR</a></h1>
-<p>Copyright (C) 2003-2012 Jari Aalto. This program is free software; you
+<p>Copyright (C) 2003-2015 Jari Aalto. This program is free software; you
 can redistribute and/or modify program under the terms of Gnu General
 Public license v2 or, at your option, any later version.</p>
 

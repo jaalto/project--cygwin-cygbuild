@@ -2,7 +2,7 @@
 #
 #   cygbuild.pl --- A Perl library for Cygwin Net Release packager
 #
-#       Copyright (C) 2003-2012 Jari Aalto
+#       Copyright (C) 2003-2015 Jari Aalto
 #
 #   License
 #
@@ -95,7 +95,7 @@ use vars qw ( $VERSION );
 #   The following variable is updated by Emacs setup whenever
 #   this file is saved.
 
-$VERSION = '2014.0616.0801';
+$VERSION = '2015.0216.2227';
 
 # ..................................................................
 
@@ -494,9 +494,11 @@ packaging commands B<[package]> or B<[source-package]>.
 
 =item B<configure>
 
-Run user supplied C<package-N.N/CYGWIN-PATCHES/configure.sh>. If not found,
-try C<package-N.N/configure> or C<package-N.N/buildconf> with
-predefined Cygwin switches
+Run user supplied files
+C<package-N.N/CYGWIN-PATCHES/configure-before.sh> and
+C<package-N.N/CYGWIN-PATCHES/configure.sh>. If not found, try
+C<package-N.N/configure> or C<package-N.N/buildconf> with predefined
+Cygwin switches.
 
 Before this command, the source files should have been prepared with
 command B<[shadow]> (which see).
@@ -848,16 +850,22 @@ Contact maintainer of C<package-N.N-1-src.tar.xz> for details.
 
 Same as command B<[all]> but without the B<[finish]> step.
 
-=item B<cygsrc [-b|--binary] [--dir|-d] PACKAGE>
+=item B<cygsrc [-a|--arch {x86,x86_64}] [-b|--binary] [-c|--clean] [--dir|-d] PACKAGE>
 
 NOTES: 1) This command must be run at an empty directory and 2) No
 other command line options are interpreted. This is a stand alone
 command.
 
-Download both Cygwin source net release package. If option B<--dir> is
-given, create directory with name I<PACKAGE>, cd to it and start
-downloading I<PACKAGE>. If option B<--binary> is given, download only
-binary package.
+Download Cygwin package. By default according to the current
+architecture unless options B<--arch> is used; this options must
+appear at the beginning. If option B<--dir> is given, create directory
+with name I<PACKAGE>, cd to it and start downloading I<PACKAGE>. If
+option B<--binary> is given, download only binary package.
+
+When run for the first time, the list of packages listed in
+I<setup.ini> is cached under directory C</var/cache/cygbuild>. Use option
+B<--clean> to immediately remove cache to notice new updates. The cache
+file is updated automatically if it's more than 7 days.
 
 This command is primarily used for downloading sources of orphaned
 package in order to prepare ITA (intent to adopt) to Cygwin
@@ -920,7 +928,7 @@ missing shadow directory and make it as needed.
 
 =item B<test>
 
-Run I<make test> and possibley additional executable files listed in
+Run I<make test> and possibly additional executable files listed in
 C<CYGWIN-PATCHES/test> directory. The PATH is set to include all
 directories found under C<.inst> so that programs in C<test/>
 directory can can assume that package binaries "are installed".
@@ -1301,8 +1309,8 @@ overwriting the previous definitions.
 Use case: with old packages the files C<config.{guess,sub}> may be
 very old and not suitable for detecting the build environmnet. It may
 be possible to build with newer copies of these files. The latest
-versions are avilable in Debian package I<autotools-dev> Git repository
-at http://anonscm.debian.org/gitweb/?p=users/hmh/autotools-dev.git;a=tree
+versions are available in Debian package I<autotools-dev> Git repository
+at http://anonscm.debian.org/cgit/users/hmh/autotools-dev.git/tree/
 
 =item B<configure.env.options>
 
@@ -2393,7 +2401,7 @@ gpg(1)
 
 =head1 AUTHOR
 
-Copyright (C) 2003-2012 Jari Aalto. This program is free software; you
+Copyright (C) 2003-2015 Jari Aalto. This program is free software; you
 can redistribute and/or modify program under the terms of Gnu General
 Public license v2 or, at your option, any later version.
 

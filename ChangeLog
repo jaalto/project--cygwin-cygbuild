@@ -1,3 +1,54 @@
+2015-02-16 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/template/configure-before.sh.ex: New file.
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalMain): Add
+	SCRIPT_CONFIGURE_BEFORE_CYGFILE.
+	(CygbuildCmdConfBefore): New.
+	(CygbuildCmdConfMain): Call CygbuildCmdConfBefore.
+
+2015-02-16 Mon  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdConfAutomake): Check multiple
+	files, including autogen.sh
+
+2015-02-15 Sun  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/lib/libcheck.sh (CygbuildCmdInstallCheckBinFiles): Skip
+	symlinks.
+	(CygbuildCmdInstallCheckSetupHintFieldNames): Change ERROR
+	to WARN on requires field check.
+
+2015-02-14 Sat  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildCmdConfMain): Add missing command
+	continuation backslash while testing configure.in
+
+2015-02-12 Thu  Jari Aalto  <jari.aalto@cante.net>
+
+	* doc/Makefile (realclean): New.
+	(index.html, index.txt): rework targets.
+
+	* bin/lib/cygbuild.pl: (PACKAGE MAINTENANCE COMMANDS::HELP::other
+	commands::download): Add new option -c|--clean to remove cache.
+	Document location of cache file and its automatic update time of 7
+	days. Add new option -a|--arch to download package by
+	architecture.
+
+	* bin/cygbuild.sh (CygbuildCmdDownloadCygwinPackage): Add option
+	-c|--clean to remove cache. Lower cache update time from 30 days
+	to 7 days. Add new option -a|--arch to download package by
+	architecture.
+	(CygbuildConfigGuessDownload): New.
+	(CygbuildCmdFileUpdateConfigs): New.
+
+2015-02-11 Wed  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildInstallFixEtcdirInstall):
+	Correct for loop which checks preremove postinstall.
+	Incorectly added absolute paths to LIST which cause tar
+	to use full path names.
+
 2014-06-16 Mon  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh: (CygbuildMakefileRunTarget): Return 0
