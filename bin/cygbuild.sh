@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0611.0700"
+CYGBUILD_VERSION="2016.0612.0857"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -761,6 +761,7 @@ function CygbuildBootVariablesGlobalCacheGenerate()
     fi
 
     $CYGCHECK -l $package | ${PERLBIN:-perl} -pe 's,\r,,' > "$file"
+    $PERLBIN -MModule::CoreList -e 'print join qq(\n), Module::CoreList->find_modules(qr/./)' >> $file
 
     [ -s "$file" ]
 }
