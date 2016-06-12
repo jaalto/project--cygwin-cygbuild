@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0612.0857"
+CYGBUILD_VERSION="2016.0612.1547"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11028,6 +11028,9 @@ do
 
     [ -e \"\$from\" ] || continue
 
+    # Do not overwrite if already exists
+    [ -e \"$to\"   ] && continue
+
     case \"\$i\" in
         */) # Directory
             install -d -m 755 \"\$to\"
@@ -11038,7 +11041,6 @@ do
     esac
 done
 "
-
     CygbuildPostinstallWriteMain "etc" "$commands"
 }
 
