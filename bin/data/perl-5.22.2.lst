@@ -1,7 +1,7 @@
 # This file is used to check Perl module dependencies.
 # Under Cygwin, result of commands: 
 # cygcheck -l perl | perl -pe 's,\r,,'
-# perl -MModule::CoreList -e  'print join qq(\n), Module::CoreList->find_modules(qr/::/)' | sort
+# perl -MModule::CoreList -e  'print join qq(\n), Module::CoreList->find_modules(qr/::/)'
 
 /usr/bin/c2ph
 /usr/bin/corelist
