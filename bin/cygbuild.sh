@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2015 Jari Aalto
+#       Copyright (C) 2003-2017 Jari Aalto
 #
 #   License
 #
@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0612.1547"
+CYGBUILD_VERSION="2017.0926.1535"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3829,7 +3829,7 @@ function CygbuildDefineGlobalCommands()
     #   Official locations under Cygwin. Used to check proper shebang line
     #   Note: /usr/bin in Cygwin is just a mount link to /bin
 
-    local prefix=/bin
+    local prefix=/usr/bin
 
     PERLBIN="$prefix/perl"                          # global-def
     PYTHONBIN="$prefix/python"                      # global-def
@@ -10865,8 +10865,8 @@ function CygbuildInstallFixInterpreterGeneric()
     fi
 
     #  /usr/bin/env python
-    #  sed => /bin/python python
-    #  sed => /bin/python
+    #  sed => /usr/bin/python python
+    #  sed => /usr/bin/python
 
     sed -e "1s,#!.* \(.*\),#!$bin \1," \
         -e "1s,\($name\)[ \t]\+\1,\1," \

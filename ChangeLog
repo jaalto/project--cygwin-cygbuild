@@ -1,3 +1,9 @@
+2017-09-26 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalCommands):
+	Change official Python, Perl, Ruby patch from /bin
+	to /usr/bin.
+
 2015-02-16 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/template/configure-before.sh.ex: New file.
