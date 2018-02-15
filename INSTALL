@@ -13,7 +13,7 @@ Install instructions
 
 	If this is version control checkout, use symlink install:
 
-            make [prefix=/usr] install-symlinks
+            make [prefix=/usr] install-symlink
 
     Running in place
 
