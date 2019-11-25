@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2017.0926.1535"
+CYGBUILD_VERSION="2019.1125.1728"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -12707,6 +12707,8 @@ function CygbuildCommandMain()
         fi
 
         case $1 in
+            "") shift
+                ;;
 
             -b|--bzip2)
                 OPTION_COMPRESS="bz2"           # global-def
