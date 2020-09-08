@@ -1,3 +1,10 @@
+2020-09-08 Tue  Jari Aalto  <jari.aalto@cante.net>
+
+	* bin/cygbuild.sh 
+	(CygbuilImportCheckLib): new.
+	(CygbuildCmdInstallCheckMain): Call CygbuilImportCheckLib
+	(CygbuildCommandMain::check-deps): Call CygbuilImportCheckLib
+
 2017-09-26 Tue  Jari Aalto  <jari.aalto@cante.net>
 
 	* bin/cygbuild.sh (CygbuildDefineGlobalCommands):
