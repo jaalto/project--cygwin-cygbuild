@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2019.1125.1728"
+CYGBUILD_VERSION="2020.0908.0545"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -11341,19 +11341,25 @@ function CygbuildInstallCygwinPartMain()
     done
 }
 
+function CygbuilImportCheckLib()
+{
+    local file="libcheck.sh"
+    local lib="$CYGBUILD_PROG_LIBPATH/lib/$file"
+
+    if [ ! -f "$lib" ]; then
+        CygbuildEcho "-- [ERROR] Not available: $lib"
+        return 1
+    fi
+
+    . $lib
+}
+
 function CygbuildCmdInstallCheckMain()
 {
     local name="libcheck.sh"
-    local lib="$CYGBUILD_PROG_LIBPATH/lib/$name"
+    CygbuilImportCheckLib || return $?
 
     CygbuildEcho "== Checking content of installation in" ${instdir#$srcdir/}
-
-    if [ ! -f $lib ]; then
-        CygbuildEcho "-- [WARN] Not available: $lib"
-        return 0
-    fi
-
-    . $lib || return $?
     CygbuildCmdInstallCheckEverything
 }
 
@@ -13027,6 +13033,7 @@ function CygbuildCommandMain()
 
             check-deps)
                 # CygbuildCmdDependCheckMain
+                CygbuilImportCheckLib || return $?
                 CygbuildCmdInstallCheckBinFiles
                 status=$?
                 ;;
