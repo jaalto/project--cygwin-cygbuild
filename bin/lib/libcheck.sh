@@ -882,6 +882,8 @@ function CygbuildPerlLibraryDependsCache()
 
 	@hash{@ARGV} = 1;
 
+        %done = ();
+
 	for my $module ( sort keys %hash )
 	{
 	    $lib = $module;
@@ -890,6 +892,10 @@ function CygbuildPerlLibraryDependsCache()
 	    $type  = "CPAN";
 	    $path  = "";
 
+            next if $module =~ /::VERSION/;
+
+            # already seen
+            next if exists $done{$module};
 
 	    if ( m,^(/usr/lib/perl[\d.]+/.*/$lib\.pm),m )
 	    {
@@ -897,19 +903,29 @@ function CygbuildPerlLibraryDependsCache()
 		$path = $1;
 	    }
 
+	    if ( m,^ *$module *$,sm )
+	    {
+		$type = "Std";
+		$path = "Core module";
+	    }
+
 	    if ( $module =~ /::/ )
             {
 		#  Getopt::Long::Configure => Getopt::Long
 		($lib = $module ) =~ s/::[^:]+$//;
-		$lib =~ s,::,/,g;
+		my $filename =~ s,::,/,g;
 
-		if ( m,^(/usr/lib/perl[\d.]+/[\d.]+/$lib\.pm),m )
+		if ( m,^(/usr/lib/perl[\d.]+/[\d.]+/$filename\.pm),m
+                    or
+                    m,^ *$lib *$,sm
+                )
                 {
 		    $type = "Std";
 		    $path = $1;
 	        }
             }
 
+            $done{$module} = 1;
 	    printf "%-5s %-20s $path\n", $type, $module;
 	}
     ' "$cache" "$@"
@@ -1041,7 +1057,6 @@ function CygbuildCmdInstallCheckLibrariesPerl()
     CygbuildPerlLibraryDependsMain $(< $retval) > $deps
 
     if [ -s $deps ]; then
-
 
 	# The package may have private libs that it uses.
 	# filter out those before considerign that they are

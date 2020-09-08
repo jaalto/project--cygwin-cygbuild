@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2015 Jari Aalto
+#       Copyright (C) 2003-2017 Jari Aalto
 #
 #   License
 #
@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2016.0611.0700"
+CYGBUILD_VERSION="2020.0908.0545"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -761,6 +761,7 @@ function CygbuildBootVariablesGlobalCacheGenerate()
     fi
 
     $CYGCHECK -l $package | ${PERLBIN:-perl} -pe 's,\r,,' > "$file"
+    $PERLBIN -MModule::CoreList -e 'print join qq(\n), Module::CoreList->find_modules(qr/./)' >> $file
 
     [ -s "$file" ]
 }
@@ -3828,7 +3829,7 @@ function CygbuildDefineGlobalCommands()
     #   Official locations under Cygwin. Used to check proper shebang line
     #   Note: /usr/bin in Cygwin is just a mount link to /bin
 
-    local prefix=/bin
+    local prefix=/usr/bin
 
     PERLBIN="$prefix/perl"                          # global-def
     PYTHONBIN="$prefix/python"                      # global-def
@@ -10864,8 +10865,8 @@ function CygbuildInstallFixInterpreterGeneric()
     fi
 
     #  /usr/bin/env python
-    #  sed => /bin/python python
-    #  sed => /bin/python
+    #  sed => /usr/bin/python python
+    #  sed => /usr/bin/python
 
     sed -e "1s,#!.* \(.*\),#!$bin \1," \
         -e "1s,\($name\)[ \t]\+\1,\1," \
@@ -11027,6 +11028,9 @@ do
 
     [ -e \"\$from\" ] || continue
 
+    # Do not overwrite if already exists
+    [ -e \"$to\"   ] && continue
+
     case \"\$i\" in
         */) # Directory
             install -d -m 755 \"\$to\"
@@ -11037,7 +11041,6 @@ do
     esac
 done
 "
-
     CygbuildPostinstallWriteMain "etc" "$commands"
 }
 
@@ -11338,19 +11341,25 @@ function CygbuildInstallCygwinPartMain()
     done
 }
 
+function CygbuilImportCheckLib()
+{
+    local file="libcheck.sh"
+    local lib="$CYGBUILD_PROG_LIBPATH/lib/$file"
+
+    if [ ! -f "$lib" ]; then
+        CygbuildEcho "-- [ERROR] Not available: $lib"
+        return 1
+    fi
+
+    . $lib
+}
+
 function CygbuildCmdInstallCheckMain()
 {
     local name="libcheck.sh"
-    local lib="$CYGBUILD_PROG_LIBPATH/lib/$name"
+    CygbuilImportCheckLib || return $?
 
     CygbuildEcho "== Checking content of installation in" ${instdir#$srcdir/}
-
-    if [ ! -f $lib ]; then
-        CygbuildEcho "-- [WARN] Not available: $lib"
-        return 0
-    fi
-
-    . $lib || return $?
     CygbuildCmdInstallCheckEverything
 }
 
@@ -12704,6 +12713,8 @@ function CygbuildCommandMain()
         fi
 
         case $1 in
+            "") shift
+                ;;
 
             -b|--bzip2)
                 OPTION_COMPRESS="bz2"           # global-def
@@ -13022,6 +13033,7 @@ function CygbuildCommandMain()
 
             check-deps)
                 # CygbuildCmdDependCheckMain
+                CygbuilImportCheckLib || return $?
                 CygbuildCmdInstallCheckBinFiles
                 status=$?
                 ;;
