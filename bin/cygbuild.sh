@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2017 Jari Aalto
+#       Copyright (C) 2003-2021 Jari Aalto
 #
 #   License
 #
@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2020.0908.0545"
+CYGBUILD_VERSION="2021.0222.0849"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7549,7 +7549,7 @@ for arg in sys.argv[2:]:
         if os.path.exists(dir):
             os.chdir(dir)
             if verbose:
-                print "-- Python compile %s" % (file)
+                print("-- Python compile %s" % (file))
             py_compile.compile(file)
     ' "${verbose:+1}" "$@"
 }
