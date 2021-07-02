@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2021.0702.0935"
+CYGBUILD_VERSION="2021.0702.1010"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1421,7 +1421,7 @@ function CygbuildArchId()
     local arch=$(CygbuildArch)
 
     case $arch in
-	i[0-9]86) type=x86 ;;
+        i[0-9]86) type=x86 ;;
     esac
 
     echo $type
@@ -3466,11 +3466,12 @@ function CygbuildDependsList()
 
 function CygbuildIsTemplateFilesInstalled()
 {
-    #   If proper setup has been done, this file exists
+    #   If proper setup has been done, these file exist
 
-    local file=$DIR_CYGPATCH/setup.hint
+    local file1=$DIR_CYGPATCH/setup.hint
+    local file2=$DIR_CYGPATCH/setup-src.hint
 
-    [ -f "$file" ]
+    [ -f "$file1" ] && [ -f "$file2" ]
 }
 
 function CygbuildSourceDownloadScript()
@@ -5531,6 +5532,7 @@ function CygbuildCmdPublishToDir()
                 $srcinstdir/$PKG-doc-$VER-*tar.$ext     \
                 $srcinstdir/$PKG-bin-$VER-*tar.$ext     \
                 $DIR_CYGPATCH/setup.hint                \
+                $DIR_CYGPATCH/setup-src.hint            \
                 $DIR_CYGPATCH/setup-devel.hint          \
                 $DIR_CYGPATCH/setup-doc.hint            \
                 $DIR_CYGPATCH/setup-bin.hint
@@ -8627,13 +8629,13 @@ CygbuildCmdDownloadCygwinPackage ()
     if [ ! -f "$cache" ] || [ ! -s "$cache" ]; then
         CygbuildEcho "-- Wait, downloading Cygwin package information."
 
-	local URL="$url/$arch/$file"
-	
-	if ! $wget --quiet --output-document=$cache "$URL" ; then
-	    CygbuildWarn "[ERROR] Failed to download $URL"
-	    CygbuildWarn "[ERROR] Set environment variable CYGBUILD_SRCPKG_URL"
-	    return $?
-	fi
+        local URL="$url/$arch/$file"
+
+        if ! $wget --quiet --output-document=$cache "$URL" ; then
+            CygbuildWarn "[ERROR] Failed to download $URL"
+            CygbuildWarn "[ERROR] Set environment variable CYGBUILD_SRCPKG_URL"
+            return $?
+        fi
     fi
 
     # @ xfig
@@ -10631,7 +10633,6 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraMimeFile
 }
 
-
 function CygbuildInstallFixManSymlinks()
 {
     local id="$0.$FUNCNAME"
@@ -12026,7 +12027,7 @@ function CygbuildCmdFilesWrite()
 
     local file
 
-    for file in package.README setup.hint
+    for file in package.README setup.hint setup-src.hint
     do
         CygbuildFileExists "$file" $trydirs > $retval || return $?
         local from=$(< $retval)
