@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2021.0702.0904"
+CYGBUILD_VERSION="2021.0702.0935"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -10872,6 +10872,9 @@ function CygbuildInstallFixInterpreterGeneric()
 
     local name=${bin##*/}
 
+    local BIN=${bin%[1-9]}     # python3 => python
+    local NAME=${name%[1-9]}   # python3 => python
+
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
         CygbuildWarn "$id: No such file $file"
         return 1
@@ -10881,13 +10884,14 @@ function CygbuildInstallFixInterpreterGeneric()
     #  sed => /usr/bin/python python
     #  sed => /usr/bin/python
 
-    sed -e "1s,#!.* \(.*\),#!$bin \1," \
-        -e "1s,\($name\)[ \t]\+\1,\1," \
+    sed -e "1s,#!.* \(.*\),#!$BIN \1," \
+        -e "1s,\($NAME\)[ \t]\+\1,$name," \
+        -e "1s,#! */usr/bin/python *$,#!/usr/bin/python3," \
         "$file" \
-        > "$retval" &&
+        > "$retval"
 
     if [ -s "$retval" ] &&
-        CygbuildFileCmpDiffer "$file" "$retval"
+       CygbuildFileCmpDiffer "$file" "$retval"
     then
         [ "$verbose" ] && diff "$file" "$retval"
         mv --force "$retval" "$file"
@@ -11228,7 +11232,7 @@ function CygbuildInstallFixInterpreterMain()
            ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
         then
             CygbuildVerb "-- [NOTE] Possibly suspicious Perl call" \
-                "in $_file: $(cat $retval)"
+                "in $_file: $(< $retval)"
 
             CygbuildInstallFixInterpreterPerl "$file"
 
@@ -11237,7 +11241,7 @@ function CygbuildInstallFixInterpreterMain()
            ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
         then
             CygbuildEcho "-- [NOTE] Possibly suspicious Python call" \
-                 "in $_file: $(cat $retval)"
+                 "in $_file: $(< $retval)"
 
             CygbuildInstallFixInterpreterGeneric "$pybin" "$file"
 

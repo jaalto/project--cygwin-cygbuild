@@ -3,6 +3,8 @@
 	* bin/cygbuild.sh (CygbuildDefineGlobalPythonVersion): Use $PYTHONBIN.
 	(CygbuildDefineGlobalCommands): Check python3.
 	(CygbuildCmdBuildPython): Use $PYTHONBIN in echo.
+	(CygbuildInstallFixInterpreterMain): Update $(cat ...) to faster $(< ...)
+	(CygbuildInstallFixInterpreterGeneric): Convert ot python3
 
 2020-09-08 Tue  Jari Aalto  <jari.aalto@cante.net>
 
