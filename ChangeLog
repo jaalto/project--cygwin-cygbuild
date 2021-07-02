@@ -1,3 +1,9 @@
+2021-07-02 Fri  Jari Aalto  <jari.aalto@tuni.fi>
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalPythonVersion): Use $PYTHONBIN.
+	(CygbuildDefineGlobalCommands): Check python3.
+	(CygbuildCmdBuildPython): Use $PYTHONBIN in echo.
+
 2020-09-08 Tue  Jari Aalto  <jari.aalto@cante.net>
 
         * bin/cygbuild.sh

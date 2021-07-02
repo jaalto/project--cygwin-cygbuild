@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2020.0908.0545"
+CYGBUILD_VERSION="2021.0702.0901"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -652,7 +652,7 @@ function CygbuildDefineGlobalPerlVersion()
 function CygbuildDefineGlobalPythonVersion()
 {
     PYTHON_VERSION=$(                               # global-def
-        python -V 2>&1 |
+        $PYTHONBIN -V 2>&1 |
         awk '{print $2}'
     )
 
@@ -3832,8 +3832,17 @@ function CygbuildDefineGlobalCommands()
     local prefix=/usr/bin
 
     PERLBIN="$prefix/perl"                          # global-def
-    PYTHONBIN="$prefix/python"                      # global-def
     RUBYBIN="$prefix/ruby"                          # global-def
+
+    local item
+
+    for item in "$prefix/python3" "$prefix/python"
+    do
+        if [ -x "$item" ]; then
+            PYTHONBIN="$item"                       # global-def
+            break
+        fi
+    done
 
     # ............................................ optional features ...
 
@@ -9445,7 +9454,7 @@ function CygbuildCmdBuildPython()
     CygbuildPushd
         CygbuildSetLDPATHpython
         cd "$builddir"                                      &&
-        CygbuildEcho "-- Building: python setup.py build"   &&
+        CygbuildEcho "-- Building: ${PYTHONBIN##*/} setup.py build"   &&
         CygbuildRunPythonSetupCmd build
         status=$?
     CygbuildPopd
