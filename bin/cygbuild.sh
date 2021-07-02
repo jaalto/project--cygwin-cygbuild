@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2017 Jari Aalto
+#       Copyright (C) 2003-2021 Jari Aalto
 #
 #   License
 #
@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2021.0702.0901"
+CYGBUILD_VERSION="2021.0702.0904"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7558,7 +7558,7 @@ for arg in sys.argv[2:]:
         if os.path.exists(dir):
             os.chdir(dir)
             if verbose:
-                print "-- Python compile %s" % (file)
+                print("-- Python compile %s in %s" % (file, dir))
             py_compile.compile(file)
     ' "${verbose:+1}" "$@"
 }
@@ -7622,6 +7622,10 @@ function CygbuildMakefileRunInstallPythonFix()
             CygbuildDie "$id: mv error"
     done
 
+    # 2021-03-06 python3 disabled
+
+    return
+
     #   For some reason compiled python objects from
     #   setup.py include FULL PATH where the modules were compiled.
     #   => this is not good, because they are later installed to the
@@ -7638,7 +7642,7 @@ function CygbuildMakefileRunInstallPythonFix()
     if [ "$rmlist" ]; then
         list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
         rm $rmlist
-        CygbuildEcho "-- Compiling python files (may take a while...)"
+        CygbuildEcho "-- Recompiling python files (may take a while...)"
         CygbuildPythonCompileFiles $list
     fi
 }
