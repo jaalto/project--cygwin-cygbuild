@@ -1,0 +1,12 @@
+# https://cygwin.com/packaging-hint-files.html#pvr-src.hint
+# See http://cygwin.com/setup.html   The 'category' can be:
+# Accessibility Admin Archive Audio Base Comm Database Devel Doc Editors
+# Games GNOME Graphics Interpreters KDE Libs LXDE Mail MATE Math Mingw
+# Net Perl PHP Python Publishing Ruby Science Shells System Text Utils
+# Web X11 Xfce
+sdesc: ""
+ldesc: ""
+category: name [name...]
+requires: [package...]
+homepage:
+build-depends:
