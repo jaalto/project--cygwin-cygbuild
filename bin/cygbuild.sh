@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2022.0429.0646"
+CYGBUILD_VERSION="2022.0429.0859"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -2970,7 +2970,10 @@ function CygbuildTarDirectory()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    tar --list --verbose --file=$file > $retval || return $?
+    if ! tar --list --verbose --file=$file > $retval ; then
+        CygbuildWarn "FAIL: Corrupt SRC archive. tar --list --verbose --file=$file"
+        return 2
+    fi
 
     if [ ! -s $retval ]; then
         CygbuildWarn "$id: [ERROR] Can't read content of $file"
@@ -3256,7 +3259,7 @@ function CygbuildFileTypeByFile()
     elif [[ "$notes" == *executable*  ]]; then
         ret="executable"
     elif [[ "$notes" == *ASCII* ]]; then
-        #  Hm, file in disguise. Can we find bang-slash?
+        #  Hm, file in disguise. Can we find shebang
 
         $EGREP '^#!' $file > $retval
         [ -s $retval ] && notes=$(< $retval)
