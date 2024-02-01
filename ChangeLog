@@ -1,3 +1,14 @@
+2021-07-02 Fri  Jari Aalto  <jari.aalto@tuni.fi>
+
+	* bin/cygbuild.sh (CygbuildDefineGlobalPythonVersion): Use $PYTHONBIN.
+	(CygbuildDefineGlobalCommands): Check python3.
+	(CygbuildCmdBuildPython): Use $PYTHONBIN in echo.
+	(CygbuildInstallFixInterpreterMain): Update $(cat ...) to faster $(< ...)
+	(CygbuildInstallFixInterpreterGeneric): Convert ot python3
+	(CygbuildCmdPublishToDir): Add setup-src.hint.
+	(CygbuildCmdFilesWrite): Add setup-src.hint.
+	(CygbuildIsTemplateFilesInstalled): Add setup-src.hint.
+
 2020-09-08 Tue  Jari Aalto  <jari.aalto@cante.net>
 
         * bin/cygbuild.sh

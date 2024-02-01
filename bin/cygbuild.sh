@@ -1,8 +1,8 @@
-#!/bin/bash
+#! /bin/bash
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2017 Jari Aalto
+#       Copyright (C) 2003-2024 Jari Aalto
 #
 #   License
 #
@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2020.0908.0545"
+CYGBUILD_VERSION="2022.0429.0859"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -652,7 +652,7 @@ function CygbuildDefineGlobalPerlVersion()
 function CygbuildDefineGlobalPythonVersion()
 {
     PYTHON_VERSION=$(                               # global-def
-        python -V 2>&1 |
+        $PYTHONBIN -V 2>&1 |
         awk '{print $2}'
     )
 
@@ -1421,7 +1421,7 @@ function CygbuildArchId()
     local arch=$(CygbuildArch)
 
     case $arch in
-	i[0-9]86) type=x86 ;;
+        i[0-9]86) type=x86 ;;
     esac
 
     echo $type
@@ -2970,7 +2970,10 @@ function CygbuildTarDirectory()
 
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
-    tar --list --verbose --file=$file > $retval || return $?
+    if ! tar --list --verbose --file=$file > $retval ; then
+        CygbuildWarn "FAIL: Corrupt SRC archive. tar --list --verbose --file=$file"
+        return 2
+    fi
 
     if [ ! -s $retval ]; then
         CygbuildWarn "$id: [ERROR] Can't read content of $file"
@@ -3256,7 +3259,7 @@ function CygbuildFileTypeByFile()
     elif [[ "$notes" == *executable*  ]]; then
         ret="executable"
     elif [[ "$notes" == *ASCII* ]]; then
-        #  Hm, file in disguise. Can we find bang-slash?
+        #  Hm, file in disguise. Can we find shebang
 
         $EGREP '^#!' $file > $retval
         [ -s $retval ] && notes=$(< $retval)
@@ -3466,11 +3469,12 @@ function CygbuildDependsList()
 
 function CygbuildIsTemplateFilesInstalled()
 {
-    #   If proper setup has been done, this file exists
+    #   If proper setup has been done, these file exist
 
-    local file=$DIR_CYGPATCH/setup.hint
+    local file1=$DIR_CYGPATCH/setup.hint
+    local file2=$DIR_CYGPATCH/setup-src.hint
 
-    [ -f "$file" ]
+    [ -f "$file1" ] && [ -f "$file2" ]
 }
 
 function CygbuildSourceDownloadScript()
@@ -3832,8 +3836,17 @@ function CygbuildDefineGlobalCommands()
     local prefix=/usr/bin
 
     PERLBIN="$prefix/perl"                          # global-def
-    PYTHONBIN="$prefix/python"                      # global-def
     RUBYBIN="$prefix/ruby"                          # global-def
+
+    local item
+
+    for item in "$prefix/python3" "$prefix/python"
+    do
+        if [ -x "$item" ]; then
+            PYTHONBIN="$item"                       # global-def
+            break
+        fi
+    done
 
     # ............................................ optional features ...
 
@@ -5522,6 +5535,7 @@ function CygbuildCmdPublishToDir()
                 $srcinstdir/$PKG-doc-$VER-*tar.$ext     \
                 $srcinstdir/$PKG-bin-$VER-*tar.$ext     \
                 $DIR_CYGPATCH/setup.hint                \
+                $DIR_CYGPATCH/setup-src.hint            \
                 $DIR_CYGPATCH/setup-devel.hint          \
                 $DIR_CYGPATCH/setup-doc.hint            \
                 $DIR_CYGPATCH/setup-bin.hint
@@ -7549,7 +7563,7 @@ for arg in sys.argv[2:]:
         if os.path.exists(dir):
             os.chdir(dir)
             if verbose:
-                print "-- Python compile %s" % (file)
+                print("-- Python compile %s in %s" % (file, dir))
             py_compile.compile(file)
     ' "${verbose:+1}" "$@"
 }
@@ -7613,6 +7627,10 @@ function CygbuildMakefileRunInstallPythonFix()
             CygbuildDie "$id: mv error"
     done
 
+    # 2021-03-06 python3 disabled
+
+    return
+
     #   For some reason compiled python objects from
     #   setup.py include FULL PATH where the modules were compiled.
     #   => this is not good, because they are later installed to the
@@ -7629,7 +7647,7 @@ function CygbuildMakefileRunInstallPythonFix()
     if [ "$rmlist" ]; then
         list=$(echo "$rmlist" | sed 's/\.pyc/.py/g' )
         rm $rmlist
-        CygbuildEcho "-- Compiling python files (may take a while...)"
+        CygbuildEcho "-- Recompiling python files (may take a while...)"
         CygbuildPythonCompileFiles $list
     fi
 }
@@ -8614,13 +8632,13 @@ CygbuildCmdDownloadCygwinPackage ()
     if [ ! -f "$cache" ] || [ ! -s "$cache" ]; then
         CygbuildEcho "-- Wait, downloading Cygwin package information."
 
-	local URL="$url/$arch/$file"
-	
-	if ! $wget --quiet --output-document=$cache "$URL" ; then
-	    CygbuildWarn "[ERROR] Failed to download $URL"
-	    CygbuildWarn "[ERROR] Set environment variable CYGBUILD_SRCPKG_URL"
-	    return $?
-	fi
+        local URL="$url/$arch/$file"
+
+        if ! $wget --quiet --output-document=$cache "$URL" ; then
+            CygbuildWarn "[ERROR] Failed to download $URL"
+            CygbuildWarn "[ERROR] Set environment variable CYGBUILD_SRCPKG_URL"
+            return $?
+        fi
     fi
 
     # @ xfig
@@ -9445,7 +9463,7 @@ function CygbuildCmdBuildPython()
     CygbuildPushd
         CygbuildSetLDPATHpython
         cd "$builddir"                                      &&
-        CygbuildEcho "-- Building: python setup.py build"   &&
+        CygbuildEcho "-- Building: ${PYTHONBIN##*/} setup.py build"   &&
         CygbuildRunPythonSetupCmd build
         status=$?
     CygbuildPopd
@@ -10618,7 +10636,6 @@ function CygbuildInstallExtraMain()
     CygbuildInstallExtraMimeFile
 }
 
-
 function CygbuildInstallFixManSymlinks()
 {
     local id="$0.$FUNCNAME"
@@ -10859,6 +10876,9 @@ function CygbuildInstallFixInterpreterGeneric()
 
     local name=${bin##*/}
 
+    local BIN=${bin%[1-9]}     # python3 => python
+    local NAME=${name%[1-9]}   # python3 => python
+
     if [ ! "$file" ] || [ ! -f "$file" ] ; then
         CygbuildWarn "$id: No such file $file"
         return 1
@@ -10868,13 +10888,14 @@ function CygbuildInstallFixInterpreterGeneric()
     #  sed => /usr/bin/python python
     #  sed => /usr/bin/python
 
-    sed -e "1s,#!.* \(.*\),#!$bin \1," \
-        -e "1s,\($name\)[ \t]\+\1,\1," \
+    sed -e "1s,#!.* \(.*\),#!$BIN \1," \
+        -e "1s,\($NAME\)[ \t]\+\1,$name," \
+        -e "1s,#! */usr/bin/python *$,#!/usr/bin/python3," \
         "$file" \
-        > "$retval" &&
+        > "$retval"
 
     if [ -s "$retval" ] &&
-        CygbuildFileCmpDiffer "$file" "$retval"
+       CygbuildFileCmpDiffer "$file" "$retval"
     then
         [ "$verbose" ] && diff "$file" "$retval"
         mv --force "$retval" "$file"
@@ -11215,7 +11236,7 @@ function CygbuildInstallFixInterpreterMain()
            ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
         then
             CygbuildVerb "-- [NOTE] Possibly suspicious Perl call" \
-                "in $_file: $(cat $retval)"
+                "in $_file: $(< $retval)"
 
             CygbuildInstallFixInterpreterPerl "$file"
 
@@ -11224,7 +11245,7 @@ function CygbuildInstallFixInterpreterMain()
            ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
         then
             CygbuildEcho "-- [NOTE] Possibly suspicious Python call" \
-                 "in $_file: $(cat $retval)"
+                 "in $_file: $(< $retval)"
 
             CygbuildInstallFixInterpreterGeneric "$pybin" "$file"
 
@@ -12009,7 +12030,7 @@ function CygbuildCmdFilesWrite()
 
     local file
 
-    for file in package.README setup.hint
+    for file in package.README setup.hint setup-src.hint
     do
         CygbuildFileExists "$file" $trydirs > $retval || return $?
         local from=$(< $retval)
