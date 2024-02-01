@@ -1,6 +1,6 @@
 # cygbuild-rebuild.pod -- Manual page for the program
 #
-#       Copyright (C) 2003-2015 Jari Aalto
+#       Copyright (C) 2003-2024 Jari Aalto
 #
 #   License
 #
@@ -100,7 +100,7 @@ None known.
 
 =head1 AUTHOR
 
-Copyright (C) 2003-2015 Jari Aalto.
+Copyright (C) 2003-2024 Jari Aalto.
 
 This program is free software; you can redistribute and/or modify it
 under Gnu General Public license v2 or later.

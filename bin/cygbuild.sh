@@ -2,7 +2,7 @@
 #
 #   cygbuild.sh -- A generic Cygwin Net Release package builder script
 #
-#       Copyright (C) 2003-2021 Jari Aalto
+#       Copyright (C) 2003-2024 Jari Aalto
 #
 #   License
 #
