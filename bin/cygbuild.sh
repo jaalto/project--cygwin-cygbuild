@@ -39,7 +39,7 @@
 #
 #   Other notes
 #
-#       o   cygcheck is a MingW applications outputs have CRLF line endings
+#       o   cygcheck - is a MingW application. Output used CRLF line endings.
 
 CYGBUILD_HOMEPAGE_URL="https://github.com/jaalto/project--cygwin-cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
@@ -48,18 +48,17 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2022.0429.0859"
+CYGBUILD_VERSION="2024.0419.1408"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
 
 CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
 "http://gd.tuwien.ac.at/gnu/cygwin"}
-# {x86,x86_64}/setup.ini
-# "http://ftp.inf.tu-dresden.de/software/windows/cygwin"}
 
+# backup: git://git.savannah.nongnu.org/cygbuild.git
 CYGBUILD_INSTALL_INFO="\
-    git clone git://git.savannah.nongnu.org/cygbuild.git
+    git clone $CYGBUILD_HOMEPAGE_URL
     cd cygbuild
     git checkout --track -b devel origin/devel
     make install-symlink"
@@ -105,17 +104,19 @@ CYGBUILD_INSTALL_INFO="\
 shopt -s extglob    # Use extra pattern matching options
 set -o pipefail     # status comes from the failed pipe command
 
-LC_ALL=C            # So that sort etc. works as expected.
-LANG=C              # Display errors in plain English
+# So that sort etc. works as expected. Makes also faster.
+# Display errors in plain English
+LC_ALL=C
 
 # Use clean PATH
 
 PATH="/usr/bin:/usr/lib:/usr/sbin:/bin:/sbin:$PATH"
 
-# Cancel any environment settings
+# Clean up environment
 
 for tmp in \
     awk \
+    curl \
     egrep \
     gcc \
     grep \
@@ -192,7 +193,7 @@ function CygbuildDate()
     date "+%Y%m%d%H%M"
 }
 
-function CygbuildStripCR ()
+function CygbuildStripCR()
 {
     sed -e "s,\r,,"
 }
@@ -208,20 +209,20 @@ function CygbuildPathBinFast()
     #   If it's not in these directories, then just use
     #   plain "cmd" and let bash search whole PATH
 
-    if [ -x /usr/bin/$bin ]; then
-        echo /usr/bin/$bin
+    if [ -x "/usr/bin/$bin" ]; then
+        echo "/usr/bin/$bin"
 
-    elif [ -x /bin/$bin ]; then
-        echo /bin/$bin
+    elif [ -x "/bin/$bin" ]; then
+        echo "/bin/$bin"
 
-    elif [ -x /usr/sbin/$bin ]; then
-        echo /usr/sbin/$bin
+    elif [ -x "/usr/sbin/$bin" ]; then
+        echo "/usr/sbin/$bin"
 
-    elif [ -x /sbin/$bin ]; then
-        echo /sbin/$bin
+    elif [ -x "/sbin/$bin" ]; then
+        echo "/sbin/$bin"
 
-    elif [ "$try" ] && [ -x $try/$bin ]; then
-        echo $try/$bin
+    elif [ "$try" ] && [ -x "$try/$bin" ]; then
+        echo "$try/$bin"
 
     else
         return 1
@@ -238,16 +239,34 @@ function CygbuildTarOptionCompress()
 
     case "$1" in
         *.tar.gz | *.tgz)
-            echo "--gzip"
+            if CygbuildWhich pigz; then
+                echo "--use-compress-program=pigz"  # multithread
+            else
+                echo "--gzip"
+            fi
             ;;
         *.bz2 | *.tbz*)
-            echo "--bzip2"
+            if CygbuildWhich pbzip2; then
+                echo "--use-compress-program=pbzip2"  # multithread
+            else
+                echo "--bzip2"
+            fi
             ;;
         *.lzma)
+            export XZ_DEFAULTS="-T 0"
             echo "--use-compress-program=lzma"
             ;;
         *.xz)
+            # multithread , use up to as many threads as vCPUs
+            export XZ_DEFAULTS="-T 0"
             echo "--use-compress-program=xz"
+            ;;
+        *.zst)
+            if CygbuildWhich zstdmt; then
+                echo "--use-compress-program=zstdmt" # multithread
+            else
+                echo "--use-compress-program=zstd"
+            fi
             ;;
         *)  return 1
             ;;
@@ -384,14 +403,14 @@ function CygbuildIsLinux()
 #
 #######################################################################
 
-function CygbuildIsSourceProgram ()
+function CygbuildIsSourceProgram()
 {
     # Check "the packaging script" foo-N.N.sh
 
     [[ $0 == *-[0-9]* ]]
 }
 
-function CygbuildIsSourceUnpacked ()
+function CygbuildIsSourceUnpacked()
 {
     [ -f "$DIR_CYGPATCH/$PKG.README" ]
 }
@@ -1472,7 +1491,7 @@ function CygbuildIsDirEmpty()
     return 0
 }
 
-function CygbuildFileConvertCRLF ()
+function CygbuildFileConvertCRLF()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -1490,7 +1509,7 @@ function CygbuildFileConvertCRLF ()
     mv "$retval" "$file"
 }
 
-function CygbuildFileConvertLF ()
+function CygbuildFileConvertLF()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -1510,7 +1529,7 @@ function CygbuildFileConvertLF ()
 
 }
 
-function CygbuildFileIsCRLF ()
+function CygbuildFileIsCRLF()
 {
     local ctrlM=$'\015'
 
@@ -1519,13 +1538,13 @@ function CygbuildFileIsCRLF ()
     $EGREP --quiet --files-with-matches "[$ctrlM]" "$1" 2> /dev/null
 }
 
-function CygbuildFileCmpDiffer ()
+function CygbuildFileCmpDiffer()
 {
     cmp "$1" "$2" > /dev/null 2>&1
     [ "$?" = "1" ]          # 0 = same, 1 = differ, 2 = error
 }
 
-function CygbuildFileCmpReplaceIfDiffer ()
+function CygbuildFileCmpReplaceIfDiffer()
 {
     local from="$1"
     local to="$2"
@@ -1592,7 +1611,7 @@ CygbuildFileSizeRead ()
     echo $size
 }
 
-function CygbuildFileSize ()
+function CygbuildFileSize()
 {
     local file="$1"
 
@@ -1667,7 +1686,7 @@ Check(sys.argv[2:])
     ' "${OPTION_DEBUG:+1}" "$@"
 }
 
-function CygbuildWasLibraryInstallMakefile ()
+function CygbuildWasLibraryInstallMakefile()
 {
     local file
 
@@ -1684,7 +1703,7 @@ function CygbuildWasLibraryInstallMakefile ()
     return 1
 }
 
-function CygbuildWasLibraryInstall ()
+function CygbuildWasLibraryInstall()
 {
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
 
@@ -1704,7 +1723,7 @@ function CygbuildWasLibraryInstall ()
     fi
 }
 
-function CygbuildFileDeleteLine ()
+function CygbuildFileDeleteLine()
 {
     local regexp="$1"
     local file="$2"
@@ -1716,7 +1735,7 @@ function CygbuildFileDeleteLine ()
     fi
 }
 
-function CygbuildFileDaysOld ()
+function CygbuildFileDaysOld()
 {
     local file="$1"
 
@@ -3057,7 +3076,7 @@ function PackageUsesLibtoolMain()
         "$@"
 }
 
-function PackageUsesLibtoolCompile ()
+function PackageUsesLibtoolCompile()
 {
     CygbuildGrepCheck '--mode=compile' "$@"
 }
@@ -6044,7 +6063,7 @@ CygbuildPackageSourceDirClean()
     fi
 }
 
-function CygbuildPatchLs ()
+function CygbuildPatchLs()
 {
     awk ' /^\+\+\+ / {print $2}' ${1:-/dev/null}
 }
@@ -6268,7 +6287,7 @@ function CygbuildPatchPrefixStripCountFromFilename()
     fi
 }
 
-function CygbuildPatchPrefixStripCountMain ()
+function CygbuildPatchPrefixStripCountMain()
 {
     local id="$0.$FUNCNAME"
     local file=$1
@@ -6964,7 +6983,7 @@ function CygbuildCmdPkgSourceStandard()
     return $status
 }
 
-function CygbuildCmdPkgSourceExternal ()
+function CygbuildCmdPkgSourceExternal()
 {
     local id="$0.$FUNCNAME"
     local prg="$scriptPackagesSource"
@@ -7015,7 +7034,7 @@ function CygbuildCmdPkgSourceMain()
     CygbuildCmdPkgSourceStandard
 }
 
-function CygbuildCmdDownloadUpstream ()
+function CygbuildCmdDownloadUpstream()
 {
     local id="$0.$FUNCNAME"
     local PRG="pwget"
@@ -7847,7 +7866,7 @@ function CygbuildMakefileRunInstallPythonMain()
 
 }
 
-function CygbuildMakefileRunPythonInDir ()
+function CygbuildMakefileRunPythonInDir()
 {
     local dir="$1"
     shift
@@ -7865,7 +7884,7 @@ CygbuildMakefileRunPythonClean ()
     CygbuildMakefileRunPythonInDir "$builddir" clean
 }
 
-function CygbuildMakefilePrefixIsStandard ()
+function CygbuildMakefilePrefixIsStandard()
 {
     local id="$0.$FUNCNAME"
     local opt up lower
@@ -9709,7 +9728,7 @@ function CygbuildCmdTestMain()
     CygbuildCmdTestAdditional
 }
 
-function CygbuildCleanConfig ()
+function CygbuildCleanConfig()
 {
     # Clean configuration files
 
@@ -9896,7 +9915,7 @@ function CygbuildInstallPackageInfo()
     fi
 }
 
-function CygbuildInstallTaropt2type ()
+function CygbuildInstallTaropt2type()
 {
     #   Convert each --include or --exclude=  option into tar format.
 
@@ -9932,7 +9951,7 @@ function CygbuildInstallTaropt2type ()
     fi
 }
 
-function CygbuildInstallTaropt2match ()
+function CygbuildInstallTaropt2match()
 {
     #   Convert each --exclude=  option into BASH match format.
 
@@ -10795,7 +10814,7 @@ function CygbuildInstallFixFileExtensions()
     sed "s,$srcdir,," $retval
 }
 
-function CygbuildInstallFixInterpreterPerl ()
+function CygbuildInstallFixInterpreterPerl()
 {
     local id="$0.$FUNCNAME"
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -11384,7 +11403,7 @@ function CygbuildCmdInstallCheckMain()
     CygbuildCmdInstallCheckEverything
 }
 
-function CygbuildCmdInstallDirClean ()
+function CygbuildCmdInstallDirClean()
 {
     local id="$0.$FUNCNAME"
     local dir=$instdir
@@ -13283,7 +13302,7 @@ function CygbuildMain()
 # Nothing interesting. It's for the developer to test parts
 # of the code by hand
 
-function Test ()
+function Test()
 {
     PKG=$(basename $(pwd) | sed 's/-.*//')
     DIR_CYGPATCH=CYGWIN-PATCHES
@@ -13294,7 +13313,7 @@ function Test ()
     CygbuildStrPackage $1
 }
 
-function TestRegression ()
+function TestRegression()
 {
     Test odt2txt-0.3+git20070827-1-src.tar.bz2
     Test findbugs-1.3.0-rc1.tar.gz
