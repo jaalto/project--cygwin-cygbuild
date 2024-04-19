@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0419.1408"
+CYGBUILD_VERSION="2024.0419.1415"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -257,7 +257,7 @@ function CygbuildTarOptionCompress()
             echo "--use-compress-program=lzma"
             ;;
         *.xz)
-            # multithread , use up to as many threads as vCPUs
+            # multithread, use up to as many threads as vCPUs
             export XZ_DEFAULTS="-T 0"
             echo "--use-compress-program=xz"
             ;;
