@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0420.1335"
+CYGBUILD_VERSION="2024.0420.1336"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3372,7 +3372,7 @@ function CygbuildIsAutomakePackage()
 
     [ -f "$srcdir/Makefile.am" ] ||
     [ -f "$srcdir/Makefile.in" ] ||
-    [ -f "$srcdir/makefile.in" ] ||
+    [ -f "$srcdir/makefile.in" ]
 }
 
 function CygbuildIsAutoconfPackage()
