@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0420.1336"
+CYGBUILD_VERSION="2024.0420.1337"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9608,7 +9608,7 @@ function CygbuildCmdBuildStdMakefile()
                 local parallel
 
                 if [ "$IS_AUTOTOOLS" ]; then
-                    if [[ ! $CYGBUILD_MAKEFLAGS = (^| )(-j|--jobs) ]]; then
+                    if [[ ! $CYGBUILD_MAKEFLAGS =~ (^|[[:space:]])(-j|--jobs) ]]; then
                         # Enable parallel compilation for autotools sources
                         # Speed up is about 2x
                         parallel="--jobs"
