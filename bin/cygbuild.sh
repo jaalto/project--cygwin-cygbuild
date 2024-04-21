@@ -40,6 +40,14 @@
 #   Other notes
 #
 #       o   cygcheck - is a MingW application. Output used CRLF line endings.
+#
+#   DEVELOPER SCRATCHBOARD
+#
+#       About autotools:
+#
+#       - Good picture
+#         https://stackoverflow.com/questions/10999549/how-do-i-create-a-configure-script
+#       - https://thoughtbot.com/blog/the-magic-behind-configure-make-make-install
 
 CYGBUILD_HOMEPAGE_URL="https://github.com/jaalto/project--cygwin-cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
@@ -48,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.0841"
+CYGBUILD_VERSION="2024.0421.1207"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -525,14 +533,27 @@ function CygbuildBootVariablesEnvironment()
     # Speed up grep(1), awk(1) etc by Disabling UTF-8
     export LC_ALL=C
 
-    export XZ_DEFAULTS="--threads=0"  # parallel multi core compression
+    local cores=0 # default: physical max
+
+    if CygbuildWhich nproc > /dev/null; then
+        # logical max
+        cores=$(nproc)
+    fi
+
+    # parallel multi core compression
+
+    export XZ_DEFAULTS="--threads=$cores"
 
     # Note: Only large files benefit from multi-threading.
     # Does nothing if file is < 4 MB.
     # https://github.com/facebook/zstd/issues/517
     # https://github.com/facebook/zstd/issues/3780
+    #
+    # NOTE: -T#logical_cores is about 15 % faster
+    # than -T#physical_core
+    # https://github.com/facebook/zstd/issues/2071
 
-    export ZSTD_NBTHREADS="-T0"       # parallel multi core compression
+    export ZSTD_NBTHREADS="--threads=0 --auto-threads=logical"
 }
 
 function CygbuildBootVariablesId()
@@ -5332,7 +5353,7 @@ function CygbuildCmdAutotool()
 
     CygbuildPushd
         cd "$srcdir" &&
-        autoreconf --install --force --verbose
+        autoreconf --install --verbose
 # FIXME: unused code
 #        cd "$TOPDIR" &&
 #        if [ -f "$PV/INSTALL" ] ; then \
@@ -9137,8 +9158,11 @@ function CygbuildConfCC()
         CygbuildConfOptionAdjustment > $retval
         [ -s $retval ] && opt=$(< $retval)
 
-        CygbuildEcho "-- Running ./configure with Cygwin specific options" \
-             "${test:+(TEST mode)}"
+        if [ "$test" ]; then
+            local msg=" (TEST mode)"
+        fi
+
+        CygbuildEcho "-- Running ./configure with Cygwin specific options$msg" \
 
         if [ -f "$envfile" ]; then
             CygbuildEcho "--- Reading external env: $envfile" \
@@ -9473,14 +9497,14 @@ function CygbuildCmdConfMain()
 
         elif [ -f configure.in ] || [ -f configure.ac ]; then
 
-           CygbuildEcho "-- Running: autoreconf -fi because of" \
+           CygbuildEcho "-- Running: autoreconf -i because of" \
                         "./configure.{in,ac}"
 
            # aclocal
            # automake --add-missing &&
            # autoconf
 
-           autoreconf --force --install &&
+           autoreconf --install &&
                CygbuildConfCC
 
            status=$?
