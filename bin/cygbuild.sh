@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.1056"
+CYGBUILD_VERSION="2024.0421.1150"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -533,14 +533,29 @@ function CygbuildBootVariablesEnvironment()
     # Speed up grep(1), awk(1) etc by Disabling UTF-8
     export LC_ALL=C
 
-    export XZ_DEFAULTS="--threads=0"  # parallel multi core compression
+    local cores=0 # default: physical max
+
+    if CygbuildWhich nproc > /dev/null; then
+        # logical max
+        cores=$(nproc)
+    fi
+
+    local threads="--threads=$cores"
+
+    # parallel multi core compression
+
+    export XZ_DEFAULTS=$threads
 
     # Note: Only large files benefit from multi-threading.
     # Does nothing if file is < 4 MB.
     # https://github.com/facebook/zstd/issues/517
     # https://github.com/facebook/zstd/issues/3780
+    #
+    # NOTE: -T#logical_cores is about 15 % faster
+    # than -T#physical_core
+    # https://github.com/facebook/zstd/issues/2071
 
-    export ZSTD_NBTHREADS="-T0"       # parallel multi core compression
+    export ZSTD_NBTHREADS=$threads
 }
 
 function CygbuildBootVariablesId()
