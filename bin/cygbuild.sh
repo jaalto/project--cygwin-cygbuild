@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0420.1337"
+CYGBUILD_VERSION="2024.0421.0841"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -525,7 +525,14 @@ function CygbuildBootVariablesEnvironment()
     # Speed up grep(1), awk(1) etc by Disabling UTF-8
     export LC_ALL=C
 
-    export XZ_DEFAULTS="-T 0"  # parallel multi core compression
+    export XZ_DEFAULTS="--threads=0"  # parallel multi core compression
+
+    # Note: Only large files benefit from multi-threading.
+    # Does nothing if file is < 4 MB.
+    # https://github.com/facebook/zstd/issues/517
+    # https://github.com/facebook/zstd/issues/3780
+
+    export ZSTD_NBTHREADS="-T0"       # parallel multi core compression
 }
 
 function CygbuildBootVariablesId()
@@ -7104,7 +7111,18 @@ function CygbuildCmdDownloadUpstream()
             "Cannot read download instructions."
     fi
 
-    local pkg=$(awk '/tag[0-9]:/  {print $2; exit}' $conf)
+    local pkg=$(awk '
+        # Skip comments
+        /^[[:space:]]*#/ {
+            next
+        }
+
+        /^[[:space:]]*tag[0-9]:/ {
+            print $2
+            exit
+        }' \
+        $conf
+    )
 
     if [ ! "$pkg" ]; then
         CygbuildDie "-- [ERROR] Can't parse 'tag' from $conf"
