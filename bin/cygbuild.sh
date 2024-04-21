@@ -40,6 +40,14 @@
 #   Other notes
 #
 #       o   cygcheck - is a MingW application. Output used CRLF line endings.
+#
+#   DEVELOPER SCRATCHBOARD
+#
+#       About autotools:
+#
+#       - Good picture
+#         https://stackoverflow.com/questions/10999549/how-do-i-create-a-configure-script
+#       - https://thoughtbot.com/blog/the-magic-behind-configure-make-make-install
 
 CYGBUILD_HOMEPAGE_URL="https://github.com/jaalto/project--cygwin-cygbuild"
 CYGBUILD_AUTHOR="Jari Aalto"
@@ -48,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.1050"
+CYGBUILD_VERSION="2024.0421.1056"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
