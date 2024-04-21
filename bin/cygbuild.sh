@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0420.1700"
+CYGBUILD_VERSION="2024.0421.0634"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -526,6 +526,7 @@ function CygbuildBootVariablesEnvironment()
     export LC_ALL=C
 
     export XZ_DEFAULTS="--threads=0"  # parallel multi core compression
+    export ZSTD_NBTHREADS="-T0"       # parallel multi core compression
 }
 
 function CygbuildBootVariablesId()
