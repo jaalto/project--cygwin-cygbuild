@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.0922"
+CYGBUILD_VERSION="2024.0421.1047"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -5332,7 +5332,7 @@ function CygbuildCmdAutotool()
 
     CygbuildPushd
         cd "$srcdir" &&
-        autoreconf --install --force --verbose
+        autoreconf --install --verbose
 # FIXME: unused code
 #        cd "$TOPDIR" &&
 #        if [ -f "$PV/INSTALL" ] ; then \
