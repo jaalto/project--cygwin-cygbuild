@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.0634"
+CYGBUILD_VERSION="2024.0421.0718"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -526,6 +526,12 @@ function CygbuildBootVariablesEnvironment()
     export LC_ALL=C
 
     export XZ_DEFAULTS="--threads=0"  # parallel multi core compression
+
+    # Note: Only large files benefit from multi-threading.
+    # Does nothing if file is < 4 MB.
+    # https://github.com/facebook/zstd/issues/517
+    # https://github.com/facebook/zstd/issues/3780
+
     export ZSTD_NBTHREADS="-T0"       # parallel multi core compression
 }
 
