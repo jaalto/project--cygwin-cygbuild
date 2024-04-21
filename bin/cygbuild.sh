@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.0841"
+CYGBUILD_VERSION="2024.0421.0922"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -9137,8 +9137,11 @@ function CygbuildConfCC()
         CygbuildConfOptionAdjustment > $retval
         [ -s $retval ] && opt=$(< $retval)
 
-        CygbuildEcho "-- Running ./configure with Cygwin specific options" \
-             "${test:+(TEST mode)}"
+        if [ "$test" ]; then
+            local msg=" (TEST mode)"
+        fi
+
+        CygbuildEcho "-- Running ./configure with Cygwin specific options$msg" \
 
         if [ -f "$envfile" ]; then
             CygbuildEcho "--- Reading external env: $envfile" \
