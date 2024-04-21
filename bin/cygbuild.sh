@@ -48,7 +48,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.0718"
+CYGBUILD_VERSION="2024.0421.0841"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7111,7 +7111,18 @@ function CygbuildCmdDownloadUpstream()
             "Cannot read download instructions."
     fi
 
-    local pkg=$(awk '/tag[0-9]:/  {print $2; exit}' $conf)
+    local pkg=$(awk '
+        # Skip comments
+        /^[[:space:]]*#/ {
+            next
+        }
+
+        /^[[:space:]]*tag[0-9]:/ {
+            print $2
+            exit
+        }' \
+        $conf
+    )
 
     if [ ! "$pkg" ]; then
         CygbuildDie "-- [ERROR] Can't parse 'tag' from $conf"
