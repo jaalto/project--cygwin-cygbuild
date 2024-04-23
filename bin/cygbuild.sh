@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0423.1359"
+CYGBUILD_VERSION="2024.0423.1407"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -12921,7 +12921,7 @@ function CygbuildCommandMain()
 
             -D | --Debug)
                 OPTION_DEBUG_VERIFY="yes"       # global-def
-                trap 1 2 3 15                   # cancel signals
+                trap - EXIT HUP INT QUIT TERM   # cancel signals
                 shift
                 ;;
 
