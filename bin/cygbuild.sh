@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.1207"
+CYGBUILD_VERSION="2024.0423.1359"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4906,6 +4906,8 @@ function CygbuildFileCleanTemp()
         #  => cygbuild.sh.tmp.[0-9]*.*
         rm --force ${CYGBUILD_RETVAL%.*}.[0-9]* 2> /dev/null
     fi
+
+    exit 0
 }
 
 function CygbuildFileExists()
@@ -13458,7 +13460,7 @@ function TestRegression()
     Test remake-3.80+dbg-0.61.tar.gz
 }
 
-trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
+trap CygbuildFileCleanTemp EXIT HUP INT QUIT TERM
 CygbuildMain "$@"
 
 # End of file
