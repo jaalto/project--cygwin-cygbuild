@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0423.1407"
+CYGBUILD_VERSION="2024.0423.1412"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -597,7 +597,7 @@ function CygbuildBootVariablesId()
     #       FunctionName "param" > $retval
     #       local val=$(< $retval)
 
-    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$" # global-def
+    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-${USER:-foo}}.$$" # global-def
     local retval="$CYGBUILD_RETVAL"
 
     CYGBUILD_PROG_NAME=${0##*/}                             # global-def
