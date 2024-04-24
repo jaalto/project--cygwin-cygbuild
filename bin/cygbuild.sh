@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0421.1207"
+CYGBUILD_VERSION="2024.0424.0957"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -173,10 +173,11 @@ function CygbuildPopd()
 
 function CygbuildWhich()
 {
-    # Returns path name.
+    # Returns path name. Note: bash will cache
+    # paths, so lookup will be quick.
     #
-    # Do NOT use which(1) under Cygwin. It does not find programs that
-    # are symlinks
+    # Do NOT use which(1) under Cygwin.
+    # It does not find programs that are symlinks
 
     [ "$1" ] && type -p "$1" 2> /dev/null
 }
@@ -207,37 +208,6 @@ function CygbuildDate()
 function CygbuildStripCR()
 {
     sed --expression "s,\r,,"
-}
-
-function CygbuildPathBinFast()
-{
-    #   ARG 1: binary name
-    #   ARG 2: possible additional search path like /usr/local/bin
-
-    local bin="$1"
-    local try="${2%/}"      # Delete trailing slash
-
-    #   If it's not in these directories, then just use
-    #   plain "cmd" and let bash search whole PATH
-
-    if [ -x "/usr/bin/$bin" ]; then
-        echo "/usr/bin/$bin"
-
-    elif [ -x "/bin/$bin" ]; then
-        echo "/bin/$bin"
-
-    elif [ -x "/usr/sbin/$bin" ]; then
-        echo "/usr/sbin/$bin"
-
-    elif [ -x "/sbin/$bin" ]; then
-        echo "/sbin/$bin"
-
-    elif [ "$try" ] && [ -x "$try/$bin" ]; then
-        echo "$try/$bin"
-
-    else
-        return 1
-    fi
 }
 
 function CygbuildStrToRegexpSafe()
@@ -535,9 +505,8 @@ function CygbuildBootVariablesEnvironment()
 
     local cores=0 # default: physical max
 
-    if CygbuildWhich nproc > /dev/null; then
-        # logical max
-        cores=$(nproc)
+    if CygbuildWhichCheck nproc ; then
+        cores=$(nproc)  # logical max vCPU count
     fi
 
     # parallel multi core compression
@@ -597,7 +566,7 @@ function CygbuildBootVariablesId()
     #       FunctionName "param" > $retval
     #       local val=$(< $retval)
 
-    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-$USER}.$$" # global-def
+    CYGBUILD_RETVAL="$TEMPDIR/$CYGBUILD_NAME.tmp.${LOGNAME:-${USER:-foo}}.$$" # global-def
     local retval="$CYGBUILD_RETVAL"
 
     CYGBUILD_PROG_NAME=${0##*/}                             # global-def
@@ -3877,18 +3846,14 @@ function CygbuildDefineGlobalCommands()
     # ............................................ optional features ...
 
     STAT=                                           # global-def
-    CygbuildPathBinFast stat > $retval
-    [ -s $retval ] && STAT=$(< $retval)
+    CygbuildWhichCheck stat && STAT="stat"
 
     CYGCHECK=
-    CygbuildWhich cygcheck > $retval
-    [ -s $retval ] && CYGCHECK=$(< $retval)         # global-def
+    CygbuildWhichCheck cygcheck && CYGCHECK="cygcheck"
 
     GPG=                                            # global-def
-    CygbuildPathBinFast gpg > $retval
-
-    if [ -s $retval ]; then
-        GPG=$(< $retval)
+    if CygbuildWhichCheck gpg; them
+        GPG="gpg"
 
         GPGOPT="\
   --no-permission-warning\
@@ -3899,31 +3864,20 @@ function CygbuildDefineGlobalCommands()
     fi
 
     WGET=                                           # global-def
-    CygbuildPathBinFast wget > $retval
-    [ -s $retval ] && WGET=$(< $retval)
+    CygbuildWhichCheck wget && WGET="wget"
 
     # ......................................................... perl ...
 
-    CygbuildPathBinFast perl > $retval
-    [ -s $retval ] && tmp=$(< $retval)
+    CygbuildWhichCheck perl || CygbuildDie "[FATAL] $is: perl not in PATH"
 
-    if [ ! "$tmp" ]; then
-        CygbuildDie "-- [FATAL] 'perl' not found in PATH"
-    fi
-
-    PERL_PATH="$tmp"
+    PERL_PATH="perl"
     CygbuildDefineGlobalPerlVersion
 
     # ....................................................... python ...
 
-    CygbuildPathBinFast python > $retval
-    [ -s $retval ] && tmp=$(< $retval)
+    CygbuildWhichCheck python || CygbuildDie "[FATAL] $id: python not in PATH"
 
-    if [ ! "$tmp" ]; then
-        CygbuildDie "-- [FATAL] 'python' not found in PATH"
-    fi
-
-    PYTHON_PATH="$tmp"                              # global-def
+    PYTHON_PATH="python"                            # global-def
 
     CygbuildDefineGlobalPythonVersion
 
@@ -3935,7 +3889,7 @@ function CygbuildDefineGlobalCommands()
 
     local tmp=/usr/lib/python$minor
 
-    if [ -d $tmp ]; then
+    if [ -d "$tmp" ]; then
         PYTHON_LIBDIR=$tmp/config                   # global-def
     fi
 
@@ -3945,9 +3899,8 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhichCheck gcc   || CygbuildDie "[FATAL] $id: gcc not in PATH"
     CygbuildWhichCheck perl  || CygbuildDie "[FATAL] $id: perl not in PATH"
     CygbuildWhichCheck quilt || CygbuildDie "[FATAL] $id: quilt not in PATH"
-
-    CygbuildWhichCheck file ||  CygbuildDie "[FATAL] $id: file(1) not in PATH." \
-        "Install package 'file'"
+    CygbuildWhichCheck file  ||  CygbuildDie "[FATAL] $id: file(1) not in"
+        " PATH. Install package 'file'"
 }
 
 function CygbuildIsArchiveScript()
@@ -4906,6 +4859,8 @@ function CygbuildFileCleanTemp()
         #  => cygbuild.sh.tmp.[0-9]*.*
         rm --force ${CYGBUILD_RETVAL%.*}.[0-9]* 2> /dev/null
     fi
+
+    exit 0
 }
 
 function CygbuildFileExists()
@@ -12847,7 +12802,7 @@ function CygbuildCommandMain()
 
     local isgetopt="isgetop"
 
-    if ! CygbuildWhich getopt > /dev/null ; then
+    if ! CygbuildWhichCheck getopt ; then
         isgetopt=""
 
         CygbuildIsGbsCompat ||
@@ -12919,7 +12874,7 @@ function CygbuildCommandMain()
 
             -D | --Debug)
                 OPTION_DEBUG_VERIFY="yes"       # global-def
-                trap 1 2 3 15                   # cancel signals
+                trap - EXIT HUP INT QUIT TERM   # cancel signals
                 shift
                 ;;
 
@@ -13458,7 +13413,7 @@ function TestRegression()
     Test remake-3.80+dbg-0.61.tar.gz
 }
 
-trap 'CygbuildFileCleanTemp; exit 0' 1 2 3 15
+trap CygbuildFileCleanTemp EXIT HUP INT QUIT TERM
 CygbuildMain "$@"
 
 # End of file
