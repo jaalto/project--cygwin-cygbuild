@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0424.0957"
+CYGBUILD_VERSION="2024.0424.1135"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3852,7 +3852,8 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhichCheck cygcheck && CYGCHECK="cygcheck"
 
     GPG=                                            # global-def
-    if CygbuildWhichCheck gpg; them
+
+    if CygbuildWhichCheck gpg; then
         GPG="gpg"
 
         GPGOPT="\
