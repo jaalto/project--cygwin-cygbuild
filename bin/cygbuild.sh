@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0423.1412"
+CYGBUILD_VERSION="2024.0424.0946"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -173,10 +173,11 @@ function CygbuildPopd()
 
 function CygbuildWhich()
 {
-    # Returns path name.
+    # Returns path name. Note: bash will cache
+    # paths, so lookup will be quick.
     #
-    # Do NOT use which(1) under Cygwin. It does not find programs that
-    # are symlinks
+    # Do NOT use which(1) under Cygwin.
+    # It does not find programs that are symlinks
 
     [ "$1" ] && type -p "$1" 2> /dev/null
 }
@@ -535,9 +536,8 @@ function CygbuildBootVariablesEnvironment()
 
     local cores=0 # default: physical max
 
-    if CygbuildWhich nproc > /dev/null; then
-        # logical max
-        cores=$(nproc)
+    if CygbuildWhichCheck nproc ; then
+        cores=$(nproc)  # logical max vCPU count
     fi
 
     # parallel multi core compression
@@ -12849,7 +12849,7 @@ function CygbuildCommandMain()
 
     local isgetopt="isgetop"
 
-    if ! CygbuildWhich getopt > /dev/null ; then
+    if ! CygbuildWhichCheck getopt ; then
         isgetopt=""
 
         CygbuildIsGbsCompat ||
