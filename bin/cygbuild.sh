@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0424.0946"
+CYGBUILD_VERSION="2024.0424.0957"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -208,37 +208,6 @@ function CygbuildDate()
 function CygbuildStripCR()
 {
     sed --expression "s,\r,,"
-}
-
-function CygbuildPathBinFast()
-{
-    #   ARG 1: binary name
-    #   ARG 2: possible additional search path like /usr/local/bin
-
-    local bin="$1"
-    local try="${2%/}"      # Delete trailing slash
-
-    #   If it's not in these directories, then just use
-    #   plain "cmd" and let bash search whole PATH
-
-    if [ -x "/usr/bin/$bin" ]; then
-        echo "/usr/bin/$bin"
-
-    elif [ -x "/bin/$bin" ]; then
-        echo "/bin/$bin"
-
-    elif [ -x "/usr/sbin/$bin" ]; then
-        echo "/usr/sbin/$bin"
-
-    elif [ -x "/sbin/$bin" ]; then
-        echo "/sbin/$bin"
-
-    elif [ "$try" ] && [ -x "$try/$bin" ]; then
-        echo "$try/$bin"
-
-    else
-        return 1
-    fi
 }
 
 function CygbuildStrToRegexpSafe()
@@ -3877,18 +3846,14 @@ function CygbuildDefineGlobalCommands()
     # ............................................ optional features ...
 
     STAT=                                           # global-def
-    CygbuildPathBinFast stat > $retval
-    [ -s $retval ] && STAT=$(< $retval)
+    CygbuildWhichCheck stat && STAT="stat"
 
     CYGCHECK=
-    CygbuildWhich cygcheck > $retval
-    [ -s $retval ] && CYGCHECK=$(< $retval)         # global-def
+    CygbuildWhichCheck cygcheck && CYGCHECK="cygcheck"
 
     GPG=                                            # global-def
-    CygbuildPathBinFast gpg > $retval
-
-    if [ -s $retval ]; then
-        GPG=$(< $retval)
+    if CygbuildWhichCheck gpg; them
+        GPG="gpg"
 
         GPGOPT="\
   --no-permission-warning\
@@ -3899,31 +3864,20 @@ function CygbuildDefineGlobalCommands()
     fi
 
     WGET=                                           # global-def
-    CygbuildPathBinFast wget > $retval
-    [ -s $retval ] && WGET=$(< $retval)
+    CygbuildWhichCheck wget && WGET="wget"
 
     # ......................................................... perl ...
 
-    CygbuildPathBinFast perl > $retval
-    [ -s $retval ] && tmp=$(< $retval)
+    CygbuildWhichCheck perl || CygbuildDie "[FATAL] $is: perl not in PATH"
 
-    if [ ! "$tmp" ]; then
-        CygbuildDie "-- [FATAL] 'perl' not found in PATH"
-    fi
-
-    PERL_PATH="$tmp"
+    PERL_PATH="perl"
     CygbuildDefineGlobalPerlVersion
 
     # ....................................................... python ...
 
-    CygbuildPathBinFast python > $retval
-    [ -s $retval ] && tmp=$(< $retval)
+    CygbuildWhichCheck python || CygbuildDie "[FATAL] $id: python not in PATH"
 
-    if [ ! "$tmp" ]; then
-        CygbuildDie "-- [FATAL] 'python' not found in PATH"
-    fi
-
-    PYTHON_PATH="$tmp"                              # global-def
+    PYTHON_PATH="python"                            # global-def
 
     CygbuildDefineGlobalPythonVersion
 
@@ -3935,7 +3889,7 @@ function CygbuildDefineGlobalCommands()
 
     local tmp=/usr/lib/python$minor
 
-    if [ -d $tmp ]; then
+    if [ -d "$tmp" ]; then
         PYTHON_LIBDIR=$tmp/config                   # global-def
     fi
 
@@ -3945,9 +3899,8 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhichCheck gcc   || CygbuildDie "[FATAL] $id: gcc not in PATH"
     CygbuildWhichCheck perl  || CygbuildDie "[FATAL] $id: perl not in PATH"
     CygbuildWhichCheck quilt || CygbuildDie "[FATAL] $id: quilt not in PATH"
-
-    CygbuildWhichCheck file ||  CygbuildDie "[FATAL] $id: file(1) not in PATH." \
-        "Install package 'file'"
+    CygbuildWhichCheck file  ||  CygbuildDie "[FATAL] $id: file(1) not in"
+        " PATH. Install package 'file'"
 }
 
 function CygbuildIsArchiveScript()
