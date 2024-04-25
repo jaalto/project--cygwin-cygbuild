@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0424.1135"
+CYGBUILD_VERSION="2024.0425.1906"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3900,7 +3900,7 @@ function CygbuildDefineGlobalCommands()
     CygbuildWhichCheck gcc   || CygbuildDie "[FATAL] $id: gcc not in PATH"
     CygbuildWhichCheck perl  || CygbuildDie "[FATAL] $id: perl not in PATH"
     CygbuildWhichCheck quilt || CygbuildDie "[FATAL] $id: quilt not in PATH"
-    CygbuildWhichCheck file  ||  CygbuildDie "[FATAL] $id: file(1) not in"
+    CygbuildWhichCheck file  ||  CygbuildDie "[FATAL] $id: file(1) not in" \
         " PATH. Install package 'file'"
 }
 
