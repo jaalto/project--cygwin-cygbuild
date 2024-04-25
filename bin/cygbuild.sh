@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0425.1906"
+CYGBUILD_VERSION="2024.0425.2027"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4926,7 +4926,7 @@ function CygbuildCygDirCheck()
 
 function CygbuildGPGavailableCheck()
 {
-    if [ "$GPG" ] && [ -x "$GPG" ]; then
+    if [ "$GPG" ]; then
         return 0
     fi
 
