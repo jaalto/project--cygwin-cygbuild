@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0426.0822"
+CYGBUILD_VERSION="2024.0426.0829"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -4549,7 +4549,7 @@ SYNOPSIS
     $bin [option] CMD ...
 
 OPTIONS
-    -c, --color            Activate colors
+    -c, --color            Enable colors
     -d, --debug LEVEL      Debug mode with numeric LEVEL
     -h, --help             Short help. Long help requires full install.
     -r, --release RELEASE  Mandatory option for packaging related commands
@@ -4557,11 +4557,11 @@ OPTIONS
     -v, --verbose          More verbose messages
     -V, --version          Print version information
 
-    GPG support options
+    GPG options for 'package' and 'source-package' CMD:
 
     -s KEY                Sign files with KEY
-    -p \"pass phrase\"      Pass phrase. If not given, it is asked from command
-                          line.
+    -p \"pass phrase\"      Pass phrase. If not given, it is asked
+                          from command line.
 
 DESCRIPTION
     Cygbuild is a tool for making, building and maintaining source and
@@ -4609,14 +4609,14 @@ DESCRIPTION
     HOW TO USE CYGBUILD FOR MAKING Cygwin Net Releases
 
     Full development installation of Cygbuild is needed to develop
-    source packages. The CMD can be one of the following. The detailed
-    description of each command can be found from the manual page.
-    Commands are listed here in order of execution:
+    source packages. The detailed description of each CMD can be
+    found from the manual page. Commands are listed here in order of
+    execution:
 
         <precondition: cd /to/package/foo-N.N/>
 
-        To prepare port : mkdirs files patch shadow
-        To port         : conf build strip
+        To prepare port : mkdirs files shadow
+        To port         : conf build
         To install      : install
         To check install: check
         To package      : package source-package
