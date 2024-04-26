@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0425.2028"
+CYGBUILD_VERSION="2024.0426.0822"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -66,7 +66,7 @@ CYGBUILD_SRCPKG_URL=${CYGBUILD_SRCPKG_URL:-\
 
 # backup: git://git.savannah.nongnu.org/cygbuild.git
 CYGBUILD_INSTALL_INFO="\
-    git clone $CYGBUILD_HOMEPAGE_URL
+    git clone $CYGBUILD_HOMEPAGE_URL cygbuild
     cd cygbuild
     git checkout --track -b devel origin/devel
     make install-symlink"
