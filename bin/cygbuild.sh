@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0426.1103"
+CYGBUILD_VERSION="2024.0426.1115"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1943,15 +1943,10 @@ CygbuildCygcheckLibraryDepListFull ()
         return 1
     fi
 
-    local bin="cygcheck"
-    CygbuildWhich "$bin" > $retval
-
-    if [ ! -s $retval ] ; then
-        CygbuildWarn "$0: $bin not found. Skipped"
+    if [ ! "$CYGCHECK" ]; then
+        CygbuildWarn "$0: cygcheck not found. Skipped"
         return 1
     fi
-
-    bin=$(< $retval)
 
     #  /usr/bin/spamprobe.exe - os=4.0 img=1.0 sys=4.0
     #    D:\cygwin\bin\cygpng12.dll - os=4.0 img=1.0 sys=4.0
@@ -1960,7 +1955,7 @@ CygbuildCygcheckLibraryDepListFull ()
     #                    ===========================
     #                    $(NF)
 
-    $bin -v "$file" |
+    $CYGCHECK -v "$file" |
     awk -F\\ '
         / +[A-Z]:/ && ! /WINNT/ && ! /already done/ {
             str = $(NF);
@@ -2289,7 +2284,7 @@ CygbuildCygcheckLibraryDepGrepTraditonal()
         fi
 
         # xorg-x11-bin-dlls-6.8.99.901-1 => xorg-x11-bin-dlls
-        $CYGCHECK -f $file | sed --expression 's,-[0-9].*,,'
+        $CYGCHECK -f "$file" | sed --expression 's,-[0-9].*,,'
 
     done | sort --unique
 }
@@ -2821,7 +2816,7 @@ function CygbuildPathAbsoluteSearch()
         CygbuildWhich $bin > $retval &&
         tmp=$(< $retval)
 
-        #   Perhaps the file was not executable
+        # Perhaps the file was not an executable
         [ "$tmp" ] && bin=$tmp
     fi
 
@@ -4695,14 +4690,14 @@ function CygbuildTarOptionCompress()
 
     case "$1" in
         *.tar.gz | *.tgz)
-            if CygbuildWhich pigz; then
+            if CygbuildWhichCheck pigz; then
                 echo "--use-compress-program=pigz"  # multithread
             else
                 echo "--gzip"
             fi
             ;;
         *.bz2 | *.tbz*)
-            if CygbuildWhich pbzip2; then
+            if CygbuildWhichCheck pbzip2; then
                 echo "--use-compress-program=pbzip2"  # multithread
             else
                 echo "--bzip2"
@@ -4712,7 +4707,7 @@ function CygbuildTarOptionCompress()
             echo "--use-compress-program=lzma"
             ;;
         *.lz)
-            if CygbuildWhich plzip; then
+            if CygbuildWhichCheck plzip; then
                 echo "--use-compress-program=plzip" # multithread
             else
                 echo "--lzip"
@@ -4723,7 +4718,7 @@ function CygbuildTarOptionCompress()
             echo "--use-compress-program=xz"
             ;;
         *.zst)
-            if CygbuildWhich zstdmt; then
+            if CygbuildWhichCheck zstdmt; then
                 echo "--use-compress-program=zstdmt" # multithread
             else
                 echo "--zstd"
@@ -4739,7 +4734,7 @@ function CygbuildCompressTarOpt()
     # Make Cygwin package (invocaton command line option)
 
     if [ "$OPTION_COMPRESS" = "bzip2" ]; then
-        if CygbuildWhich pbzip2; then
+        if CygbuildWhichCheck pbzip2; then
             echo "--use-compress-program=pbzip2"  # multithread
         else
             echo "--bzip2"
@@ -7061,13 +7056,12 @@ function CygbuildCmdPkgSourceMain()
 function CygbuildCmdDownloadUpstream()
 {
     local id="$0.$FUNCNAME"
-    local PRG="pwget"
-    local bin=$(CygbuildWhich $PRG)
+    local bin="pwget"
 
     CygbuildEcho "-- Upstream download: checking for new versions..."
 
-    if [ ! "$bin" ]; then
-        CygbuildWarn "-- [ERROR] '$PRG' not found in PATH."
+    if ! CygbuildWhichCheck $bin; then
+        CygbuildWarn "-- [ERROR] '$bin' not found in PATH."
         CygbuildWarn "-- Download from" \
             "http://freecode.net/projects/perl-webget"
         return 1
@@ -7075,7 +7069,7 @@ function CygbuildCmdDownloadUpstream()
 
     local confdir=${DIR_CYGPATCH:-CYGWIN-PATCHES}
     local name="upstream.perl-webget"
-    local conf=$(cd "$confdir" && ls "$PWD"/$name)
+    local conf=$(cd "$confdir" && ls "$PWD/$name")
 
     if [ ! -f "$conf" ]; then
         CygbuildDie "-- [ERROR] $conf/ subdirectory not found." \
@@ -7083,8 +7077,8 @@ function CygbuildCmdDownloadUpstream()
     fi
 
     local pkg=$(awk '
-        # Skip comments
-        /^[[:space:]]*#/ {
+        # Skip comments and empty lines
+        /^[[:space:]]*(#|$)/ {
             next
         }
 
@@ -7092,15 +7086,17 @@ function CygbuildCmdDownloadUpstream()
             print $2
             exit
         }' \
-        $conf
+        "$conf"
     )
 
     if [ ! "$pkg" ]; then
         CygbuildDie "-- [ERROR] Can't parse 'tag' from $conf"
     fi
 
+    # Use sub shell for possible "set -x"
+
     (
-        [[ "$*" == *@(--debug|-d\ )* ]] && OPTION_DEBUG=debug
+        [[ "$*" == *@(--debug|-d\ )* ]] && OPTION_DEBUG="debug"
 
         [ "$OPTION_DEBUG" ] && set -x
 
