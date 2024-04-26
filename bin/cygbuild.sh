@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0426.0952"
+CYGBUILD_VERSION="2024.0426.1100"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3662,29 +3662,24 @@ function CygbuildTreeSymlinkCopy()
     #   cp -lr might do the same as 'lndir'. 'lndir' is widely
     #   regarded as best cross platform solution.
 
-    local LNDIR
-
-    CygbuildWhich lndir > $retval
-    [ -s $retval ] && LNDIR=$(< $retval)
-
-    if [ "$LNDIR" ]; then
-        LNDIR="$LNDIR -silent"
-    else
+    if ! CygbuildWhichCheck; then
         CygbuildDie "$id: 'lndir' not found in PATH. Cannot shadow sources."
     fi
+
+    local LNDIR="lndir -silent"
 
     #   lndir(1) cannot be used directly, because we are copying UNDER
     #   the current directory .build; it would cause recursive copying.
     #
-    #   So, first copy top level manually, an then let lndir copy
+    #   So, first copy top level manually, an then let lndir(1) copy
     #   subdirectories.
 
     CygbuildPushd
 
-        cd "$from" || return 1
+        cd "$from" || return $?
 
-        #   Remove all *.exe files before shadowing (they should be generated
-        #   anyway.
+        #   Remove all object files before shadowing.
+        #   They should be generated anyway.
 
         CygbuildFindDo .            \
             -o -type f '('          \
@@ -3694,9 +3689,9 @@ function CygbuildTreeSymlinkCopy()
                 -o -name "*.s[ao]"  \
                 -o -name "*.la"     \
                 ')'                 \
-            > $retval
+            > "$retval"
 
-        if [ -s $retval ]; then
+        if [ -s "$retval" ]; then
             local file done
 
             while read file
@@ -3707,7 +3702,7 @@ function CygbuildTreeSymlinkCopy()
                 fi
 
                 rm --force $verbose "$file"
-            done < $retval
+            done < "$retval"
         fi
 
         local current=$PWD
@@ -3716,7 +3711,7 @@ function CygbuildTreeSymlinkCopy()
         for item in * .*
         do
             if [[ "$item" =~ $CYGBUILD_SHADOW_TOPLEVEL_IGNORE ]]; then
-                CygbuildVerb "-- Ignored $item"
+                CygbuildVerb "-- ignore $item"
                 continue
             fi
 
@@ -3745,7 +3740,7 @@ function CygbuildTreeSymlinkCopy()
             elif [ -d "$item" ]; then
 
                 if [ ! -d "$dest" ]; then
-                    mkdir --parents "$dest"                 || exit $?
+                    mkdir --parents "$dest" || exit $?
 
                     # [ "$verbose" ] && echo "   $LNDIR $item"
 
@@ -3758,7 +3753,6 @@ function CygbuildTreeSymlinkCopy()
                 ls -l "$item"
                 CygbuildDie "$id: Don't know what to do with $item"
             fi
-
         done
 
     CygbuildPopd
@@ -4616,7 +4610,7 @@ DESCRIPTION
         <precondition: cd /to/package/foo-N.N/>
 
         To prepare port : mkdirs files shadow
-        To port         : conf build
+        To port         : conf build|make
         To install      : install
         To check install: check
         To package      : package source-package
