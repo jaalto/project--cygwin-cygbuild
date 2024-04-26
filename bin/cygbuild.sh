@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0426.1100"
+CYGBUILD_VERSION="2024.0426.1103"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3662,7 +3662,7 @@ function CygbuildTreeSymlinkCopy()
     #   cp -lr might do the same as 'lndir'. 'lndir' is widely
     #   regarded as best cross platform solution.
 
-    if ! CygbuildWhichCheck; then
+    if ! CygbuildWhichCheck lndir; then
         CygbuildDie "$id: 'lndir' not found in PATH. Cannot shadow sources."
     fi
 
