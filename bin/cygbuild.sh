@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0426.0945"
+CYGBUILD_VERSION="2024.0426.0952"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6327,6 +6327,7 @@ function CygbuildPatchApplyQuiltMaybe()
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
     local cmd="$1"  # {patch,unpatch}[-nostat][-quiet][-force]
     local msg="patch"
+    local force
     local verb
 
     local debug
@@ -6336,6 +6337,7 @@ function CygbuildPatchApplyQuiltMaybe()
 
     [ "$verbose"           ] && verb="-v"
     [[ "$cmd" == *-quiet* ]] && verb="-q"
+    [[ "$cmd" == *-force* ]] && force="force"
 
     CygbuildPatchFileQuilt > $retval
 
@@ -6349,6 +6351,8 @@ function CygbuildPatchApplyQuiltMaybe()
     if [[ "$cmd" = unpatch* ]]; then
         msg="unpatch"
         quilt="quilt pop -a"
+
+        [ "$force" ] && quilt="$quilt -f"
     fi
 
     local color
@@ -6421,7 +6425,6 @@ function CygbuildPatchApplyQuiltMaybe()
 
 function CygbuildPatchApplyMaybe()
 {
-
     local id="$0.$FUNCNAME"
     local dir="$DIR_CYGPATCH"
     local statfile="$CYGPATCH_DONE_PATCHES_FILE"
@@ -6453,10 +6456,10 @@ function CygbuildPatchApplyMaybe()
     # NOTE: The quilt must be run last, if we're unpatching (reverse order)
 
     if [ "$patch" ]; then
-        CygbuildPatchApplyQuiltMaybe $cmd || return $?
+        CygbuildPatchApplyQuiltMaybe "$cmd" || return $?
     fi
 
-    CygbuildPatchFileList > $retval
+    CygbuildPatchFileList > "$retval"
     local list
 
     if [ -s $retval ]; then
@@ -6561,6 +6564,7 @@ function CygbuildPatchApplyMaybe()
 
         if [ ! "$verbose" ]; then
             local msg="Unpatching"
+
             [ "$patch" ] && msg="Patching"
 
             CygbuildVerb "-- $msg with" $name
@@ -6577,21 +6581,21 @@ function CygbuildPatchApplyMaybe()
 
             if [ -f "$statfile" ]; then
                 #   Remove name from patch list
-                $grep --invert-match "$record" "$statfile" > $retval
+                $grep --invert-match "$record" "$statfile" > "$retval"
                 mv "$retval" "$statfile"
             fi
 
-            if  [ -f $statfile ] && [ ! -s $statfile ]; then
+            if  [ -f "$statfile" ] && [ ! -s "$statfile" ]; then
                 rm --force "$statfile"  # Remove empty file
             fi
 
         else
-            echo $name >> $statfile
+            echo "$name" >> "$statfile"
         fi
     done
 
     if [ "$unpatch" ]; then
-        CygbuildPatchApplyQuiltMaybe $cmd || return $?
+        CygbuildPatchApplyQuiltMaybe "$cmd" || return $?
     fi
 }
 
