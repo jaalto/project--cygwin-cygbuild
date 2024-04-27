@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0426.1115"
+CYGBUILD_VERSION="2024.0427.1637"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6114,34 +6114,34 @@ function CygbuildPatchApplyRun()
 
     local dest
 
-    for dest in $(< $retval)
+    while read -r dest
     do
         [ ! -f "$dest" ] && dest=${dest#*/}     # Strip 1
         [ ! -f "$dest" ] && dest=${dest#*/}     # Strip 2
         [ ! -f "$dest" ] && dest=${dest#*/}     # Strip 3
 
         if [ -f "$dest" ] && [ ! -w "$dest" ]; then
-            chmod $verbose +w $dest
+            chmod $verbose +w "$dest"
         fi
-    done
+    done < "$retval"
 
     if [ -f "$patch" ]; then
         if [ "$verbose" ]; then
             dummy="$patchopt $*"
+
             # Remove excess spaces
-            dummy=${dummy//  / }
-            dummy=${dummy//  / }
             dummy=${dummy//  / }
 
             CygbuildEcho "-- cd $pwd && patch $dummy < ${patch#$srcdir/}"
         else
             local msg="Patching"
+
             [[ "$*" == *\ +(--reverse|-R\ )* ]] && msg="Unpatching"
 
             CygbuildEcho "-- $msg with ${patch#$srcdir/}"
         fi
 
-        ${test:+echo} patch $patchopt "$@" < $patch
+        ${test:+echo} patch $patchopt "$@" < "$patch"
     else
         CygbuildWarn "$id: [ERROR] No Cygwin patch file " \
              "FILE_SRC_PATCH '$FILE_SRC_PATCH'"
