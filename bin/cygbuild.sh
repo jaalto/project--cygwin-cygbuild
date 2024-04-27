@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0427.1637"
+CYGBUILD_VERSION="2024.0427.1659"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -3856,6 +3856,9 @@ function CygbuildDefineGlobalCommands()
     WGET=                                           # global-def
     CygbuildWhichCheck wget && WGET="wget"
 
+    QUILT=                                           # global-def
+    CygbuildWhichCheck quilt && QUILT="quilt"
+
     # ......................................................... perl ...
 
     CygbuildWhichCheck perl || CygbuildDie "[FATAL] $is: perl not in PATH"
@@ -6168,6 +6171,8 @@ function CygbuildPatchFileQuilt()
 
 function CygbuildPatchFileList()
 {
+    # Return list of non-quilt patches
+
     local id="$0.$FUNCNAME"
     local dir=${1:-"$PWD/$CYGBUILD_DIR_CYGPATCH_RELATIVE"}
     local retval="$CYGBUILD_RETVAL.$FUNCNAME"
@@ -6182,19 +6187,19 @@ function CygbuildPatchFileList()
 
    CygbuildPatchFileQuilt  |
         sed 's,/series$,,' \
-        > $retval
+        > "$retval"
 
-    if [ ! -s $retval ]; then
+    if [ ! -s "$retval" ]; then
         #   Generate fake content, see grep(1) next
-        echo "ThisRegexpIsNotMathed" > $retval
+        echo "ThisRegexpIsNotMathed" > "$retval"
     fi
 
-    #   Grep there filters out quilt directories
+    #   Filter quilt directories
     #   Disregard files in */tmp/* or /*.tmp/* directories
 
     find "$dir" -type f -name "*.patch" |
-        grep -Ev "/tmp/|/[^/]+\.tmp/" |
-        grep -vFf $retval  |
+        grep --extended-regexp --invert-match "/tmp/|/[^/]+\.tmp/" |
+        grep --fixed-strings --invert-match --file "$retval"  |
         sort
 }
 
@@ -6328,11 +6333,11 @@ function CygbuildPatchApplyQuiltMaybe()
     [[ "$cmd" == *-quiet* ]] && verb="-q"
     [[ "$cmd" == *-force* ]] && force="force"
 
-    CygbuildPatchFileQuilt > $retval
+    CygbuildPatchFileQuilt > "$retval"
 
-    [ -s $retval ] || return 0
+    [ -s "$retval" ] || return 0
 
-    CygbuildWhichCheck quilt ||
+    [ "$QUILT" ] ||
     CygbuildDie "[FATAL] $id: Can't handle patches. quilt not in PATH"
 
     local quilt="quilt push -a"
@@ -6357,7 +6362,7 @@ function CygbuildPatchApplyQuiltMaybe()
     local series
     local relative=$srcdir/
 
-    while read series
+    while read -r series
     do
         CygbuildEcho "-- Wait, quilt $msg" ${series#$relative}
 
@@ -6374,7 +6379,7 @@ function CygbuildPatchApplyQuiltMaybe()
         local dummy=$PWD               # For debugging
 
         CygbuildRun env QUILT_PATCHES=$dir LC_ALL=C $quilt $verb $color \
-        2> $log 1>&2
+            2> $log 1>&2
 
         local status=$?
 
@@ -6395,19 +6400,19 @@ function CygbuildPatchApplyQuiltMaybe()
             status=""
         fi
 
-        if tail --lines=1 $log | $EGREP --quiet --ignore-case \
-           "Applying patch"
+        if tail --lines=1 "$log" |
+            $EGREP --quiet --ignore-case "Applying patch"
         then
             # Even though patches apply, it still reports ERROR status(1).
             # Perhaps due to "Hunk #1 succeeded" messages?
             status=""
         fi
 
-        rm --force $log
+        rm --force "$log"
 
         [ "$status" ] && return $status
 
-    done < $retval
+    done < "$retval"
 
     return 0
 }
@@ -6449,10 +6454,11 @@ function CygbuildPatchApplyMaybe()
     fi
 
     CygbuildPatchFileList > "$retval"
+
     local list
 
-    if [ -s $retval ]; then
-        list=$(< $retval)
+    if [ -s "$retval" ]; then
+        list=$(< "$retval")
     fi
 
     [ "$msg" ] && CygbuildEcho "$msg"
@@ -6463,7 +6469,6 @@ function CygbuildPatchApplyMaybe()
             CygbuildEcho "-- [INFO] No" ${statfile#$srcdir/}
             list=""
         else
-
             local file tmp
 
             #  reverse the order
@@ -6532,7 +6537,7 @@ function CygbuildPatchApplyMaybe()
 
         local count=0
 
-        if [ -s $retval ]; then
+        if [ -s "$retval" ]; then
             count=$(< $retval)
             opt="$opt --strip=$count"
         fi
