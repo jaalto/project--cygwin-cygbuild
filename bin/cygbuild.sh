@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0427.1659"
+CYGBUILD_VERSION="2024.0430.0838"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -207,7 +207,26 @@ function CygbuildDate()
 
 function CygbuildStripCR()
 {
-    sed --expression "s,\r,,"
+    tr --delete '\r'
+}
+
+function CygbuildStrTrim ()
+{
+    local -n var=$1
+    local type=${2:-both}  # left, right, both
+
+    local s='[[:space:]]+'
+    local S='[^[:space:]]+'
+
+    [[ $var =~ ^$s+$ ]] && var=""
+
+    [ "$var" ] || return 0
+
+    [[ $type =~ left|both ]] &&
+        [[ $var =~ ^$s(.+)$ ]] && var=${BASH_REMATCH[1]}
+
+    [[ $type =~ right|both ]] &&
+        [[ $var =~ ^(.*$S)$s$ ]] && var=${BASH_REMATCH[1]}
 }
 
 function CygbuildStrToRegexpSafe()
@@ -6191,13 +6210,13 @@ function CygbuildPatchFileList()
 
     if [ ! -s "$retval" ]; then
         #   Generate fake content, see grep(1) next
-        echo "ThisRegexpIsNotMathed" > "$retval"
+        echo "this-regexp-is-no-op" > "$retval"
     fi
 
     #   Filter quilt directories
     #   Disregard files in */tmp/* or /*.tmp/* directories
 
-    find "$dir" -type f -name "*.patch" |
+    find -L "$dir" -type f -name "*.patch" |
         grep --extended-regexp --invert-match "/tmp/|/[^/]+\.tmp/" |
         grep --fixed-strings --invert-match --file "$retval"  |
         sort
