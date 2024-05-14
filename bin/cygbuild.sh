@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0430.0838"
+CYGBUILD_VERSION="2024.0514.0752"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6112,6 +6112,8 @@ function CygbuildPatchApplyRun()
     local patchopt="$CYGBUILD_PATCH_OPT"
     local patch="$1"
     shift
+
+    CygbuildStrTrim patchopt
 
     local dummy="Additional options: $@"    # For debug
     local pwd=$PWD                        # For debug
