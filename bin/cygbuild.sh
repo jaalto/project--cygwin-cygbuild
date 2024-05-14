@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0514.0752"
+CYGBUILD_VERSION="2024.0514.0803"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -6536,7 +6536,7 @@ function CygbuildPatchApplyMaybe()
                     if [ "$done" ]; then
 
                         [ "$verb" ] &&
-                        CygbuildEcho "-- [INFO] Patch already applied: $name"
+                        CygbuildEcho "-- [INFO] Patch already applied (done-patch.tmp): $name"
 
                         continue="continue"
                     fi
