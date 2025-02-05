@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2025.0205.2239"
+CYGBUILD_VERSION="2025.0205.2247"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7127,7 +7127,7 @@ function CygbuildCmdDownloadUpstream()
         [ "$OPTION_DEBUG" ] && set -x
 
         cd .. &&
-        perl $bin ${OPTION_DEBUG:+--debug=3} --verbose \
+        perl -S $bin ${OPTION_DEBUG:+--debug=3} --verbose \
              --new --config $conf --tag $pkg
     )
 }
