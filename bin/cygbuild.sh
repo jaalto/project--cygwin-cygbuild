@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2024.0514.0803"
+CYGBUILD_VERSION="2025.0205.2239"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -7089,7 +7089,7 @@ function CygbuildCmdDownloadUpstream()
     if ! CygbuildWhichCheck $bin; then
         CygbuildWarn "-- [ERROR] '$bin' not found in PATH."
         CygbuildWarn "-- Download from" \
-            "http://freecode.net/projects/perl-webget"
+            "https://github.com/jaalto/project--perl-webget"
         return 1
     fi
 
