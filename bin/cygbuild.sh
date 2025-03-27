@@ -56,7 +56,7 @@ CYGBUILD_NAME="cygbuild"
 
 #  Automatically updated by the developer's editor on save
 
-CYGBUILD_VERSION="2025.0205.2247"
+CYGBUILD_VERSION="2025.0327.0823"
 
 #  Used by the 'cygsrc' command to download official Cygwin packages
 #  listed at http://cygwin.com/packages
@@ -1210,7 +1210,7 @@ function CygbuildBootVariablesGlobalMain()
 
         local line      # Format is => users:S-1-5-32-545:545:
 
-        while read line
+        while read -r line
         do
             case "$line" in
                 nobody*) group=nobody ; break ;;
@@ -2040,7 +2040,7 @@ function CygbuildCygcheckLibraryDepAdjust()
     local setup="$DIR_CYGPATCH/setup.hint"
     local list lib
 
-    while read lib
+    while read -r lib
     do
 
       #  libintl already requires iconv
@@ -2098,7 +2098,7 @@ function CygbuildDetermineDocDir()
     if ls --classify $dir/ |
        $EGREP --ignore-case "^doc.*/|docs?/$" > $retval
     then
-        while read try
+        while read -r try
         do
             try="$dir/$try"           # Absolute path
 
@@ -2128,7 +2128,7 @@ function CygbuildCygcheckLibraryDepReadme()
 
     local lib
 
-    while read lib
+    while read -r lib
     do
         local re=$lib
         re=${re//\+/\\+}                # libstcc++ =>  libstcc\+\+
@@ -2148,7 +2148,7 @@ CygbuildCygcheckLibraryDepSetup ()
 
     #  Check that all are listed
 
-    while read lib
+    while read -r lib
     do
         local re=$lib
         re=${re//\+/\\+}                # libstcc++ =>  libstcc\+\+
@@ -3173,7 +3173,7 @@ function CygbuildIsCplusplusPackage()
 
     [ -s $retval ] || return 1
 
-    while read file
+    while read -r file
     do
         if $GREP --quiet "^[[:space:]]*CC[[:space:]]*=[^#]*g[+][+]" "$file"
         then
@@ -3708,7 +3708,7 @@ function CygbuildTreeSymlinkCopy()
         if [ -s "$retval" ]; then
             local file done
 
-            while read file
+            while read -r file
             do
                 if [ "$verbose" ] && [ ! "$done" ]; then
                     CygbuildEcho "-- Cleaning offending files before shadow"
@@ -4397,9 +4397,9 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
 
             local file try
 
-            for file in $PKG-$VER$ext       \
-                        $PKG-$VER-src$ext   \
-                        ${PKG}_$VER$ext     \
+            for file in $PKG-$VER$ext        \
+                        $PKG-$VER-src$ext    \
+                        ${PKG}_$VER$ext      \
                         ${PKG}_$VER.orig$ext
             do
 
@@ -4426,7 +4426,6 @@ function CygbuildCygbuildDefineGlobalSrcOrigGuess()
 function CygbuildDefineGlobalSrcOrig()
 {
     #   Define Source package related globals.
-    #   must have been called prior this function.
 
     local id="$0.$FUNCNAME"
     local sourcefile="$OPTION_FILE"
@@ -7233,7 +7232,7 @@ function CygbuildPreRemoveWrite()
 
     local item list
 
-    while read item
+    while read -r item
     do
         [ -d "$item" ] && continue
 
@@ -7376,7 +7375,7 @@ function CygbuildMakeRunInstallFixPerlPostinstall()
     #  cat the contents to /usr/lib/perl5/5.8/cygwin/perllocal.pod
     #  in postinstall
 
-    while read file
+    while read -r file
     do
         CygbuildPerlPodModule $file > $retval
         local modulename=$(< $retval)
@@ -8050,7 +8049,7 @@ function CygbuildMakefileRunInstallFixInfo()
 
     local file
 
-    while read file
+    while read -r file
     do
         local name=$DIR_CYGPATCH/postinstall.sh
 
@@ -8580,7 +8579,7 @@ function CygbuildPatchFindGeneratedFiles()
 
     awk '/Only in.*\.[ch]/ {print $4}' $retval > $retval2
 
-    while read file
+    while read -r file
     do
         CygbuildWarn "-- [NOTE] Excluding from patch" \
              "a Makefile/patch generated file $file"
@@ -8605,7 +8604,7 @@ function CygbuildPatchFindGeneratedFiles()
             }
         ' $retval > $retval2
 
-    while read file
+    while read -r file
     do
 
         [ -d "$file" ]          && continue     # Skip made directories
@@ -8631,7 +8630,7 @@ function CygbuildPatchFindGeneratedFiles()
     local dummy="Forget executables"
 
     if ls *.exe > $retval 2> /dev/null ; then
-        while read file
+        while read -r file
         do
             name=${file%.exe}
             ret="$ret --exclude=$file --exclude=$name"
@@ -8804,7 +8803,7 @@ CygbuildCmdDownloadCygwinPackage ()
         grep --invert-match --regexp='-rest.patch' \
         > $retval
 
-    while read patch
+    while read -r patch
     do
         if [ ! -d "$cygdir" ]; then
             if lsdiff $patch | grep "$cygdir" > /dev/null ; then
@@ -9903,7 +9902,7 @@ function CygbuildCmdCleanMain()
 
                 local file
 
-                while read file
+                while read -r file
                 do
                     rm $verbose "$file"
                 done < $retval ;
@@ -9972,7 +9971,7 @@ function CygbuildInstallPackageInfo()
     local dest="$DIR_INFO"
     local file done
 
-    while read file
+    while read -r file
     do
         if [ ! "$done" ]; then                # Do only once
             $scriptInstallDir "$DIR_INFO" || return 1
@@ -10259,7 +10258,7 @@ function CygbuildInstallPackageDocs()
 
     find "$dest" -print > $retval
 
-    while read item
+    while read -r item
     do
         if [ -d "$item" ] || [[ "$item" == $CYGBUILD_MATCH_FILE_EXE ]]
         then
@@ -10283,7 +10282,7 @@ function CygbuildInstallExtraManualList()
 
     local item section dest
 
-    while read item section dest
+    while read -r item section dest
     do
 
         [ "$item" ] || continue                 # Skip empty lines
@@ -10493,7 +10492,7 @@ function CygbuildInstallExtraManualCompress()
         then
             local file
 
-            while read file
+            while read -r file
             do
                 CygbuildCompressManualPage --force --best "$file" || return $?
             done < $retval
@@ -10503,7 +10502,7 @@ function CygbuildInstallExtraManualCompress()
 
         if [ -s $retval ]
         then
-            while read file
+            while read -r file
             do
                 #   If same program is "alias", then we have to rearrange
                 #   things a bit
@@ -10630,7 +10629,7 @@ function CygbuildInstallExtraBinFiles()
 
         if [ -f "$_dest" ]; then
             local line _perm found
-            while read line _perm
+            while read -r line _perm
             do
                 # Search for first line with path name
                 case "$line" in
@@ -10757,7 +10756,7 @@ function CygbuildInstallFixManSymlinks()
 
         local file
 
-        while read file
+        while read -r file
         do
             local path=${file%/*}
 
@@ -10818,7 +10817,7 @@ function CygbuildInstallFixPermissions()
 
     local file exeList readList
 
-    while read file
+    while read -r file
     do
       if [[ "$file" == $CYGBUILD_MATCH_FILE_EXE ]] ||
          [[ "$file" == */bin/*  ]] ||
@@ -10855,7 +10854,7 @@ function CygbuildInstallFixFileExtensions()
 
     local file name new re regexp
 
-    while read file
+    while read -r file
     do
         CygbuildEcho "-- [NOTE] Removing extension from" ${file#$instdir/}
 
@@ -11026,7 +11025,7 @@ function CygbuildInstallFixDocdirInstall()
     if [ -s $retval ]; then
         local tmp
 
-        while read tmp
+        while read -r tmp
         do
             if CygbuildIsDirEmpty "$tmp" ; then
                 CygbuildVerb "-- Removing empty directory" \
@@ -11129,7 +11128,7 @@ function CygbuildInstallPostinstallPartEtc()
 
     local item list
 
-    while read item
+    while read -r item
     do
         if [ -d "$item" ]; then
             item="$item/"               # Append slash
@@ -11317,7 +11316,7 @@ function CygbuildInstallFixInterpreterMain()
 
     local file
 
-    while read file
+    while read -r file
     do
         [ -f "$file" ] || continue
 
@@ -11329,32 +11328,33 @@ function CygbuildInstallFixInterpreterMain()
 
         head --lines=1 "$file" > $retval 2> /dev/null
 
-        if $EGREP --quiet "# *-[*]-" $retval
-        then
+        local str
+        read -r -N200 str < $retval
+
+        if [[ $str =~ \#[[:space:]]+*-[*]- ]]; then
             # Emacs mode setup line: -*- coding: utf-8; mode: ...
             continue
 
-        elif $EGREP --quiet "#.*perl" $retval &&
-           ! $EGREP --quiet "$plbin[[:space:]-]*$" $retval
+        elif [[   $str =~ \#.*perl ]] &&
+             [[ ! $str =~ $plbin[[:space:]-]*$ ]]
         then
             CygbuildVerb "-- [NOTE] Possibly suspicious Perl call" \
                 "in $_file: $(< $retval)"
 
             CygbuildInstallFixInterpreterPerl "$file"
 
-        elif $EGREP --quiet "#.*python"             $retval &&
-           ! $EGREP --quiet '^[[:space:]]*[\"]'     $retval &&
-           ! $EGREP --quiet "$pybin([[:space:]]|$)" $retval
+        elif [[   $str =~ \#.*python            ]] &&
+             [[ ! $str =~ ^[[:space:]]*[\"]     ]] &&
+             [[ ! $str =~ $pybin([[:space:]]|$) ]]
         then
             CygbuildEcho "-- [NOTE] Possibly suspicious Python call" \
                  "in $_file: $(< $retval)"
 
             CygbuildInstallFixInterpreterGeneric "$pybin" "$file"
 
-        elif $EGREP --quiet "ruby" $retval &&
-           ! $EGREP --quiet "$rbbin[[:space:]]*$" $retval
+        elif  [[   $str =~ "ruby" ]] &&
+              [[ ! $str =~ $rbbin[[:space:]]*$ ]]
         then
-
             CygbuildInstallFixInterpreterGeneric "$rbbin" "$file"
         fi
 
@@ -11585,7 +11585,7 @@ function CygbuildCmdDeleteList()
 
     local item options
 
-        while read item options
+        while read -r item options
         do
             ${test:+echo} rm $verbose $options $item
         done < $out
@@ -11635,7 +11635,7 @@ function CygbuildCmdInstallList()
 
     local from to mode
 
-    while read from to mode
+    while read -r from to mode
     do
 
         line=$(( line + 1 ))
@@ -12044,7 +12044,7 @@ function CygbuildCmdStripMain()
 
     [ -s $retval ] || return 0
 
-    while read file
+    while read -r file
     do
         file $file > $retval.type
         [ -s $retval.type ] || continue
